@@ -28,6 +28,8 @@ import {
 import { Usuario, Agendamento, Veiculo } from '../../types';
 import { PlacaMercosul } from '../ui/PlacaMercosul';
 import { BrasaoParana } from '../common/BrasaoParana';
+import { soundFX } from '../../services/soundFx';
+import { JornadaInterativaModal } from '../experiencia/JornadaInterativaModal';
 
 export type AppModuleId = 'frota' | 'chamados' | 'salas' | 'diarias' | 'ramais';
 
@@ -49,6 +51,7 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
   onOpenCommandPalette
 }) => {
   const [busca, setBusca] = useState('');
+  const [showJornadaModal, setShowJornadaModal] = useState(false);
 
   const pendentesFrota = agendamentos.filter(a => a.status === 'pendente').length;
   const emMissaoFrota = veiculos.filter(v => v.status === 'em_missao').length;
@@ -72,7 +75,7 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
           
           {/* Topo do Banner: Brasão, Tag Oficial e Identificação */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/15 pb-6">
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest bg-white/15 text-white px-3 py-1 rounded-full border border-white/20 shadow-xs">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
@@ -89,6 +92,24 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
               <p className="text-xs sm:text-sm text-blue-100 max-w-2xl leading-relaxed font-normal">
                 Bem-vindo ao ambiente oficial de gestão e apoio operacional da Secretaria da Justiça e Cidadania. Selecione uma ferramenta abaixo ou acompanhe suas solicitações em tempo real.
               </p>
+
+              {/* Botão de Destaque da Experiência 360 */}
+              <div className="pt-1 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundFX.playClick();
+                    setShowJornadaModal(true);
+                  }}
+                  className="inline-flex items-center gap-2.5 px-4.5 py-2.5 rounded-2xl bg-linear-to-r from-emerald-400 via-teal-300 to-emerald-300 hover:from-emerald-300 hover:to-teal-200 text-slate-950 font-black text-xs shadow-lg hover:shadow-emerald-400/25 transition-all transform hover:-translate-y-0.5 cursor-pointer active:scale-95"
+                >
+                  <Sparkles size={16} className="text-slate-950" />
+                  <span>Modo Experiência 360° · Simulação de Missão</span>
+                  <span className="bg-slate-950/20 text-slate-950 text-[10px] uppercase font-black px-2 py-0.5 rounded-full">
+                    Vivo
+                  </span>
+                </button>
+              </div>
             </div>
 
             {/* Cartão de Credencial do Servidor Conectado */}
@@ -166,7 +187,235 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
         </div>
       </div>
 
-      {/* 2. ETAPAS OFICIAIS DO FLUXO (Resgate do Projeto Original SEJU) */}
+      {/* 2. WIDGET "MINHA JORNADA HOJE" (O DIA DO SERVIDOR) */}
+      <div className="bg-linear-to-br from-white via-slate-50/70 to-blue-50/40 rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-gov-card">
+        {/* Topo do Widget: Cabeçalho com data, status operacional e botão de simulação 360 */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/70 pb-5 mb-6">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-[#00385E] to-[#0072BB] text-white flex items-center justify-center shadow-md shadow-blue-900/10 shrink-0">
+              <Calendar size={22} className="text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#0072BB] bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                  Agenda Operacional Inteligente
+                </span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Em dia
+                </span>
+              </div>
+              <h3 className="text-xl font-black text-slate-900 tracking-tight mt-1 flex items-center gap-2">
+                Minha Jornada Hoje · {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })}
+              </h3>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={() => {
+                soundFX.playClick();
+                setShowJornadaModal(true);
+              }}
+              className="text-xs font-bold text-[#0072BB] hover:text-white bg-blue-50 hover:bg-[#0072BB] border border-blue-200 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+            >
+              <Sparkles size={14} />
+              <span>Simular Missão 360°</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Grade com os 3 Compromissos/Atividades em tempo real */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          
+          {/* Card 1: Reunião Marcada */}
+          <div className="bg-white rounded-2xl p-4.5 border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all group flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <Clock size={11} /> 14:00 - 15:30
+                </span>
+                <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Confirmada
+                </span>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-black text-slate-900 group-hover:text-[#0072BB] transition-colors">
+                  Reunião de Alinhamento: Plano Plurianual SEJU
+                </h4>
+                <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                  <MapPin size={13} className="text-indigo-600 shrink-0" />
+                  <span>Auditório Principal · 4º Andar (Gabinete)</span>
+                </p>
+              </div>
+
+              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-[11px] text-slate-600 space-y-1">
+                <div className="font-semibold text-slate-700 flex items-center justify-between">
+                  <span>Pauta & Recursos</span>
+                  <span className="text-[10px] text-indigo-600 font-bold">18 participantes</span>
+                </div>
+                <p className="text-slate-500 text-[10px] leading-relaxed">
+                  Apresentação de metas dos Núcleos Regionais e prestação de contas digital.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundFX.playClick();
+                onOpenApp('salas');
+              }}
+              className="mt-4 w-full py-2 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <Calendar size={13} />
+              <span>Ver Sala & Pauta Completa</span>
+              <ArrowRight size={13} />
+            </button>
+          </div>
+
+          {/* Card 2: Viagem / Viatura Oficial */}
+          <div className="bg-white rounded-2xl p-4.5 border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all group flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <Clock size={11} /> Saída às 16:30
+                </span>
+                <span className="text-[10px] font-black text-emerald-700 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-md flex items-center gap-1">
+                  <ShieldCheck size={11} /> Autorizado
+                </span>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-black text-slate-900 group-hover:text-emerald-700 transition-colors">
+                  Missão Oficial: Paranaguá (Porto & Cidadania)
+                </h4>
+                <div className="mt-1.5 flex items-center gap-2">
+                  <PlacaMercosul placa="BCB-4A12" className="scale-90 origin-left" />
+                  <span className="text-xs font-semibold text-slate-600">Corolla Híbrido</span>
+                </div>
+              </div>
+
+              <div className="bg-emerald-50/60 p-2.5 rounded-xl border border-emerald-100 text-[11px] text-emerald-950 space-y-1">
+                <div className="flex items-center justify-between font-semibold text-emerald-900">
+                  <span>Passe Digital & Tanque</span>
+                  <span className="text-[10px] font-mono text-emerald-800 font-bold">100% Abastecido</span>
+                </div>
+                <p className="text-emerald-800/80 text-[10px] leading-relaxed">
+                  Despacho oficial assinado pela chefia. Vistoria digital liberada no pátio.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundFX.playClick();
+                onOpenApp('frota');
+              }}
+              className="mt-4 w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-600 text-emerald-800 hover:text-white font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <Car size={13} />
+              <span>Acessar Frota & Check-in</span>
+              <ArrowRight size={13} />
+            </button>
+          </div>
+
+          {/* Card 3: Chamado TI em Andamento */}
+          <div className="bg-white rounded-2xl p-4.5 border border-slate-200 hover:border-amber-300 hover:shadow-md transition-all group flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
+                  TI-2026-441
+                </span>
+                <span className="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md flex items-center gap-1">
+                  <Clock size={10} /> SLA: 38 min rest.
+                </span>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-black text-slate-900 group-hover:text-amber-800 transition-colors">
+                  Troca de Toner & Calibração Scanner
+                </h4>
+                <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                  <Building2 size={13} className="text-amber-600 shrink-0" />
+                  <span>Gabinete da Secretaria · Estação 03</span>
+                </p>
+              </div>
+
+              <div className="bg-amber-50/60 p-2.5 rounded-xl border border-amber-100 text-[11px] text-amber-950 space-y-1">
+                <div className="flex items-center justify-between font-semibold text-amber-900">
+                  <span>Status do Suporte</span>
+                  <span className="text-[10px] text-amber-800 font-bold">Técnico a Caminho</span>
+                </div>
+                <p className="text-amber-800/80 text-[10px] leading-relaxed">
+                  Técnico Marcos atribuído. Peça em trânsito com a equipe de suporte do DTI.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundFX.playClick();
+                onOpenApp('chamados');
+              }}
+              className="mt-4 w-full py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-600 text-amber-900 hover:text-white font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <Wrench size={13} />
+              <span>Acompanhar Chamado no Kanban</span>
+              <ArrowRight size={13} />
+            </button>
+          </div>
+
+        </div>
+
+        {/* Barra de Acesso Rápido do Dia */}
+        <div className="mt-5 pt-4 border-t border-slate-200/70 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <span className="font-bold text-slate-500 flex items-center gap-1.5 text-[11px]">
+            <Sparkles size={13} className="text-[#0072BB]" />
+            Ações Rápidas Disponíveis:
+          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                soundFX.playClick();
+                onOpenApp('diarias');
+              }}
+              className="px-3 py-1.5 bg-white hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-lg text-slate-700 hover:text-[#0072BB] font-semibold text-xs transition cursor-pointer flex items-center gap-1 shadow-2xs"
+            >
+              <Plane size={12} className="text-blue-600" />
+              <span>Solicitar Diária Oficial</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                soundFX.playClick();
+                onOpenApp('ramais');
+              }}
+              className="px-3 py-1.5 bg-white hover:bg-sky-50 border border-slate-200 hover:border-sky-300 rounded-lg text-slate-700 hover:text-sky-700 font-semibold text-xs transition cursor-pointer flex items-center gap-1 shadow-2xs"
+            >
+              <PhoneCall size={12} className="text-sky-600" />
+              <span>Buscar Ramal / Colega</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                soundFX.playClick();
+                onOpenApp('chamados');
+              }}
+              className="px-3 py-1.5 bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-300 rounded-lg text-slate-700 hover:text-amber-800 font-semibold text-xs transition cursor-pointer flex items-center gap-1 shadow-2xs"
+            >
+              <PlusCircle size={12} className="text-amber-600" />
+              <span>Abrir Chamado TI</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. ETAPAS OFICIAIS DO FLUXO (Resgate do Projeto Original SEJU) */}
       <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-gov-card">
         <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
           <div>
@@ -613,6 +862,13 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
           <ShieldCheck size={16} /> Inspecionar Trilha de Auditoria
         </button>
       </div>
+
+      {/* 5. MODAL DE EXPERIÊNCIA INTERATIVA 360° */}
+      <JornadaInterativaModal 
+        isOpen={showJornadaModal} 
+        onClose={() => setShowJornadaModal(false)}
+        onNavigateApp={(appId) => onOpenApp(appId as AppModuleId)}
+      />
 
     </div>
   );

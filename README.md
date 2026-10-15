@@ -52,6 +52,27 @@ O projeto segue com rigor os padrões de identidade visual e comunicação insti
 
 ---
 
+## 🌟 Experiência Imersiva do Usuário (Design System & Simuladores)
+
+O portal transcende o modelo tradicional de formulários administrativos, oferecendo uma experiência envolvente, tátil e gamificada para o servidor público:
+
+### 1. 🚀 Modo "Jornada Interativa SEJU 360°" (Simulador Vivo de Missão)
+Acessível a partir do botão com efeito luminoso no topo do Hub Central:
+* **Passo 1 — Radar & Rota no Mapa do Paraná**: Mapa SVG dinâmico do Estado com traçado em neon das rodovias estaduais (`BR-277`, `BR-376`, `PR-445`), cálculo automático de pedágios, paradas estratégicas, consumo de combustível e tempo de trajeto.
+* **Passo 2 — Garagem Digital**: Seleção visual do veículo oficial no pátio da SEJU (Corolla Híbrido, Spin 7 Lugares, Duster 4x4) com telemetria do odômetro e validação automática de capacidade da delegação a bordo.
+* **Passo 3 — Despacho Eletrônico da Chefia**: Simulador de notificação *push* em tempo real com deliberação imediata, despacho oficial com assinatura digital ICP-PR e efeito comemorativo de confetes.
+* **Passo 4 — Carteira Digital Apple Wallet**: Emissão instantânea do Passe Oficial de Trânsito em formato de cartão de carteira digital, com QR Code de autenticação para fiscalização rodoviária (BPRv/PRF) e hash criptográfico SHA-256.
+* **Passo 5 — Vistoria Pericial 4 Fotos**: Checklist de pátio antes da partida, com registro fotográfico dos 4 ângulos do veículo e checagem de combustível e odômetro.
+
+### 2. 📅 Widget "Minha Jornada Hoje" (O Dia do Servidor)
+Painel inteligente fixado na tela principal do Hub Corporativo que sintetiza a rotina operacional do dia:
+* **Reuniões do Dia**: Próximas reservas de auditórios/salas de conferência com indicação de participantes, horário e pauta.
+* **Missões & Frotas**: Veículo agendado para o servidor com placa Mercosul em destaque e status de autorização do despacho.
+* **Chamados de TI**: Acompanhamento dos chamados técnicos em andamento com barra de SLA regressiva em tempo real.
+* **Barra de Ações Rápidas em 1 Clique**: Acesso direto para solicitação de diárias, consulta de ramais de servidores e abertura de chamados técnicos.
+
+---
+
 ## 📱 Módulos e Funcionalidades Detalhadas
 
 ### 1. 🚗 Gestão de Frotas & Veículos Oficiais (`frota`)
