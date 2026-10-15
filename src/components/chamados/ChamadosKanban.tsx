@@ -734,7 +734,68 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
               </button>
             </div>
 
-            <form onSubmit={handleCriarChamado} className="space-y-4 pt-4 text-xs">
+            {/* Atalhos de Diagnóstico Rápido em 1 Clique */}
+            <div className="pt-3 pb-3 border-b border-slate-100">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                Atalhos de Diagnóstico Rápido (1 Clique):
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  {
+                    icon: '🖨️',
+                    label: 'Toner da Impressora',
+                    tipo: 'TI',
+                    prioridade: 'media',
+                    titulo: 'Troca de toner da impressora HP',
+                    desc: 'A impressora do setor está acusando nível de toner esgotado ou impressão falhada. Solicita-se substituição do cartucho preto.'
+                  },
+                  {
+                    icon: '🌐',
+                    label: 'Queda de Link / VPN PR',
+                    tipo: 'TI',
+                    prioridade: 'urgente',
+                    titulo: 'Queda de conexão de rede e acesso à intranet',
+                    desc: 'Estação de trabalho sem conectividade com a rede corporativa do Estado e falha de handshake da VPN Celepar.'
+                  },
+                  {
+                    icon: '❄️',
+                    label: 'Ar-Condicionado / Manutenção',
+                    tipo: 'Manutenção',
+                    prioridade: 'alta',
+                    titulo: 'Falha ou gotejamento no ar-condicionado',
+                    desc: 'Aparelho de ar-condicionado da sala está gotejando e não climatiza adequadamente o ambiente de trabalho.'
+                  },
+                  {
+                    icon: '📦',
+                    label: 'Resmas de Papel A4',
+                    tipo: 'Almoxarifado',
+                    prioridade: 'baixa',
+                    titulo: 'Reposição de resmas de papel sulfite A4',
+                    desc: 'Almoxarifado do setor com estoque zerado de papel sulfite A4 timbrado para processos e expedientes.'
+                  }
+                ].map((diag, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      soundFX.playClick();
+                      setTipo(diag.tipo as any);
+                      setPrioridade(diag.prioridade as any);
+                      setTitulo(diag.titulo);
+                      setDescricao(diag.desc);
+                    }}
+                    className="p-2.5 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 rounded-xl text-left transition cursor-pointer flex items-center gap-2 group"
+                  >
+                    <span className="text-base shrink-0">{diag.icon}</span>
+                    <span className="text-[11px] font-bold text-slate-700 group-hover:text-indigo-800 leading-tight">
+                      {diag.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <form onSubmit={handleCriarChamado} className="space-y-4 pt-3 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Setor de Atendimento *</label>

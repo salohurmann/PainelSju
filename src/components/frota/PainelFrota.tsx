@@ -1,20 +1,43 @@
 import React, { useState } from 'react';
 import { Veiculo, Agendamento } from '../../types';
 import { PlacaMercosul } from '../ui/PlacaMercosul';
-import { Car, Fuel, Gauge, Plus, CheckCircle2, AlertCircle, Clock, ShieldCheck, Search, Filter } from 'lucide-react';
+import { soundFX } from '../../services/soundFx';
+import confetti from 'canvas-confetti';
+import { 
+  Car, 
+  Fuel, 
+  Gauge, 
+  Plus, 
+  CheckCircle2, 
+  AlertCircle, 
+  Clock, 
+  ShieldCheck, 
+  Search, 
+  Filter,
+  Wrench,
+  Sparkles,
+  Check,
+  FileText,
+  X,
+  ChevronRight,
+  Info
+} from 'lucide-react';
 
 interface PainelFrotaProps {
   veiculos: Veiculo[];
   agendamentos: Agendamento[];
   onAdicionarVeiculo: (v: Veiculo) => void;
+  onAtualizarVeiculo?: (vId: string, dados: Partial<Veiculo>) => void;
 }
 
 export const PainelFrota: React.FC<PainelFrotaProps> = ({
   veiculos,
   agendamentos,
-  onAdicionarVeiculo
+  onAdicionarVeiculo,
+  onAtualizarVeiculo
 }) => {
   const [modalNovo, setModalNovo] = useState(false);
+  const [veiculoInspecionado, setVeiculoInspecionado] = useState<Veiculo | null>(null);
   const [modelo, setModelo] = useState('');
   const [placa, setPlaca] = useState('');
   const [cor, setCor] = useState('');
@@ -123,10 +146,14 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
           return (
             <div
               key={v.id}
-              className={`bg-white rounded-3xl p-6 border transition-all duration-300 shadow-sm hover:shadow-xl flex flex-col justify-between ${
+              onClick={() => {
+                soundFX.playClick();
+                setVeiculoInspecionado(v);
+              }}
+              className={`bg-white rounded-3xl p-6 border transition-all duration-300 shadow-sm hover:shadow-xl flex flex-col justify-between cursor-pointer group hover:border-[#0072BB] ${
                 emUso 
                   ? 'border-blue-400 ring-2 ring-blue-100' 
-                  : 'border-slate-200/90 hover:border-slate-300'
+                  : 'border-slate-200/90'
               }`}
             >
               <div>
@@ -147,7 +174,7 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
                   </span>
                 </div>
 
-                <h3 className="font-extrabold text-slate-900 text-base leading-snug">
+                <h3 className="font-extrabold text-slate-900 text-base leading-snug group-hover:text-[#0072BB] transition-colors">
                   {v.modelo}
                 </h3>
                 <div className="text-xs text-slate-500 mt-1">
@@ -190,8 +217,15 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-                  <span>Demandas Pendentes: <strong className="text-amber-600">{pendentes}</strong></span>
-                  <span>Missões Concluídas: <strong className="text-emerald-700">{autorizados}</strong></span>
+                  <span>Demandas: <strong className="text-amber-600">{pendentes}</strong></span>
+                  <span>Missões: <strong className="text-emerald-700">{autorizados}</strong></span>
+                </div>
+
+                <div className="pt-2 flex items-center justify-between text-xs font-bold text-[#0072BB] group-hover:text-[#00538A] border-t border-slate-200/70">
+                  <span className="flex items-center gap-1.5">
+                    <FileText size={13} /> Ficha Patrimonial Completa
+                  </span>
+                  <ChevronRight size={15} className="group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
             </div>
@@ -297,6 +331,203 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Ficha Patrimonial e Manutenção Preventiva do Veículo */}
+      {veiculoInspecionado && (
+        <div 
+          className="fixed inset-0 bg-slate-950/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in"
+          onClick={() => setVeiculoInspecionado(null)}
+        >
+          <div 
+            className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto space-y-6"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header com Placa Mercosul e Status */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+              <div className="flex items-center gap-4">
+                <PlacaMercosul placa={veiculoInspecionado.placa} uf="PR" />
+                <div>
+                  <h3 className="text-xl font-black text-slate-900 leading-tight">
+                    {veiculoInspecionado.modelo}
+                  </h3>
+                  <div className="text-xs text-slate-500 mt-0.5">
+                    Patrimônio Oficial SEJU · Ano {veiculoInspecionado.ano || 2024} · Cor {veiculoInspecionado.cor}
+                  </div>
+                </div>
+              </div>
+
+              <button 
+                type="button"
+                onClick={() => setVeiculoInspecionado(null)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm cursor-pointer self-start sm:self-auto transition"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Ações Rápidas: Alterar Status e Abastecer */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Status do Veículo */}
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Status Operacional no Pátio
+                </div>
+                <div className="flex gap-1.5">
+                  {[
+                    { id: 'disponivel', label: 'Disponível', cor: 'bg-emerald-600' },
+                    { id: 'em_missao', label: 'Em Missão', cor: 'bg-[#0072BB]' },
+                    { id: 'manutencao', label: 'Manutenção', cor: 'bg-amber-600' }
+                  ].map(st => {
+                    const ativo = veiculoInspecionado.status === st.id;
+                    return (
+                      <button
+                        key={st.id}
+                        type="button"
+                        onClick={() => {
+                          soundFX.playClick();
+                          const novoStatus = st.id as any;
+                          setVeiculoInspecionado({ ...veiculoInspecionado, status: novoStatus });
+                          if (onAtualizarVeiculo) {
+                            onAtualizarVeiculo(veiculoInspecionado.id, { status: novoStatus });
+                          }
+                        }}
+                        className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+                          ativo 
+                            ? `${st.cor} text-white shadow-xs` 
+                            : 'bg-white text-slate-700 hover:bg-slate-200 border border-slate-200'
+                        }`}
+                      >
+                        {st.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Tanque de Combustível com Abastecimento */}
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <span>Nível do Tanque</span>
+                  <span className="font-mono text-xs text-[#0072BB] font-black">{veiculoInspecionado.nivelCombustivel}%</span>
+                </div>
+                <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                    style={{ width: `${veiculoInspecionado.nivelCombustivel}%` }}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundFX.playSuccess();
+                    confetti({ particleCount: 40, spread: 50, origin: { y: 0.6 } });
+                    setVeiculoInspecionado({ ...veiculoInspecionado, nivelCombustivel: 100 });
+                    if (onAtualizarVeiculo) {
+                      onAtualizarVeiculo(veiculoInspecionado.id, { nivelCombustivel: 100 });
+                    }
+                  }}
+                  className="w-full py-1.5 bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs"
+                >
+                  <Fuel size={14} /> Abastecer Tanque (100%)
+                </button>
+              </div>
+            </div>
+
+            {/* Checklist de Saúde e Manutenção Preventiva */}
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+              <div className="text-xs font-bold text-slate-800 flex items-center gap-2">
+                <Wrench size={16} className="text-[#0072BB]" />
+                Diagnóstico de Manutenção Preventiva (Detran/PR & SEJU)
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div className="p-2.5 bg-white rounded-xl border border-slate-200/90 flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-slate-800 block">Óleo & Filtros</span>
+                    <span className="text-[10px] text-slate-400">Próxima revisão aos {veiculoInspecionado.kmAtual + 8200} km</span>
+                  </div>
+                  <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                    Em Dia
+                  </span>
+                </div>
+
+                <div className="p-2.5 bg-white rounded-xl border border-slate-200/90 flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-slate-800 block">Pastilhas de Freio</span>
+                    <span className="text-[10px] text-slate-400">Espessura de disco 100% conforme</span>
+                  </div>
+                  <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                    Conforme
+                  </span>
+                </div>
+
+                <div className="p-2.5 bg-white rounded-xl border border-slate-200/90 flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-slate-800 block">Calibragem dos Pneus</span>
+                    <span className="text-[10px] text-slate-400">32 PSI / Alinhamento digital</span>
+                  </div>
+                  <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                    32 PSI
+                  </span>
+                </div>
+
+                <div className="p-2.5 bg-white rounded-xl border border-slate-200/90 flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-slate-800 block">Documento CRLV-e</span>
+                    <span className="text-[10px] text-slate-400">Exercício 2026 Regularizado PR</span>
+                  </div>
+                  <span className="text-[10px] font-black text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full">
+                    Digital
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Histórico Recente de Viagens deste Veículo */}
+            <div className="space-y-2">
+              <div className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                <span>Últimas Missões Realizadas por Este Veículo</span>
+                <span className="text-[10px] text-slate-400 font-mono">
+                  Total Odômetro: {veiculoInspecionado.kmAtual.toLocaleString('pt-BR')} km
+                </span>
+              </div>
+
+              {agendamentos.filter(a => a.veiculoId === veiculoInspecionado.id).length === 0 ? (
+                <div className="p-4 bg-slate-50 rounded-xl text-center text-xs text-slate-400 border border-slate-200">
+                  Nenhuma viagem registrada no histórico recente para esta viatura.
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {agendamentos
+                    .filter(a => a.veiculoId === veiculoInspecionado.id)
+                    .slice(0, 3)
+                    .map(ag => (
+                      <div key={ag.id} className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs flex items-center justify-between">
+                        <div>
+                          <div className="font-bold text-slate-800">{ag.destino}</div>
+                          <div className="text-[10px] text-slate-500">Condutor: {ag.nome} · {ag.datas.join(', ')}</div>
+                        </div>
+                        <span className="text-[10px] font-mono font-bold bg-white px-2 py-0.5 rounded border border-slate-200">
+                          {ag.ticket}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+
+            {/* Rodapé do Modal */}
+            <div className="pt-4 border-t border-slate-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setVeiculoInspecionado(null)}
+                className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition cursor-pointer"
+              >
+                Concluir Inspeção
+              </button>
+            </div>
           </div>
         </div>
       )}

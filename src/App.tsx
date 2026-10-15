@@ -442,12 +442,23 @@ export function App() {
                 veiculos={state.veiculos}
                 agendamentos={state.agendamentos}
                 onAdicionarVeiculo={handleAdicionarVeiculo}
+                onAtualizarVeiculo={(vId, dados) => {
+                  setState(prev => {
+                    const novo = {
+                      ...prev,
+                      veiculos: prev.veiculos.map(v => v.id === vId ? { ...v, ...dados } : v)
+                    };
+                    saveStateToStorage(novo);
+                    return novo;
+                  });
+                }}
               />
             )}
 
             {frotaTab === 'consultar' && (
               <ConsultaCpf
                 agendamentos={state.agendamentos}
+                currentUser={state.currentUser}
               />
             )}
           </div>
