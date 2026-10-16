@@ -298,7 +298,7 @@ export function App() {
       />
 
       {/* Conteúdo Principal */}
-      <main className="flex-1 p-3 sm:p-6 lg:p-8 pb-32 pb-safe max-w-7xl w-full mx-auto">
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-5 sm:py-8 pb-24 lg:pb-12 max-w-6xl w-full mx-auto">
         {/* TELA INICIAL: O HUB COM OS APLICATIVOS LADO A LADO */}
         {activeApp === 'hub' && (
           <AppLauncherHub
@@ -313,55 +313,38 @@ export function App() {
 
         {/* MÓDULO 1: GESTÃO DE FROTAS (PILOTO COMPLETO) */}
         {activeApp === 'frota' && (
-          <div className="space-y-6">
-            {/* Header Executivo do Módulo de Frota */}
-            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-gov-card flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 text-xs text-slate-500 mb-1.5">
-                  <button 
-                    onClick={() => {
-                      soundFX.playClick();
-                      setActiveApp('hub');
-                    }}
-                    className="hover:text-[#0072BB] font-semibold flex items-center gap-1.5 transition cursor-pointer"
-                  >
-                    <ArrowLeft size={14} /> Central de Aplicativos
-                  </button>
-                  <span className="text-slate-300">/</span>
-                  <span className="font-bold text-slate-800">Frota & Veículos Oficiais</span>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-[#0072BB]/10 text-[#0072BB] border border-[#0072BB]/20 flex items-center justify-center font-bold shadow-2xs">
-                    <Car size={22} />
-                  </div>
-                  <span>Gestão de Frotas & Veículos Oficiais</span>
-                </h2>
-                <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-                  Secretaria da Justiça e Cidadania · Agendamento oficial, despacho da Chefia de Gabinete, vistoria fotográfica e telemetria patrimonial.
-                </p>
-              </div>
-
-              {/* Status Executivo & Indicador Operacional */}
-              <div className="flex items-center gap-3 shrink-0">
-                <div className="bg-slate-50 px-4 py-2.5 rounded-2xl border border-slate-200 text-right">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Frota Operacional</div>
-                  <div className="text-xs font-black text-emerald-700 flex items-center gap-1.5 justify-end mt-0.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    {state.veiculos.length} Veículos Ativos
-                  </div>
+          <div className="space-y-5">
+            {/* Header Executivo Clean do Módulo de Frota */}
+            <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <button
+                  onClick={() => {
+                    soundFX.playClick();
+                    setActiveApp('hub');
+                  }}
+                  className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0"
+                  title="Voltar ao Início"
+                >
+                  <ArrowLeft size={16} />
+                </button>
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                    Frota & Veículos Oficiais
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    Requisição de saída, despacho da Chefia e vistoria digital
+                  </p>
                 </div>
               </div>
-            </div>
 
-            {/* Barra de Sub-Navegação Executiva (Grid Harmonioso sem Rolagem Forçada) */}
-            <div className="bg-white p-2 sm:p-2.5 rounded-2xl border border-slate-200/90 shadow-2xs">
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+              {/* Barra de Sub-Navegação Clean em Pílulas */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
                 {[
-                  { id: 'nova-solicitacao', label: 'Solicitar Carro', icon: PlusCircle, desc: 'Nova Requisição' },
-                  { id: 'aprovacoes', label: 'Aprovações Chefia', icon: CheckSquare, badge: pendentesChefia, desc: 'Fila de Despacho' },
-                  { id: 'checkin-checkout', label: 'Vistoria 4 Fotos', icon: ClipboardCheck, desc: 'Check-in / Check-out' },
-                  { id: 'frota', label: 'Painel da Frota', icon: Car, desc: 'Catálogo & Status' },
-                  { id: 'consultar', label: 'Consultar CPF', icon: Search, desc: 'Histórico do Servidor' }
+                  { id: 'nova-solicitacao', label: 'Solicitar', icon: PlusCircle },
+                  { id: 'aprovacoes', label: 'Aprovações', icon: CheckSquare, badge: pendentesChefia },
+                  { id: 'checkin-checkout', label: 'Vistoria', icon: ClipboardCheck },
+                  { id: 'frota', label: 'Catálogo', icon: Car },
+                  { id: 'consultar', label: 'Meu Histórico', icon: Search }
                 ].map(tab => {
                   const Icon = tab.icon;
                   const isSel = frotaTab === tab.id;
@@ -373,30 +356,16 @@ export function App() {
                         soundFX.playClick();
                         setFrotaTab(tab.id as FrotaSubTab);
                       }}
-                      className={`p-3 rounded-xl text-left transition-all duration-200 flex items-center justify-between gap-2.5 cursor-pointer border ${tab.id === 'consultar' ? 'col-span-2 sm:col-span-1' : ''} ${
+                      className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
                         isSel
-                          ? 'bg-[#0072BB] text-white border-[#0072BB] shadow-md shadow-blue-500/20'
-                          : 'bg-slate-50/70 hover:bg-slate-100/90 text-slate-700 border-slate-200/80 hover:border-slate-300'
+                          ? 'bg-slate-900 text-white shadow-xs'
+                          : 'bg-slate-100/80 hover:bg-slate-200/70 text-slate-600'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className={`p-2 rounded-lg shrink-0 ${isSel ? 'bg-white/20 text-white' : 'bg-white text-[#0072BB] shadow-2xs border border-slate-100'}`}>
-                          <Icon size={16} />
-                        </div>
-                        <div className="min-w-0">
-                          <div className={`text-xs font-black truncate leading-tight ${isSel ? 'text-white' : 'text-slate-900'}`}>
-                            {tab.label}
-                          </div>
-                          <div className={`text-[10px] truncate ${isSel ? 'text-blue-100' : 'text-slate-400'}`}>
-                            {tab.desc}
-                          </div>
-                        </div>
-                      </div>
-
+                      <Icon size={14} className={isSel ? 'text-blue-400' : 'text-slate-500'} />
+                      <span>{tab.label}</span>
                       {Boolean(tab.badge && tab.badge > 0) && (
-                        <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full shrink-0 ${
-                          isSel ? 'bg-amber-400 text-amber-950 font-black' : 'bg-amber-500 text-white animate-pulse'
-                        }`}>
+                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-950">
                           {tab.badge}
                         </span>
                       )}
@@ -510,33 +479,29 @@ export function App() {
         )}
       </main>
 
-      {/* Rodapé Oficial do Governo do Estado do Paraná */}
-      <footer className="bg-[#002B49] text-white border-t border-[#00385E] mt-auto py-10 px-4 text-xs font-sans">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4 text-center md:text-left">
-            <div className="p-1 bg-white/10 rounded-xl border border-white/15 shrink-0">
-              <BrasaoParana size="md" className="brightness-125" />
-            </div>
-            <div className="space-y-1">
-              <div className="font-black tracking-wider text-sm uppercase text-white">
-                SECRETARIA DA JUSTIÇA E CIDADANIA — SEJU
+      {/* Rodapé Institucional Minimalista */}
+      <footer className="bg-white border-t border-slate-200/80 mt-auto py-8 pb-24 lg:pb-8 px-4 sm:px-6 text-xs">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3 text-center sm:text-left">
+            <BrasaoParana size="sm" />
+            <div>
+              <div className="font-bold text-slate-800 text-xs">
+                SEJU · Secretaria da Justiça e Cidadania do Paraná
               </div>
-              <div className="text-blue-200 text-[11px] leading-relaxed max-w-xl">
-                Governo do Estado do Paraná · Rua Tenente Francisco Ferreira de Souza, 766 · Hauer · Curitiba – PR · CEP 81630-010 · Central Telefônica: (41) 3210-2400
+              <div className="text-slate-400 text-[11px]">
+                Rua Ten. Francisco Ferreira de Souza, 766 · Curitiba/PR · (41) 3210-2400
               </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 text-blue-200 text-xs">
-            <button onClick={() => setActiveApp('hub')} className="hover:text-white font-bold transition">
-              Início · Hub
+          <div className="flex items-center gap-4 text-slate-500 text-xs">
+            <button onClick={() => setActiveApp('hub')} className="hover:text-slate-900 font-medium transition cursor-pointer">
+              Início
             </button>
-            <span className="text-blue-400">•</span>
-            <button onClick={() => setActiveApp('auditoria')} className="hover:text-white font-bold flex items-center gap-1 text-emerald-400 transition">
-              <ShieldCheck size={14} /> Assinatura SHA-256
+            <span className="text-slate-300">·</span>
+            <button onClick={() => setActiveApp('auditoria')} className="hover:text-slate-900 font-medium flex items-center gap-1 text-emerald-600 transition cursor-pointer">
+              <ShieldCheck size={13} /> Auditoria SHA-256
             </button>
-            <span className="text-blue-400">•</span>
-            <span className="text-slate-400">Brevo API Integrada</span>
           </div>
         </div>
       </footer>
