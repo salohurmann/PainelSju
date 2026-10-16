@@ -14,14 +14,15 @@ import {
   CheckSquare,
   MapPin,
   Lock,
-  ClipboardCheck
+  ClipboardCheck,
+  Building2
 } from 'lucide-react';
 import { Usuario, Agendamento, Veiculo } from '../../types';
 import { PlacaMercosul } from '../ui/PlacaMercosul';
 import { soundFX } from '../../services/soundFx';
 import { JornadaInterativaModal } from '../experiencia/JornadaInterativaModal';
 
-export type AppModuleId = 'frota' | 'chamados' | 'salas' | 'diarias' | 'ramais';
+export type AppModuleId = 'frota' | 'chamados' | 'salas' | 'diarias' | 'cense' | 'ramais';
 type CategoriaDesign = 'todos' | 'mobilidade' | 'espacos' | 'gestao';
 
 interface AppLauncherHubProps {
@@ -374,6 +375,44 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
               <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-500">
                 <span>Diretório & Organograma</span>
                 <span className="text-sky-600 font-bold">Discagem 1 clique</span>
+              </div>
+            </div>
+          )}
+
+          {/* CARD 6: GESTÃO FISCAL DE FUNDO ROTATIVO DOS CENSES (12 COLUNAS) */}
+          {(categoria === 'todos' || categoria === 'gestao') && (
+            <div 
+              onClick={() => onOpenApp('cense')}
+              className="md:col-span-12 group bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-7 shadow-gov-card hover:shadow-gov-card-hover hover:border-slate-300 design-card-lift cursor-pointer flex flex-col lg:flex-row lg:items-center justify-between gap-5"
+            >
+              <div className="flex items-start sm:items-center gap-4 max-w-2xl">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                  <Building2 size={22} />
+                </div>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                      Fundo Rotativo · Unidades CENSE
+                    </h3>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/70">
+                      Gestão Fiscal DEASE
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    Controle de cotas trimestrais, lançamento e auditoria de Notas Fiscais (NF-e), glosas e prestação de contas individual de cada Centro de Socioeducação.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 self-start lg:self-auto shrink-0">
+                <div className="px-3.5 py-2 rounded-2xl bg-slate-50 border border-slate-200/70 text-right hidden sm:block">
+                  <div className="text-[10px] font-semibold text-slate-400">Unidades CENSE</div>
+                  <div className="text-xs font-extrabold text-slate-900">8 Polos Regionais</div>
+                </div>
+                <span className="px-4 py-2.5 rounded-xl bg-slate-900 group-hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-1.5 transition">
+                  <span>Abrir Gestão Fiscal</span>
+                  <ArrowUpRight size={14} />
+                </span>
               </div>
             </div>
           )}

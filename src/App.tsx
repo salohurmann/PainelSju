@@ -28,6 +28,7 @@ import { ChamadosKanban } from './components/chamados/ChamadosKanban';
 import { ReservaSalasView } from './components/salas/ReservaSalasView';
 import { CalculadoraDiariasView } from './components/diarias/CalculadoraDiariasView';
 import { GuiaRamaisView } from './components/ramais/GuiaRamaisView';
+import { FundoRotativoCenseView } from './components/cense/FundoRotativoCenseView';
 import { soundFX } from './services/soundFx';
 import { CommandPalette } from './components/navigation/CommandPalette';
 import { InteractiveDock } from './components/navigation/InteractiveDock';
@@ -465,7 +466,15 @@ export function App() {
           />
         )}
 
-        {/* VISUALIZAÇÃO DE AUDITORIA CRIPTOGRÁFICA SHA-256 */}
+        {/* MÓDULO 6: GESTÃO FISCAL DE FUNDO ROTATIVO DOS CENSES */}
+        {activeApp === 'cense' && (
+          <FundoRotativoCenseView
+            currentUser={state.currentUser}
+            onVoltarHub={() => setActiveApp('hub')}
+          />
+        )}
+
+        {/* VISUALIZAÇÃO DE SEGURANÇA & CONFORMIDADE BLINDADA */}
         {activeApp === 'auditoria' && (
           <div className="space-y-4">
             <button
@@ -500,7 +509,7 @@ export function App() {
             </button>
             <span className="text-slate-300">·</span>
             <button onClick={() => setActiveApp('auditoria')} className="hover:text-slate-900 font-medium flex items-center gap-1 text-emerald-600 transition cursor-pointer">
-              <ShieldCheck size={13} /> Auditoria SHA-256
+              <ShieldCheck size={13} /> Segurança Blindada
             </button>
           </div>
         </div>

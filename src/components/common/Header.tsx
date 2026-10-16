@@ -15,7 +15,8 @@ import {
   Calendar,
   Plane,
   PhoneCall,
-  Palette
+  Palette,
+  Building2
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -24,7 +25,7 @@ interface HeaderProps {
   notificacoes: Notificacao[];
   onMarkNotificationRead: (id: string) => void;
   activeApp: string;
-  onNavigateApp: (appId: 'hub' | 'frota' | 'chamados' | 'salas' | 'diarias' | 'ramais' | 'auditoria', subTab?: string) => void;
+  onNavigateApp: (appId: 'hub' | 'frota' | 'chamados' | 'salas' | 'diarias' | 'cense' | 'ramais' | 'auditoria', subTab?: string) => void;
   onOpenCommandPalette?: () => void;
   pendentesFrotaCount?: number;
   veiculosLivresCount?: number;
@@ -59,11 +60,12 @@ export const Header: React.FC<HeaderProps> = ({
   const navItems = [
     { id: 'hub', label: 'Início', icon: LayoutGrid },
     { id: 'frota', label: 'Frotas', icon: Car, badge: pendentesFrotaCount },
+    { id: 'cense', label: 'Fundo CENSE', icon: Building2 },
     { id: 'chamados', label: 'Chamados', icon: Wrench },
     { id: 'salas', label: 'Salas', icon: Calendar },
     { id: 'diarias', label: 'Diárias', icon: Plane },
     { id: 'ramais', label: 'Ramais', icon: PhoneCall },
-    { id: 'auditoria', label: 'Auditoria', icon: ShieldCheck }
+    { id: 'auditoria', label: 'Segurança', icon: ShieldCheck }
   ];
 
   return (

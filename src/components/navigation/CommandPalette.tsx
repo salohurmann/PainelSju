@@ -15,14 +15,15 @@ import {
   CheckSquare,
   Users,
   LayoutGrid,
-  MapPin
+  MapPin,
+  Building2
 } from 'lucide-react';
 import { soundFX } from '../../services/soundFx';
 
 interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
-  onNavigate: (appId: 'hub' | 'frota' | 'chamados' | 'salas' | 'diarias' | 'ramais' | 'auditoria', subTab?: string) => void;
+  onNavigate: (appId: 'hub' | 'frota' | 'chamados' | 'salas' | 'diarias' | 'cense' | 'ramais' | 'auditoria', subTab?: string) => void;
 }
 
 interface CommandItem {
@@ -72,6 +73,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const comandos: CommandItem[] = [
     // Ações Rápidas
     {
+      id: 'fundo-rotativo-cense',
+      titulo: 'Gestão Fiscal de Fundo Rotativo (CENSE)',
+      subtitulo: 'Cotas trimestrais, notas fiscais NF-e, glosas e prestação de contas DEASE',
+      categoria: 'Ações Rápidas',
+      icon: Building2,
+      action: () => onNavigate('cense'),
+      badge: 'CENSE'
+    },
+    {
       id: 'solicitar-carro',
       titulo: 'Solicitar Veículo Oficial',
       subtitulo: 'Abrir formulário guiado com bloqueio de datas',
@@ -83,7 +93,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     {
       id: 'fila-chefia',
       titulo: 'Aprovações da Chefia de Gabinete',
-      subtitulo: 'Deliberação de viagens em 1 clique com SHA-256',
+      subtitulo: 'Deliberação de viagens em 1 clique com segurança blindada',
       categoria: 'Ações Rápidas',
       icon: CheckSquare,
       action: () => onNavigate('frota', 'aprovacoes'),
