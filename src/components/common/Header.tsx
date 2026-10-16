@@ -16,7 +16,11 @@ import {
   Plane,
   PhoneCall,
   Palette,
-  Building2
+  Building2,
+  Moon,
+  Sun,
+  AlertTriangle,
+  ArrowUpRight
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -31,8 +35,35 @@ interface HeaderProps {
   veiculosLivresCount?: number;
 }
 
-type DesignTheme = 'clean' | 'pearl' | 'nordic';
+type DesignTheme = 'clean' | 'pearl' | 'nordic' | 'midnight';
 type DesignDensity = 'comfortable' | 'compact';
+
+const ALERTAS_PREDITIVOS = [
+  {
+    id: 'pred-cense-glosa',
+    modulo: 'cense' as const,
+    nivel: 'critico',
+    titulo: 'CENSE Londrina I · Glosa Fiscal Ativa',
+    detalhe: 'Nota NF-e 005.412 (R$ 6.750,00) aguarda regularização de certidão.',
+    tempo: 'Prazo: 4 dias'
+  },
+  {
+    id: 'pred-cense-saldo',
+    modulo: 'cense' as const,
+    nivel: 'alerta',
+    titulo: 'CENSE Foz do Iguaçu · Cota Abaixo de 18%',
+    detalhe: 'Recomendada liberação de repasse complementar para o trimestre.',
+    tempo: 'Automático'
+  },
+  {
+    id: 'pred-frota-revisao',
+    modulo: 'frota' as const,
+    nivel: 'info',
+    titulo: 'Revisão Preventiva · Renault Duster',
+    detalhe: 'Faltam 420 km para o ciclo de revisão programada (Detran/PR).',
+    tempo: 'Manutenção'
+  }
+];
 
 export const Header: React.FC<HeaderProps> = ({
   currentUser,
@@ -47,15 +78,29 @@ export const Header: React.FC<HeaderProps> = ({
   const [showNotifs, setShowNotifs] = useState(false);
   const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [showDesignMenu, setShowDesignMenu] = useState(false);
-  const [designTheme, setDesignTheme] = useState<DesignTheme>('clean');
-  const [designDensity, setDesignDensity] = useState<DesignDensity>('comfortable');
+  const [abaNotif, setAbaNotif] = useState<'preditivos' | 'notificacoes'>('preditivos');
+
+  const [designTheme, setDesignTheme] = useState<DesignTheme>(() => {
+    const saved = localStorage.getItem('seju_design_theme_v1') as DesignTheme | null;
+    return saved || 'clean';
+  });
+  const [designDensity, setDesignDensity] = useState<DesignDensity>(() => {
+    const saved = localStorage.getItem('seju_design_density_v1') as DesignDensity | null;
+    return saved || 'comfortable';
+  });
 
   useEffect(() => {
     document.documentElement.setAttribute('data-design-theme', designTheme);
-    document.documentElement.setAttribute('data-design-density', designDensity);
-  }, [designTheme, designDensity]);
+    localStorage.setItem('seju_design_theme_v1', designTheme);
+  }, [designTheme]);
 
-  const unreadCount = notificacoes.filter(n => !n.lida).length;
+  useEffect(() => {
+    document.documentElement.setAttribute('data-design-density', designDensity);
+    localStorage.setItem('seju_design_density_v1', designDensity);
+  }, [designDensity]);
+
+  const unreadCount = notificacoes.filter(n => !n.lida).length + ALERTAS_PREDITIVOS.length;
+  const isDark = designTheme === 'midnight';
 
   const navItems = [
     { id: 'hub', label: 'Início', icon: LayoutGrid },
@@ -70,7 +115,6 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-40 glass-surface border-b border-slate-200/70 font-sans transition-all">
-      {/* Barra Principal Unificada — 64px de puro minimalismo */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2 sm:gap-4">
         
         {/* 1. Identidade Institucional Compacta */}
@@ -121,7 +165,7 @@ export const Header: React.FC<HeaderProps> = ({
           })}
         </nav>
 
-        {/* 3. Ações Rápidas: Busca + Estúdio de Design + Notificações + Perfil */}
+        {/* 3. Ações Rápidas: Busca + Dark Mode + Estúdio de Design + Alertas Preditivos + Perfil */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           
           {/* Busca Spotlight */}
@@ -142,8 +186,21 @@ export const Header: React.FC<HeaderProps> = ({
             </kbd>
           </button>
 
+          {/* Alternador 1 Clique de Modo Escuro Executivo */}
+          <button
+            onClick={() => setDesignTheme(isDark ? 'clean' : 'midnight')}
+            className={`w-9 h-9 rounded-xl flex items-center justify-center border transition cursor-pointer active:scale-95 ${
+              isDark
+                ? 'bg-amber-400/15 text-amber-400 border-amber-400/30'
+                : 'bg-slate-100/80 hover:bg-slate-200/70 text-slate-600 border-slate-200/60'
+            }`}
+            title={isDark ? 'Ativar Modo Claro' : 'Ativar Modo Escuro Executivo'}
+          >
+            {isDark ? <Sun size={15} /> : <Moon size={15} />}
+          </button>
+
           {/* Estúdio de Design & Aparência Visual */}
-          <div className="relative">
+          <div className="relative hidden sm:block">
             <button
               onClick={() => {
                 setShowDesignMenu(!showDesignMenu);
@@ -174,17 +231,18 @@ export const Header: React.FC<HeaderProps> = ({
                   <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                     Acabamento de Superfície
                   </div>
-                  <div className="grid grid-cols-3 gap-1.5">
+                  <div className="grid grid-cols-2 gap-1.5">
                     {[
-                      { id: 'clean', label: 'Clean', dot: 'bg-[#0072BB]' },
+                      { id: 'clean', label: 'Clean Claro', dot: 'bg-[#0072BB]' },
+                      { id: 'midnight', label: 'Modo Escuro', dot: 'bg-indigo-400' },
                       { id: 'pearl', label: 'Pérola', dot: 'bg-amber-500' },
-                      { id: 'nordic', label: 'Nórdico', dot: 'bg-slate-700' },
+                      { id: 'nordic', label: 'Nórdico', dot: 'bg-slate-600' },
                     ].map((t) => (
                       <button
                         key={t.id}
                         type="button"
                         onClick={() => setDesignTheme(t.id as DesignTheme)}
-                        className={`px-2.5 py-2 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition ${
+                        className={`px-2.5 py-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition ${
                           designTheme === t.id
                             ? 'bg-slate-900 text-white border-slate-900'
                             : 'bg-slate-50 text-slate-600 border-slate-200/80 hover:bg-slate-100'
@@ -204,7 +262,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                   <div className="grid grid-cols-2 gap-1.5">
                     {[
-                      { id: 'comfortable', label: 'Arejado (Padrão)' },
+                      { id: 'comfortable', label: 'Arejado' },
                       { id: 'compact', label: 'Compacto' },
                     ].map((d) => (
                       <button
@@ -226,7 +284,7 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          {/* Notificações */}
+          {/* Central de Alertas Preditivos & Notificações */}
           <div className="relative">
             <button
               onClick={() => {
@@ -235,57 +293,109 @@ export const Header: React.FC<HeaderProps> = ({
                 setShowDesignMenu(false);
               }}
               className="relative w-9 h-9 rounded-xl bg-slate-100/80 hover:bg-slate-200/70 text-slate-600 flex items-center justify-center border border-slate-200/60 transition cursor-pointer active:scale-95"
-              title="Notificações"
+              title="Central de Alertas Preditivos & Notificações"
             >
               <Bell size={16} />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#0072BB] text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-white">
                   {unreadCount}
                 </span>
               )}
             </button>
 
             {showNotifs && (
-              <div className="absolute right-0 mt-2 w-[calc(100vw-24px)] sm:w-88 max-w-sm bg-white rounded-2xl shadow-xl border border-slate-200/90 z-50 overflow-hidden animate-in fade-in">
-                <div className="p-3 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between">
-                  <span className="font-bold text-slate-800 text-xs">Notificações</span>
-                  <span className="text-[10px] text-slate-500 font-medium bg-white px-2 py-0.5 rounded-full border border-slate-200">
-                    {notificacoes.length}
-                  </span>
+              <div className="absolute right-0 mt-2 w-[calc(100vw-24px)] sm:w-96 max-w-sm bg-white rounded-2xl shadow-xl border border-slate-200/90 z-50 overflow-hidden animate-in fade-in">
+                <div className="p-2.5 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setAbaNotif('preditivos')}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition ${
+                        abaNotif === 'preditivos'
+                          ? 'bg-slate-900 text-white'
+                          : 'text-slate-600 hover:bg-slate-200/60'
+                      }`}
+                    >
+                      Radar Preditivo ({ALERTAS_PREDITIVOS.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAbaNotif('notificacoes')}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition ${
+                        abaNotif === 'notificacoes'
+                          ? 'bg-slate-900 text-white'
+                          : 'text-slate-600 hover:bg-slate-200/60'
+                      }`}
+                    >
+                      Avisos ({notificacoes.length})
+                    </button>
+                  </div>
                 </div>
 
-                <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
-                  {notificacoes.length === 0 ? (
-                    <div className="p-6 text-center text-xs text-slate-400">
-                      Nenhuma notificação recente.
-                    </div>
-                  ) : (
-                    notificacoes.map((n) => (
+                {abaNotif === 'preditivos' ? (
+                  <div className="divide-y divide-slate-100 max-h-80 overflow-y-auto">
+                    {ALERTAS_PREDITIVOS.map((al) => (
                       <div
-                        key={n.id}
-                        onClick={() => onMarkNotificationRead(n.id)}
-                        className={`p-3 text-xs transition cursor-pointer hover:bg-slate-50 ${
-                          !n.lida ? 'bg-blue-50/30' : ''
-                        }`}
+                        key={al.id}
+                        onClick={() => {
+                          onNavigateApp(al.modulo);
+                          setShowNotifs(false);
+                        }}
+                        className="p-3.5 text-xs hover:bg-slate-50 transition cursor-pointer flex items-start justify-between gap-3"
                       >
                         <div className="flex items-start gap-2.5">
-                          <div className="mt-0.5 shrink-0">
-                            {n.tipo === 'aprovado' && <CheckCircle2 size={15} className="text-emerald-600" />}
-                            {n.tipo === 'reprovado' && <AlertCircle size={15} className="text-red-600" />}
-                            {n.tipo === 'nova_solicitacao' && <ShieldCheck size={15} className="text-[#0072BB]" />}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="font-semibold text-slate-900 truncate">{n.titulo}</span>
-                              <span className="text-[10px] text-slate-400 shrink-0">{n.data}</span>
-                            </div>
-                            <p className="text-slate-500 mt-0.5 line-clamp-2 text-[11px]">{n.mensagem}</p>
+                          <AlertTriangle
+                            size={15}
+                            className={`mt-0.5 shrink-0 ${
+                              al.nivel === 'critico' ? 'text-red-500' : al.nivel === 'alerta' ? 'text-amber-500' : 'text-[#0072BB]'
+                            }`}
+                          />
+                          <div>
+                            <div className="font-bold text-slate-900">{al.titulo}</div>
+                            <p className="text-[11px] text-slate-500 mt-0.5">{al.detalhe}</p>
+                            <span className="inline-block text-[10px] font-semibold text-slate-400 mt-1">
+                              {al.tempo}
+                            </span>
                           </div>
                         </div>
+                        <ArrowUpRight size={14} className="text-slate-400 shrink-0 mt-0.5" />
                       </div>
-                    ))
-                  )}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
+                    {notificacoes.length === 0 ? (
+                      <div className="p-6 text-center text-xs text-slate-400">
+                        Nenhuma notificação recente.
+                      </div>
+                    ) : (
+                      notificacoes.map((n) => (
+                        <div
+                          key={n.id}
+                          onClick={() => onMarkNotificationRead(n.id)}
+                          className={`p-3 text-xs transition cursor-pointer hover:bg-slate-50 ${
+                            !n.lida ? 'bg-blue-50/30' : ''
+                          }`}
+                        >
+                          <div className="flex items-start gap-2.5">
+                            <div className="mt-0.5 shrink-0">
+                              {n.tipo === 'aprovado' && <CheckCircle2 size={15} className="text-emerald-600" />}
+                              {n.tipo === 'reprovado' && <AlertCircle size={15} className="text-red-600" />}
+                              {n.tipo === 'nova_solicitacao' && <ShieldCheck size={15} className="text-[#0072BB]" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="font-semibold text-slate-900 truncate">{n.titulo}</span>
+                                <span className="text-[10px] text-slate-400 shrink-0">{n.data}</span>
+                              </div>
+                              <p className="text-slate-500 mt-0.5 line-clamp-2 text-[11px]">{n.mensagem}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

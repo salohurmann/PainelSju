@@ -392,22 +392,22 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                      Fundo Rotativo · Unidades CENSE
+                      Fundo Rotativo · 19 Unidades CENSE
                     </h3>
                     <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/70">
-                      Gestão Fiscal DEASE
+                      Scanner NF-e · TCE-PR
                     </span>
                   </div>
                   <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    Controle de cotas trimestrais, lançamento e auditoria de Notas Fiscais (NF-e), glosas e prestação de contas individual de cada Centro de Socioeducação.
+                    Gestão fiscal das 19 unidades socioeducativas do Paraná, leitor inteligente de DANFE/Chave 44 dígitos, análise 33.90.30 vs 33.90.39 e exportação Excel/TCE-PR.
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 self-start lg:self-auto shrink-0">
                 <div className="px-3.5 py-2 rounded-2xl bg-slate-50 border border-slate-200/70 text-right hidden sm:block">
-                  <div className="text-[10px] font-semibold text-slate-400">Unidades CENSE</div>
-                  <div className="text-xs font-extrabold text-slate-900">8 Polos Regionais</div>
+                  <div className="text-[10px] font-semibold text-slate-400">Rede Socioeducativa</div>
+                  <div className="text-xs font-extrabold text-slate-900">19 CENSEs Ativos</div>
                 </div>
                 <span className="px-4 py-2.5 rounded-xl bg-slate-900 group-hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-1.5 transition">
                   <span>Abrir Gestão Fiscal</span>

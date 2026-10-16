@@ -39,6 +39,7 @@
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
     letter-spacing: -0.011em;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
 
   /* Temas Visuais Dinâmicos da Estrutura de Design */
@@ -54,6 +55,78 @@
     background-image: 
       radial-gradient(at 0% 0%, rgba(15, 23, 42, 0.04) 0px, transparent 50%),
       radial-gradient(at 100% 0%, rgba(56, 189, 248, 0.05) 0px, transparent 50%);
+  }
+
+  /* =====================================================================
+     MODO ESCURO EXECUTIVO REAL (MIDNIGHT DARK MODE)
+     ===================================================================== */
+  html[data-design-theme="midnight"] {
+    color-scheme: dark;
+  }
+
+  html[data-design-theme="midnight"] body {
+    background-color: #090D16 !important;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(0, 114, 187, 0.12) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.08) 0px, transparent 50%) !important;
+    color: #F1F5F9 !important;
+  }
+
+  html[data-design-theme="midnight"] .glass-surface,
+  html[data-design-theme="midnight"] nav.fixed.bottom-0 {
+    background: rgba(15, 23, 42, 0.88) !important;
+    border-color: rgba(51, 65, 85, 0.7) !important;
+  }
+
+  html[data-design-theme="midnight"] .bg-white,
+  html[data-design-theme="midnight"] .bg-slate-50\/30 {
+    background-color: #111827 !important;
+    color: #F1F5F9;
+  }
+
+  html[data-design-theme="midnight"] .bg-slate-50,
+  html[data-design-theme="midnight"] .bg-slate-50\/80,
+  html[data-design-theme="midnight"] .bg-slate-50\/90,
+  html[data-design-theme="midnight"] .bg-slate-50\/60,
+  html[data-design-theme="midnight"] .bg-slate-50\/50,
+  html[data-design-theme="midnight"] .bg-slate-50\/40,
+  html[data-design-theme="midnight"] .bg-slate-100,
+  html[data-design-theme="midnight"] .bg-slate-100\/80,
+  html[data-design-theme="midnight"] .bg-slate-100\/90 {
+    background-color: #1E293B !important;
+  }
+
+  html[data-design-theme="midnight"] .border-slate-200,
+  html[data-design-theme="midnight"] .border-slate-200\/80,
+  html[data-design-theme="midnight"] .border-slate-200\/70,
+  html[data-design-theme="midnight"] .border-slate-200\/60,
+  html[data-design-theme="midnight"] .border-slate-200\/90,
+  html[data-design-theme="midnight"] .border-slate-100,
+  html[data-design-theme="midnight"] .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #293548 !important;
+  }
+
+  html[data-design-theme="midnight"] .text-slate-900,
+  html[data-design-theme="midnight"] .text-slate-800 {
+    color: #F8FAFC !important;
+  }
+
+  html[data-design-theme="midnight"] .text-slate-700,
+  html[data-design-theme="midnight"] .text-slate-600 {
+    color: #CBD5E1 !important;
+  }
+
+  html[data-design-theme="midnight"] .text-slate-500,
+  html[data-design-theme="midnight"] .text-slate-400 {
+    color: #94A3B8 !important;
+  }
+
+  html[data-design-theme="midnight"] input,
+  html[data-design-theme="midnight"] select,
+  html[data-design-theme="midnight"] textarea {
+    background-color: #0F172A !important;
+    border-color: #334155 !important;
+    color: #F8FAFC !important;
   }
 
   /* Densidade Visual Compacta */
@@ -97,7 +170,7 @@
 }
 
 .glass-surface {
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
@@ -133,4 +206,15 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Otimização para Impressão de Relatórios Oficiais (TCE-PR / Diárias / Passes) */
+@media print {
+  header, footer, nav {
+    display: none !important;
+  }
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
 }
