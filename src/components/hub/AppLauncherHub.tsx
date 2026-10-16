@@ -113,23 +113,23 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
             </div>
 
             {/* Cartão de Credencial do Servidor Conectado */}
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 flex items-center gap-3.5 self-start md:self-auto shrink-0 shadow-lg">
-              <div className="w-12 h-12 rounded-xl bg-white text-[#0072BB] flex items-center justify-center font-black text-lg shadow-md">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 border border-white/20 flex items-center gap-3 w-full sm:w-auto self-start sm:self-auto shrink-0 shadow-lg">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white text-[#0072BB] flex items-center justify-center font-black text-base sm:text-lg shadow-md shrink-0">
                 {currentUser.nome.charAt(0)}
               </div>
-              <div>
-                <div className="font-extrabold text-xs text-white flex items-center gap-1.5">
-                  <span>{currentUser.nome}</span>
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
+              <div className="min-w-0 flex-1">
+                <div className="font-extrabold text-xs text-white flex items-center gap-1.5 truncate">
+                  <span className="truncate">{currentUser.nome}</span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
                 </div>
-                <div className="text-[11px] font-semibold text-blue-200 mt-0.5">{currentUser.cargo}</div>
-                <div className="text-[10px] text-blue-300/90 font-mono mt-0.5">{currentUser.setor.slice(0, 32)}</div>
+                <div className="text-[11px] font-semibold text-blue-200 mt-0.5 truncate">{currentUser.cargo}</div>
+                <div className="text-[10px] text-blue-300/90 font-mono mt-0.5 truncate">{currentUser.setor.slice(0, 32)}</div>
               </div>
             </div>
           </div>
 
           {/* 3 Métricas Rápidas Oficiais do Estado */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-1">
             <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-4 border border-white/15">
               <div className="text-[11px] font-bold text-blue-200 uppercase tracking-wider flex items-center justify-between">
                 <span>Frota Oficial SEJU</span>
@@ -176,9 +176,9 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
             className="relative group cursor-pointer"
           >
             <Search size={18} className="absolute left-4 top-3.5 text-slate-400 group-hover:text-[#0072BB] transition-colors" />
-            <div className="w-full text-xs sm:text-sm pl-11 pr-4 py-3.5 bg-white text-slate-500 font-medium rounded-2xl shadow-lg border border-transparent group-hover:border-blue-400 transition flex items-center justify-between">
-              <span>O que você precisa fazer hoje? (ex: pedir carro, aprovar viagem, chamado de TI, reservar auditório, ramal...)</span>
-              <span className="hidden sm:flex items-center gap-1 text-[11px] font-mono font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 group-hover:text-[#0072BB] group-hover:border-blue-300 transition">
+            <div className="w-full text-xs sm:text-sm pl-11 pr-4 py-3 sm:py-3.5 bg-white text-slate-500 font-medium rounded-2xl shadow-lg border border-transparent group-hover:border-blue-400 transition flex items-center justify-between">
+              <span className="truncate pr-2">O que você precisa fazer hoje? (ex: pedir carro, chamado de TI, sala...)</span>
+              <span className="hidden sm:flex items-center gap-1 text-[11px] font-mono font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 group-hover:text-[#0072BB] group-hover:border-blue-300 transition shrink-0">
                 <kbd>Ctrl</kbd> + <kbd>K</kbd>
               </span>
             </div>
@@ -188,7 +188,7 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
       </div>
 
       {/* 2. WIDGET "MINHA JORNADA HOJE" (O DIA DO SERVIDOR) */}
-      <div className="bg-linear-to-br from-white via-slate-50/70 to-blue-50/40 rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-gov-card">
+      <div className="bg-linear-to-br from-white via-slate-50/70 to-blue-50/40 rounded-3xl p-4 sm:p-7 border border-slate-200/90 shadow-gov-card">
         {/* Topo do Widget: Cabeçalho com data, status operacional e botão de simulação 360 */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/70 pb-5 mb-6">
           <div className="flex items-center gap-3.5">

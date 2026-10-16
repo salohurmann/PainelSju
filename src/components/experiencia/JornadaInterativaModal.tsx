@@ -138,13 +138,13 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
   const curitibaCoord = { x: 78, y: 72 };
 
   return (
-    <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 backdrop-blur-md animate-in fade-in">
+    <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-0 sm:p-4 md:p-6 backdrop-blur-md animate-in fade-in">
       <div 
-        className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 font-sans"
+        className="bg-white sm:rounded-3xl max-w-4xl w-full h-full sm:h-auto shadow-2xl border border-slate-200 overflow-hidden flex flex-col sm:max-h-[92vh] animate-in zoom-in-95 font-sans"
         onClick={e => e.stopPropagation()}
       >
         {/* TOPO: Cabeçalho com Stepper e Fechar */}
-        <div className="bg-[#00385E] text-white p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#002B49]">
+        <div className="bg-[#00385E] text-white p-4 sm:p-6 flex flex-row items-center justify-between gap-3 border-b border-[#002B49] pt-safe">
           <div>
             <div className="flex items-center gap-2 text-emerald-400 font-mono text-[10px] font-bold uppercase tracking-wider">
               <Sparkles size={14} className="animate-spin" /> EXPERIÊNCIA INTERATIVA 360° · SEJU/PR
@@ -542,7 +542,7 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
         </div>
 
         {/* RODAPÉ DO MODAL COM BOTÕES DE NAVEGAÇÃO */}
-        <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+        <div className="p-3.5 sm:p-5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3 pb-safe shrink-0">
           <button
             type="button"
             disabled={etapa === 1}

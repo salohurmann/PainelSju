@@ -371,8 +371,13 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
         </div>
       </div>
 
+      {/* Indicador Mobile de Rolagem Touch */}
+      <div className="md:hidden text-[11px] text-[#0072BB] font-bold flex items-center gap-1.5 bg-blue-50/80 p-2.5 rounded-xl border border-blue-200">
+        <span>👉 Deslize horizontalmente para navegar pelas 10h de expediente</span>
+      </div>
+
       {/* A RÉGUA CRONOLÓGICA INTERATIVA 24H (08h às 18h) */}
-      <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-gov-card overflow-x-auto space-y-4">
+      <div className="bg-white rounded-3xl p-4 sm:p-7 border border-slate-200 shadow-gov-card overflow-x-auto space-y-4 touch-pan-x no-scrollbar">
         
         {/* Cabeçalho de Horas da Régua */}
         <div className="min-w-[800px]">
@@ -597,8 +602,8 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
 
       {/* MODAL DE AGENDAMENTO DE SALAS */}
       {modalNovo && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-200 animate-in zoom-in-95">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-4 sm:p-7 shadow-2xl border border-slate-200 animate-in zoom-in-95">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <Plus size={20} className="text-[#009B54]" />

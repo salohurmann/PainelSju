@@ -185,7 +185,7 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Dropdown de Notificações */}
               {showNotifs && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                <div className="absolute right-0 mt-2 w-[calc(100vw-32px)] sm:w-96 max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
                   <div className="p-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
                     <div className="flex items-center gap-2 font-bold text-slate-800 text-xs">
                       <Bell size={15} className="text-[#0072BB]" />
@@ -244,7 +244,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative">
               <button
                 onClick={() => setShowRoleMenu(!showRoleMenu)}
-                className="flex items-center gap-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-300/80 px-3 py-1.5 rounded-xl transition text-left cursor-pointer shadow-2xs"
+                className="flex items-center gap-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-300/80 px-2.5 sm:px-3 py-1.5 rounded-xl transition text-left cursor-pointer shadow-2xs active:scale-95"
               >
                 <div className="relative">
                   <div className="w-8 h-8 rounded-lg bg-[#0072BB] text-white flex items-center justify-center font-bold text-xs shadow-2xs">
@@ -269,7 +269,7 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Menu RBAC de Alternância de Perfil */}
               {showRoleMenu && (
-                <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 p-2 animate-in fade-in">
+                <div className="absolute right-0 mt-2 w-[calc(100vw-32px)] sm:w-72 max-w-xs bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 p-2 animate-in fade-in">
                   <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
                     Simular Perfil de Acesso (RBAC)
                   </div>
@@ -307,7 +307,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* 3. BARRA DE MENU PRINCIPAL INSTITUCIONAL (#0072BB - AZUL PARANÁ) */}
       <nav className="bg-[#0072BB] text-white shadow-md">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between overflow-x-auto">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 flex items-center justify-between overflow-x-auto no-scrollbar touch-pan-x">
           <div className="flex items-stretch h-11 shrink-0">
             {[
               { id: 'hub', label: 'Início · Hub', icon: LayoutGrid },

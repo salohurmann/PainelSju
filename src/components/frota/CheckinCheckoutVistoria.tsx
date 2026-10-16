@@ -323,7 +323,7 @@ export const CheckinCheckoutVistoria: React.FC<CheckinCheckoutVistoriaProps> = (
                 </div>
 
                 {/* As 4 fotos registradas */}
-                <div className="grid grid-cols-4 gap-2 pt-1">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                   {Object.entries(v.fotos).map(([ang, src]) => src && (
                     <div key={ang} className="space-y-1">
                       <img src={src} alt={ang} className="w-full h-18 object-cover rounded-xl border border-slate-200" />

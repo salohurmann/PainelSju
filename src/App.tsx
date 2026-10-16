@@ -298,7 +298,7 @@ export function App() {
       />
 
       {/* Conteúdo Principal */}
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-32 max-w-7xl w-full mx-auto">
+      <main className="flex-1 p-3 sm:p-6 lg:p-8 pb-32 pb-safe max-w-7xl w-full mx-auto">
         {/* TELA INICIAL: O HUB COM OS APLICATIVOS LADO A LADO */}
         {activeApp === 'hub' && (
           <AppLauncherHub
@@ -373,7 +373,7 @@ export function App() {
                         soundFX.playClick();
                         setFrotaTab(tab.id as FrotaSubTab);
                       }}
-                      className={`p-3 rounded-xl text-left transition-all duration-200 flex items-center justify-between gap-2.5 cursor-pointer border ${
+                      className={`p-3 rounded-xl text-left transition-all duration-200 flex items-center justify-between gap-2.5 cursor-pointer border ${tab.id === 'consultar' ? 'col-span-2 sm:col-span-1' : ''} ${
                         isSel
                           ? 'bg-[#0072BB] text-white border-[#0072BB] shadow-md shadow-blue-500/20'
                           : 'bg-slate-50/70 hover:bg-slate-100/90 text-slate-700 border-slate-200/80 hover:border-slate-300'

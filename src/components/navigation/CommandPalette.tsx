@@ -252,15 +252,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-50 flex items-start justify-center pt-20 sm:pt-28 p-4 font-sans animate-in fade-in duration-150"
+      className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-50 flex items-start justify-center pt-8 sm:pt-28 p-3 sm:p-4 font-sans animate-in fade-in duration-150 pt-safe"
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-150"
+        className="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-150"
         onClick={e => e.stopPropagation()}
       >
         {/* Barra de Entrada de Pesquisa */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center gap-3">
+        <div className="p-3.5 sm:p-5 border-b border-slate-100 flex items-center gap-3">
           <Search size={22} className="text-[#0072BB] shrink-0" />
           <input
             ref={inputRef}
@@ -271,12 +271,17 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               setSelectedIndex(0);
             }}
             onKeyDown={handleKeyDownList}
-            placeholder="Digite para buscar qualquer serviço, carro, sala ou ramal... (ex: carro, viagem, chamado, auditório)"
-            className="w-full text-sm sm:text-base text-slate-800 placeholder:text-slate-400 font-medium outline-hidden"
+            placeholder="Buscar serviço, carro, sala ou chamado..."
+            className="w-full text-base sm:text-base text-slate-800 placeholder:text-slate-400 font-medium outline-hidden"
           />
-          <div className="flex items-center gap-1.5 shrink-0 text-[10px] font-mono text-slate-400 bg-slate-100 px-2 py-1 rounded-md border border-slate-200">
-            <span>ESC</span>
-          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition cursor-pointer shrink-0"
+            title="Fechar busca (ESC)"
+          >
+            <X size={18} />
+          </button>
         </div>
 
         {/* Lista de Resultados Categorizados */}

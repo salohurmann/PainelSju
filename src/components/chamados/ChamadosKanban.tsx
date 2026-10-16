@@ -150,6 +150,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
   const [filtroTipo, setFiltroTipo] = useState<string>('todos');
   const [filtroPrioridade, setFiltroPrioridade] = useState<string>('todas');
   const [buscaChamado, setBuscaChamado] = useState('');
+  const [colunaAtivaMobile, setColunaAtivaMobile] = useState<'a_fazer' | 'em_andamento' | 'concluido'>('a_fazer');
   const [dragOverCol, setDragOverCol] = useState<'a_fazer' | 'em_andamento' | 'concluido' | null>(null);
   const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
 
@@ -437,6 +438,66 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
         </span>
       </div>
 
+      {/* Seletor de Colunas para Mobile (Android e iOS) */}
+      <div className="md:hidden flex bg-slate-200/80 p-1.5 rounded-2xl gap-1 text-xs font-bold text-slate-600 shadow-2xs">
+        <button
+          type="button"
+          onClick={() => {
+            soundFX.playClick();
+            setColunaAtivaMobile('a_fazer');
+          }}
+          className={`flex-1 py-2 px-1.5 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
+            colunaAtivaMobile === 'a_fazer'
+              ? 'bg-white text-slate-900 shadow-sm font-black'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <span className="w-2 h-2 rounded-full bg-amber-500" />
+          <span>A Fazer</span>
+          <span className="bg-slate-100 text-slate-700 text-[10px] px-1.5 py-0.2 rounded-full font-mono">
+            {chamadosFiltrados.filter(c => c.status === 'a_fazer').length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            soundFX.playClick();
+            setColunaAtivaMobile('em_andamento');
+          }}
+          className={`flex-1 py-2 px-1.5 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
+            colunaAtivaMobile === 'em_andamento'
+              ? 'bg-white text-slate-900 shadow-sm font-black'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <span className="w-2 h-2 rounded-full bg-blue-500" />
+          <span>Em Curso</span>
+          <span className="bg-slate-100 text-slate-700 text-[10px] px-1.5 py-0.2 rounded-full font-mono">
+            {chamadosFiltrados.filter(c => c.status === 'em_andamento').length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            soundFX.playClick();
+            setColunaAtivaMobile('concluido');
+          }}
+          className={`flex-1 py-2 px-1.5 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
+            colunaAtivaMobile === 'concluido'
+              ? 'bg-white text-slate-900 shadow-sm font-black'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span>Concluídos</span>
+          <span className="bg-slate-100 text-slate-700 text-[10px] px-1.5 py-0.2 rounded-full font-mono">
+            {chamadosFiltrados.filter(c => c.status === 'concluido').length}
+          </span>
+        </button>
+      </div>
+
       {/* AS 3 COLUNAS KANBAN DRAG & DROP REAL */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
@@ -445,7 +506,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
           onDragOver={(e) => handleDragOver(e, 'a_fazer')}
           onDragLeave={() => setDragOverCol(null)}
           onDrop={(e) => handleDrop(e, 'a_fazer')}
-          className={`rounded-3xl p-5 border-2 transition-all duration-200 flex flex-col justify-between min-h-[550px] ${
+          className={`${colunaAtivaMobile === 'a_fazer' ? 'flex' : 'hidden md:flex'} rounded-3xl p-4 sm:p-5 border-2 transition-all duration-200 flex-col justify-between min-h-[450px] sm:min-h-[550px] ${
             dragOverCol === 'a_fazer' 
               ? 'bg-amber-50/80 border-amber-400 ring-4 ring-amber-100' 
               : 'bg-slate-100/90 border-slate-200/90'
@@ -543,7 +604,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
           onDragOver={(e) => handleDragOver(e, 'em_andamento')}
           onDragLeave={() => setDragOverCol(null)}
           onDrop={(e) => handleDrop(e, 'em_andamento')}
-          className={`rounded-3xl p-5 border-2 transition-all duration-200 flex flex-col justify-between min-h-[550px] ${
+          className={`${colunaAtivaMobile === 'em_andamento' ? 'flex' : 'hidden md:flex'} rounded-3xl p-4 sm:p-5 border-2 transition-all duration-200 flex-col justify-between min-h-[450px] sm:min-h-[550px] ${
             dragOverCol === 'em_andamento' 
               ? 'bg-blue-50/80 border-[#0072BB] ring-4 ring-blue-100' 
               : 'bg-slate-100/90 border-slate-200/90'
@@ -636,7 +697,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
           onDragOver={(e) => handleDragOver(e, 'concluido')}
           onDragLeave={() => setDragOverCol(null)}
           onDrop={(e) => handleDrop(e, 'concluido')}
-          className={`rounded-3xl p-5 border-2 transition-all duration-200 flex flex-col justify-between min-h-[550px] ${
+          className={`${colunaAtivaMobile === 'concluido' ? 'flex' : 'hidden md:flex'} rounded-3xl p-4 sm:p-5 border-2 transition-all duration-200 flex-col justify-between min-h-[450px] sm:min-h-[550px] ${
             dragOverCol === 'concluido' 
               ? 'bg-emerald-50/80 border-emerald-400 ring-4 ring-emerald-100' 
               : 'bg-slate-100/90 border-slate-200/90'
@@ -719,8 +780,8 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
 
       {/* Modal de Abertura de Novo Chamado */}
       {modalNovo && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-200 animate-in zoom-in-95">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-4 sm:p-7 shadow-2xl border border-slate-200 animate-in zoom-in-95">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <Plus size={20} className="text-indigo-600" />
@@ -876,7 +937,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
           onClick={() => setChamadoSelecionado(null)}
         >
           <div 
-            className="bg-white w-full max-w-xl h-full shadow-2xl border-l border-slate-200 p-6 overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-200"
+            className="bg-white w-full max-w-xl h-full shadow-2xl border-l border-slate-200 p-4 sm:p-6 overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-200 pt-safe pb-safe"
             onClick={e => e.stopPropagation()}
           >
             

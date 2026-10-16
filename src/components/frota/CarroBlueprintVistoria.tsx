@@ -114,7 +114,7 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
       </div>
 
       {/* Cards dos 4 Ângulos com Câmera e Preview */}
-      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {angulos.map((ang) => {
           const imgUrl = fotos[ang.id];
 

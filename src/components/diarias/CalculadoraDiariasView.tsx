@@ -372,11 +372,11 @@ export const CalculadoraDiariasView: React.FC<CalculadoraDiariasViewProps> = ({ 
       {/* MODAL DE PRÉ-VISUALIZAÇÃO DO DOCUMENTO OFICIAL (ANEXO I SEJU) */}
       {modalDocumento && (
         <div 
-          className="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in"
+          className="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-xs animate-in fade-in"
           onClick={() => setModalDocumento(false)}
         >
           <div 
-            className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 animate-in zoom-in-95 max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-3xl max-w-2xl w-full p-4 sm:p-8 shadow-2xl border border-slate-200 space-y-4 sm:space-y-5 animate-in zoom-in-95 max-h-[92vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
             {/* Cabeçalho Oficial do Documento */}
