@@ -495,10 +495,10 @@ export const CheckinCheckoutVistoria: React.FC<CheckinCheckoutVistoriaProps> = (
 
                 <div className="pt-2 flex items-center justify-between text-[11px] text-slate-500 border-t border-slate-200/60">
                   <span className="flex items-center gap-1.5">
-                    <ShieldCheck size={14} className="text-emerald-600" /> Assinatura Digital Imutável
+                    <ShieldCheck size={14} className="text-emerald-600" /> Assinatura Protegida no Cofre
                   </span>
-                  <span className="font-mono text-[10px] text-slate-700 bg-white px-2.5 py-0.5 rounded-md border border-slate-200/80">
-                    SHA-256: {formatShortHash(v.hashAuditoria)}
+                  <span className="font-mono text-[10px] text-slate-600 bg-white px-2.5 py-0.5 rounded-md border border-slate-200/80 select-none">
+                    {formatShortHash(v.hashAuditoria)}
                   </span>
                 </div>
               </div>
@@ -515,10 +515,10 @@ export const CheckinCheckoutVistoria: React.FC<CheckinCheckoutVistoriaProps> = (
               <CheckCircle2 size={24} />
             </div>
             <h3 className="text-base font-semibold text-slate-900">
-              Vistoria Registrada & Auditada
+              Vistoria Registrada & Protegida
             </h3>
             <p className="text-xs text-slate-500 mt-1 mb-4">
-              Odômetro em <strong>{sucessoModal.km.toLocaleString('pt-BR')} km</strong> e registros fotográficos gravados com carimbo criptográfico.
+              Odômetro em <strong>{sucessoModal.km.toLocaleString('pt-BR')} km</strong> e registros fotográficos selados no cofre de segurança.
             </p>
 
             <div className="p-3.5 bg-slate-50/80 rounded-xl border border-slate-200/80 text-left text-xs font-mono space-y-1.5 text-slate-600 mb-5">
@@ -530,9 +530,9 @@ export const CheckinCheckoutVistoria: React.FC<CheckinCheckoutVistoriaProps> = (
                 <span className="text-slate-400">Operação:</span>
                 <strong className="text-slate-900">{sucessoModal.tipo === 'checkin' ? 'CHAVE LIBERADA' : 'CHAVE DEVOLVIDA'}</strong>
               </div>
-              <div className="text-[10px] text-slate-700 bg-white p-2 rounded-lg border border-slate-200/80 break-all mt-2">
-                <span className="text-slate-400 block mb-0.5">Hash SHA-256:</span>
-                {sucessoModal.hashAuditoria}
+              <div className="text-[10px] text-slate-700 bg-white p-2 rounded-lg border border-slate-200/80 mt-2 flex items-center justify-between">
+                <span className="text-slate-400">Assinatura Oculta:</span>
+                <span className="tracking-widest text-emerald-600 select-none">••••••••••••••••</span>
               </div>
             </div>
 

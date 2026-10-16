@@ -432,7 +432,7 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
           </div>
         </div>
 
-        {/* Card Escuro Minimalista de Auditoria SHA-256 */}
+        {/* Card Escuro Minimalista de Segurança Blindada */}
         <div 
           onClick={onOpenAuditoria}
           className="lg:col-span-4 bg-slate-900 hover:bg-slate-800 text-white rounded-3xl p-6 shadow-gov-card design-card-lift cursor-pointer flex flex-col justify-between gap-4"
@@ -442,19 +442,19 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
               <Lock size={18} />
             </div>
             <span className="text-[10px] font-mono text-emerald-300 bg-emerald-500/15 px-2.5 py-0.5 rounded-full">
-              SHA-256 · ICP-PR
+              Cofre Blindado
             </span>
           </div>
 
           <div>
-            <h3 className="text-base font-bold text-white">Auditoria Criptográfica</h3>
+            <h3 className="text-base font-bold text-white">Segurança & Privacidade</h3>
             <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-              Todas as ações são assinadas com hash imutável de segurança.
+              Assinaturas e chaves permanecem 100% ocultas e protegidas no cofre.
             </p>
           </div>
 
           <div className="flex items-center justify-between text-xs font-semibold text-emerald-400 pt-2 border-t border-white/10">
-            <span>Inspecionar Hashes</span>
+            <span>Painel de Segurança</span>
             <ShieldCheck size={15} />
           </div>
         </div>

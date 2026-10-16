@@ -456,10 +456,10 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
                 ) : (
                   <div className="p-3.5 bg-emerald-50/80 rounded-2xl border border-emerald-200/80 text-center space-y-1">
                     <div className="text-xs font-bold text-emerald-800 flex items-center justify-center gap-1.5">
-                      <ShieldCheck size={15} className="text-emerald-600" /> Assinatura Digital Verificada
+                      <ShieldCheck size={15} className="text-emerald-600" /> Assinatura Digital Selada no Cofre
                     </div>
-                    <div className="text-[10px] text-emerald-700/80 font-mono truncate">
-                      SHA-256: {hashGerado}
+                    <div className="text-[10px] text-emerald-700/80 font-mono truncate select-none">
+                      Chave Oculta · ••••••••••••••••
                     </div>
                   </div>
                 )}

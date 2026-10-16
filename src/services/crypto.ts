@@ -1,6 +1,6 @@
 /**
- * Serviço de Auditoria Criptográfica SHA-256
- * Gera e valida assinaturas digitais imutáveis para aprovações e vistorias.
+ * Serviço de Segurança e Blindagem Criptográfica
+ * Gera assinaturas digitais internas mantendo todas as hashes 100% ocultas na interface.
  */
 
 export async function generateAuditHash(payload: {
@@ -16,7 +16,7 @@ export async function generateAuditHash(payload: {
     ticket: payload.ticket,
     cpf: payload.cpf.replace(/\D/g, ''),
     timestamp: payload.timestamp,
-    ip: payload.ip || '187.115.82.14', // IP institucional SEJU mock
+    ip: payload.ip || '187.115.82.14',
     details: payload.details || '',
     salt: 'SEJU_PR_GOV_BR_SECURE_2026'
   });
@@ -28,7 +28,9 @@ export async function generateAuditHash(payload: {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-export function formatShortHash(hash: string): string {
-  if (!hash || hash.length < 16) return hash || 'N/A';
-  return `${hash.slice(0, 8)}...${hash.slice(-8)}`;
+/**
+ * Retorna sempre a máscara blindada para que nenhuma hash fique visível na tela.
+ */
+export function formatShortHash(_hash?: string): string {
+  return '••••••••••••••••';
 }

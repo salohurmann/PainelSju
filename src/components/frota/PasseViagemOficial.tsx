@@ -216,12 +216,11 @@ export const PasseViagemOficial: React.FC<PasseViagemOficialProps> = ({
             </div>
 
             <div
-              className="flex items-center gap-1.5 text-[10px] font-mono text-slate-400 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/70 truncate max-w-[220px]"
-              title={agendamento.hashAuditoria}
+              className="flex items-center gap-1.5 text-[10px] font-mono text-slate-400 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/70 truncate max-w-[220px] select-none"
             >
               <Fingerprint size={12} className="text-slate-400 shrink-0" />
               <span className="truncate">
-                SHA-256 · {formatShortHash(agendamento.hashAuditoria || 'PENDENTE')}
+                Cofre · ••••••••••••••••
               </span>
             </div>
           </div>
