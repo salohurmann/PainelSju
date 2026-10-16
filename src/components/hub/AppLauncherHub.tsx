@@ -6,18 +6,14 @@ import {
   Plane, 
   PhoneCall, 
   ShieldCheck, 
-  ArrowRight, 
+  ArrowUpRight, 
   Clock, 
   Search,
   Sparkles,
-  ChevronRight,
   PlusCircle,
   CheckSquare,
   MapPin,
   Lock,
-  Layers,
-  Building2,
-  Wallet,
   ClipboardCheck
 } from 'lucide-react';
 import { Usuario, Agendamento, Veiculo } from '../../types';
@@ -26,7 +22,7 @@ import { soundFX } from '../../services/soundFx';
 import { JornadaInterativaModal } from '../experiencia/JornadaInterativaModal';
 
 export type AppModuleId = 'frota' | 'chamados' | 'salas' | 'diarias' | 'ramais';
-type EstruturaFiltro = 'todas' | 'mobilidade' | 'infraestrutura' | 'pessoas' | 'governanca';
+type CategoriaDesign = 'todos' | 'mobilidade' | 'espacos' | 'gestao';
 
 interface AppLauncherHubProps {
   currentUser: Usuario;
@@ -46,648 +42,423 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
   onOpenCommandPalette
 }) => {
   const [showJornadaModal, setShowJornadaModal] = useState(false);
-  const [estruturaAtiva, setEstruturaAtiva] = useState<EstruturaFiltro>('todas');
+  const [categoria, setCategoria] = useState<CategoriaDesign>('todos');
 
   const pendentesFrota = agendamentos.filter(a => a.status === 'pendente').length;
   const disponiveisFrota = veiculos.filter(v => v.status === 'disponivel').length;
-  const emUsoFrota = veiculos.filter(v => v.status === 'em_missao').length;
   const primeiroNome = currentUser.nome.split(' ')[0];
-
-  const estruturasNav: { id: EstruturaFiltro; num: string; label: string; foco: string; icon: React.ElementType }[] = [
-    { id: 'todas', num: '360°', label: 'Todas as Estruturas', foco: 'Visão dividida completa', icon: Layers },
-    { id: 'mobilidade', num: '01', label: 'Mobilidade & Frota', foco: 'Veículos, despachos e vistorias', icon: Car },
-    { id: 'infraestrutura', num: '02', label: 'Atendimento & Espaços', foco: 'Suporte TI e salas de reunião', icon: Building2 },
-    { id: 'pessoas', num: '03', label: 'Diárias & Comunicação', foco: 'Custeio de viagem e ramais', icon: Wallet },
-    { id: 'governanca', num: '04', label: 'Governança & Jornada', foco: 'Agenda diária e auditoria SHA-256', icon: ShieldCheck },
-  ];
-
-  const exibirMobilidade = estruturaAtiva === 'todas' || estruturaAtiva === 'mobilidade';
-  const exibirInfra = estruturaAtiva === 'todas' || estruturaAtiva === 'infraestrutura';
-  const exibirPessoas = estruturaAtiva === 'todas' || estruturaAtiva === 'pessoas';
-  const exibirGovernanca = estruturaAtiva === 'todas' || estruturaAtiva === 'governanca';
 
   return (
     <div className="space-y-6 sm:space-y-8 max-w-6xl mx-auto pb-12 font-sans">
       
-      {/* CABEÇALHO EXECUTIVO CLEAN + NAVEGADOR DE ESTRUTURAS DIVIDIDAS */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs overflow-hidden">
-        <div className="p-5 sm:p-7 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-          <div className="space-y-2 max-w-xl">
-            <div className="inline-flex items-center gap-2 text-[11px] font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <span>Arquitetura Dividida por Domínios · SEJU/PR</span>
+      {/* 1. HERO MINIMALISTA DE ALTO IMPACTO VISUAL */}
+      <div className="relative overflow-hidden rounded-3xl bg-white border border-slate-200/80 shadow-gov-card p-6 sm:p-8">
+        <div className="absolute -right-20 -top-20 w-72 h-72 rounded-full bg-blue-500/5 blur-3xl pointer-events-none" />
+        <div className="absolute right-20 -bottom-24 w-64 h-64 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2.5 max-w-xl">
+            <div className="inline-flex items-center gap-2 text-[11px] font-semibold text-slate-500">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span>{currentUser.setor} · {currentUser.cargo}</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-              Bom trabalho, {primeiroNome}
+
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
+              Olá, {primeiroNome}
             </h1>
+
             <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
-              O portal está organizado em <strong className="text-slate-700 font-semibold">4 estruturas independentes</strong>. Cada bloco foca em uma área operacional específica para agilizar sua rotina.
+              Tudo pronto para sua rotina na Secretaria da Justiça e Cidadania.
             </p>
-          </div>
 
-          {/* Ações Rápidas + Resumo Executivo */}
-          <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-stretch sm:items-center gap-3 shrink-0">
-            <div className="grid grid-cols-3 divide-x divide-slate-200/80 bg-slate-50 rounded-2xl border border-slate-200/70 px-3 py-2.5 text-center">
-              <div className="px-3">
-                <div className="text-base sm:text-lg font-bold text-slate-900">{disponiveisFrota}</div>
-                <div className="text-[10px] font-medium text-slate-500">Frota Livre</div>
-              </div>
-              <div className="px-3">
-                <div className="text-base sm:text-lg font-bold text-amber-600">{pendentesFrota}</div>
-                <div className="text-[10px] font-medium text-slate-500">Despachos</div>
-              </div>
-              <div className="px-3">
-                <div className="text-base sm:text-lg font-bold text-emerald-600">98%</div>
-                <div className="text-[10px] font-medium text-slate-500">SLA Geral</div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
+            <div className="pt-2 flex flex-wrap items-center gap-2.5">
               <button
                 type="button"
                 onClick={() => {
                   soundFX.playClick();
                   setShowJornadaModal(true);
                 }}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs shadow-2xs transition cursor-pointer active:scale-95"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs shadow-2xs transition-all cursor-pointer active:scale-95"
               >
                 <Sparkles size={14} className="text-blue-400" />
-                <span>Simulador 360°</span>
+                <span>Experiência 360°</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => onOpenCommandPalette?.()}
-                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs transition cursor-pointer active:scale-95"
-                title="Busca Global (Ctrl+K)"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100/90 hover:bg-slate-200/70 text-slate-700 font-semibold text-xs transition-all cursor-pointer active:scale-95"
               >
-                <Search size={14} className="text-slate-500" />
-                <span className="hidden sm:inline">Buscar</span>
-                <kbd className="hidden md:inline text-[10px] font-mono text-slate-400 bg-white px-1.5 py-0.2 rounded border border-slate-200">
+                <Search size={14} className="text-slate-400" />
+                <span>Busca Rápida</span>
+                <kbd className="hidden sm:inline text-[10px] font-mono text-slate-400 bg-white px-1.5 py-0.2 rounded border border-slate-200">
                   ⌘K
                 </kbd>
               </button>
             </div>
           </div>
-        </div>
 
-        {/* BARRA SELETORA DAS 4 ESTRUTURAS (FILTRO DE FOCO) */}
-        <div className="bg-slate-50/80 border-t border-slate-200/70 px-4 sm:px-7 py-3">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-            {estruturasNav.map((est) => {
-              const Icon = est.icon;
-              const isAtiva = estruturaAtiva === est.id;
-              return (
-                <button
-                  key={est.id}
-                  type="button"
-                  onClick={() => {
-                    soundFX.playClick();
-                    setEstruturaAtiva(est.id);
-                  }}
-                  className={`group flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-left transition-all shrink-0 cursor-pointer border ${
-                    isAtiva
-                      ? 'bg-white text-slate-900 border-slate-300 shadow-2xs'
-                      : 'bg-transparent hover:bg-white/60 text-slate-600 border-transparent'
-                  }`}
-                >
-                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold ${
-                    isAtiva ? 'bg-slate-900 text-white' : 'bg-slate-200/70 text-slate-600'
-                  }`}>
-                    <Icon size={13} />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold leading-none flex items-center gap-1.5">
-                      <span className="text-[10px] font-mono text-slate-400">{est.num}</span>
-                      <span>{est.label}</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 mt-0.5 hidden sm:block">
-                      {est.foco}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
+          {/* Métricas Esculpidas em Vidro */}
+          <div className="grid grid-cols-3 gap-2.5 sm:gap-3 lg:w-96 shrink-0">
+            <div 
+              onClick={() => onOpenApp('frota', 'frota')}
+              className="p-3.5 sm:p-4 rounded-2xl bg-slate-50/90 hover:bg-slate-100/80 border border-slate-200/70 transition cursor-pointer text-center"
+            >
+              <div className="text-xl sm:text-2xl font-extrabold text-slate-900">{disponiveisFrota}</div>
+              <div className="text-[10px] font-semibold text-slate-500 mt-0.5">Frota Livre</div>
+            </div>
+
+            <div 
+              onClick={() => onOpenApp('frota', 'aprovacoes')}
+              className="p-3.5 sm:p-4 rounded-2xl bg-slate-50/90 hover:bg-slate-100/80 border border-slate-200/70 transition cursor-pointer text-center"
+            >
+              <div className="text-xl sm:text-2xl font-extrabold text-amber-600">{pendentesFrota}</div>
+              <div className="text-[10px] font-semibold text-slate-500 mt-0.5">Despachos</div>
+            </div>
+
+            <div 
+              onClick={() => onOpenApp('chamados')}
+              className="p-3.5 sm:p-4 rounded-2xl bg-slate-50/90 hover:bg-slate-100/80 border border-slate-200/70 transition cursor-pointer text-center"
+            >
+              <div className="text-xl sm:text-2xl font-extrabold text-emerald-600">98%</div>
+              <div className="text-[10px] font-semibold text-slate-500 mt-0.5">SLA Ativo</div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* =====================================================================
-          ESTRUTURA 01: MOBILIDADE & LOGÍSTICA DE FROTA OFICIAL
-          Foco: Requisição rápida de veículos, aprovação de chefia e vistoria 4 fotos
-         ===================================================================== */}
-      {exibirMobilidade && (
-        <section className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs overflow-hidden">
-          {/* Cabeçalho da Estrutura 01 */}
-          <div className="px-5 sm:px-7 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-[#0072BB]/10 text-[#0072BB] border border-[#0072BB]/20">
-                Estrutura 01
-              </span>
-              <div>
-                <h2 className="text-sm sm:text-base font-bold text-slate-900">
-                  Mobilidade & Frota Oficial
-                </h2>
-                <p className="text-[11px] text-slate-500">
-                  Foco em agilidade de despacho, controle patrimonial de veículos e segurança jurídica na saída e retorno
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 text-xs font-semibold">
-              <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/70 text-[11px]">
-                {disponiveisFrota} disponíveis
-              </span>
-              <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200/70 text-[11px]">
-                {emUsoFrota} em missão
-              </span>
-            </div>
+      {/* 2. FILTRO SEGMENTADO ULTRA-CLEAN + BENTO GRID VISUAL */}
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
+          <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+            Ambientes Digitais
+          </h2>
+
+          <div className="inline-flex items-center gap-1 bg-slate-200/60 p-1 rounded-xl self-start sm:self-auto">
+            {[
+              { id: 'todos', label: 'Todos' },
+              { id: 'mobilidade', label: 'Mobilidade' },
+              { id: 'espacos', label: 'TI & Salas' },
+              { id: 'gestao', label: 'Diárias & Ramais' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => {
+                  soundFX.playClick();
+                  setCategoria(tab.id as CategoriaDesign);
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  categoria === tab.id
+                    ? 'bg-white text-slate-900 shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
+        </div>
 
-          {/* Corpo Dividido da Estrutura 01 */}
-          <div className="p-5 sm:p-7 grid grid-cols-1 lg:grid-cols-12 gap-5">
-            {/* Sub-bloco 1A: 4 Ações Focadas de Frota */}
-            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => onOpenApp('frota', 'nova-solicitacao')}
-                className="group p-4 rounded-2xl border border-slate-200/80 hover:border-[#0072BB] bg-white hover:bg-blue-50/20 text-left transition-all flex flex-col justify-between gap-3 cursor-pointer"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="w-9 h-9 rounded-xl bg-[#0072BB]/10 text-[#0072BB] flex items-center justify-center group-hover:bg-[#0072BB] group-hover:text-white transition-colors">
-                    <PlusCircle size={18} />
+        {/* BENTO GRID SOFISTICADO */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+          
+          {/* CARD 1: FROTA & MOBILIDADE (DESTAQUE 12 COLUNAS) */}
+          {(categoria === 'todos' || categoria === 'mobilidade') && (
+            <div 
+              onClick={() => onOpenApp('frota')}
+              className="md:col-span-12 group bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-7 shadow-gov-card hover:shadow-gov-card-hover hover:border-slate-300 design-card-lift cursor-pointer"
+            >
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div className="space-y-4 max-w-xl">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-2xl bg-[#0072BB] text-white flex items-center justify-center shadow-sm shrink-0">
+                      <Car size={22} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2.5">
+                        <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                          Frota & Veículos Oficiais
+                        </h3>
+                        <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
+                          {disponiveisFrota} livres
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Requisição digital, aprovação de gabinete e vistoria fotográfica em 4 ângulos.
+                      </p>
+                    </div>
                   </div>
-                  <span className="text-[10px] font-semibold text-[#0072BB] bg-blue-50 px-2 py-0.5 rounded-md">
-                    Passo 1
-                  </span>
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-slate-900 group-hover:text-[#0072BB]">
-                    Solicitar Veículo Oficial
-                  </div>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
-                    Agende saída com escolha de carro, horário e justificativa de missão.
-                  </p>
-                </div>
-              </button>
 
-              <button
-                type="button"
-                onClick={() => onOpenApp('frota', 'aprovacoes')}
-                className="group p-4 rounded-2xl border border-slate-200/80 hover:border-amber-500 bg-white hover:bg-amber-50/20 text-left transition-all flex flex-col justify-between gap-3 cursor-pointer"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                    <CheckSquare size={18} />
-                  </div>
-                  {pendentesFrota > 0 ? (
-                    <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
-                      {pendentesFrota} pendente(s)
-                    </span>
-                  ) : (
-                    <span className="text-[10px] font-semibold text-slate-400">Em dia</span>
-                  )}
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-slate-900 group-hover:text-amber-700">
-                    Despacho da Chefia
-                  </div>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
-                    Aprovação em 1 clique com geração imediata do QR Code de portaria.
-                  </p>
-                </div>
-              </button>
+                  {/* Ações Rápidas Esculpidas */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpenApp('frota', 'nova-solicitacao');
+                      }}
+                      className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    >
+                      <PlusCircle size={14} /> Solicitar Carro
+                    </button>
 
-              <button
-                type="button"
-                onClick={() => onOpenApp('frota', 'checkin-checkout')}
-                className="group p-4 rounded-2xl border border-slate-200/80 hover:border-emerald-500 bg-white hover:bg-emerald-50/20 text-left transition-all flex flex-col justify-between gap-3 cursor-pointer"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                    <ClipboardCheck size={18} />
-                  </div>
-                  <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
-                    4 Fotos + Mapa
-                  </span>
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-slate-900 group-hover:text-emerald-700">
-                    Vistoria Check-in / Out
-                  </div>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
-                    Registro fotográfico dos 4 ângulos, hodômetro e marcação de avarias.
-                  </p>
-                </div>
-              </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpenApp('frota', 'aprovacoes');
+                      }}
+                      className="bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-semibold px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    >
+                      <CheckSquare size={14} className="text-amber-600" /> Aprovações ({pendentesFrota})
+                    </button>
 
-              <button
-                type="button"
-                onClick={() => onOpenApp('frota', 'frota')}
-                className="group p-4 rounded-2xl border border-slate-200/80 hover:border-slate-400 bg-white hover:bg-slate-50 text-left transition-all flex flex-col justify-between gap-3 cursor-pointer"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-colors">
-                    <Car size={18} />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpenApp('frota', 'checkin-checkout');
+                      }}
+                      className="bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-semibold px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    >
+                      <ClipboardCheck size={14} className="text-emerald-600" /> Vistoria 4 Fotos
+                    </button>
                   </div>
-                  <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
-                    {veiculos.length} veículos
-                  </span>
                 </div>
-                <div>
-                  <div className="text-sm font-bold text-slate-900">
-                    Catálogo & Telemetria
-                  </div>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
-                    Consulte quilometragem, combustível, revisões e histórico por CPF.
-                  </p>
-                </div>
-              </button>
-            </div>
 
-            {/* Sub-bloco 1B: Painel de Prontidão dos Veículos em Tempo Real */}
-            <div className="lg:col-span-5 bg-slate-50/80 rounded-2xl border border-slate-200/70 p-4 flex flex-col justify-between gap-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-800">
-                  Prontidão no Pátio SEJU
-                </span>
-                <button
-                  type="button"
-                  onClick={() => onOpenApp('frota', 'frota')}
-                  className="text-[11px] font-semibold text-[#0072BB] hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <span>Ver todos</span>
-                  <ChevronRight size={13} />
-                </button>
-              </div>
-
-              <div className="space-y-2">
-                {veiculos.slice(0, 3).map((v) => (
-                  <div
-                    key={v.id}
-                    onClick={() => onOpenApp('frota', 'nova-solicitacao')}
-                    className="bg-white p-3 rounded-xl border border-slate-200/80 hover:border-slate-300 flex items-center justify-between gap-3 transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <PlacaMercosul placa={v.placa} className="scale-75 origin-left -mr-4 shrink-0" />
-                      <div className="min-w-0">
-                        <div className="text-xs font-bold text-slate-900 truncate">{v.modelo}</div>
-                        <div className="text-[10px] text-slate-400">
-                          {v.kmAtual.toLocaleString('pt-BR')} km · {v.nivelCombustivel}% tanque
-                        </div>
+                {/* Vitrine Minimalista dos Carros no Pátio */}
+                <div className="hidden sm:grid grid-cols-2 gap-3 shrink-0">
+                  {veiculos.slice(0, 2).map((v) => (
+                    <div key={v.id} className="bg-slate-50/90 p-3.5 rounded-2xl border border-slate-200/70 min-w-44">
+                      <PlacaMercosul placa={v.placa} className="scale-75 origin-left -mb-1" />
+                      <div className="text-xs font-bold text-slate-900 truncate mt-1.5">
+                        {v.modelo.split(' ').slice(0, 2).join(' ')}
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] text-slate-400 mt-1">
+                        <span>{v.nivelCombustivel}% tanque</span>
+                        <span className="text-emerald-600 font-semibold">● Livre</span>
                       </div>
                     </div>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
-                      v.status === 'disponivel'
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                        : 'bg-amber-50 text-amber-700 border border-amber-200'
-                    }`}>
-                      {v.status === 'disponivel' ? 'Livre' : 'Em uso'}
-                    </span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        </section>
-      )}
+          )}
 
-      {/* =====================================================================
-          ESTRUTURA 02: ATENDIMENTO TÉCNICO & ESPAÇOS COMPARTILHADOS
-          Foco: Resolução de chamados de TI/Predial e agendamento sem conflito de salas
-         ===================================================================== */}
-      {exibirInfra && (
-        <section className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs overflow-hidden">
-          <div className="px-5 sm:px-7 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200/80">
-                Estrutura 02
-              </span>
-              <div>
-                <h2 className="text-sm sm:text-base font-bold text-slate-900">
-                  Suporte Técnico & Infraestrutura Predial
-                </h2>
-                <p className="text-[11px] text-slate-500">
-                  Foco em continuidade operacional de TI, manutenção e ocupação inteligente de salas e auditórios
-                </p>
-              </div>
-            </div>
-            <span className="text-[11px] font-semibold text-slate-500">
-              2 módulos operacionais
-            </span>
-          </div>
-
-          <div className="p-5 sm:p-7 grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Sub-bloco 2A: Chamados & OS TI */}
-            <div
+          {/* CARD 2: CHAMADOS & SUPORTE TI (6 COLUNAS) */}
+          {(categoria === 'todos' || categoria === 'espacos') && (
+            <div 
               onClick={() => onOpenApp('chamados')}
-              className="group rounded-2xl border border-slate-200/80 hover:border-indigo-400 p-5 bg-white hover:bg-indigo-50/10 transition-all cursor-pointer flex flex-col justify-between gap-4"
+              className="md:col-span-6 group bg-white rounded-3xl border border-slate-200/80 p-6 shadow-gov-card hover:shadow-gov-card-hover hover:border-slate-300 design-card-lift cursor-pointer flex flex-col justify-between gap-6"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                  <div className="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                     <Wrench size={20} />
                   </div>
-                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100">
-                    Quadro Kanban · SLA
-                  </span>
+                  <div className="w-8 h-8 rounded-full bg-slate-50 text-slate-400 group-hover:bg-slate-900 group-hover:text-white flex items-center justify-center transition-colors">
+                    <ArrowUpRight size={15} />
+                  </div>
                 </div>
 
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
-                    Central de Chamados & Suporte TI
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                    Chamados & Suporte TI
                   </h3>
                   <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    Abertura e acompanhamento de ordens de serviço de informática, rede, impressoras e infraestrutura predial divididas por etapa de atendimento.
+                    Quadro Kanban em tempo real para suporte técnico, redes e manutenção predial.
                   </p>
                 </div>
-
-                {/* Mini indicadores internos do módulo */}
-                <div className="grid grid-cols-3 gap-2 pt-1">
-                  <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/60">
-                    <div className="text-xs font-bold text-slate-900">Triagem</div>
-                    <div className="text-[10px] text-slate-500">Fila imediata</div>
-                  </div>
-                  <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/60">
-                    <div className="text-xs font-bold text-indigo-600">Em Curso</div>
-                    <div className="text-[10px] text-slate-500">Técnico ativo</div>
-                  </div>
-                  <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/60">
-                    <div className="text-xs font-bold text-emerald-600">38 min</div>
-                    <div className="text-[10px] text-slate-500">Tempo médio</div>
-                  </div>
-                </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-indigo-600">
-                <span>Acessar Quadro de Chamados</span>
-                <ChevronRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
+              <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-500">
+                <span>Fila inteligente com SLA</span>
+                <span className="text-indigo-600 font-bold">Tempo médio: 38m</span>
               </div>
             </div>
+          )}
 
-            {/* Sub-bloco 2B: Reserva Inteligente de Salas */}
-            <div
+          {/* CARD 3: RESERVA DE SALAS (6 COLUNAS) */}
+          {(categoria === 'todos' || categoria === 'espacos') && (
+            <div 
               onClick={() => onOpenApp('salas')}
-              className="group rounded-2xl border border-slate-200/80 hover:border-emerald-400 p-5 bg-white hover:bg-emerald-50/10 transition-all cursor-pointer flex flex-col justify-between gap-4"
+              className="md:col-span-6 group bg-white rounded-3xl border border-slate-200/80 p-6 shadow-gov-card hover:shadow-gov-card-hover hover:border-slate-300 design-card-lift cursor-pointer flex flex-col justify-between gap-6"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                  <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                     <Calendar size={20} />
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
-                    Planta Interativa · Anti-Colisão
-                  </span>
+                  <div className="w-8 h-8 rounded-full bg-slate-50 text-slate-400 group-hover:bg-slate-900 group-hover:text-white flex items-center justify-center transition-colors">
+                    <ArrowUpRight size={15} />
+                  </div>
                 </div>
 
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                    Reserva de Salas & Auditórios
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                    Salas & Auditórios
                   </h3>
                   <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    Visualização espacial dos ambientes da SEJU com bloqueio automático de conflitos de horário e checklist de videoconferência e copa.
+                    Planta interativa de ocupação com bloqueio automático de conflitos de horário.
                   </p>
                 </div>
+              </div>
 
-                <div className="grid grid-cols-3 gap-2 pt-1">
-                  <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/60">
-                    <div className="text-xs font-bold text-slate-900">5 Espaços</div>
-                    <div className="text-[10px] text-slate-500">Salas & Auditório</div>
+              <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-500">
+                <span>5 espaços corporativos</span>
+                <span className="text-emerald-600 font-bold">Grade 08h–18h</span>
+              </div>
+            </div>
+          )}
+
+          {/* CARD 4: CALCULADORA DE DIÁRIAS (6 COLUNAS) */}
+          {(categoria === 'todos' || categoria === 'gestao') && (
+            <div 
+              onClick={() => onOpenApp('diarias')}
+              className="md:col-span-6 group bg-white rounded-3xl border border-slate-200/80 p-6 shadow-gov-card hover:shadow-gov-card-hover hover:border-slate-300 design-card-lift cursor-pointer flex flex-col justify-between gap-6"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                    <Plane size={20} />
                   </div>
-                  <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/60">
-                    <div className="text-xs font-bold text-emerald-600">08h–18h</div>
-                    <div className="text-[10px] text-slate-500">Grade horária</div>
+                  <div className="w-8 h-8 rounded-full bg-slate-50 text-slate-400 group-hover:bg-slate-900 group-hover:text-white flex items-center justify-center transition-colors">
+                    <ArrowUpRight size={15} />
                   </div>
-                  <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200/60">
-                    <div className="text-xs font-bold text-slate-900">4K + Vídeo</div>
-                    <div className="text-[10px] text-slate-500">Kit multimídia</div>
-                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                    Calculadora de Diárias
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    Mapa interativo das regionais do Paraná e emissão automática de nota de empenho.
+                  </p>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-700">
-                <span>Reservar Sala ou Auditório</span>
-                <ChevronRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
+              <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-500">
+                <span>Decreto Estadual 1.428/PR</span>
+                <span className="text-amber-700 font-bold">Anexo I Oficial</span>
               </div>
             </div>
-          </div>
-        </section>
-      )}
+          )}
 
-      {/* =====================================================================
-          ESTRUTURA 03: FINANCEIRO DE VIAGENS & COMUNICAÇÃO INTERNA
-          Foco: Cálculo transparente de diárias no Paraná e diretório de ramais
-         ===================================================================== */}
-      {exibirPessoas && (
-        <section className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs overflow-hidden">
-          <div className="px-5 sm:px-7 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200/80">
-                Estrutura 03
-              </span>
-              <div>
-                <h2 className="text-sm sm:text-base font-bold text-slate-900">
-                  Custeio de Missões & Diretório de Pessoas
-                </h2>
-                <p className="text-[11px] text-slate-500">
-                  Foco em conformidade orçamentária de diárias (Decreto 1.428/PR) e conexão direta entre setores
-                </p>
+          {/* CARD 5: GUIA DE RAMAIS (6 COLUNAS) */}
+          {(categoria === 'todos' || categoria === 'gestao') && (
+            <div 
+              onClick={() => onOpenApp('ramais')}
+              className="md:col-span-6 group bg-white rounded-3xl border border-slate-200/80 p-6 shadow-gov-card hover:shadow-gov-card-hover hover:border-slate-300 design-card-lift cursor-pointer flex flex-col justify-between gap-6"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-11 h-11 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center group-hover:bg-sky-600 group-hover:text-white transition-colors">
+                    <PhoneCall size={20} />
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-slate-50 text-slate-400 group-hover:bg-slate-900 group-hover:text-white flex items-center justify-center transition-colors">
+                    <ArrowUpRight size={15} />
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                    Guia de Ramais & Unidades
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    Catálogo instantâneo de servidores, gabinetes e coordenações com status ao vivo.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-500">
+                <span>Diretório & Organograma</span>
+                <span className="text-sky-600 font-bold">Discagem 1 clique</span>
               </div>
             </div>
-            <span className="text-[11px] font-semibold text-slate-500">
-              Mapa Interativo + Catálogo
+          )}
+
+        </div>
+      </div>
+
+      {/* 3. AGENDA DO DIA + AUDITORIA CRIPTOGRÁFICA EM LINHA ELEGANTE */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="lg:col-span-8 bg-white rounded-3xl p-6 border border-slate-200/80 shadow-gov-card space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <h3 className="text-sm font-bold text-slate-900">Agenda de Hoje</h3>
+            </div>
+            <span className="text-[11px] text-slate-400 font-medium">
+              {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'short' })}
             </span>
           </div>
 
-          <div className="p-5 sm:p-7 grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Sub-bloco 3A: Calculadora de Diárias */}
-            <div
-              onClick={() => onOpenApp('diarias')}
-              className="group rounded-2xl border border-slate-200/80 hover:border-amber-400 p-5 bg-white hover:bg-amber-50/10 transition-all cursor-pointer flex flex-col justify-between gap-4"
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div 
+              onClick={() => onOpenApp('salas')}
+              className="p-3.5 rounded-2xl bg-slate-50/80 hover:bg-slate-100/70 border border-slate-200/60 transition cursor-pointer space-y-1.5"
             >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-colors">
-                    <Plane size={20} />
-                  </div>
-                  <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
-                    Decreto Estadual 1.428/PR
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
-                    Calculadora Oficial de Diárias
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    Selecione a regional no mapa interativo do Paraná, simule pernoites, alimentação e gere o demonstrativo financeiro pronto para empenho.
-                  </p>
-                </div>
+              <div className="text-[10px] font-bold text-indigo-600 flex items-center gap-1">
+                <Clock size={11} /> 14:00 – 15:30
               </div>
-
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-amber-700">
-                <span>Simular Custo de Viagem</span>
-                <ChevronRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
+              <div className="text-xs font-bold text-slate-900 truncate">Plano Plurianual</div>
+              <div className="text-[11px] text-slate-500 flex items-center gap-1 truncate">
+                <MapPin size={10} /> Auditório · 4º Andar
               </div>
             </div>
 
-            {/* Sub-bloco 3B: Guia de Ramais */}
-            <div
-              onClick={() => onOpenApp('ramais')}
-              className="group rounded-2xl border border-slate-200/80 hover:border-sky-400 p-5 bg-white hover:bg-sky-50/10 transition-all cursor-pointer flex flex-col justify-between gap-4"
+            <div 
+              onClick={() => onOpenApp('frota')}
+              className="p-3.5 rounded-2xl bg-slate-50/80 hover:bg-slate-100/70 border border-slate-200/60 transition cursor-pointer space-y-1.5"
             >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center group-hover:bg-sky-600 group-hover:text-white transition-colors">
-                    <PhoneCall size={20} />
-                  </div>
-                  <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-100">
-                    Busca Instantânea
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-sky-700 transition-colors">
-                    Guia de Ramais & Unidades SEJU
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    Localize rapidamente servidores, chefias, gabinetes e departamentos por andar, com cópia rápida de ramal e e-mail institucional.
-                  </p>
-                </div>
+              <div className="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
+                <Car size={11} /> Saída 16:30
               </div>
+              <div className="text-xs font-bold text-slate-900 truncate">Missão Paranaguá</div>
+              <div className="text-[11px] text-slate-500 truncate">Corolla · BCB-4A12</div>
+            </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-sky-700">
-                <span>Consultar Diretório de Ramais</span>
-                <ChevronRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
+            <div 
+              onClick={() => onOpenApp('chamados')}
+              className="p-3.5 rounded-2xl bg-slate-50/80 hover:bg-slate-100/70 border border-slate-200/60 transition cursor-pointer space-y-1.5"
+            >
+              <div className="text-[10px] font-bold text-amber-700 font-mono">
+                #TI-2026-441
               </div>
+              <div className="text-xs font-bold text-slate-900 truncate">Revisão de Scanner</div>
+              <div className="text-[11px] text-slate-500 truncate">SLA ativo · 38 min</div>
             </div>
           </div>
-        </section>
-      )}
+        </div>
 
-      {/* =====================================================================
-          ESTRUTURA 04: GOVERNANÇA CRIPTOGRÁFICA & JORNADA DO SERVIDOR
-          Foco: Agenda integrada do dia e trilha de auditoria imutável SHA-256
-         ===================================================================== */}
-      {exibirGovernanca && (
-        <section className="bg-white rounded-3xl border border-slate-200/80 shadow-2xs overflow-hidden">
-          <div className="px-5 sm:px-7 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-                Estrutura 04
-              </span>
-              <div>
-                <h2 className="text-sm sm:text-base font-bold text-slate-900">
-                  Governança Digital & Agenda do Servidor
-                </h2>
-                <p className="text-[11px] text-slate-500">
-                  Foco em acompanhamento dos compromissos de hoje e rastreabilidade criptográfica SHA-256
-                </p>
-              </div>
+        {/* Card Escuro Minimalista de Auditoria SHA-256 */}
+        <div 
+          onClick={onOpenAuditoria}
+          className="lg:col-span-4 bg-slate-900 hover:bg-slate-800 text-white rounded-3xl p-6 shadow-gov-card design-card-lift cursor-pointer flex flex-col justify-between gap-4"
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-2xl bg-white/10 text-emerald-400 flex items-center justify-center">
+              <Lock size={18} />
             </div>
-
-            <button
-              type="button"
-              onClick={onOpenAuditoria}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-800 cursor-pointer"
-            >
-              <Lock size={13} />
-              <span>Abrir Trilha SHA-256</span>
-              <ArrowRight size={13} />
-            </button>
+            <span className="text-[10px] font-mono text-emerald-300 bg-emerald-500/15 px-2.5 py-0.5 rounded-full">
+              SHA-256 · ICP-PR
+            </span>
           </div>
 
-          <div className="p-5 sm:p-7 space-y-5">
-            {/* Linha de Compromissos do Dia */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-              <div 
-                onClick={() => onOpenApp('salas')}
-                className="p-4 rounded-2xl bg-slate-50/80 hover:bg-white border border-slate-200/70 hover:border-slate-300 transition cursor-pointer flex flex-col justify-between gap-2.5"
-              >
-                <div className="flex items-center justify-between text-[10px] font-bold">
-                  <span className="text-indigo-600 flex items-center gap-1">
-                    <Clock size={11} /> 14:00 – 15:30
-                  </span>
-                  <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                    Sala Confirmada
-                  </span>
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-900">Alinhamento Plano Plurianual</div>
-                  <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                    <MapPin size={11} className="text-slate-400 shrink-0" /> Auditório Principal · 4º Andar
-                  </div>
-                </div>
-              </div>
-
-              <div 
-                onClick={() => onOpenApp('frota')}
-                className="p-4 rounded-2xl bg-slate-50/80 hover:bg-white border border-slate-200/70 hover:border-slate-300 transition cursor-pointer flex flex-col justify-between gap-2.5"
-              >
-                <div className="flex items-center justify-between text-[10px] font-bold">
-                  <span className="text-emerald-700 flex items-center gap-1">
-                    <Car size={11} /> Saída às 16:30
-                  </span>
-                  <span className="font-mono text-slate-700 bg-white px-2 py-0.5 rounded-md border border-slate-200">
-                    BCB-4A12
-                  </span>
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-900">Missão Oficial: Paranaguá</div>
-                  <div className="text-[11px] text-slate-500 mt-0.5">
-                    Corolla Híbrido · Despacho autorizado
-                  </div>
-                </div>
-              </div>
-
-              <div 
-                onClick={() => onOpenApp('chamados')}
-                className="p-4 rounded-2xl bg-slate-50/80 hover:bg-white border border-slate-200/70 hover:border-slate-300 transition cursor-pointer flex flex-col justify-between gap-2.5"
-              >
-                <div className="flex items-center justify-between text-[10px] font-bold">
-                  <span className="font-mono text-amber-800">OS #TI-2026-441</span>
-                  <span className="text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
-                    SLA: 38 min
-                  </span>
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-slate-900">Manutenção de Scanner & Rede</div>
-                  <div className="text-[11px] text-slate-500 mt-0.5">
-                    Técnico Marcos atribuído · Em atendimento
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Faixa de Auditoria Imutável */}
-            <div className="p-4 rounded-2xl bg-slate-900 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                  <Lock size={17} />
-                </div>
-                <div>
-                  <div className="font-bold text-xs text-white flex items-center gap-2">
-                    <span>Ledger de Auditoria Criptográfica SHA-256</span>
-                    <span className="text-[9px] bg-emerald-500/20 text-emerald-300 font-mono px-1.5 py-0.2 rounded">
-                      ICP-PR
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">
-                    Cada solicitação, despacho e vistoria gera um hash encadeado auditável em tempo real.
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={onOpenAuditoria}
-                className="text-xs font-semibold text-slate-200 hover:text-white bg-white/10 hover:bg-white/15 px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer shrink-0 w-full sm:w-auto justify-center"
-              >
-                <ShieldCheck size={14} className="text-emerald-400" />
-                <span>Inspecionar Hashes</span>
-              </button>
-            </div>
+          <div>
+            <h3 className="text-base font-bold text-white">Auditoria Criptográfica</h3>
+            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              Todas as ações são assinadas com hash imutável de segurança.
+            </p>
           </div>
-        </section>
-      )}
+
+          <div className="flex items-center justify-between text-xs font-semibold text-emerald-400 pt-2 border-t border-white/10">
+            <span>Inspecionar Hashes</span>
+            <ShieldCheck size={15} />
+          </div>
+        </div>
+      </div>
 
       {/* MODAL DE EXPERIÊNCIA INTERATIVA 360° */}
       <JornadaInterativaModal 

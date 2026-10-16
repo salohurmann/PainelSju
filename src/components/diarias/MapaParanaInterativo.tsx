@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Navigation, Compass, Route, Gauge, Clock, DollarSign, Sparkles } from 'lucide-react';
+import { MapPin, Navigation, Route, Gauge, Clock, Sparkles, Fuel } from 'lucide-react';
 
 export interface DestinoParana {
   id: string;
@@ -44,171 +44,229 @@ export const MapaParanaInterativo: React.FC<MapaParanaInterativoProps> = ({
   const displayCidade = hoverCidade || cidadeSelecionada;
 
   // Cálculo da diária conforme Decreto Estadual
-  const valorDiariaCalculado = cidadeSelecionada.id === 'curitiba' 
-    ? 0 
-    : comPernoite 
-      ? cidadeSelecionada.diariaEstimada 
+  const valorDiariaCalculado =
+    cidadeSelecionada.id === 'curitiba'
+      ? 0
+      : comPernoite
+      ? cidadeSelecionada.diariaEstimada
       : Math.round(cidadeSelecionada.diariaEstimada * 0.5);
 
-  const litrosCombustivel = cidadeSelecionada.id === 'curitiba'
-    ? 0
-    : Math.round((cidadeSelecionada.distanciaKm * 2) / 10.5); // Ida e volta a 10.5 km/l
+  const litrosCombustivel =
+    cidadeSelecionada.id === 'curitiba'
+      ? 0
+      : Math.round((cidadeSelecionada.distanciaKm * 2) / 10.5);
+
+  // Curva Bezier suave entre Curitiba e o Destino selecionado
+  const midX = (curitiba.x + displayCidade.x) / 2;
+  const midY = Math.min(curitiba.y, displayCidade.y) - 8;
+  const routePath = `M ${curitiba.x} ${curitiba.y} Q ${midX} ${midY} ${displayCidade.x} ${displayCidade.y}`;
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-7 shadow-gov-card space-y-6">
-      
-      {/* Cabeçalho do Radar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+    <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-[0_12px_32px_-12px_rgba(15,23,42,0.06)] space-y-6 font-sans">
+      {/* HEADER BAR */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#0072BB] bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
-              Radar Geográfico Interativo
-            </span>
-            <span className="text-xs text-slate-400">•</span>
-            <span className="text-xs text-slate-500 font-semibold">Rotas Oficiais do Paraná</span>
+          <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#005A9C] bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200/60">
+            <Navigation size={12} /> Cartografia Rodoviária Oficial · PR
           </div>
-          <h3 className="text-lg font-black text-slate-900 mt-0.5 flex items-center gap-2">
-            <Navigation size={18} className="text-[#0072BB]" />
-            Planejador Interativo de Missões & Diárias
+          <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight mt-2">
+            Planejador Geográfico de Missões & Diárias
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">
-            Clique em qualquer polo regional no mapa para traçar o itinerário oficial, rodovias e calcular as indenizações.
+            Selecione um polo regional no mapa ou nas pílulas rápidas para simular o itinerário e o cálculo de diárias.
           </p>
         </div>
 
-        {/* Toggle Pernoite */}
-        <div className="flex items-center gap-3 bg-slate-50 p-2 rounded-2xl border border-slate-200 shrink-0">
-          <span className="text-xs font-bold text-slate-700">Com Pernoite Oficial?</span>
+        {/* Sleek Segmented Pernoite Switch */}
+        <div className="inline-flex items-center bg-slate-100 p-1 rounded-full border border-slate-200/80 self-start sm:self-auto shrink-0">
           <button
             type="button"
-            onClick={() => onTogglePernoite(!comPernoite)}
-            className={`w-12 h-6 flex items-center rounded-full p-1 transition duration-300 cursor-pointer ${
-              comPernoite ? 'bg-[#0072BB] justify-end' : 'bg-slate-300 justify-start'
+            onClick={() => onTogglePernoite(false)}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              !comPernoite
+                ? 'bg-white text-slate-900 shadow-2xs'
+                : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            <div className="bg-white w-4 h-4 rounded-full shadow-md" />
+            Sem Pernoite (50%)
+          </button>
+          <button
+            type="button"
+            onClick={() => onTogglePernoite(true)}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              comPernoite
+                ? 'bg-[#005A9C] text-white shadow-2xs'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            Com Pernoite (100%)
           </button>
         </div>
       </div>
 
-      {/* Grid Principal: Mapa Interativo SVG + Painel de Telemetria da Rota */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-        
-        {/* Lado Esquerdo: O Mapa Vetorial do Paraná */}
-        <div className="lg:col-span-7 relative bg-linear-to-br from-slate-900 via-[#00385E] to-slate-900 rounded-3xl p-6 border border-slate-800 overflow-hidden shadow-inner min-h-[380px] flex items-center justify-center">
-          
-          {/* Grade de coordenadas náuticas/estaduais de fundo */}
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />
+      {/* QUICK CITY SELECTOR PILLS */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+        {CIDADES_PARANA.map((c) => {
+          const active = cidadeSelecionada.id === c.id;
+          const nomeCurto = c.id === 'curitiba' ? 'Curitiba (Sede)' : c.nome;
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => onSelectCidade(c)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                active
+                  ? 'bg-slate-900 text-white shadow-2xs'
+                  : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200/80'
+              }`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  active ? 'bg-sky-400' : c.id === 'curitiba' ? 'bg-[#005A9C]' : 'bg-slate-300'
+                }`}
+              />
+              {nomeCurto}
+            </button>
+          );
+        })}
+      </div>
 
-          {/* Selo Radar no canto */}
-          <div className="absolute top-4 left-4 z-10 flex items-center gap-2 text-[10px] font-mono text-emerald-400 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-emerald-500/30">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            RADAR RODOVIÁRIO PR ATIVO
+      {/* MAIN GRID: ULTRA-CLEAN AIRY MAP + TELEMETRY CARDS */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        {/* LEFT: LIGHT & AIRY VECTOR MAP CONTAINER */}
+        <div className="lg:col-span-7 relative bg-linear-to-b from-slate-50/90 to-sky-50/40 rounded-3xl p-6 border border-slate-200/80 overflow-hidden min-h-[360px] flex items-center justify-center">
+          {/* Subtle Dot Matrix */}
+          <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:18px_18px] opacity-45 pointer-events-none" />
+
+          {/* Floating Origin Pill */}
+          <div className="absolute top-4 left-4 z-10 inline-flex items-center gap-2 text-[10px] font-semibold text-slate-600 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-200/80 shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-[#005A9C]" />
+            <span>ORIGEM: CURITIBA · SEJU</span>
           </div>
 
-          <div className="absolute bottom-4 left-4 z-10 text-[10px] font-mono text-slate-400 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-lg border border-slate-700">
-            PONTO DE PARTIDA: CURITIBA (SEJU)
-          </div>
+          {/* Floating Active Route Pill */}
+          {displayCidade.id !== 'curitiba' && (
+            <div className="absolute top-4 right-4 z-10 inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-[#005A9C] bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-sky-200/80 shadow-2xs">
+              <span>{displayCidade.rodovias}</span>
+              <span>•</span>
+              <span>{displayCidade.distanciaKm} KM</span>
+            </div>
+          )}
 
-          {/* SVG Map Canvas */}
-          <svg viewBox="0 0 100 100" className="w-full h-full max-h-[340px] select-none filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]">
+          {/* SVG PARANÁ MAP */}
+          <svg
+            viewBox="0 0 100 100"
+            className="w-full h-full max-h-[320px] select-none overflow-visible"
+          >
             <defs>
-              {/* Gradiente da linha de rota ativa */}
-              <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#00AEEF" />
-                <stop offset="50%" stopColor="#38BDF8" />
-                <stop offset="100%" stopColor="#34D399" />
+              <linearGradient id="cleanRouteGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#0284C7" />
+                <stop offset="100%" stopColor="#005A9C" />
               </linearGradient>
-
-              {/* Filtro de Brilho Neon */}
-              <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="1.5" result="blur" />
-                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              <filter id="mapDropShadow" x="-10%" y="-10%" width="120%" height="120%">
+                <feDropShadow dx="0" dy="4" stdDeviation="3" floodColor="#0F172A" floodOpacity="0.06" />
               </filter>
             </defs>
 
-            {/* Contorno Geométrico Fiel do Estado do Paraná */}
+            {/* Paraná State Silhouette — Crisp White/Sky Surface */}
             <path
               d="M 12,68 L 10,75 L 18,80 L 32,82 L 46,78 L 58,84 L 75,82 L 86,76 L 90,70 L 85,62 L 78,54 L 72,42 L 70,30 L 64,22 L 50,22 L 42,26 L 30,28 L 22,34 L 16,46 L 14,56 Z"
-              fill="#0F2B48"
-              stroke="#00AEEF"
-              strokeWidth="0.8"
-              strokeOpacity="0.6"
-              className="transition-all duration-500"
+              fill="#FFFFFF"
+              stroke="#CBD5E1"
+              strokeWidth="0.9"
+              filter="url(#mapDropShadow)"
+              className="transition-all duration-300"
             />
 
-            {/* Rodovias Secundárias (Linhas cinzas sutis) */}
-            <line x1={curitiba.x} y1={curitiba.y} x2={CIDADES_PARANA[2].x} y2={CIDADES_PARANA[2].y} stroke="#334155" strokeWidth="0.6" strokeDasharray="1,1" />
-            <line x1={CIDADES_PARANA[2].x} y1={CIDADES_PARANA[2].y} x2={CIDADES_PARANA[3].x} y2={CIDADES_PARANA[3].y} stroke="#334155" strokeWidth="0.6" strokeDasharray="1,1" />
-            <line x1={CIDADES_PARANA[3].x} y1={CIDADES_PARANA[3].y} x2={CIDADES_PARANA[4].x} y2={CIDADES_PARANA[4].y} stroke="#334155" strokeWidth="0.6" strokeDasharray="1,1" />
-            <line x1={CIDADES_PARANA[2].x} y1={CIDADES_PARANA[2].y} x2={CIDADES_PARANA[5].x} y2={CIDADES_PARANA[5].y} stroke="#334155" strokeWidth="0.6" strokeDasharray="1,1" />
-            <line x1={CIDADES_PARANA[5].x} y1={CIDADES_PARANA[5].y} x2={CIDADES_PARANA[6].x} y2={CIDADES_PARANA[6].y} stroke="#334155" strokeWidth="0.6" strokeDasharray="1,1" />
-            <line x1={CIDADES_PARANA[6].x} y1={CIDADES_PARANA[6].y} x2={CIDADES_PARANA[7].x} y2={CIDADES_PARANA[7].y} stroke="#334155" strokeWidth="0.6" strokeDasharray="1,1" />
+            {/* Subtle Highway Network Lines */}
+            <g stroke="#E2E8F0" strokeWidth="0.5" strokeDasharray="1.2,1.2">
+              <line x1={curitiba.x} y1={curitiba.y} x2={CIDADES_PARANA[2].x} y2={CIDADES_PARANA[2].y} />
+              <line x1={CIDADES_PARANA[2].x} y1={CIDADES_PARANA[2].y} x2={CIDADES_PARANA[3].x} y2={CIDADES_PARANA[3].y} />
+              <line x1={CIDADES_PARANA[3].x} y1={CIDADES_PARANA[3].y} x2={CIDADES_PARANA[4].x} y2={CIDADES_PARANA[4].y} />
+              <line x1={CIDADES_PARANA[2].x} y1={CIDADES_PARANA[2].y} x2={CIDADES_PARANA[5].x} y2={CIDADES_PARANA[5].y} />
+              <line x1={CIDADES_PARANA[5].x} y1={CIDADES_PARANA[5].y} x2={CIDADES_PARANA[6].x} y2={CIDADES_PARANA[6].y} />
+              <line x1={CIDADES_PARANA[6].x} y1={CIDADES_PARANA[6].y} x2={CIDADES_PARANA[7].x} y2={CIDADES_PARANA[7].y} />
+              <line x1={CIDADES_PARANA[4].x} y1={CIDADES_PARANA[4].y} x2={CIDADES_PARANA[8].x} y2={CIDADES_PARANA[8].y} />
+              <line x1={curitiba.x} y1={curitiba.y} x2={CIDADES_PARANA[1].x} y2={CIDADES_PARANA[1].y} />
+            </g>
 
-            {/* Linha de Rota Ativa Traçada (com pulso luminoso) */}
-            {cidadeSelecionada.id !== 'curitiba' && (
-              <g filter="url(#glow)">
-                <line
-                  x1={curitiba.x}
-                  y1={curitiba.y}
-                  x2={cidadeSelecionada.x}
-                  y2={cidadeSelecionada.y}
-                  stroke="url(#routeGradient)"
-                  strokeWidth="1.6"
-                  strokeDasharray="2,2"
-                  className="animate-pulse"
+            {/* Active Curved Route Arc */}
+            {displayCidade.id !== 'curitiba' && (
+              <g>
+                {/* Soft Glow Underlay */}
+                <path
+                  d={routePath}
+                  fill="none"
+                  stroke="#38BDF8"
+                  strokeWidth="2.4"
+                  strokeOpacity="0.22"
+                  strokeLinecap="round"
+                />
+                {/* Crisp Dashed Route Line */}
+                <path
+                  d={routePath}
+                  fill="none"
+                  stroke="url(#cleanRouteGrad)"
+                  strokeWidth="1.2"
+                  strokeDasharray="2.2,1.6"
+                  strokeLinecap="round"
                 />
               </g>
             )}
 
-            {/* Nós Interativos das Cidades */}
+            {/* Interactive City Pins */}
             {CIDADES_PARANA.map((c) => {
-              const isSelected = cidadeSelecionada.id === c.id;
+              const isSelected = displayCidade.id === c.id;
               const isCuritiba = c.id === 'curitiba';
+              const label = c.id === 'curitiba' ? 'Curitiba' : c.nome;
 
               return (
-                <g 
-                  key={c.id} 
+                <g
+                  key={c.id}
                   className="cursor-pointer group"
                   onClick={() => onSelectCidade(c)}
                   onMouseEnter={() => setHoverCidade(c)}
                   onMouseLeave={() => setHoverCidade(null)}
                 >
-                  {/* Círculo pulsante quando selecionado */}
-                  {isSelected && (
+                  {/* Subtle Halo Ring on Active or Origin */}
+                  {(isSelected || isCuritiba) && (
                     <circle
                       cx={c.x}
                       cy={c.y}
-                      r="4.5"
-                      fill="none"
-                      stroke={isCuritiba ? '#0072BB' : '#34D399'}
-                      strokeWidth="0.8"
-                      className="animate-ping origin-center"
+                      r={isSelected ? '4.2' : '3.2'}
+                      fill={isSelected ? '#0284C7' : '#005A9C'}
+                      fillOpacity="0.14"
                     />
                   )}
 
-                  {/* Ponto Central da Cidade */}
+                  {/* Pin Dot */}
                   <circle
                     cx={c.x}
                     cy={c.y}
-                    r={isSelected ? '2.4' : '1.7'}
-                    fill={isCuritiba ? '#00AEEF' : isSelected ? '#10B981' : '#E2E8F0'}
-                    stroke={isSelected ? '#FFFFFF' : '#0F172A'}
-                    strokeWidth="0.6"
-                    className="transition-all duration-300 group-hover:scale-150"
+                    r={isSelected ? '2.2' : isCuritiba ? '2.0' : '1.5'}
+                    fill={
+                      isSelected
+                        ? '#005A9C'
+                        : isCuritiba
+                        ? '#0284C7'
+                        : '#94A3B8'
+                    }
+                    stroke="#FFFFFF"
+                    strokeWidth="0.7"
+                    className="transition-all duration-200"
                   />
 
-                  {/* Rótulo de Texto da Cidade */}
+                  {/* Crisp City Label */}
                   <text
                     x={c.x}
-                    y={c.y - 3}
+                    y={c.y - 3.2}
                     textAnchor="middle"
-                    fill={isSelected ? '#F8FAFC' : '#94A3B8'}
-                    fontSize={isSelected ? '2.8' : '2.2'}
-                    fontWeight={isSelected ? 'bold' : 'normal'}
-                    className="transition-all duration-200 select-none group-hover:fill-white font-sans"
+                    fill={isSelected ? '#0F172A' : '#64748B'}
+                    fontSize={isSelected ? '2.7' : '2.2'}
+                    fontWeight={isSelected || isCuritiba ? '700' : '500'}
+                    className="transition-all duration-200 select-none font-sans"
                   >
-                    {c.nome.split(' ')[0]}
+                    {label}
                   </text>
                 </g>
               );
@@ -216,101 +274,100 @@ export const MapaParanaInterativo: React.FC<MapaParanaInterativoProps> = ({
           </svg>
         </div>
 
-        {/* Lado Direito: Cockpit de Telemetria da Viagem */}
-        <div className="lg:col-span-5 space-y-4">
-          
-          {/* Card da Cidade Selecionada */}
-          <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+        {/* RIGHT: CLEAN TELEMETRY & ALLOWANCE SUMMARY */}
+        <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
+          {/* Destination Telemetry Card */}
+          <div className="p-5 bg-slate-50/70 rounded-2xl border border-slate-200/80 space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                Destino Selecionado
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Polo Selecionado
               </span>
-              <span className="text-[11px] font-bold text-[#0072BB] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+              <span className="text-[11px] font-semibold text-[#005A9C] bg-white px-2.5 py-0.5 rounded-full border border-slate-200/80 shadow-2xs">
                 Região {displayCidade.regiao}
               </span>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-[#0072BB] text-white flex items-center justify-center font-black text-xl shadow-md">
-                <MapPin size={24} />
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xs shrink-0">
+                <MapPin size={20} />
               </div>
-              <div>
-                <h4 className="text-lg font-black text-slate-900 leading-tight">
+              <div className="min-w-0">
+                <h4 className="text-lg font-black text-slate-900 tracking-tight truncate">
                   {displayCidade.nome}
                 </h4>
-                <div className="text-xs text-slate-500 font-semibold mt-0.5 flex items-center gap-1.5">
-                  <Route size={13} className="text-[#0072BB]" />
-                  <span>Via {displayCidade.rodovias}</span>
+                <div className="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-1.5">
+                  <Route size={13} className="text-[#005A9C]" />
+                  <span>Eixo Rodoviário: {displayCidade.rodovias}</span>
                 </div>
               </div>
             </div>
 
-            {/* Painel de Indicadores Numéricos */}
-            <div className="grid grid-cols-2 gap-2.5 pt-2">
-              <div className="p-3 bg-white rounded-xl border border-slate-200 text-center">
-                <div className="text-[10px] font-bold text-slate-400 uppercase flex items-center justify-center gap-1">
-                  <Gauge size={12} className="text-[#0072BB]" /> Distância Ida
+            {/* 3-Column Metrics */}
+            <div className="grid grid-cols-3 gap-2.5 pt-1">
+              <div className="p-3 bg-white rounded-xl border border-slate-200/70">
+                <div className="text-[10px] font-semibold text-slate-400 uppercase flex items-center gap-1">
+                  <Gauge size={11} className="text-[#005A9C]" /> Distância
                 </div>
-                <div className="text-xl font-black text-slate-900 font-mono mt-0.5">
-                  {displayCidade.distanciaKm} <span className="text-xs font-bold text-slate-500">km</span>
+                <div className="text-base font-black text-slate-900 font-mono mt-1">
+                  {displayCidade.distanciaKm}{' '}
+                  <span className="text-[10px] font-semibold text-slate-400">km</span>
                 </div>
               </div>
 
-              <div className="p-3 bg-white rounded-xl border border-slate-200 text-center">
-                <div className="text-[10px] font-bold text-slate-400 uppercase flex items-center justify-center gap-1">
-                  <Clock size={12} className="text-indigo-600" /> Tempo Estimado
+              <div className="p-3 bg-white rounded-xl border border-slate-200/70">
+                <div className="text-[10px] font-semibold text-slate-400 uppercase flex items-center gap-1">
+                  <Clock size={11} className="text-[#005A9C]" /> Tempo Est.
                 </div>
-                <div className="text-xl font-black text-slate-900 font-mono mt-0.5">
+                <div className="text-base font-black text-slate-900 font-mono mt-1">
                   {displayCidade.tempoHoras > 0 ? `${displayCidade.tempoHoras}h` : '0h'}
                 </div>
               </div>
-            </div>
 
-            {/* Consumo de Combustível Estimado */}
-            {displayCidade.distanciaKm > 0 && (
-              <div className="p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between text-xs">
-                <span className="text-slate-500 font-medium">Combustível Est. (Ida & Volta):</span>
-                <span className="font-mono font-bold text-slate-800">
-                  ~{litrosCombustivel} litros
-                </span>
+              <div className="p-3 bg-white rounded-xl border border-slate-200/70">
+                <div className="text-[10px] font-semibold text-slate-400 uppercase flex items-center gap-1">
+                  <Fuel size={11} className="text-[#005A9C]" /> Ida/Volta
+                </div>
+                <div className="text-base font-black text-slate-900 font-mono mt-1">
+                  ~{litrosCombustivel}{' '}
+                  <span className="text-[10px] font-semibold text-slate-400">L</span>
+                </div>
               </div>
-            )}
+            </div>
           </div>
 
-          {/* Card de Cálculo de Diária Oficial */}
-          <div className="p-5 bg-linear-to-br from-amber-50 to-orange-50/60 rounded-2xl border border-amber-200 space-y-3">
+          {/* Allowance Calculation Card */}
+          <div className="p-5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-800">
-                Indenização de Diária (Decreto Estadual PR)
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Indenização de Diária · Decreto PR
               </span>
-              <span className="text-[10px] font-bold bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded">
-                {comPernoite ? 'Com Pernoite' : 'Sem Pernoite (50%)'}
+              <span className="text-[10px] font-bold bg-sky-50 text-[#005A9C] border border-sky-200/60 px-2.5 py-0.5 rounded-full">
+                {comPernoite ? 'Integral (Com Pernoite)' : 'Parcial 50% (Sem Pernoite)'}
               </span>
             </div>
 
-            <div className="flex items-baseline justify-between">
+            <div className="flex items-baseline justify-between pt-1">
               <div>
-                <div className="text-xs text-amber-900 font-medium">Valor Total da Diária:</div>
-                <div className="text-2xl sm:text-3xl font-black text-amber-900 font-mono mt-0.5">
+                <div className="text-[11px] text-slate-500 font-medium">
+                  Valor Estimado da Diária
+                </div>
+                <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight mt-0.5">
                   R$ {valorDiariaCalculado.toFixed(2).replace('.', ',')}
                 </div>
               </div>
-              <div className="text-right text-[11px] text-amber-700">
-                <div>Alimentação inclusa</div>
-                <div className="font-bold">Base SEFAZ/SEJU</div>
+              <div className="text-right text-[11px] text-slate-400">
+                <div className="font-semibold text-slate-600">Tabela SEFAZ/SEJU</div>
+                <div>Custeio de refeições e pousada</div>
               </div>
             </div>
 
-            <div className="pt-2 border-t border-amber-200/60 text-[11px] text-amber-800 flex items-center gap-1.5 font-medium">
-              <Sparkles size={13} className="text-amber-600" />
-              <span>Gera comprovante oficial com código de barras pronto para empenho.</span>
+            <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex items-center gap-1.5">
+              <Sparkles size={13} className="text-[#005A9C] shrink-0" />
+              <span>Cálculo integrado automaticamente à nota de empenho da viagem.</span>
             </div>
           </div>
-
         </div>
-
       </div>
-
     </div>
   );
 };

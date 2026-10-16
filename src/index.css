@@ -9,10 +9,10 @@
     --verde-gov: #068833;
     --verde-serv: #009B54;
     --ouro-gov: #C59B27;
-    --cinza-bg: #F0F3F7;
-    --cinza-topo: #F7F7F7;
-    --cinza-texto: #4B5563;
-    --cinza-escuro: #1F2937;
+    --cinza-bg: #F6F8FA;
+    --cinza-topo: #FFFFFF;
+    --cinza-texto: #475569;
+    --cinza-escuro: #0F172A;
     --cinza-mid: #64748B;
     --borda: #E2E8F0;
     --borda-esc: #CBD5E1;
@@ -22,17 +22,44 @@
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     -webkit-text-size-adjust: 100%;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
   body {
-    background-color: var(--cinza-bg);
+    background-color: #F6F8FA;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(0, 114, 187, 0.04) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.03) 0px, transparent 50%);
+    background-attachment: fixed;
     color: var(--cinza-escuro);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
     min-height: -webkit-fill-available;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
+    letter-spacing: -0.011em;
+  }
+
+  /* Temas Visuais Dinâmicos da Estrutura de Design */
+  html[data-design-theme="pearl"] body {
+    background-color: #FAF9F6;
+    background-image: 
+      radial-gradient(at 15% 0%, rgba(197, 155, 39, 0.05) 0px, transparent 55%),
+      radial-gradient(at 85% 0%, rgba(0, 114, 187, 0.04) 0px, transparent 55%);
+  }
+
+  html[data-design-theme="nordic"] body {
+    background-color: #F1F5F9;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(15, 23, 42, 0.04) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(56, 189, 248, 0.05) 0px, transparent 50%);
+  }
+
+  /* Densidade Visual Compacta */
+  html[data-design-density="compact"] main {
+    padding-top: 1rem !important;
+    padding-bottom: 4rem !important;
   }
 
   /* Prevenção de Auto-Zoom no iOS Safari ao focar inputs/selects */
@@ -56,50 +83,31 @@
   bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
 }
 
-/* Utilitários Oficiais do Governo do Paraná */
-.bg-gov-blue {
-  background-color: #0072BB;
-}
-
-.text-gov-blue {
-  color: #0072BB;
-}
-
-.bg-gov-deep {
-  background-color: #00385E;
-}
-
-.bg-gov-green {
-  background-color: #009B54;
-}
-
-.text-gov-green {
-  color: #009B54;
-}
-
-.border-gov-light {
-  border-color: #00AEEF;
-}
-
-/* Sombras refinadas corporativas */
+/* Sombras Multicamadas Estilo Apple / Linear */
 .shadow-gov-card {
-  box-shadow: 0 4px 20px -2px rgba(0, 56, 94, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+  box-shadow: 
+    0 1px 2px rgba(15, 23, 42, 0.03),
+    0 4px 16px -2px rgba(15, 23, 42, 0.05);
 }
 
 .shadow-gov-card-hover {
-  box-shadow: 0 12px 30px -4px rgba(0, 114, 187, 0.16), 0 4px 12px -2px rgba(0, 0, 0, 0.06);
+  box-shadow: 
+    0 4px 6px -1px rgba(15, 23, 42, 0.04),
+    0 16px 32px -4px rgba(0, 114, 187, 0.10);
 }
 
-/* Efeito Marca d'Água do Brasão */
-.bg-brasao-watermark {
-  background-image: radial-gradient(circle at 90% 10%, rgba(0, 114, 187, 0.03) 0%, transparent 60%);
+.glass-surface {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
-/* Padrão de Estamparia Oficial */
-.pattern-gov-subtle {
-  background-color: #ffffff;
-  background-image: radial-gradient(#0072bb 0.75px, transparent 0.75px);
-  background-size: 24px 24px;
+/* Transições Suaves de Elevação */
+.design-card-lift {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease;
+}
+.design-card-lift:hover {
+  transform: translateY(-2px);
 }
 
 /* Ocultar barra de rolagem mantendo a navegação por toque ou trackpad */

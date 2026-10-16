@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  Navigation, 
   Car, 
   Smartphone, 
   ShieldCheck, 
@@ -8,16 +7,12 @@ import {
   MapPin, 
   Clock, 
   Fuel, 
-  Gauge, 
   QrCode, 
-  Printer, 
   Sparkles, 
   ChevronRight, 
   ChevronLeft,
   X,
-  FileCheck2,
   Check,
-  Building2,
   DollarSign
 } from 'lucide-react';
 import { PlacaMercosul } from '../ui/PlacaMercosul';
@@ -138,36 +133,45 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
   const curitibaCoord = { x: 78, y: 72 };
 
   return (
-    <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-0 sm:p-4 md:p-6 backdrop-blur-md animate-in fade-in">
+    <div 
+      className="fixed inset-0 bg-slate-950/50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 backdrop-blur-md animate-in fade-in duration-150"
+      onClick={onClose}
+    >
       <div 
-        className="bg-white sm:rounded-3xl max-w-4xl w-full h-full sm:h-auto shadow-2xl border border-slate-200 overflow-hidden flex flex-col sm:max-h-[92vh] animate-in zoom-in-95 font-sans"
+        className="bg-white/98 backdrop-blur-2xl rounded-t-3xl sm:rounded-3xl max-w-4xl w-full max-h-[92vh] sm:max-h-[90vh] shadow-[0_24px_70px_-15px_rgba(15,23,42,0.3),0_0_0_1px_rgba(15,23,42,0.08)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-150 font-sans"
         onClick={e => e.stopPropagation()}
       >
-        {/* TOPO: Cabeçalho com Stepper e Fechar */}
-        <div className="bg-[#00385E] text-white p-4 sm:p-6 flex flex-row items-center justify-between gap-3 border-b border-[#002B49] pt-safe">
+        {/* Indicador Mobile Bottom-Sheet */}
+        <div className="pt-2.5 pb-1 sm:hidden flex justify-center bg-white">
+          <div className="w-10 h-1 rounded-full bg-slate-200" />
+        </div>
+
+        {/* TOPO: Cabeçalho Clean Apple-Style */}
+        <div className="bg-white px-5 py-4 sm:px-7 sm:py-5 flex items-start sm:items-center justify-between gap-4 border-b border-slate-200/80">
           <div>
-            <div className="flex items-center gap-2 text-emerald-400 font-mono text-[10px] font-bold uppercase tracking-wider">
-              <Sparkles size={14} className="animate-spin" /> EXPERIÊNCIA INTERATIVA 360° · SEJU/PR
+            <div className="inline-flex items-center gap-1.5 text-[#0072BB] bg-blue-50/90 border border-blue-200/60 px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider">
+              <Sparkles size={11} /> Experiência Interativa 360° · SEJU/PR
             </div>
-            <h2 className="text-lg sm:text-xl font-black tracking-tight text-white mt-0.5">
+            <h2 className="text-base sm:text-lg font-bold tracking-tight text-slate-900 mt-1.5">
               Simulador da Jornada de Missão Oficial
             </h2>
-            <p className="text-xs text-blue-200 mt-0.5">
-              Experimente em tempo real todo o ciclo: da rota no mapa ao despacho da Chefia e check-in no pátio.
+            <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+              Explore o fluxo ponta a ponta: roteirização, viatura, despacho digital e vistoria no pátio.
             </p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-white/10 hover:bg-white text-white hover:text-slate-900 flex items-center justify-center font-bold text-sm cursor-pointer transition self-end sm:self-auto shrink-0"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200/80 text-slate-500 hover:text-slate-900 flex items-center justify-center cursor-pointer transition shrink-0"
+            title="Fechar tour"
           >
-            ✕
+            <X size={16} />
           </button>
         </div>
 
-        {/* BARRA DE PROGRESSO / STEPPER DOS 5 PASSOS */}
-        <div className="bg-slate-100 p-2.5 px-4 sm:px-6 border-b border-slate-200 flex items-center justify-between gap-1 overflow-x-auto no-scrollbar text-xs">
+        {/* BARRA DE PROGRESSO / STEPPER PILLS REFINADOS */}
+        <div className="bg-slate-50/90 px-4 py-2.5 sm:px-7 border-b border-slate-200/75 flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar text-xs">
           {[
             { num: 1, label: 'Rota no Mapa' },
             { num: 2, label: 'Viatura Oficial' },
@@ -186,121 +190,144 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
                   soundFX.playClick();
                   setEtapa(s.num);
                 }}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl font-bold transition whitespace-nowrap cursor-pointer ${
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-full font-semibold transition-all whitespace-nowrap cursor-pointer ${
                   isAtivo 
-                    ? 'bg-[#0072BB] text-white shadow-xs' 
+                    ? 'bg-white text-slate-900 shadow-xs ring-1 ring-slate-200/90' 
                     : isConcluido 
-                    ? 'text-emerald-700 bg-emerald-100/70' 
-                    : 'text-slate-400 hover:text-slate-600'
+                    ? 'text-emerald-700 bg-emerald-50/80 hover:bg-emerald-100/70' 
+                    : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/70'
                 }`}
               >
-                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${
-                  isAtivo ? 'bg-white text-[#0072BB]' : isConcluido ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'
+                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${
+                  isAtivo 
+                    ? 'bg-[#0072BB] text-white' 
+                    : isConcluido 
+                    ? 'bg-emerald-600 text-white' 
+                    : 'bg-slate-200/80 text-slate-600'
                 }`}>
-                  {isConcluido ? '✓' : s.num}
+                  {isConcluido ? <Check size={11} strokeWidth={2.5} /> : s.num}
                 </span>
-                <span className="hidden sm:inline">{s.label}</span>
+                <span className="hidden sm:inline text-xs">{s.label}</span>
               </button>
             );
           })}
         </div>
 
         {/* CONTEÚDO PRINCIPAL (ALTERNÂNCIA DE ETAPAS) */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-6">
+        <div className="p-5 sm:p-7 overflow-y-auto flex-1 space-y-6 bg-white">
           
           {/* ETAPA 1: O MAPA E A MISSÃO */}
           {etapa === 1 && (
-            <div className="space-y-6 animate-in fade-in">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            <div className="space-y-6 animate-in fade-in duration-150">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                 
                 {/* Lado Esquerdo: O Mapa SVG do Paraná com Rota Ativa */}
-                <div className="lg:col-span-6 relative bg-linear-to-br from-slate-900 via-[#00385E] to-slate-900 rounded-3xl p-5 border border-slate-800 flex items-center justify-center min-h-[300px] overflow-hidden shadow-inner">
+                <div className="lg:col-span-6 relative bg-linear-to-b from-slate-900 to-[#0B253C] rounded-2xl p-5 border border-slate-800/90 flex items-center justify-center min-h-[290px] overflow-hidden shadow-xs">
                   {/* Selo Radar */}
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5 text-[9px] font-mono text-emerald-400 bg-black/50 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" /> RADAR DE VIAGEM ATIVO
+                  <div className="absolute top-3.5 left-3.5 flex items-center gap-1.5 text-[10px] font-mono font-medium text-emerald-300 bg-slate-900/75 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> ROTEIRIZADOR ATIVO
                   </div>
 
-                  <svg viewBox="0 0 100 100" className="w-full h-full max-h-[260px] select-none">
+                  <div className="absolute bottom-3.5 left-3.5 right-3.5 flex items-center justify-between text-[10px] text-slate-300 font-mono bg-slate-900/60 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
+                    <span>Origem: Curitiba (SEJU)</span>
+                    <span className="text-emerald-300 font-semibold">Destino: {missaoSel.cidade}</span>
+                  </div>
+
+                  <svg viewBox="0 0 100 100" className="w-full h-full max-h-[240px] select-none">
                     {/* Contorno do PR */}
                     <path
                       d="M 12,68 L 10,75 L 18,80 L 32,82 L 46,78 L 58,84 L 75,82 L 86,76 L 90,70 L 85,62 L 78,54 L 72,42 L 70,30 L 64,22 L 50,22 L 42,26 L 30,28 L 22,34 L 16,46 L 14,56 Z"
-                      fill="#0F2B48"
-                      stroke="#00AEEF"
-                      strokeWidth="0.8"
-                      strokeOpacity="0.6"
+                      fill="#123456"
+                      stroke="#38BDF8"
+                      strokeWidth="0.7"
+                      strokeOpacity="0.65"
                     />
 
-                    {/* Linha de rota traçada neon */}
+                    {/* Linha de rota traçada */}
                     <line
                       x1={curitibaCoord.x}
                       y1={curitibaCoord.y}
                       x2={missaoSel.coordenadas.x}
                       y2={missaoSel.coordenadas.y}
                       stroke="#34D399"
-                      strokeWidth="1.8"
+                      strokeWidth="1.5"
                       strokeDasharray="2,2"
-                      className="animate-pulse"
                     />
 
                     {/* Ponto Curitiba */}
-                    <circle cx={curitibaCoord.x} cy={curitibaCoord.y} r="2.2" fill="#00AEEF" stroke="#FFFFFF" strokeWidth="0.6" />
-                    <text x={curitibaCoord.x} y={curitibaCoord.y - 3} textAnchor="middle" fill="#FFFFFF" fontSize="2.8" fontWeight="bold">Curitiba</text>
+                    <circle cx={curitibaCoord.x} cy={curitibaCoord.y} r="2.2" fill="#38BDF8" stroke="#FFFFFF" strokeWidth="0.6" />
+                    <text x={curitibaCoord.x} y={curitibaCoord.y - 3.2} textAnchor="middle" fill="#FFFFFF" fontSize="2.8" fontWeight="bold">Curitiba</text>
 
                     {/* Ponto Destino */}
-                    <circle cx={missaoSel.coordenadas.x} cy={missaoSel.coordenadas.y} r="3.2" fill="#10B981" stroke="#FFFFFF" strokeWidth="0.8" className="animate-ping origin-center" />
+                    <circle cx={missaoSel.coordenadas.x} cy={missaoSel.coordenadas.y} r="3.4" fill="#10B981" fillOpacity="0.3" />
                     <circle cx={missaoSel.coordenadas.x} cy={missaoSel.coordenadas.y} r="2.2" fill="#10B981" stroke="#FFFFFF" strokeWidth="0.6" />
-                    <text x={missaoSel.coordenadas.x} y={missaoSel.coordenadas.y - 3} textAnchor="middle" fill="#34D399" fontSize="2.8" fontWeight="bold">{missaoSel.cidade}</text>
+                    <text x={missaoSel.coordenadas.x} y={missaoSel.coordenadas.y - 3.2} textAnchor="middle" fill="#6EE7B7" fontSize="2.8" fontWeight="bold">{missaoSel.cidade}</text>
                   </svg>
                 </div>
 
                 {/* Lado Direito: Seleção das Missões */}
-                <div className="lg:col-span-6 space-y-3">
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    Escolha o Polo Regional da Missão Oficial:
-                  </div>
-
+                <div className="lg:col-span-6 flex flex-col justify-between space-y-3">
                   <div className="space-y-2">
-                    {MISSOES_PRESET.map(m => {
-                      const isSel = missaoSel.id === m.id;
-                      return (
-                        <div
-                          key={m.id}
-                          onClick={() => {
-                            soundFX.playClick();
-                            setMissaoSel(m);
-                          }}
-                          className={`p-3.5 rounded-2xl border transition cursor-pointer ${
-                            isSel 
-                              ? 'border-[#0072BB] bg-blue-50/70 shadow-xs ring-1 ring-[#0072BB]' 
-                              : 'border-slate-200 bg-white hover:bg-slate-50'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="font-extrabold text-xs text-slate-900">{m.cidade}</span>
-                            <span className="text-[10px] font-mono font-bold text-[#0072BB] bg-white px-2 py-0.5 rounded border border-slate-200">
-                              {m.km * 2} km (ida/volta)
-                            </span>
+                    <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                      Selecione o Polo Regional da Missão
+                    </div>
+
+                    <div className="space-y-2">
+                      {MISSOES_PRESET.map(m => {
+                        const isSel = missaoSel.id === m.id;
+                        return (
+                          <div
+                            key={m.id}
+                            onClick={() => {
+                              soundFX.playClick();
+                              setMissaoSel(m);
+                            }}
+                            className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                              isSel 
+                                ? 'border-[#0072BB] bg-blue-50/40 shadow-2xs ring-2 ring-[#0072BB]/15' 
+                                : 'border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50/60'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                                <MapPin size={13} className={isSel ? 'text-[#0072BB]' : 'text-slate-400'} />
+                                {m.cidade}
+                              </span>
+                              <span className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md border ${
+                                isSel
+                                  ? 'text-[#0072BB] bg-white border-[#0072BB]/25'
+                                  : 'text-slate-600 bg-slate-50 border-slate-200/80'
+                              }`}>
+                                {m.km * 2} km (ida/volta)
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-slate-600 mt-1 line-clamp-1">{m.motivo}</div>
+                            <div className="text-[10px] text-slate-400 mt-0.5 font-medium">{m.rota}</div>
                           </div>
-                          <div className="text-[11px] text-slate-500 mt-1 line-clamp-1">{m.motivo}</div>
-                          <div className="text-[10px] text-slate-400 mt-0.5 font-medium">{m.rota}</div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {/* Resumo da Telemetria */}
-                  <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/80 grid grid-cols-3 gap-2 text-center text-xs">
                     <div>
-                      <div className="text-[10px] text-slate-400 font-bold uppercase">Tempo</div>
-                      <div className="font-bold text-slate-900 font-mono">{missaoSel.tempo}</div>
+                      <div className="text-[10px] text-slate-400 font-semibold uppercase flex items-center justify-center gap-1">
+                        <Clock size={11} /> Tempo
+                      </div>
+                      <div className="font-bold text-slate-900 font-mono mt-0.5">{missaoSel.tempo}</div>
+                    </div>
+                    <div className="border-x border-slate-200/70">
+                      <div className="text-[10px] text-slate-400 font-semibold uppercase flex items-center justify-center gap-1">
+                        <Fuel size={11} /> Consumo
+                      </div>
+                      <div className="font-bold text-[#0072BB] font-mono mt-0.5">{missaoSel.consumo}</div>
                     </div>
                     <div>
-                      <div className="text-[10px] text-slate-400 font-bold uppercase">Consumo</div>
-                      <div className="font-bold text-[#0072BB] font-mono">{missaoSel.consumo}</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] text-slate-400 font-bold uppercase">Combustível</div>
-                      <div className="font-bold text-emerald-700 font-mono">{missaoSel.custo}</div>
+                      <div className="text-[10px] text-slate-400 font-semibold uppercase flex items-center justify-center gap-1">
+                        <DollarSign size={11} /> Estimado
+                      </div>
+                      <div className="font-bold text-emerald-700 font-mono mt-0.5">{missaoSel.custo}</div>
                     </div>
                   </div>
                 </div>
@@ -311,13 +338,13 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
 
           {/* ETAPA 2: A VIATURA OFICIAL */}
           {etapa === 2 && (
-            <div className="space-y-5 animate-in fade-in">
+            <div className="space-y-5 animate-in fade-in duration-150">
               <div className="text-center max-w-xl mx-auto space-y-1">
-                <h3 className="text-base font-black text-slate-900">
+                <h3 className="text-base font-bold text-slate-900 tracking-tight">
                   Seleção da Viatura Oficial no Pátio SEJU
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Para o trajeto até <strong>{missaoSel.cidade}</strong> ({missaoSel.km * 2} km ida e volta), selecione o veículo compatível com a delegação.
+                  Para o deslocamento até <strong className="text-slate-700">{missaoSel.cidade}</strong> ({missaoSel.km * 2} km ida e volta), escolha a viatura compatível com a equipe.
                 </p>
               </div>
 
@@ -331,26 +358,26 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
                         soundFX.playClick();
                         setVeiculoSel(v);
                       }}
-                      className={`p-4 rounded-3xl border-2 transition cursor-pointer flex flex-col justify-between space-y-3 ${
+                      className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
                         isSel 
-                          ? 'border-[#0072BB] bg-blue-50/50 shadow-md ring-2 ring-blue-100' 
-                          : 'border-slate-200 bg-white hover:border-slate-300'
+                          ? 'border-[#0072BB] bg-blue-50/30 shadow-xs ring-2 ring-[#0072BB]/15' 
+                          : 'border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50/40'
                       }`}
                     >
                       <div>
-                        <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center justify-between mb-3">
                           <PlacaMercosul placa={v.placa} uf="PR" />
-                          <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
-                            ● 100%
+                          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/70 px-2 py-0.5 rounded-full">
+                            Tanque 100%
                           </span>
                         </div>
-                        <h4 className="font-black text-xs text-slate-900 mt-2">{v.modelo}</h4>
-                        <div className="text-[11px] text-slate-500 mt-0.5">Cor: {v.cor} · {v.capacidade} lugares</div>
+                        <h4 className="font-bold text-xs text-slate-900">{v.modelo}</h4>
+                        <div className="text-[11px] text-slate-500 mt-0.5">Cor {v.cor} · {v.capacidade} lugares</div>
                       </div>
 
-                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-mono">
-                        <span>Odômetro:</span>
-                        <strong>{v.km.toLocaleString('pt-BR')} km</strong>
+                      <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                        <span>Odômetro</span>
+                        <strong className="text-slate-800">{v.km.toLocaleString('pt-BR')} km</strong>
                       </div>
                     </div>
                   );
@@ -358,19 +385,19 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
               </div>
 
               {/* Delegação Oficial a Bordo */}
-              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#0072BB]/10 text-[#0072BB] flex items-center justify-center font-bold">
-                    <Car size={20} />
+              <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/80 text-[#0072BB] flex items-center justify-center shadow-2xs shrink-0">
+                    <Car size={19} />
                   </div>
                   <div>
                     <div className="font-bold text-slate-900">Delegação Oficial Designada (3 Servidores)</div>
-                    <div className="text-[11px] text-slate-500">Dra. Maria Helena (Gabinete), Carlos Silveira (Assistente) e Dra. Patrícia (Psicóloga)</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">Dra. Maria Helena (Gabinete), Carlos Silveira (Assistente) e Dra. Patrícia (Psicóloga)</div>
                   </div>
                 </div>
 
-                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full self-start sm:self-auto">
-                  ✓ Capacidade Respeitada ({veiculoSel.capacidade} assentos)
+                <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/70 px-3 py-1 rounded-full self-start sm:self-auto shrink-0">
+                  ✓ Capacidade compatível ({veiculoSel.capacidade} assentos)
                 </span>
               </div>
             </div>
@@ -378,41 +405,43 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
 
           {/* ETAPA 3: O DESPACHO DA CHEFIA */}
           {etapa === 3 && (
-            <div className="space-y-6 animate-in fade-in">
+            <div className="space-y-6 animate-in fade-in duration-150">
               <div className="text-center max-w-xl mx-auto space-y-1">
-                <h3 className="text-base font-black text-slate-900">
+                <h3 className="text-base font-bold text-slate-900 tracking-tight">
                   Despacho Eletrônico da Chefia de Gabinete
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Simulação do despacho eletrônico no smartphone institucional da autoridade competente.
+                  Deliberação em 1 clique no dispositivo institucional com assinatura criptográfica SHA-256.
                 </p>
               </div>
 
-              {/* Mockup do Smartphone Institucional */}
-              <div className="max-w-md mx-auto bg-slate-900 rounded-3xl p-5 border-4 border-slate-800 shadow-2xl text-white space-y-4">
-                <div className="flex items-center justify-between text-[10px] text-slate-400 border-b border-slate-800 pb-2">
-                  <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
-                    <Smartphone size={12} /> SISTEMA CORPORATIVO SEJU
+              {/* Card Dispositivo Institucional Clean */}
+              <div className="max-w-md mx-auto bg-white rounded-3xl p-5 border border-slate-200/90 shadow-lg space-y-4">
+                <div className="flex items-center justify-between text-[11px] text-slate-500 border-b border-slate-100 pb-3">
+                  <span className="flex items-center gap-1.5 text-slate-800 font-semibold">
+                    <Smartphone size={14} className="text-[#0072BB]" /> Central Mobile · Chefia SEJU
                   </span>
-                  <span>Notificação em Tempo Real</span>
+                  <span className="text-[10px] font-mono text-slate-400">Agora mesmo</span>
                 </div>
 
-                <div className="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80 space-y-3">
+                <div className="bg-slate-50/90 p-4 rounded-2xl border border-slate-200/75 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold bg-[#0072BB] text-white px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-mono font-semibold bg-white border border-slate-200/80 text-slate-700 px-2 py-0.5 rounded-md">
                       AG-20261015-4421
                     </span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      aprovado ? 'bg-emerald-500 text-white' : 'bg-amber-400 text-amber-950 animate-pulse'
+                    <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${
+                      aprovado 
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                        : 'bg-amber-50 text-amber-800 border-amber-200'
                     }`}>
-                      {aprovado ? 'AUTORIZADO COM SUCESSO' : 'AGUARDANDO DESPACHO'}
+                      {aprovado ? 'Autorizado com Sucesso' : 'Aguardando Despacho'}
                     </span>
                   </div>
 
-                  <div className="text-xs space-y-1">
-                    <div className="text-slate-300">Missão: <strong className="text-white">{missaoSel.motivo}</strong></div>
-                    <div className="text-slate-300">Destino: <strong className="text-white">{missaoSel.cidade}</strong> ({missaoSel.km} km)</div>
-                    <div className="text-slate-300">Veículo: <strong className="text-white">{veiculoSel.modelo} ({veiculoSel.placa})</strong></div>
+                  <div className="text-xs space-y-1.5 text-slate-600">
+                    <div>Missão: <strong className="text-slate-900 font-semibold">{missaoSel.motivo}</strong></div>
+                    <div>Destino: <strong className="text-slate-900 font-semibold">{missaoSel.cidade}</strong> ({missaoSel.km} km)</div>
+                    <div>Veículo: <strong className="text-slate-900 font-semibold">{veiculoSel.modelo} ({veiculoSel.placa})</strong></div>
                   </div>
                 </div>
 
@@ -420,17 +449,17 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
                   <button
                     type="button"
                     onClick={handleAprovarChefia}
-                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-2xl shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3 bg-[#0072BB] hover:bg-[#005a96] text-white font-semibold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <CheckCircle2 size={18} /> Assinar & Aprovar Digitalmente (ICP-PR)
+                    <CheckCircle2 size={16} /> Assinar & Aprovar Digitalmente (ICP-PR)
                   </button>
                 ) : (
-                  <div className="p-3 bg-emerald-950/80 rounded-2xl border border-emerald-500/40 text-center space-y-1">
-                    <div className="text-xs font-black text-emerald-400 flex items-center justify-center gap-1.5">
-                      <ShieldCheck size={16} /> Assinatura Digital Verificada
+                  <div className="p-3.5 bg-emerald-50/80 rounded-2xl border border-emerald-200/80 text-center space-y-1">
+                    <div className="text-xs font-bold text-emerald-800 flex items-center justify-center gap-1.5">
+                      <ShieldCheck size={15} className="text-emerald-600" /> Assinatura Digital Verificada
                     </div>
-                    <div className="text-[10px] text-slate-400 font-mono truncate">
-                      Hash SHA-256: {hashGerado}
+                    <div className="text-[10px] text-emerald-700/80 font-mono truncate">
+                      SHA-256: {hashGerado}
                     </div>
                   </div>
                 )}
@@ -440,52 +469,54 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
 
           {/* ETAPA 4: O PASSE DIGITAL NA CARTEIRA */}
           {etapa === 4 && (
-            <div className="space-y-6 animate-in fade-in">
+            <div className="space-y-6 animate-in fade-in duration-150">
               <div className="text-center max-w-xl mx-auto space-y-1">
-                <h3 className="text-base font-black text-slate-900">
+                <h3 className="text-base font-bold text-slate-900 tracking-tight">
                   Passe Oficial de Trânsito Digital (Apple Wallet)
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Emitido imediatamente após a aprovação da chefia para porte obrigatório e fiscalização rodoviária (BPRv/PRF).
+                  Emitido instantaneamente após o despacho para porte do condutor e verificação rápida nas rodovias.
                 </p>
               </div>
 
               {/* O Passe Digital Estilo Apple Wallet */}
-              <div className="max-w-md mx-auto bg-linear-to-b from-[#00385E] via-[#00538A] to-[#0072BB] text-white rounded-3xl p-6 shadow-2xl border border-blue-400/40 space-y-5">
-                <div className="flex items-center justify-between text-[10px] font-mono tracking-widest uppercase text-blue-200 border-b border-white/15 pb-3">
+              <div className="max-w-md mx-auto bg-linear-to-b from-[#0A2540] to-[#004C80] text-white rounded-3xl p-6 shadow-xl border border-white/15 space-y-5">
+                <div className="flex items-center justify-between text-[10px] font-mono tracking-wider uppercase text-blue-200/90 border-b border-white/10 pb-3">
                   <span>GOVERNO DO PARANÁ · SEJU</span>
-                  <span className="font-extrabold text-emerald-300">DOCUMENTO OFICIAL</span>
+                  <span className="font-semibold text-emerald-300">PASSE DE MISSÃO</span>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3">
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-blue-200">Veículo Autorizado</span>
-                    <div className="font-extrabold text-sm text-white">{veiculoSel.modelo}</div>
+                    <span className="text-[10px] uppercase font-medium text-blue-200/80">Viatura Oficial</span>
+                    <div className="font-bold text-sm text-white mt-0.5">{veiculoSel.modelo}</div>
                   </div>
                   <PlacaMercosul placa={veiculoSel.placa} uf="PR" />
                 </div>
 
-                <div className="p-3.5 bg-white/10 rounded-2xl border border-white/15 space-y-1.5 text-xs">
+                <div className="p-3.5 bg-white/8 backdrop-blur-md rounded-2xl border border-white/10 space-y-2 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-blue-200">Destino:</span>
-                    <strong className="text-white">{missaoSel.cidade}</strong>
+                    <span className="text-blue-200/80">Destino</span>
+                    <strong className="text-white font-semibold">{missaoSel.cidade}</strong>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-blue-200">Ticket Oficial:</span>
+                    <span className="text-blue-200/80">Protocolo</span>
                     <strong className="text-emerald-300 font-mono">AG-20261015-4421</strong>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-blue-200">Autorizador:</span>
-                    <strong className="text-white">Chefia de Gabinete SEJU</strong>
+                    <span className="text-blue-200/80">Autoridade</span>
+                    <strong className="text-white font-semibold">Chefia de Gabinete SEJU</strong>
                   </div>
                 </div>
 
-                <div className="pt-2 flex items-center justify-between border-t border-white/15 text-[10px]">
-                  <div className="flex items-center gap-1.5 text-blue-200">
-                    <QrCode size={18} className="text-white" />
-                    <span>QRCode de Validação na Estrada</span>
+                <div className="pt-2 flex items-center justify-between border-t border-white/10 text-[10px]">
+                  <div className="flex items-center gap-2 text-blue-100">
+                    <div className="p-1.5 bg-white text-slate-900 rounded-lg">
+                      <QrCode size={16} />
+                    </div>
+                    <span>Validação Offline / Rodoviária</span>
                   </div>
-                  <span className="font-mono text-emerald-300 font-bold">SHA-256 VERIFICADO</span>
+                  <span className="font-mono text-emerald-300 font-semibold">SHA-256 ATIVO</span>
                 </div>
               </div>
             </div>
@@ -493,47 +524,47 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
 
           {/* ETAPA 5: VISTORIA DIGITAL NO PÁTIO */}
           {etapa === 5 && (
-            <div className="space-y-6 animate-in fade-in">
+            <div className="space-y-6 animate-in fade-in duration-150">
               <div className="text-center max-w-xl mx-auto space-y-1">
-                <h3 className="text-base font-black text-slate-900">
+                <h3 className="text-base font-bold text-slate-900 tracking-tight">
                   Vistoria Fotográfica no Pátio & Saída Homologada
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Antes de deixar o pátio central da SEJU, o condutor confere odômetro, tanque e as 4 fotos obrigatórias.
+                  Registro pericial dos 4 ângulos, odômetro e combustível antes da abertura automática da cancela.
                 </p>
               </div>
 
               {/* As 4 Fotos da Vistoria */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto text-center">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 max-w-2xl mx-auto text-center">
                 {[
                   { pos: 'Frente', img: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80' },
                   { pos: 'Traseira', img: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=300&q=80' },
                   { pos: 'Lat. Direita', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=300&q=80' },
                   { pos: 'Lat. Esquerda', img: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=300&q=80' }
                 ].map((f, i) => (
-                  <div key={i} className="p-2 bg-slate-50 rounded-2xl border border-slate-200 space-y-1.5">
-                    <img src={f.img} alt={f.pos} className="w-full h-20 object-cover rounded-xl border border-slate-200" />
-                    <div className="flex items-center justify-center gap-1 text-[10px] font-bold text-emerald-700">
-                      <CheckCircle2 size={12} /> {f.pos}
+                  <div key={i} className="p-2 bg-white rounded-2xl border border-slate-200/90 shadow-2xs space-y-2">
+                    <img src={f.img} alt={f.pos} className="w-full h-24 object-cover rounded-xl border border-slate-100" />
+                    <div className="flex items-center justify-center gap-1 text-[11px] font-semibold text-slate-700 pb-0.5">
+                      <CheckCircle2 size={13} className="text-emerald-600" /> {f.pos}
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* Status Final de Liberação */}
-              <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-300 max-w-xl mx-auto flex items-center justify-between text-xs">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold">
-                    <Check size={22} />
+              <div className="p-4 bg-emerald-50/70 rounded-2xl border border-emerald-200/90 max-w-xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-2xs shrink-0">
+                    <Check size={20} strokeWidth={2.5} />
                   </div>
                   <div>
-                    <div className="font-extrabold text-emerald-950">Viatura Oficial Liberada para Deslocamento</div>
-                    <div className="text-[11px] text-emerald-800">Odômetro: {veiculoSel.km} km · Tanque: 100% · Vistoria gravada</div>
+                    <div className="font-bold text-emerald-950">Viatura Oficial Liberada para Deslocamento</div>
+                    <div className="text-[11px] text-emerald-800/90 mt-0.5">Odômetro: {veiculoSel.km.toLocaleString('pt-BR')} km · Tanque: 100% · 4 fotos validadas</div>
                   </div>
                 </div>
 
-                <span className="font-mono text-[10px] font-black text-emerald-900 bg-emerald-200/80 px-2.5 py-1 rounded-lg">
-                  PORTÃO 1 ABERTO
+                <span className="font-mono text-[10px] font-bold text-emerald-800 bg-white border border-emerald-200 px-2.5 py-1 rounded-lg self-start sm:self-auto shrink-0">
+                  PORTÃO 1 LIBERADO
                 </span>
               </div>
             </div>
@@ -542,7 +573,7 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
         </div>
 
         {/* RODAPÉ DO MODAL COM BOTÕES DE NAVEGAÇÃO */}
-        <div className="p-3.5 sm:p-5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3 pb-safe shrink-0">
+        <div className="px-5 py-3.5 sm:px-7 sm:py-4 bg-slate-50/90 border-t border-slate-200/80 flex items-center justify-between gap-3 pb-safe shrink-0">
           <button
             type="button"
             disabled={etapa === 1}
@@ -550,17 +581,24 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
               soundFX.playClick();
               setEtapa(prev => Math.max(1, prev - 1));
             }}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
               etapa === 1 
                 ? 'opacity-40 cursor-not-allowed text-slate-400' 
-                : 'text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 cursor-pointer'
+                : 'text-slate-700 bg-white hover:bg-slate-100 border border-slate-200/90 shadow-2xs cursor-pointer'
             }`}
           >
-            <ChevronLeft size={16} /> Voltar
+            <ChevronLeft size={15} /> Anterior
           </button>
 
-          <div className="text-xs font-mono text-slate-400 font-bold">
-            Passo {etapa} de 5
+          <div className="flex items-center gap-1.5">
+            {[1, 2, 3, 4, 5].map(stepNum => (
+              <span
+                key={stepNum}
+                className={`h-1.5 rounded-full transition-all ${
+                  etapa === stepNum ? 'w-5 bg-[#0072BB]' : etapa > stepNum ? 'w-1.5 bg-emerald-500' : 'w-1.5 bg-slate-300'
+                }`}
+              />
+            ))}
           </div>
 
           {etapa < 5 ? (
@@ -570,22 +608,23 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
                 soundFX.playClick();
                 setEtapa(prev => Math.min(5, prev + 1));
               }}
-              className="px-5 py-2.5 rounded-xl bg-[#0072BB] hover:bg-[#00538a] text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-xs"
+              className="px-4 py-2 rounded-xl bg-[#0072BB] hover:bg-[#005a96] text-white text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
-              <span>Avançar Etapa</span>
-              <ChevronRight size={16} />
+              <span>Continuar</span>
+              <ChevronRight size={15} />
             </button>
           ) : (
             <button
               type="button"
               onClick={() => {
                 soundFX.playSuccess();
+                void onNavigateApp;
                 onClose();
               }}
-              className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition flex items-center gap-2 cursor-pointer shadow-md"
+              className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
               <span>Concluir Simulação</span>
-              <CheckCircle2 size={16} />
+              <CheckCircle2 size={15} />
             </button>
           )}
         </div>

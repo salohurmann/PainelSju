@@ -7,9 +7,7 @@ import {
   Plane, 
   PhoneCall, 
   ShieldCheck, 
-  ArrowRight, 
   ChevronRight,
-  Sparkles, 
   Command, 
   CornerDownLeft,
   X,
@@ -17,8 +15,7 @@ import {
   CheckSquare,
   Users,
   LayoutGrid,
-  MapPin,
-  FileText
+  MapPin
 } from 'lucide-react';
 import { soundFX } from '../../services/soundFx';
 
@@ -46,6 +43,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const [busca, setBusca] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -101,6 +99,24 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       badge: 'Frota'
     },
     {
+      id: 'frota-patio',
+      titulo: 'Ver Pátio e Disponibilidade de Carros',
+      subtitulo: 'Status de Duster, Corolla, Spin, Toro e Ranger',
+      categoria: 'Ações Rápidas',
+      icon: Car,
+      action: () => onNavigate('frota', 'frota'),
+      badge: 'Frota'
+    },
+    {
+      id: 'frota-cpf',
+      titulo: 'Consultar Solicitação por CPF do Servidor',
+      subtitulo: 'Rastrear status de aprovação de viagens com CPF',
+      categoria: 'Ações Rápidas',
+      icon: Users,
+      action: () => onNavigate('frota', 'consultar'),
+      badge: 'Consulta'
+    },
+    {
       id: 'novo-chamado-ti',
       titulo: 'Abrir Chamado / Ordem de Serviço TI',
       subtitulo: 'Suporte para impressoras, VPN, rede e computadores',
@@ -126,6 +142,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       icon: Plane,
       action: () => onNavigate('diarias'),
       badge: 'Viagens'
+    },
+    {
+      id: 'mapa-parana',
+      titulo: 'Mapa Interativo de Rotas do Paraná',
+      subtitulo: 'Calcular rotas de Curitiba a Londrina, Maringá, Foz e Cascavel',
+      categoria: 'Ações Rápidas',
+      icon: MapPin,
+      action: () => onNavigate('diarias'),
+      badge: 'Mapa PR'
     },
     {
       id: 'buscar-ramal',
@@ -155,24 +180,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       action: () => onNavigate('frota')
     },
     {
-      id: 'frota-patio',
-      titulo: 'Ver Pátio e Disponibilidade de Carros',
-      subtitulo: 'Status de Duster, Corolla, Spin, Toro e Ranger',
-      categoria: 'Ações Rápidas',
-      icon: Car,
-      action: () => onNavigate('frota', 'frota'),
-      badge: 'Frota'
-    },
-    {
-      id: 'frota-cpf',
-      titulo: 'Consultar Solicitação por CPF do Servidor',
-      subtitulo: 'Rastrear status de aprovação de viagens com CPF',
-      categoria: 'Ações Rápidas',
-      icon: Users,
-      action: () => onNavigate('frota', 'consultar'),
-      badge: 'Consulta'
-    },
-    {
       id: 'modulo-chamados',
       titulo: 'Ir para Chamados Rápidos (Kanban)',
       subtitulo: 'Quadro interativo estilo Jira com controle de SLA',
@@ -197,15 +204,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       action: () => onNavigate('diarias')
     },
     {
-      id: 'mapa-parana',
-      titulo: 'Mapa Interativo de Rotas do Paraná',
-      subtitulo: 'Calcular rotas de Curitiba a Londrina, Maringá, Foz e Cascavel',
-      categoria: 'Ações Rápidas',
-      icon: MapPin,
-      action: () => onNavigate('diarias'),
-      badge: 'Mapa PR'
-    },
-    {
       id: 'modulo-ramais',
       titulo: 'Ir para Guia de Ramais & Organograma',
       subtitulo: 'Lista telefônica e estrutura hierárquica SEJU',
@@ -226,7 +224,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const filtrados = comandos.filter(c => 
     c.titulo.toLowerCase().includes(busca.toLowerCase()) ||
     c.subtitulo.toLowerCase().includes(busca.toLowerCase()) ||
-    c.categoria.toLowerCase().includes(busca.toLowerCase())
+    c.categoria.toLowerCase().includes(busca.toLowerCase()) ||
+    (c.badge && c.badge.toLowerCase().includes(busca.toLowerCase()))
   );
 
   const handleKeyDownList = (e: React.KeyboardEvent) => {
@@ -252,16 +251,18 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-50 flex items-start justify-center pt-8 sm:pt-28 p-3 sm:p-4 font-sans animate-in fade-in duration-150 pt-safe"
+      className="fixed inset-0 bg-slate-950/45 backdrop-blur-md z-50 flex items-start justify-center pt-10 sm:pt-24 p-3 sm:p-4 font-sans animate-in fade-in duration-150 pt-safe"
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-150"
+        className="bg-white/95 backdrop-blur-2xl rounded-2xl max-w-2xl w-full max-h-[82vh] flex flex-col shadow-[0_24px_64px_-12px_rgba(15,23,42,0.32),0_0_0_1px_rgba(15,23,42,0.08)] overflow-hidden animate-in zoom-in-95 duration-150"
         onClick={e => e.stopPropagation()}
       >
-        {/* Barra de Entrada de Pesquisa */}
-        <div className="p-3.5 sm:p-5 border-b border-slate-100 flex items-center gap-3">
-          <Search size={22} className="text-[#0072BB] shrink-0" />
+        {/* Barra Superior de Busca estilo Raycast / Spotlight */}
+        <div className="px-4 py-3.5 sm:px-5 sm:py-4 border-b border-slate-200/75 flex items-center gap-3.5 bg-white/60">
+          <div className="w-8 h-8 rounded-lg bg-slate-100/90 border border-slate-200/80 flex items-center justify-center text-[#0072BB] shrink-0 shadow-2xs">
+            <Search size={17} strokeWidth={2.2} />
+          </div>
           <input
             ref={inputRef}
             type="text"
@@ -271,94 +272,141 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               setSelectedIndex(0);
             }}
             onKeyDown={handleKeyDownList}
-            placeholder="Buscar serviço, carro, sala ou chamado..."
-            className="w-full text-base sm:text-base text-slate-800 placeholder:text-slate-400 font-medium outline-hidden"
+            placeholder="Buscar serviço, veículo, sala ou módulo..."
+            className="w-full text-sm sm:text-[15px] text-slate-900 placeholder:text-slate-400 font-medium bg-transparent outline-hidden tracking-tight"
           />
+          {busca && (
+            <button
+              type="button"
+              onClick={() => {
+                setBusca('');
+                setSelectedIndex(0);
+                inputRef.current?.focus();
+              }}
+              className="text-[11px] font-medium text-slate-400 hover:text-slate-600 px-1.5 py-0.5 rounded hover:bg-slate-100 transition cursor-pointer shrink-0"
+            >
+              Limpar
+            </button>
+          )}
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition cursor-pointer shrink-0"
+            className="px-2 py-1 rounded-md bg-slate-100/90 hover:bg-slate-200/80 border border-slate-200/80 text-slate-500 hover:text-slate-800 text-[10px] font-mono font-semibold tracking-tight transition cursor-pointer shrink-0 flex items-center gap-1"
             title="Fechar busca (ESC)"
           >
-            <X size={18} />
+            <span>ESC</span>
+            <X size={12} className="sm:hidden" />
           </button>
         </div>
 
         {/* Lista de Resultados Categorizados */}
-        <div className="max-h-96 overflow-y-auto p-2 divide-y divide-slate-100">
+        <div ref={listRef} className="max-h-[390px] overflow-y-auto p-2 space-y-0.5 scroll-smooth">
           {filtrados.length === 0 ? (
-            <div className="p-8 text-center text-xs text-slate-400">
-              Nenhuma ação encontrada para "{busca}". Tente outra busca.
+            <div className="py-12 px-6 text-center">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200/70 flex items-center justify-center mx-auto mb-2.5 text-slate-400">
+                <Search size={18} />
+              </div>
+              <p className="text-xs font-semibold text-slate-700">
+                Nenhum comando encontrado para "{busca}"
+              </p>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Experimente buscar por frota, diárias, auditório ou ramal.
+              </p>
             </div>
           ) : (
             filtrados.map((item, idx) => {
               const Icon = item.icon;
               const isSelected = selectedIndex === idx;
+              const showCategoryHeader = idx === 0 || filtrados[idx - 1].categoria !== item.categoria;
 
               return (
-                <div
-                  key={item.id}
-                  onClick={() => {
-                    soundFX.playClick();
-                    item.action();
-                    onClose();
-                  }}
-                  onMouseEnter={() => setSelectedIndex(idx)}
-                  className={`p-3 rounded-2xl flex items-center justify-between transition cursor-pointer ${
-                    isSelected ? 'bg-blue-50/80 border border-blue-200' : 'hover:bg-slate-50'
-                  }`}
-                >
-                  <div className="flex items-center gap-3.5">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition shadow-2xs ${
-                      isSelected ? 'bg-[#0072BB] text-white' : 'bg-slate-100 text-slate-600'
-                    }`}>
-                      <Icon size={18} />
+                <React.Fragment key={item.id}>
+                  {showCategoryHeader && (
+                    <div className={`px-3 pt-2.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 select-none flex items-center justify-between ${idx > 0 ? 'mt-1.5 border-t border-slate-100' : ''}`}>
+                      <span>{item.categoria}</span>
                     </div>
-                    <div>
-                      <div className="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight flex items-center gap-2">
-                        <span>{item.titulo}</span>
-                        {item.badge && (
-                          <span className="text-[10px] font-bold text-[#0072BB] bg-blue-100/70 px-2 py-0.2 rounded-full">
-                            {item.badge}
-                          </span>
-                        )}
+                  )}
+                  <div
+                    onClick={() => {
+                      soundFX.playClick();
+                      item.action();
+                      onClose();
+                    }}
+                    onMouseEnter={() => setSelectedIndex(idx)}
+                    className={`group px-3 py-2.5 rounded-xl flex items-center justify-between gap-3 transition-all duration-100 cursor-pointer ${
+                      isSelected 
+                        ? 'bg-[#0072BB]/[0.08] ring-1 ring-[#0072BB]/25 shadow-2xs' 
+                        : 'hover:bg-slate-100/70'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
+                        isSelected 
+                          ? 'bg-[#0072BB] text-white shadow-xs' 
+                          : 'bg-slate-100/90 text-slate-600 border border-slate-200/70 group-hover:bg-white'
+                      }`}>
+                        <Icon size={17} strokeWidth={2} />
                       </div>
-                      <div className="text-[11px] text-slate-500 mt-0.5 font-normal">
-                        {item.subtitulo}
+                      <div className="min-w-0">
+                        <div className="text-xs sm:text-[13px] font-semibold text-slate-900 leading-snug flex items-center gap-2 truncate">
+                          <span className={isSelected ? 'text-[#004C80] font-bold' : ''}>{item.titulo}</span>
+                          {item.badge && (
+                            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md border leading-none shrink-0 ${
+                              isSelected
+                                ? 'text-[#0072BB] bg-white border-[#0072BB]/25'
+                                : 'text-slate-600 bg-slate-100 border-slate-200/80'
+                            }`}>
+                              {item.badge}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-slate-500 mt-0.5 truncate">
+                          {item.subtitulo}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center gap-2">
-                    {isSelected && (
-                      <span className="text-[10px] font-mono font-bold text-[#0072BB] flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-blue-200 shadow-2xs">
-                        Enter <CornerDownLeft size={10} />
-                      </span>
-                    )}
-                    <ChevronRight size={16} className={`transition ${isSelected ? 'text-[#0072BB] translate-x-0.5' : 'text-slate-300'}`} />
+                    <div className="flex items-center gap-2 shrink-0">
+                      {isSelected ? (
+                        <span className="text-[10px] font-mono font-semibold text-[#0072BB] flex items-center gap-1 bg-white px-2 py-0.5 rounded-md border border-[#0072BB]/25 shadow-2xs">
+                          Abrir <CornerDownLeft size={10} />
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-slate-400 font-medium hidden sm:inline opacity-0 group-hover:opacity-100 transition-opacity">
+                          Ir para
+                        </span>
+                      )}
+                      <ChevronRight size={15} className={`transition-transform duration-150 ${isSelected ? 'text-[#0072BB] translate-x-0.5' : 'text-slate-300'}`} />
+                    </div>
                   </div>
-                </div>
+                </React.Fragment>
               );
             })
           )}
         </div>
 
-        {/* Rodapé do Command Palette */}
-        <div className="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium px-4">
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1">
-              <kbd className="bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs text-[10px]">↑</kbd>
-              <kbd className="bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs text-[10px]">↓</kbd>
-              Navegar
+        {/* Rodapé Glassmórfico com Atalhos estilo Raycast */}
+        <div className="px-4 py-2.5 bg-slate-50/90 border-t border-slate-200/75 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+          <div className="flex items-center gap-3.5">
+            <span className="flex items-center gap-1.5">
+              <span className="inline-flex items-center gap-0.5">
+                <kbd className="bg-white border border-slate-200/90 text-slate-600 px-1.5 py-0.5 rounded text-[10px] font-mono shadow-2xs">↑</kbd>
+                <kbd className="bg-white border border-slate-200/90 text-slate-600 px-1.5 py-0.5 rounded text-[10px] font-mono shadow-2xs">↓</kbd>
+              </span>
+              <span className="text-slate-500">Navegar</span>
             </span>
-            <span className="flex items-center gap-1">
-              <kbd className="bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs text-[10px]">Enter</kbd>
-              Executar
+            <span className="w-px h-3 bg-slate-200" />
+            <span className="flex items-center gap-1.5">
+              <kbd className="bg-white border border-slate-200/90 text-slate-600 px-1.5 py-0.5 rounded text-[10px] font-mono shadow-2xs flex items-center gap-0.5">
+                <CornerDownLeft size={9} /> Enter
+              </kbd>
+              <span className="text-slate-500">Executar</span>
             </span>
           </div>
 
-          <div className="text-[10px] text-slate-400 font-mono">
-            SEJU · Paraná Governo Digital
+          <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono">
+            <Command size={11} className="text-slate-400" />
+            <span>SEJU · Paraná Digital</span>
           </div>
         </div>
 
