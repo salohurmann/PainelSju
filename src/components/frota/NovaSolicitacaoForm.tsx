@@ -18,9 +18,10 @@ import {
   AlertCircle,
   Fuel,
   Gauge,
-  Sparkles,
   Navigation,
-  AlertTriangle
+  AlertTriangle,
+  ShieldCheck,
+  ArrowRight
 } from 'lucide-react';
 import { soundFX } from '../../services/soundFx';
 
@@ -32,7 +33,7 @@ interface NovaSolicitacaoFormProps {
   defaultEmail?: string;
   defaultCpf?: string;
 }
- 
+
 const DESTINOS_PARANA = [
   { cidade: 'Ponta Grossa', km: 115, rota: 'BR-376 (Campos Gerais)' },
   { cidade: 'Londrina', km: 380, rota: 'BR-376 (Norte do PR)' },
@@ -82,7 +83,7 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
   const [erro, setErro] = useState<string | null>(null);
   const [comprovante, setComprovante] = useState<Agendamento | null>(null);
 
-  // Validador de CPF Real (mesmo da base do usuário)
+  // Validador de CPF Real
   const validarCPF = (strCPF: string) => {
     const clean = strCPF.replace(/\D/g, '');
     if (clean.length !== 11 || /^(\d)\1+$/.test(clean)) return false;
@@ -117,7 +118,6 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
     return clean.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
   };
 
-  // Calendário: dias do mês atual
   const mesesNomes = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
@@ -139,7 +139,7 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
     if (!veiculoId) return { ocupado: false, parcial: false };
     const dt = new Date(dataStr + 'T00:00:00');
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
     if (dt < today) return { ocupado: true, passado: true };
 
     const conflitos = agendamentos.filter(
@@ -240,40 +240,109 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
     setCidadeDestino(null);
   };
 
+  // Status de preenchimento das etapas para indicador visual
+  const step1Completo = Boolean(nome.trim() && cpf.replace(/\D/g, '').length === 11 && telefone.trim());
+  const step2Completo = Boolean(veiculoId && datasSelecionadas.length > 0 && destino.trim() && !capacidadeExcedida);
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Cabeçalho */}
-      <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-xs">
-        <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-6">
-          <div className="w-10 h-10 rounded-lg bg-[#0072BB]/10 text-[#0072BB] flex items-center justify-center font-bold">
-            <Car size={22} />
+    <div className="max-w-5xl mx-auto space-y-6">
+      {/* Cabeçalho Executivo & Indicador de Etapas */}
+      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-2xs">
+              <Car size={20} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-semibold">
+                  REQUISIÇÃO DE FROTA OFICIAL
+                </span>
+                <span className="text-[10px] font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200/80">
+                  Fluxo 1-Clique
+                </span>
+              </div>
+              <h2 className="text-lg font-semibold text-slate-900 tracking-tight mt-0.5">
+                Nova Solicitação de Veículo Oficial
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Preencha as três etapas abaixo para submeter a missão à deliberação da Chefia de Gabinete.
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-gray-900">
-              Solicitação de Veículo Oficial
-            </h2>
-            <p className="text-xs text-gray-500">
-              Preencha os dados da missão oficial. O pedido será encaminhado à Chefia de Gabinete para aprovação em 1 clique.
-            </p>
+
+          {/* Stepper Horizontal */}
+          <div className="flex items-center gap-2 self-start md:self-center bg-slate-50 p-1.5 rounded-xl border border-slate-200/80">
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+              step1Completo ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/60' : 'text-slate-600'
+            }`}>
+              <span className={`w-5 h-5 rounded-full text-[10px] font-mono font-bold flex items-center justify-center ${
+                step1Completo ? 'bg-emerald-600 text-white' : 'bg-slate-900 text-white'
+              }`}>
+                {step1Completo ? '✓' : '1'}
+              </span>
+              <span className="hidden sm:inline">Servidor</span>
+            </div>
+
+            <ChevronRight size={14} className="text-slate-300" />
+
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+              step2Completo ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/60' : 'text-slate-600'
+            }`}>
+              <span className={`w-5 h-5 rounded-full text-[10px] font-mono font-bold flex items-center justify-center ${
+                step2Completo ? 'bg-emerald-600 text-white' : step1Completo ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-600'
+              }`}>
+                {step2Completo ? '✓' : '2'}
+              </span>
+              <span className="hidden sm:inline">Veículo & Roteiro</span>
+            </div>
+
+            <ChevronRight size={14} className="text-slate-300" />
+
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600">
+              <span className={`w-5 h-5 rounded-full text-[10px] font-mono font-bold flex items-center justify-center ${
+                step1Completo && step2Completo ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-600'
+              }`}>
+                3
+              </span>
+              <span className="hidden sm:inline">Confirmação</span>
+            </div>
           </div>
         </div>
 
         {erro && (
-          <div className="mb-6 p-3.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 flex items-center gap-2">
-            <AlertCircle size={16} className="text-red-500 shrink-0" />
-            <span>{erro}</span>
+          <div className="mt-5 p-3.5 bg-red-50/80 border border-red-200/80 rounded-xl text-xs text-red-700 flex items-center gap-2.5">
+            <AlertCircle size={16} className="text-red-600 shrink-0" />
+            <span className="font-medium">{erro}</span>
           </div>
         )}
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Seção 1: Dados do Servidor */}
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
-              <User size={14} /> Dados do Servidor Solicitante
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Coluna Principal: Etapas 1 e 2 */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* STEP 1: IDENTIFICAÇÃO DO SERVIDOR */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <span className="w-6 h-6 rounded-lg bg-slate-100 border border-slate-200/80 text-slate-800 font-mono text-xs font-bold flex items-center justify-center">
+                  01
+                </span>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900">
+                    Identificação do Servidor
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    Dados funcionais do responsável pela requisição e recebimento do passe digital
+                  </p>
+                </div>
+              </div>
+              <User size={16} className="text-slate-400" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
                   Nome Completo *
                 </label>
                 <input
@@ -281,13 +350,13 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
                   required
                   value={nome}
                   onChange={e => setNome(e.target.value)}
-                  placeholder="Nome do servidor"
-                  className="w-full text-xs p-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0072BB] focus:bg-white outline-hidden"
+                  placeholder="Nome completo do servidor"
+                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50/70 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white outline-hidden transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
                   CPF *
                 </label>
                 <input
@@ -296,48 +365,68 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
                   value={cpf}
                   onChange={e => setCpf(formatarCpf(e.target.value))}
                   placeholder="000.000.000-00"
-                  className="w-full text-xs p-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0072BB] focus:bg-white outline-hidden font-mono"
+                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50/70 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white outline-hidden font-mono transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
                   Telefone Funcional / WhatsApp *
                 </label>
-                <input
-                  type="text"
-                  required
-                  value={telefone}
-                  onChange={e => setTelefone(formatarTelefone(e.target.value))}
-                  placeholder="(41) 99999-9999"
-                  className="w-full text-xs p-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0072BB] focus:bg-white outline-hidden"
-                />
+                <div className="relative">
+                  <Phone size={14} className="absolute left-3.5 top-2.5 text-slate-400" />
+                  <input
+                    type="text"
+                    required
+                    value={telefone}
+                    onChange={e => setTelefone(formatarTelefone(e.target.value))}
+                    placeholder="(41) 99999-9999"
+                    className="w-full text-xs pl-9 pr-3.5 py-2.5 bg-slate-50/70 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white outline-hidden transition"
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  E-mail Institucional (recebe confirmação e aprovação)
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  E-mail Institucional
                 </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="servidor@seju.pr.gov.br"
-                  className="w-full text-xs p-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0072BB] focus:bg-white outline-hidden"
-                />
+                <div className="relative">
+                  <Mail size={14} className="absolute left-3.5 top-2.5 text-slate-400" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="servidor@seju.pr.gov.br"
+                    className="w-full text-xs pl-9 pr-3.5 py-2.5 bg-slate-50/70 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white outline-hidden transition"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Seção 2: Escolha do Veículo e Período */}
-          <div className="pt-4 border-t border-gray-100">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
-              <Car size={14} /> Seleção do Veículo & Período
-            </h3>
+          {/* STEP 2: SELEÇÃO DO VEÍCULO & ROTEIRO */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <span className="w-6 h-6 rounded-lg bg-slate-100 border border-slate-200/80 text-slate-800 font-mono text-xs font-bold flex items-center justify-center">
+                  02
+                </span>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900">
+                    Seleção do Veículo & Roteiro
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    Escolha a viatura oficial, datas disponíveis e especifique o destino da missão
+                  </p>
+                </div>
+              </div>
+              <MapPin size={16} className="text-slate-400" />
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div className="md:col-span-2">
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+            {/* Veículo e Modalidade */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
                   Veículo Solicitado *
                 </label>
                 <select
@@ -347,389 +436,474 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
                     setVeiculoId(e.target.value);
                     setDatasSelecionadas([]);
                   }}
-                  className="w-full text-xs p-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0072BB] focus:bg-white outline-hidden"
+                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50/70 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white outline-hidden transition"
                 >
-                  <option value="">Selecione um veículo da frota SEJU</option>
+                  <option value="">Selecione um veículo da frota oficial SEJU</option>
                   {veiculos.map(v => (
                     <option key={v.id} value={v.id}>
-                      {v.modelo} — Placa: {v.placa} ({v.capacidade} lugares, {v.cor})
+                      {v.modelo} — Placa {v.placa} ({v.capacidade} lugares, {v.cor})
                     </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Modalidade *
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  Modalidade de Condução *
                 </label>
                 <select
                   value={modalidade}
                   onChange={e => setModalidade(e.target.value as ModalidadeAgendamento)}
-                  className="w-full text-xs p-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0072BB] focus:bg-white outline-hidden"
+                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50/70 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white outline-hidden transition"
                 >
                   <option value="com_motorista">Com Motorista Oficial</option>
-                  <option value="sem_motorista">Sem Motorista (Condução Própria)</option>
+                  <option value="sem_motorista">Condução Própria</option>
                 </select>
               </div>
             </div>
 
-            {/* Calendário Visual com Verificação de Bloqueio */}
-            <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CalendarIcon size={16} className="text-[#0072BB]" />
-                  <span className="text-xs font-bold text-gray-800">
-                    Calendário de Disponibilidade: {mesesNomes[calMes]} de {calAno}
-                  </span>
+            {/* Calendário e Período em Grid Dividido */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5 pt-1">
+              {/* Calendário */}
+              <div className="md:col-span-7 p-4 bg-slate-50/60 border border-slate-200/80 rounded-2xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CalendarIcon size={15} className="text-slate-700" />
+                    <span className="text-xs font-semibold text-slate-800">
+                      {mesesNomes[calMes]} {calAno}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleNavMes(-1)}
+                      className="p-1.5 rounded-lg hover:bg-white text-slate-600 border border-transparent hover:border-slate-200/80 transition cursor-pointer"
+                    >
+                      <ChevronLeft size={15} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleNavMes(1)}
+                      className="p-1.5 rounded-lg hover:bg-white text-slate-600 border border-transparent hover:border-slate-200/80 transition cursor-pointer"
+                    >
+                      <ChevronRight size={15} />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => handleNavMes(-1)}
-                    className="p-1.5 rounded-md hover:bg-white text-gray-600 border border-transparent hover:border-gray-200 transition cursor-pointer"
-                  >
-                    <ChevronLeft size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleNavMes(1)}
-                    className="p-1.5 rounded-md hover:bg-white text-gray-600 border border-transparent hover:border-gray-200 transition cursor-pointer"
-                  >
-                    <ChevronRight size={16} />
-                  </button>
-                </div>
+
+                {!veiculoId ? (
+                  <div className="py-10 px-4 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl bg-white/50">
+                    Selecione um veículo acima para consultar a disponibilidade no calendário.
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-medium text-slate-400 uppercase">
+                      <span>Dom</span>
+                      <span>Seg</span>
+                      <span>Ter</span>
+                      <span>Qua</span>
+                      <span>Qui</span>
+                      <span>Sex</span>
+                      <span>Sáb</span>
+                    </div>
+
+                    <div className="grid grid-cols-7 gap-1 text-xs">
+                      {Array.from({ length: primeiroDiaSemana }).map((_, i) => (
+                        <div key={`empty-${i}`} className="h-8" />
+                      ))}
+
+                      {Array.from({ length: diasNoMes }).map((_, i) => {
+                        const diaNum = i + 1;
+                        const diaStr = String(diaNum).padStart(2, '0');
+                        const mesStr = String(calMes + 1).padStart(2, '0');
+                        const dataKey = `${calAno}-${mesStr}-${diaStr}`;
+                        const isSelected = datasSelecionadas.includes(dataKey);
+                        const { ocupado, parcial, passado } = checkDataStatus(dataKey);
+
+                        let bgClass = 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200/80';
+                        if (passado) {
+                          bgClass = 'bg-slate-100/60 text-slate-300 border-transparent cursor-not-allowed';
+                        } else if (ocupado) {
+                          bgClass = 'bg-red-50/70 text-red-400 border-red-100 cursor-not-allowed line-through';
+                        } else if (isSelected) {
+                          bgClass = 'bg-slate-900 text-white border-slate-900 font-semibold shadow-2xs';
+                        } else if (parcial) {
+                          bgClass = 'bg-amber-50 text-amber-800 border-amber-200 font-medium';
+                        }
+
+                        return (
+                          <button
+                            key={dataKey}
+                            type="button"
+                            disabled={ocupado || passado}
+                            onClick={() => handleToggleData(dataKey)}
+                            className={`h-8 rounded-lg border flex items-center justify-center font-mono text-[11px] transition cursor-pointer ${bgClass}`}
+                          >
+                            {diaNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3 pt-2 text-[10px] text-slate-500 border-t border-slate-200/60">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-white border border-slate-300" /> Livre
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-slate-900" /> Selecionado
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-amber-400" /> Parcial
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-red-400" /> Ocupado
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
 
-              {!veiculoId ? (
-                <div className="p-8 text-center text-xs text-gray-400">
-                  Selecione um veículo acima para visualizar os dias livres e ocupados.
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-gray-400 uppercase py-1">
-                    <span>Dom</span>
-                    <span>Seg</span>
-                    <span>Ter</span>
-                    <span>Qua</span>
-                    <span>Qui</span>
-                    <span>Sex</span>
-                    <span>Sáb</span>
-                  </div>
-
-                  <div className="grid grid-cols-7 gap-1 text-xs">
-                    {/* Espaços vazios antes do 1º dia */}
-                    {Array.from({ length: primeiroDiaSemana }).map((_, i) => (
-                      <div key={`empty-${i}`} className="h-9" />
-                    ))}
-
-                    {/* Dias do Mês */}
-                    {Array.from({ length: diasNoMes }).map((_, i) => {
-                      const diaNum = i + 1;
-                      const diaStr = String(diaNum).padStart(2, '0');
-                      const mesStr = String(calMes + 1).padStart(2, '0');
-                      const dataKey = `${calAno}-${mesStr}-${diaStr}`;
-                      const isSelected = datasSelecionadas.includes(dataKey);
-                      const { ocupado, parcial, passado } = checkDataStatus(dataKey);
-
-                      let bgClass = 'bg-white hover:bg-blue-50 text-gray-700 border-gray-200';
-                      if (passado) {
-                        bgClass = 'bg-gray-100 text-gray-300 border-gray-100 cursor-not-allowed';
-                      } else if (ocupado) {
-                        bgClass = 'bg-red-50 text-red-400 border-red-100 cursor-not-allowed line-through';
-                      } else if (isSelected) {
-                        bgClass = 'bg-[#0072BB] text-white border-[#0072BB] font-bold shadow-xs';
-                      } else if (parcial) {
-                        bgClass = 'bg-amber-50 text-amber-800 border-amber-200 font-semibold';
-                      }
-
+              {/* Período e Datas Selecionadas */}
+              <div className="md:col-span-5 flex flex-col justify-between space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-2">
+                    Turno de Utilização *
+                  </label>
+                  <div className="space-y-2">
+                    {[
+                      { id: 'manha', label: 'Período da Manhã', desc: '08h00 às 12h00' },
+                      { id: 'tarde', label: 'Período da Tarde', desc: '13h00 às 18h00' },
+                      { id: 'dia_todo', label: 'Integral (Dia Todo)', desc: '08h00 às 18h00' }
+                    ].map(p => {
+                      const active = periodo === p.id;
                       return (
                         <button
-                          key={dataKey}
+                          key={p.id}
                           type="button"
-                          disabled={ocupado || passado}
-                          onClick={() => handleToggleData(dataKey)}
-                          className={`h-9 rounded-lg border flex items-center justify-center font-mono text-xs transition cursor-pointer ${bgClass}`}
+                          onClick={() => setPeriodo(p.id as PeriodoAgendamento)}
+                          className={`w-full p-3 rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
+                            active
+                              ? 'border-slate-900 bg-slate-900 text-white shadow-2xs'
+                              : 'border-slate-200/80 bg-white text-slate-700 hover:bg-slate-50'
+                          }`}
                         >
-                          {diaNum}
+                          <div>
+                            <div className="text-xs font-semibold">{p.label}</div>
+                            <div className={`text-[10px] ${active ? 'text-slate-300' : 'text-slate-400'}`}>{p.desc}</div>
+                          </div>
+                          <Clock size={14} className={active ? 'text-white' : 'text-slate-400'} />
                         </button>
                       );
                     })}
                   </div>
+                </div>
 
-                  {/* Legenda do Calendário */}
-                  <div className="flex flex-wrap items-center gap-4 pt-2 text-[10px] text-gray-500 border-t border-gray-200">
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-white border border-gray-300" /> Disponível
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#0072BB]" /> Selecionado
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-400" /> Parcialmente Ocupado
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-red-400" /> Ocupado
-                    </span>
+                {/* Chips de Datas */}
+                <div className="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/80">
+                  <div className="text-[11px] font-medium text-slate-500 mb-2 flex items-center justify-between">
+                    <span>Datas selecionadas</span>
+                    <span className="font-mono font-bold text-slate-800">{datasSelecionadas.length}</span>
                   </div>
-                </>
-              )}
-
-              {/* Chips de Datas Selecionadas */}
-              {datasSelecionadas.length > 0 && (
-                <div className="pt-2">
-                  <div className="text-[11px] font-bold text-gray-600 mb-1.5">
-                    Datas Escolhidas ({datasSelecionadas.length}):
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {datasSelecionadas.map(d => (
-                      <span
-                        key={d}
-                        className="inline-flex items-center gap-1.5 bg-[#0072BB]/10 text-[#0072BB] text-xs font-semibold px-2.5 py-1 rounded-full border border-[#0072BB]/20"
-                      >
-                        {d.split('-').reverse().join('/')}
-                        <button
-                          type="button"
-                          onClick={() => handleToggleData(d)}
-                          className="hover:text-red-600 cursor-pointer"
+                  {datasSelecionadas.length === 0 ? (
+                    <div className="text-[11px] text-slate-400">
+                      Nenhuma data marcada no calendário.
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-1.5">
+                      {datasSelecionadas.map(d => (
+                        <span
+                          key={d}
+                          className="inline-flex items-center gap-1 bg-white text-slate-800 text-[11px] font-mono font-medium px-2.5 py-1 rounded-lg border border-slate-200/80 shadow-2xs"
                         >
-                          <X size={12} />
-                        </button>
-                      </span>
-                    ))}
+                          {d.split('-').reverse().join('/')}
+                          <button
+                            type="button"
+                            onClick={() => handleToggleData(d)}
+                            className="text-slate-400 hover:text-red-600 cursor-pointer ml-0.5"
+                          >
+                            <X size={12} />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Destinos Rápidos & Telemetria */}
+            <div className="pt-4 border-t border-slate-100 space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-medium text-slate-700 flex items-center gap-1.5">
+                    <Navigation size={13} className="text-slate-500" /> Rotas Oficiais Frequentes (Atalhos)
+                  </label>
+                  <span className="text-[10px] text-slate-400">Preenche roteiro e calcula estimativa</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                  {DESTINOS_PARANA.map(d => {
+                    const isSel = cidadeDestino === d.cidade || (destino && destino.toLowerCase().includes(d.cidade.toLowerCase()));
+                    return (
+                      <button
+                        key={d.cidade}
+                        type="button"
+                        onClick={() => {
+                          setCidadeDestino(d.cidade);
+                          soundFX.playClick();
+                          setDestino(`${d.cidade}/PR via ${d.rota} — Vistoria técnica institucional e atendimento regional SEJU`);
+                        }}
+                        className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
+                          isSel
+                            ? 'border-slate-900 bg-slate-900 text-white shadow-2xs'
+                            : 'border-slate-200/80 bg-slate-50/50 hover:bg-white text-slate-700'
+                        }`}
+                      >
+                        <div className="text-xs font-semibold truncate">{d.cidade}</div>
+                        <div className={`text-[10px] font-mono mt-0.5 ${isSel ? 'text-slate-300' : 'text-slate-400'}`}>
+                          {d.km} km
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {destInfo && (
+                <div className="p-4 bg-slate-50/80 border border-slate-200/80 rounded-xl space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-slate-800 flex items-center gap-1.5">
+                      <Gauge size={14} className="text-slate-600" /> Estimativa de Deslocamento: Curitiba ⇄ {destInfo.cidade}
+                    </span>
+                    <span className="text-[10px] font-mono font-medium text-slate-600 bg-white px-2.5 py-0.5 rounded-md border border-slate-200/80">
+                      {destInfo.rota}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/70">
+                      <div className="text-[10px] text-slate-400">Distância Total</div>
+                      <div className="font-semibold text-slate-900 font-mono text-sm mt-0.5">{destInfo.km * 2} km</div>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/70">
+                      <div className="text-[10px] text-slate-400">Combustível Est.</div>
+                      <div className="font-semibold text-slate-900 font-mono text-sm mt-0.5">{((destInfo.km * 2) / 10.5).toFixed(1)} L</div>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/70">
+                      <div className="text-[10px] text-slate-400">Custo Estimado</div>
+                      <div className="font-semibold text-emerald-700 font-mono text-sm mt-0.5">
+                        R$ {(((destInfo.km * 2) / 10.5) * 5.89).toFixed(2).replace('.', ',')}
+                      </div>
+                    </div>
+                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/70">
+                      <div className="text-[10px] text-slate-400">Tempo por Trecho</div>
+                      <div className="font-semibold text-slate-900 font-mono text-sm mt-0.5">
+                        ~{Math.floor(destInfo.km / 80)}h{Math.round(((destInfo.km / 80) % 1) * 60).toString().padStart(2, '0')}m
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
-            </div>
 
-            {/* Período */}
-            <div className="mt-4">
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
-                Período da Utilização *
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { id: 'manha', label: 'Manhã', desc: '08h às 12h' },
-                  { id: 'tarde', label: 'Tarde', desc: '13h às 18h' },
-                  { id: 'dia_todo', label: 'Dia Todo', desc: '08h às 18h' }
-                ].map(p => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => setPeriodo(p.id as PeriodoAgendamento)}
-                    className={`p-3 rounded-lg border text-left transition cursor-pointer ${
-                      periodo === p.id
-                        ? 'border-[#0072BB] bg-blue-50/60 text-[#0072BB]'
-                        : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="text-xs font-bold">{p.label}</div>
-                    <div className="text-[10px] text-gray-400">{p.desc}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Seção 3: Detalhes da Missão Oficial */}
-          <div className="pt-4 border-t border-gray-100">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
-              <MapPin size={14} /> Destino & Justificativa
-            </h3>
-
-            {/* Chips de Destinos Frequentes do Estado do Paraná */}
-            <div className="mb-4">
-              <div className="text-[11px] font-bold text-gray-600 mb-2 flex items-center gap-1.5">
-                <Navigation size={13} className="text-[#0072BB]" /> Destinos Oficiais Recorrentes (Atalhos Rápidos SEJU)
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-                {DESTINOS_PARANA.map(d => {
-                  const isSel = cidadeDestino === d.cidade || (destino && destino.toLowerCase().includes(d.cidade.toLowerCase()));
-                  return (
-                    <button
-                      key={d.cidade}
-                      type="button"
-                      onClick={() => {
-                        setCidadeDestino(d.cidade);
-                        soundFX.playClick();
-                        setDestino(`${d.cidade}/PR via ${d.rota} — Vistoria técnica institucional e atendimento regional SEJU`);
-                      }}
-                      className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
-                        isSel
-                          ? 'border-[#0072BB] bg-[#0072BB]/10 text-[#0072BB] font-bold ring-1 ring-[#0072BB]'
-                          : 'border-gray-200 bg-white hover:bg-gray-50 text-gray-700'
-                      }`}
-                    >
-                      <div className="text-xs font-bold truncate">{d.cidade}</div>
-                      <div className="text-[10px] text-gray-400 mt-0.5">{d.km} km (ida)</div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Painel de Telemetria e Estimativa de Custos da Viagem */}
-            {destInfo && (
-              <div className="mb-4 p-3.5 bg-gradient-to-r from-blue-50/80 via-white to-emerald-50/60 border border-blue-200/80 rounded-xl space-y-2">
-                <div className="flex items-center justify-between text-xs font-bold text-[#00385E]">
-                  <span className="flex items-center gap-1.5">
-                    <Gauge size={14} className="text-[#0072BB]" /> Estimativa de Telemetria: Curitiba ⇄ {destInfo.cidade}
-                  </span>
-                  <span className="text-[10px] font-mono text-emerald-800 font-bold bg-emerald-100/80 px-2 py-0.5 rounded border border-emerald-200">
-                    {destInfo.rota}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
-                  <div className="bg-white/90 p-2 rounded-lg border border-gray-200/70">
-                    <div className="text-[10px] text-gray-500 font-semibold">Distância Total</div>
-                    <div className="font-bold text-gray-900 font-mono text-sm">{destInfo.km * 2} km</div>
-                    <div className="text-[9px] text-gray-400">Trajeto ida e volta</div>
-                  </div>
-                  <div className="bg-white/90 p-2 rounded-lg border border-gray-200/70">
-                    <div className="text-[10px] text-gray-500 font-semibold">Consumo Combustível</div>
-                    <div className="font-bold text-[#0072BB] font-mono text-sm">{((destInfo.km * 2) / 10.5).toFixed(1)} L</div>
-                    <div className="text-[9px] text-gray-400">Média 10,5 km/L</div>
-                  </div>
-                  <div className="bg-white/90 p-2 rounded-lg border border-gray-200/70">
-                    <div className="text-[10px] text-gray-500 font-semibold">Cartão Combustível</div>
-                    <div className="font-bold text-emerald-700 font-mono text-sm">
-                      R$ {(((destInfo.km * 2) / 10.5) * 5.89).toFixed(2).replace('.', ',')}
-                    </div>
-                    <div className="text-[9px] text-gray-400">Ref. R$ 5,89/L Gov/PR</div>
-                  </div>
-                  <div className="bg-white/90 p-2 rounded-lg border border-gray-200/70">
-                    <div className="text-[10px] text-gray-500 font-semibold">Tempo de Estrada</div>
-                    <div className="font-bold text-gray-800 font-mono text-sm">
-                      ~{Math.floor(destInfo.km / 80)}h{Math.round(((destInfo.km / 80) % 1) * 60).toString().padStart(2, '0')}min
-                    </div>
-                    <div className="text-[9px] text-gray-400">Estimativa por trecho</div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Destino e Finalidade da Viagem *
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  Destino e Finalidade Oficial da Missão *
                 </label>
                 <textarea
                   required
                   rows={3}
                   value={destino}
                   onChange={e => setDestino(e.target.value)}
-                  placeholder="Ex: Paranaguá/PR — Vistoria técnica da unidade de acolhimento socioeducativo conforme expediente nº 21.042/2026..."
-                  className="w-full text-xs p-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0072BB] focus:bg-white outline-hidden"
+                  placeholder="Descreva a cidade, órgão visitado e objetivo institucional da viagem..."
+                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50/70 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white outline-hidden transition"
                 />
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-semibold text-gray-700">
-                    Passageiros Adicionais (Nomes e Funções)
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-medium text-slate-700">
+                    Passageiros Adicionais (separados por vírgula)
                   </label>
                   {veicSel && (
-                    <span className="text-[11px] font-medium text-gray-500">
-                      Ocupação Estimada: <strong className={capacidadeExcedida ? 'text-red-600 font-bold' : 'text-emerald-700 font-bold'}>{totalOcupantes}</strong> de {veicSel.capacidade} lugares
+                    <span className="text-[11px] text-slate-500">
+                      Ocupação: <strong className={capacidadeExcedida ? 'text-red-600' : 'text-slate-900'}>{totalOcupantes}</strong>/{veicSel.capacidade} lugares
                     </span>
                   )}
                 </div>
-                <input
-                  type="text"
-                  value={passageiros}
-                  onChange={e => setPassageiros(e.target.value)}
-                  placeholder="Ex: Carlos Silveira (Assistente Social), Ana Beatriz (Psicóloga)"
-                  className={`w-full text-xs p-2.5 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-[#0072BB] focus:bg-white outline-hidden ${
-                    capacidadeExcedida ? 'border-red-400 bg-red-50/50' : 'border-gray-300'
-                  }`}
-                />
-                <p className="text-[10px] text-gray-400 mt-1">
-                  Separe os nomes por vírgula. O servidor solicitante é computado automaticamente no total de ocupantes.
-                </p>
+                <div className="relative">
+                  <Users size={14} className="absolute left-3.5 top-2.5 text-slate-400" />
+                  <input
+                    type="text"
+                    value={passageiros}
+                    onChange={e => setPassageiros(e.target.value)}
+                    placeholder="Ex: Carlos Silveira, Ana Beatriz"
+                    className={`w-full text-xs pl-9 pr-3.5 py-2.5 border rounded-xl outline-hidden transition ${
+                      capacidadeExcedida
+                        ? 'border-red-300 bg-red-50/50 focus:border-red-500'
+                        : 'bg-slate-50/70 border-slate-200/90 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white'
+                    }`}
+                  />
+                </div>
               </div>
 
               {capacidadeExcedida && veicSel && (
-                <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 flex items-start gap-2.5">
-                  <AlertTriangle size={18} className="text-red-500 shrink-0 mt-0.5" />
+                <div className="p-3.5 bg-red-50/80 border border-red-200/80 rounded-xl text-xs text-red-800 flex items-start gap-2.5">
+                  <AlertTriangle size={16} className="text-red-600 shrink-0 mt-0.5" />
                   <div>
-                    <div className="font-bold">Capacidade de Ocupantes Excedida!</div>
+                    <div className="font-semibold">Limite de ocupantes excedido</div>
                     <p className="text-[11px] text-red-700 mt-0.5">
-                      O veículo selecionado ({veicSel.modelo}) possui apenas <strong>{veicSel.capacidade} lugares</strong>, mas a lista de ocupantes soma <strong>{totalOcupantes} pessoas</strong>. Favor alterar a seleção do veículo para uma van ou utilitário de 7 lugares (ex: Chevrolet Spin) ou reduzir o número de servidores.
+                      O veículo {veicSel.modelo} comporta {veicSel.capacidade} pessoas, mas há {totalOcupantes} ocupantes listados. Selecione um utilitário maior ou ajuste a lista.
                     </p>
                   </div>
                 </div>
               )}
             </div>
           </div>
+        </div>
 
-          {/* Botões de Ação */}
-          <div className="pt-4 border-t border-gray-200 flex items-center justify-end gap-3">
-            <button
-              type="submit"
-              className="bg-[#0072BB] hover:bg-[#00538a] text-white text-xs font-bold px-6 py-3 rounded-lg shadow-xs transition flex items-center gap-2 cursor-pointer"
-            >
-              <CheckCircle2 size={16} />
-              Enviar para Validação da Chefia
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Modal de Comprovante de Solicitação com QR Code / Protocolo */}
-      {comprovante && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-gray-200 animate-in zoom-in-95">
-            <div className="text-center border-b border-dashed border-gray-200 pb-4 mb-4">
-              <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto mb-2 font-bold">
-                <FileCheck2 size={24} />
+        {/* Coluna Lateral: STEP 3: CONFIRMAÇÃO & SUBMISSÃO */}
+        <div className="lg:col-span-4 lg:sticky lg:top-6 space-y-6">
+          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-3">
+                <span className="w-6 h-6 rounded-lg bg-slate-900 text-white font-mono text-xs font-bold flex items-center justify-center">
+                  03
+                </span>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900">
+                    Revisão & Confirmação
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    Resumo da ordem de tráfego
+                  </p>
+                </div>
               </div>
-              <h3 className="text-base font-bold text-gray-900">
-                Solicitação Registrada com Sucesso!
-              </h3>
-              <div className="text-xs font-mono text-[#0072BB] font-bold mt-1">
-                Protocolo Oficial: {comprovante.ticket}
-              </div>
-              <p className="text-[11px] text-gray-500 mt-1">
-                Notificação enviada automaticamente à Chefia de Gabinete para deliberação.
-              </p>
+              <ShieldCheck size={16} className="text-slate-400" />
             </div>
 
-            <div className="space-y-2 text-xs text-gray-600 mb-6">
-              <div className="flex justify-between py-1 border-b border-gray-100">
-                <span className="font-semibold text-gray-400">SOLICITANTE:</span>
-                <span className="font-bold text-gray-800">{comprovante.nome}</span>
+            <div className="space-y-3 text-xs">
+              <div className="p-3.5 bg-slate-50/80 rounded-xl border border-slate-200/70 space-y-2.5">
+                <div className="flex justify-between items-start gap-2">
+                  <span className="text-slate-400">Solicitante</span>
+                  <span className="font-medium text-slate-900 text-right truncate max-w-[180px]">
+                    {nome || '—'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-slate-400">CPF</span>
+                  <span className="font-mono text-slate-700">
+                    {cpf || '—'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-start gap-2 pt-2 border-t border-slate-200/60">
+                  <span className="text-slate-400">Viatura</span>
+                  <span className="font-medium text-slate-900 text-right">
+                    {veicSel ? `${veicSel.modelo} (${veicSel.placa})` : 'Não selecionada'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-slate-400">Modalidade</span>
+                  <span className="text-slate-700 font-medium">
+                    {modalidade === 'com_motorista' ? 'Com Motorista' : 'Condução Própria'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-slate-400">Datas</span>
+                  <span className="font-mono text-slate-800 font-medium">
+                    {datasSelecionadas.length > 0 ? `${datasSelecionadas.length} dia(s)` : 'Nenhuma'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-slate-400">Ocupação</span>
+                  <span className="text-slate-700 font-medium">
+                    {totalOcupantes} {totalOcupantes === 1 ? 'ocupante' : 'ocupantes'}
+                  </span>
+                </div>
               </div>
-              <div className="flex justify-between py-1 border-b border-gray-100">
-                <span className="font-semibold text-gray-400">VEÍCULO:</span>
-                <span className="font-bold text-gray-800">{comprovante.veiculoNome} ({comprovante.veiculoPlaca})</span>
+
+              {destino && (
+                <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/70">
+                  <span className="text-[10px] font-mono uppercase text-slate-400 block mb-1">
+                    Roteiro Especificado
+                  </span>
+                  <p className="text-slate-700 line-clamp-3 leading-relaxed">
+                    {destino}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="pt-2 space-y-2.5">
+              <button
+                type="submit"
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-5 py-3.5 rounded-xl shadow-2xs transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <CheckCircle2 size={16} />
+                Enviar para Validação da Chefia
+                <ArrowRight size={14} />
+              </button>
+              <p className="text-[10px] text-slate-400 text-center leading-relaxed">
+                Gera protocolo auditável imediato e notifica a Chefia de Gabinete para aprovação em 1 clique.
+              </p>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      {/* Modal de Comprovante de Solicitação */}
+      {comprovante && (
+        <div className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200/80 animate-in zoom-in-95">
+            <div className="text-center border-b border-slate-100 pb-5 mb-5">
+              <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center justify-center mx-auto mb-3">
+                <FileCheck2 size={22} />
               </div>
-              <div className="flex justify-between py-1 border-b border-gray-100">
-                <span className="font-semibold text-gray-400">DATA(S):</span>
-                <span className="font-bold text-gray-800">{comprovante.datas.join(', ')}</span>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60 font-semibold">
+                Requisição Protocolada
+              </span>
+              <h3 className="text-base font-semibold text-slate-900 mt-2">
+                Solicitação Registrada com Sucesso
+              </h3>
+              <div className="text-xs font-mono text-slate-700 font-semibold mt-1">
+                Protocolo: {comprovante.ticket}
               </div>
-              <div className="flex justify-between py-1 border-b border-gray-100">
-                <span className="font-semibold text-gray-400">DESTINO:</span>
-                <span className="font-medium text-gray-800 text-right max-w-xs">{comprovante.destino}</span>
+            </div>
+
+            <div className="space-y-2.5 text-xs text-slate-600 mb-6 bg-slate-50/70 p-4 rounded-xl border border-slate-200/70">
+              <div className="flex justify-between py-1 border-b border-slate-200/60">
+                <span className="text-slate-400">Solicitante</span>
+                <span className="font-semibold text-slate-900">{comprovante.nome}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-gray-100">
-                <span className="font-semibold text-gray-400">STATUS:</span>
-                <span className="font-bold text-amber-600 uppercase bg-amber-50 px-2 py-0.5 rounded">
+              <div className="flex justify-between py-1 border-b border-slate-200/60">
+                <span className="text-slate-400">Veículo</span>
+                <span className="font-semibold text-slate-900">{comprovante.veiculoNome} ({comprovante.veiculoPlaca})</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-slate-200/60">
+                <span className="text-slate-400">Data(s)</span>
+                <span className="font-mono font-medium text-slate-800">{comprovante.datas.join(', ')}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-slate-200/60">
+                <span className="text-slate-400">Destino</span>
+                <span className="font-medium text-slate-800 text-right max-w-xs">{comprovante.destino}</span>
+              </div>
+              <div className="flex justify-between items-center pt-1">
+                <span className="text-slate-400">Status</span>
+                <span className="text-[11px] font-medium text-amber-800 bg-amber-50 border border-amber-200/80 px-2.5 py-0.5 rounded-full">
                   Aguardando Aprovação
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="flex-1 py-2.5 px-4 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200/90 text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition"
               >
-                <Printer size={16} /> Imprimir Comprovante
+                <Printer size={15} /> Imprimir
               </button>
               <button
                 type="button"
                 onClick={() => setComprovante(null)}
-                className="flex-1 py-2.5 px-4 rounded-lg bg-[#0072BB] text-white hover:bg-[#00538a] text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 py-2.5 px-4 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition"
               >
                 Concluir
               </button>

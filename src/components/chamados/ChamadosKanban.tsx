@@ -7,24 +7,21 @@ import {
   Plus, 
   Clock, 
   CheckCircle2, 
-  AlertCircle, 
   User, 
-  Tag, 
   Flame, 
-  ShieldCheck, 
-  ChevronRight, 
-  Filter,
-  Layers,
-  ArrowRight,
   GripVertical,
   Sparkles,
   Check,
   Search,
   MessageSquare,
   Send,
-  Printer,
   X,
-  FileText
+  FileText,
+  ArrowLeft,
+  SlidersHorizontal,
+  ShieldCheck,
+  ArrowUpRight,
+  RotateCcw
 } from 'lucide-react';
 
 export interface NotaChamado {
@@ -309,414 +306,483 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
   const totalEmAndamento = chamados.filter(c => c.status === 'em_andamento').length;
   const totalConcluidos = chamados.filter(c => c.status === 'concluido').length;
 
+  const getPrioridadeStyle = (p: Chamado['prioridade']) => {
+    switch (p) {
+      case 'urgente':
+        return {
+          badge: 'bg-red-50 text-red-700 border-red-200/80',
+          dot: 'bg-red-500 animate-pulse',
+          label: 'Urgente'
+        };
+      case 'alta':
+        return {
+          badge: 'bg-amber-50 text-amber-700 border-amber-200/80',
+          dot: 'bg-amber-500',
+          label: 'Alta'
+        };
+      case 'media':
+        return {
+          badge: 'bg-blue-50 text-blue-700 border-blue-200/80',
+          dot: 'bg-blue-500',
+          label: 'Média'
+        };
+      default:
+        return {
+          badge: 'bg-slate-100 text-slate-600 border-slate-200/80',
+          dot: 'bg-slate-400',
+          label: 'Baixa'
+        };
+    }
+  };
+
   return (
-    <div className="max-w-7xl mx-auto space-y-6 font-sans">
+    <div className="max-w-7xl mx-auto space-y-5 font-sans">
       
-      {/* Barra de Topo do Módulo Kanban */}
-      <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-gov-card flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-            <button onClick={onVoltarHub} className="hover:text-[#0072BB] font-semibold cursor-pointer">
-              ← Central de Aplicativos
+      {/* =====================================================================
+          SEÇÃO 1: TOP EXECUTIVE BAR & QUICK FILTERS
+         ===================================================================== */}
+      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-2xs space-y-5">
+        {/* Linha Superior: Back Button + Título + KPI Pills + Botão Primário */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <button
+              onClick={onVoltarHub}
+              className="mt-0.5 p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 border border-slate-200/80 transition cursor-pointer shrink-0"
+              title="Voltar à Central de Aplicativos"
+            >
+              <ArrowLeft size={18} />
             </button>
-            <span>/</span>
-            <span className="font-bold text-slate-800">Chamados & OS TI</span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                  Estrutura 2 · Suporte & Operações
+                </span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/70 px-2 py-0.5 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> SLA Ativo
+                </span>
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight mt-0.5 flex items-center gap-2">
+                <Wrench size={20} className="text-slate-700" />
+                Atendimento TI & Ordem de Serviço
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Quadros operacionais com telemetria de SLA em tempo real, triagem por arraste e histórico técnico.
+              </p>
+            </div>
           </div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2.5">
-            <Wrench size={26} className="text-indigo-600" />
-            Central Interativa de Atendimento & Ordem de Serviço
-          </h2>
-          <p className="text-xs text-slate-500 mt-1">
-            Arraste os cards entre as colunas ou clique para inspecionar timeline, notas técnicas e atribuir especialistas.
-          </p>
-        </div>
 
-        <button
-          onClick={() => setModalNovo(true)}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black px-4 py-2.5 rounded-xl shadow-md shadow-indigo-600/20 transition flex items-center gap-2 cursor-pointer shrink-0"
-        >
-          <Plus size={16} /> Abrir Novo Chamado
-        </button>
-      </div>
+          {/* KPI Pills Compactos + Primary Action */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <span className="text-[11px] font-medium text-slate-500">Total</span>
+              <span className="text-xs font-bold text-slate-900 font-mono">{totalChamados}</span>
+            </div>
 
-      {/* 4 Cards de Métricas e Telemetria em Tempo Real */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
-          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total de Demandas</div>
-          <div className="text-2xl font-black text-slate-900 mt-0.5">{totalChamados}</div>
-          <div className="text-[11px] text-slate-500 mt-0.5">Triadas na pasta</div>
-        </div>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-red-50/70 border border-red-200/70">
+              <Flame size={13} className="text-red-600" />
+              <span className="text-[11px] font-medium text-red-700">Urgentes</span>
+              <span className="text-xs font-bold text-red-700 font-mono">{totalUrgentes}</span>
+            </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
-          <div className="text-[10px] font-bold text-red-500 uppercase tracking-wider flex items-center gap-1">
-            <Flame size={12} /> Chamados Urgentes
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50/70 border border-blue-200/70">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+              <span className="text-[11px] font-medium text-blue-700">Em Curso</span>
+              <span className="text-xs font-bold text-blue-800 font-mono">{totalEmAndamento}</span>
+            </div>
+
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50/70 border border-emerald-200/70">
+              <CheckCircle2 size={13} className="text-emerald-600" />
+              <span className="text-[11px] font-medium text-emerald-700">Resolvidos</span>
+              <span className="text-xs font-bold text-emerald-800 font-mono">{totalConcluidos}</span>
+            </div>
+
+            <button
+              onClick={() => {
+                soundFX.playClick();
+                setModalNovo(true);
+              }}
+              className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-2xs transition flex items-center gap-1.5 cursor-pointer shrink-0 ml-auto sm:ml-1"
+            >
+              <Plus size={15} /> Novo Chamado
+            </button>
           </div>
-          <div className="text-2xl font-black text-red-600 mt-0.5">{totalUrgentes}</div>
-          <div className="text-[11px] text-red-500/80 mt-0.5">SLA prioritário &lt; 1h</div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
-          <div className="text-[10px] font-bold text-[#0072BB] uppercase tracking-wider">Em Atendimento</div>
-          <div className="text-2xl font-black text-[#0072BB] mt-0.5">{totalEmAndamento}</div>
-          <div className="text-[11px] text-blue-600/80 mt-0.5">Técnicos em campo</div>
-        </div>
-
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-2xs">
-          <div className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Concluídos</div>
-          <div className="text-2xl font-black text-emerald-700 mt-0.5">{totalConcluidos}</div>
-          <div className="text-[11px] text-emerald-600/80 mt-0.5">100% resolvidos</div>
-        </div>
-      </div>
-
-      {/* Barra de Filtros e Busca Rápida Dentro do Kanban */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Campo de Busca */}
-        <div className="relative w-full md:w-80">
-          <Search size={15} className="absolute left-3 top-2.5 text-slate-400" />
-          <input
-            type="text"
-            value={buscaChamado}
-            onChange={e => setBuscaChamado(e.target.value)}
-            placeholder="Buscar por código, título, solicitante ou técnico..."
-            className="w-full text-xs pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-hidden focus:ring-2 focus:ring-indigo-400 transition"
-          />
-        </div>
-
-        {/* Filtros por Categoria e Prioridade */}
-        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
-          {/* Categoria */}
-          <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-bold text-slate-600 border border-slate-200">
-            {['todos', 'TI', 'Manutenção', 'Almoxarifado'].map(t => (
+        {/* Divisor Sutil & Barra de Filtros Rápidos */}
+        <div className="pt-4 border-t border-slate-100 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          {/* Busca Rápida */}
+          <div className="relative flex-1 max-w-md">
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={buscaChamado}
+              onChange={e => setBuscaChamado(e.target.value)}
+              placeholder="Buscar por código, título, solicitante ou especialista..."
+              className="w-full text-xs pl-9 pr-8 py-2 bg-slate-50/80 hover:bg-slate-50 focus:bg-white border border-slate-200/80 rounded-xl outline-hidden focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition text-slate-800 placeholder:text-slate-400"
+            />
+            {buscaChamado && (
               <button
-                key={t}
-                onClick={() => {
-                  soundFX.playClick();
-                  setFiltroTipo(t);
-                }}
-                className={`px-2.5 py-1 rounded-lg transition capitalize cursor-pointer text-[11px] ${
-                  filtroTipo === t ? 'bg-white text-indigo-700 shadow-xs font-black' : 'hover:text-slate-900'
-                }`}
+                onClick={() => setBuscaChamado('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
               >
-                {t}
+                <X size={13} />
               </button>
-            ))}
+            )}
           </div>
 
-          {/* Prioridade */}
-          <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-bold text-slate-600 border border-slate-200">
-            {[
-              { id: 'todas', label: 'Todas' },
-              { id: 'urgente', label: '🔥 Urgentes' },
-              { id: 'alta', label: 'Altas' }
-            ].map(p => (
-              <button
-                key={p.id}
-                onClick={() => {
-                  soundFX.playClick();
-                  setFiltroPrioridade(p.id);
-                }}
-                className={`px-2.5 py-1 rounded-lg transition cursor-pointer text-[11px] ${
-                  filtroPrioridade === p.id ? 'bg-white text-indigo-700 shadow-xs font-black' : 'hover:text-slate-900'
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
+          {/* Pílulas de Categoria + Prioridade + SLA Status */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/70">
+              {[
+                { id: 'todos', label: 'Todos' },
+                { id: 'TI', label: 'TI & Redes' },
+                { id: 'Manutenção', label: 'Manutenção' },
+                { id: 'Almoxarifado', label: 'Almoxarifado' }
+              ].map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => {
+                    soundFX.playClick();
+                    setFiltroTipo(t.id);
+                  }}
+                  className={`px-2.5 py-1 rounded-lg transition cursor-pointer text-[11px] font-medium ${
+                    filtroTipo === t.id
+                      ? 'bg-white text-slate-900 shadow-2xs font-semibold'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/70">
+              {[
+                { id: 'todas', label: 'Prioridade: Todas' },
+                { id: 'urgente', label: 'Urgentes' },
+                { id: 'alta', label: 'Altas' }
+              ].map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => {
+                    soundFX.playClick();
+                    setFiltroPrioridade(p.id);
+                  }}
+                  className={`px-2.5 py-1 rounded-lg transition cursor-pointer text-[11px] font-medium ${
+                    filtroPrioridade === p.id
+                      ? 'bg-white text-slate-900 shadow-2xs font-semibold'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="hidden xl:flex items-center gap-1.5 text-[11px] text-slate-500 pl-2 border-l border-slate-200">
+              <SlidersHorizontal size={12} className="text-slate-400" />
+              <span className="font-mono font-semibold text-slate-700">{chamadosFiltrados.length}</span>
+              <span>exibidos</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Dica de Interatividade Drag and Drop */}
-      <div className="p-3 bg-indigo-50/80 rounded-2xl border border-indigo-200 text-xs text-indigo-900 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <GripVertical size={16} className="text-indigo-600 animate-pulse" />
-          <span className="font-bold">Interatividade Completa:</span>
-          <span>Arraste os cards entre colunas ou <strong>clique em qualquer card</strong> para inspecionar timeline, atribuir técnico ou adicionar notas técnicas.</span>
-        </div>
-        <span className="font-mono text-[11px] font-bold text-indigo-700 hidden sm:inline">
-          {chamadosFiltrados.length} chamados filtrados
-        </span>
+      {/* =====================================================================
+          SEÇÃO 2: MOBILE SEGMENTED SELECTOR + DESKTOP 3-COLUMN CLEAN KANBAN
+         ===================================================================== */}
+      
+      {/* Seletor Segmentado Mobile */}
+      <div className="md:hidden flex bg-white p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs gap-1 text-xs">
+        {[
+          { id: 'a_fazer' as const, label: 'Triagem', dot: 'bg-amber-500' },
+          { id: 'em_andamento' as const, label: 'Em Curso', dot: 'bg-blue-600' },
+          { id: 'concluido' as const, label: 'Concluídos', dot: 'bg-emerald-500' }
+        ].map(col => {
+          const count = chamadosFiltrados.filter(c => c.status === col.id).length;
+          const active = colunaAtivaMobile === col.id;
+          return (
+            <button
+              key={col.id}
+              type="button"
+              onClick={() => {
+                soundFX.playClick();
+                setColunaAtivaMobile(col.id);
+              }}
+              className={`flex-1 py-2 px-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                active
+                  ? 'bg-slate-900 text-white font-semibold shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900 font-medium'
+              }`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${col.dot}`} />
+              <span>{col.label}</span>
+              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+              }`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Seletor de Colunas para Mobile (Android e iOS) */}
-      <div className="md:hidden flex bg-slate-200/80 p-1.5 rounded-2xl gap-1 text-xs font-bold text-slate-600 shadow-2xs">
-        <button
-          type="button"
-          onClick={() => {
-            soundFX.playClick();
-            setColunaAtivaMobile('a_fazer');
-          }}
-          className={`flex-1 py-2 px-1.5 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
-            colunaAtivaMobile === 'a_fazer'
-              ? 'bg-white text-slate-900 shadow-sm font-black'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <span className="w-2 h-2 rounded-full bg-amber-500" />
-          <span>A Fazer</span>
-          <span className="bg-slate-100 text-slate-700 text-[10px] px-1.5 py-0.2 rounded-full font-mono">
-            {chamadosFiltrados.filter(c => c.status === 'a_fazer').length}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            soundFX.playClick();
-            setColunaAtivaMobile('em_andamento');
-          }}
-          className={`flex-1 py-2 px-1.5 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
-            colunaAtivaMobile === 'em_andamento'
-              ? 'bg-white text-slate-900 shadow-sm font-black'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <span className="w-2 h-2 rounded-full bg-blue-500" />
-          <span>Em Curso</span>
-          <span className="bg-slate-100 text-slate-700 text-[10px] px-1.5 py-0.2 rounded-full font-mono">
-            {chamadosFiltrados.filter(c => c.status === 'em_andamento').length}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            soundFX.playClick();
-            setColunaAtivaMobile('concluido');
-          }}
-          className={`flex-1 py-2 px-1.5 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
-            colunaAtivaMobile === 'concluido'
-              ? 'bg-white text-slate-900 shadow-sm font-black'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span>Concluídos</span>
-          <span className="bg-slate-100 text-slate-700 text-[10px] px-1.5 py-0.2 rounded-full font-mono">
-            {chamadosFiltrados.filter(c => c.status === 'concluido').length}
-          </span>
-        </button>
-      </div>
-
-      {/* AS 3 COLUNAS KANBAN DRAG & DROP REAL */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Quadro Kanban de 3 Colunas */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         
         {/* COLUNA 1: A FAZER / TRIAGEM */}
-        <div 
+        <div
           onDragOver={(e) => handleDragOver(e, 'a_fazer')}
           onDragLeave={() => setDragOverCol(null)}
           onDrop={(e) => handleDrop(e, 'a_fazer')}
-          className={`${colunaAtivaMobile === 'a_fazer' ? 'flex' : 'hidden md:flex'} rounded-3xl p-4 sm:p-5 border-2 transition-all duration-200 flex-col justify-between min-h-[450px] sm:min-h-[550px] ${
-            dragOverCol === 'a_fazer' 
-              ? 'bg-amber-50/80 border-amber-400 ring-4 ring-amber-100' 
-              : 'bg-slate-100/90 border-slate-200/90'
+          className={`${colunaAtivaMobile === 'a_fazer' ? 'flex' : 'hidden md:flex'} rounded-2xl p-4 border transition-all duration-150 flex-col justify-between min-h-[480px] ${
+            dragOverCol === 'a_fazer'
+              ? 'bg-amber-50/40 border-amber-400 ring-2 ring-amber-200/60'
+              : 'bg-slate-50/70 border-slate-200/80'
           }`}
         >
-          <div className="space-y-4">
-            <div className="flex items-center justify-between font-extrabold text-xs text-slate-800 pb-3 border-b border-slate-200">
-              <span className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> A Fazer / Triagem
-              </span>
-              <span className="font-mono bg-white px-2.5 py-0.5 rounded-full border border-slate-200 text-slate-700 text-[11px]">
+          <div className="space-y-3.5">
+            <div className="flex items-center justify-between px-1 pb-2.5 border-b border-slate-200/80">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Fila de Triagem
+                </h3>
+              </div>
+              <span className="font-mono text-[11px] font-semibold bg-white px-2 py-0.5 rounded-md border border-slate-200/80 text-slate-600">
                 {chamadosFiltrados.filter(c => c.status === 'a_fazer').length}
               </span>
             </div>
 
-            <div className="space-y-3.5">
-              {chamadosFiltrados.filter(c => c.status === 'a_fazer').map(c => (
-                <div 
-                  key={c.id} 
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, c.id)}
-                  onDragEnd={() => setDraggingCardId(null)}
-                  onClick={() => {
-                    soundFX.playClick();
-                    setChamadoSelecionado(c);
-                  }}
-                  className={`bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs hover:shadow-lg transition-all space-y-3 cursor-pointer select-none group hover:border-indigo-300 ${
-                    draggingCardId === c.id ? 'opacity-40 scale-95' : ''
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[10px] font-black text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md flex items-center gap-1">
-                      <GripVertical size={12} className="text-slate-400" />
-                      {c.codigo}
-                    </span>
-                    <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full flex items-center gap-1 ${
-                      c.prioridade === 'urgente' ? 'bg-red-100 text-red-800 border border-red-200 animate-pulse' :
-                      c.prioridade === 'alta' ? 'bg-orange-100 text-orange-800 border border-orange-200' :
-                      'bg-slate-100 text-slate-700'
-                    }`}>
-                      {c.prioridade === 'urgente' && <Flame size={10} />}
-                      {c.prioridade}
-                    </span>
-                  </div>
+            <div className="space-y-3">
+              {chamadosFiltrados.filter(c => c.status === 'a_fazer').map(c => {
+                const prio = getPrioridadeStyle(c.prioridade);
+                return (
+                  <div
+                    key={c.id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, c.id)}
+                    onDragEnd={() => setDraggingCardId(null)}
+                    onClick={() => {
+                      soundFX.playClick();
+                      setChamadoSelecionado(c);
+                    }}
+                    className={`bg-white rounded-xl p-4 border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all space-y-3 cursor-pointer select-none group ${
+                      draggingCardId === c.id ? 'opacity-40 scale-98' : ''
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5">
+                        <GripVertical size={13} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
+                        <span className="font-mono text-[11px] font-semibold text-slate-700 bg-slate-100/80 px-2 py-0.5 rounded-md border border-slate-200/60">
+                          {c.codigo}
+                        </span>
+                        <span className="text-[10px] font-medium text-slate-500 px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200/60">
+                          {c.tipo}
+                        </span>
+                      </div>
 
-                  <div>
-                    <h4 className="font-black text-xs text-slate-900 leading-snug group-hover:text-indigo-700 transition-colors">{c.titulo}</h4>
-                    <p className="text-[11px] text-slate-500 line-clamp-2 mt-1">{c.descricao}</p>
-                  </div>
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border flex items-center gap-1 ${prio.badge}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${prio.dot}`} />
+                        {prio.label}
+                      </span>
+                    </div>
 
-                  {/* SLA Countdown Timer Vivo com segundos */}
-                  <div className="p-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400 font-medium">SLA Vivo:</span>
-                    <span className="font-mono font-bold text-amber-700 flex items-center gap-1">
-                      <Clock size={12} className="text-amber-500 animate-spin" /> {formatarSLA(c.slaSegundosRestantes)}
-                    </span>
-                  </div>
+                    <div>
+                      <h4 className="font-semibold text-xs sm:text-[13px] text-slate-900 leading-snug group-hover:text-blue-600 transition-colors">
+                        {c.titulo}
+                      </h4>
+                      <p className="text-[11px] text-slate-500 line-clamp-2 mt-1 leading-relaxed">
+                        {c.descricao}
+                      </p>
+                    </div>
 
-                  <div className="text-[10px] text-slate-400 pt-2 border-t border-slate-100 flex justify-between">
-                    <span>{c.solicitante}</span>
-                    <span>{c.abertoEm.split(' ')[1]}</span>
-                  </div>
+                    {/* Meta & SLA Bar */}
+                    <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                      <div className="text-slate-500 truncate max-w-[140px]" title={`${c.solicitante} · ${c.setor}`}>
+                        <span className="font-medium text-slate-700">{c.solicitante}</span>
+                      </div>
+                      <div className="flex items-center gap-1 font-mono text-[11px] font-semibold text-amber-700 bg-amber-50/80 px-2 py-0.5 rounded-md border border-amber-200/60">
+                        <Clock size={11} className="text-amber-600" />
+                        {formatarSLA(c.slaSegundosRestantes)}
+                      </div>
+                    </div>
 
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        soundFX.playClick();
-                        setChamadoSelecionado(c);
-                      }}
-                      className="flex-1 text-[11px] font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 py-2 rounded-xl transition cursor-pointer flex items-center justify-center gap-1"
-                    >
-                      <FileText size={12} /> Detalhes
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        moverStatus(c.id, 'em_andamento');
-                      }}
-                      className="flex-1 text-[11px] font-black text-indigo-700 hover:text-white hover:bg-indigo-600 bg-indigo-50 py-2 rounded-xl border border-indigo-200 transition cursor-pointer flex items-center justify-center gap-1"
-                    >
-                      Iniciar →
-                    </button>
+                    <div className="flex items-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          soundFX.playClick();
+                          setChamadoSelecionado(c);
+                        }}
+                        className="flex-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 py-1.5 rounded-lg border border-slate-200/80 transition cursor-pointer flex items-center justify-center gap-1"
+                      >
+                        <FileText size={12} /> Inspecionar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          soundFX.playClick();
+                          moverStatus(c.id, 'em_andamento');
+                        }}
+                        className="flex-1 text-[11px] font-semibold text-slate-900 hover:text-white bg-white hover:bg-slate-900 py-1.5 rounded-lg border border-slate-300 hover:border-slate-900 transition cursor-pointer flex items-center justify-center gap-1"
+                      >
+                        Atender <ArrowUpRight size={12} />
+                      </button>
+                    </div>
                   </div>
+                );
+              })}
+
+              {chamadosFiltrados.filter(c => c.status === 'a_fazer').length === 0 && (
+                <div className="text-center py-12 px-4 rounded-xl border border-dashed border-slate-200 text-xs text-slate-400">
+                  Nenhum chamado aguardando triagem.
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
 
-        {/* COLUNA 2: EM ANDAMENTO */}
-        <div 
+        {/* COLUNA 2: EM ATENDIMENTO */}
+        <div
           onDragOver={(e) => handleDragOver(e, 'em_andamento')}
           onDragLeave={() => setDragOverCol(null)}
           onDrop={(e) => handleDrop(e, 'em_andamento')}
-          className={`${colunaAtivaMobile === 'em_andamento' ? 'flex' : 'hidden md:flex'} rounded-3xl p-4 sm:p-5 border-2 transition-all duration-200 flex-col justify-between min-h-[450px] sm:min-h-[550px] ${
-            dragOverCol === 'em_andamento' 
-              ? 'bg-blue-50/80 border-[#0072BB] ring-4 ring-blue-100' 
-              : 'bg-slate-100/90 border-slate-200/90'
+          className={`${colunaAtivaMobile === 'em_andamento' ? 'flex' : 'hidden md:flex'} rounded-2xl p-4 border transition-all duration-150 flex-col justify-between min-h-[480px] ${
+            dragOverCol === 'em_andamento'
+              ? 'bg-blue-50/40 border-blue-400 ring-2 ring-blue-200/60'
+              : 'bg-slate-50/70 border-slate-200/80'
           }`}
         >
-          <div className="space-y-4">
-            <div className="flex items-center justify-between font-extrabold text-xs text-slate-800 pb-3 border-b border-slate-200">
-              <span className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#0072BB] animate-ping" /> Em Atendimento
-              </span>
-              <span className="font-mono bg-white px-2.5 py-0.5 rounded-full border border-slate-200 text-slate-700 text-[11px]">
+          <div className="space-y-3.5">
+            <div className="flex items-center justify-between px-1 pb-2.5 border-b border-slate-200/80">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Em Atendimento
+                </h3>
+              </div>
+              <span className="font-mono text-[11px] font-semibold bg-white px-2 py-0.5 rounded-md border border-slate-200/80 text-slate-600">
                 {chamadosFiltrados.filter(c => c.status === 'em_andamento').length}
               </span>
             </div>
 
-            <div className="space-y-3.5">
-              {chamadosFiltrados.filter(c => c.status === 'em_andamento').map(c => (
-                <div 
-                  key={c.id} 
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, c.id)}
-                  onDragEnd={() => setDraggingCardId(null)}
-                  onClick={() => {
-                    soundFX.playClick();
-                    setChamadoSelecionado(c);
-                  }}
-                  className={`bg-white rounded-2xl p-4 border-2 border-indigo-300 shadow-md ring-2 ring-indigo-50 space-y-3 cursor-pointer select-none group hover:border-indigo-400 ${
-                    draggingCardId === c.id ? 'opacity-40 scale-95' : ''
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-[10px] font-black text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md flex items-center gap-1">
-                      <GripVertical size={12} className="text-slate-400" />
-                      {c.codigo}
-                    </span>
-                    <span className="text-[10px] font-bold text-[#0072BB] bg-blue-50 px-2 py-0.5 rounded">
-                      ● Em Execução
-                    </span>
-                  </div>
+            <div className="space-y-3">
+              {chamadosFiltrados.filter(c => c.status === 'em_andamento').map(c => {
+                const prio = getPrioridadeStyle(c.prioridade);
+                return (
+                  <div
+                    key={c.id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, c.id)}
+                    onDragEnd={() => setDraggingCardId(null)}
+                    onClick={() => {
+                      soundFX.playClick();
+                      setChamadoSelecionado(c);
+                    }}
+                    className={`bg-white rounded-xl p-4 border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all space-y-3 cursor-pointer select-none group ${
+                      draggingCardId === c.id ? 'opacity-40 scale-98' : ''
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5">
+                        <GripVertical size={13} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
+                        <span className="font-mono text-[11px] font-semibold text-blue-700 bg-blue-50/80 px-2 py-0.5 rounded-md border border-blue-200/60">
+                          {c.codigo}
+                        </span>
+                      </div>
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border flex items-center gap-1 ${prio.badge}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${prio.dot}`} />
+                        {prio.label}
+                      </span>
+                    </div>
 
-                  <div>
-                    <h4 className="font-black text-xs text-slate-900 leading-snug group-hover:text-indigo-700 transition-colors">{c.titulo}</h4>
-                    <p className="text-[11px] text-slate-500 line-clamp-2 mt-1">{c.descricao}</p>
-                  </div>
+                    <div>
+                      <h4 className="font-semibold text-xs sm:text-[13px] text-slate-900 leading-snug group-hover:text-blue-600 transition-colors">
+                        {c.titulo}
+                      </h4>
+                      <p className="text-[11px] text-slate-500 line-clamp-2 mt-1 leading-relaxed">
+                        {c.descricao}
+                      </p>
+                    </div>
 
-                  <div className="p-2 bg-indigo-50/70 rounded-xl border border-indigo-100 text-xs">
-                    <div className="text-[10px] text-indigo-900 font-bold uppercase">Técnico Responsável</div>
-                    <div className="text-xs font-semibold text-slate-800">{c.tecnico}</div>
-                  </div>
+                    {/* Especialista Responsável */}
+                    <div className="px-2.5 py-2 bg-slate-50 rounded-lg border border-slate-200/70 flex items-center justify-between text-[11px]">
+                      <div className="flex items-center gap-1.5 text-slate-700 font-medium truncate">
+                        <User size={12} className="text-blue-600 shrink-0" />
+                        <span className="truncate">{c.tecnico || 'Especialista Designado'}</span>
+                      </div>
+                      <span className="font-mono text-[10px] font-semibold text-blue-700 shrink-0 ml-2">
+                        {formatarSLA(c.slaSegundosRestantes)}
+                      </span>
+                    </div>
 
-                  {/* SLA Countdown Timer Vivo com segundos */}
-                  <div className="p-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400 font-medium">Tempo Restante:</span>
-                    <span className="font-mono font-bold text-indigo-700 flex items-center gap-1">
-                      <Clock size={12} className="text-indigo-500 animate-spin" /> {formatarSLA(c.slaSegundosRestantes)}
-                    </span>
+                    <div className="flex items-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          soundFX.playClick();
+                          setChamadoSelecionado(c);
+                        }}
+                        className="flex-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 py-1.5 rounded-lg border border-slate-200/80 transition cursor-pointer flex items-center justify-center gap-1"
+                      >
+                        <MessageSquare size={12} /> Notas ({c.notas?.length || 0})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          moverStatus(c.id, 'concluido');
+                        }}
+                        className="flex-1 text-[11px] font-semibold text-emerald-700 hover:text-white bg-emerald-50 hover:bg-emerald-600 py-1.5 rounded-lg border border-emerald-200 hover:border-emerald-600 transition cursor-pointer flex items-center justify-center gap-1"
+                      >
+                        <CheckCircle2 size={12} /> Concluir
+                      </button>
+                    </div>
                   </div>
+                );
+              })}
 
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        soundFX.playClick();
-                        setChamadoSelecionado(c);
-                      }}
-                      className="flex-1 text-[11px] font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 py-2 rounded-xl transition cursor-pointer flex items-center justify-center gap-1"
-                    >
-                      <FileText size={12} /> Detalhes & Notas
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        moverStatus(c.id, 'concluido');
-                      }}
-                      className="flex-1 text-xs font-black text-emerald-800 hover:text-white hover:bg-emerald-600 bg-emerald-50 py-2 rounded-xl border border-emerald-200 transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
-                    >
-                      <CheckCircle2 size={15} /> Finalizar
-                    </button>
-                  </div>
+              {chamadosFiltrados.filter(c => c.status === 'em_andamento').length === 0 && (
+                <div className="text-center py-12 px-4 rounded-xl border border-dashed border-slate-200 text-xs text-slate-400">
+                  Arraste um chamado para iniciar o atendimento.
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
 
         {/* COLUNA 3: CONCLUÍDOS */}
-        <div 
+        <div
           onDragOver={(e) => handleDragOver(e, 'concluido')}
           onDragLeave={() => setDragOverCol(null)}
           onDrop={(e) => handleDrop(e, 'concluido')}
-          className={`${colunaAtivaMobile === 'concluido' ? 'flex' : 'hidden md:flex'} rounded-3xl p-4 sm:p-5 border-2 transition-all duration-200 flex-col justify-between min-h-[450px] sm:min-h-[550px] ${
-            dragOverCol === 'concluido' 
-              ? 'bg-emerald-50/80 border-emerald-400 ring-4 ring-emerald-100' 
-              : 'bg-slate-100/90 border-slate-200/90'
+          className={`${colunaAtivaMobile === 'concluido' ? 'flex' : 'hidden md:flex'} rounded-2xl p-4 border transition-all duration-150 flex-col justify-between min-h-[480px] ${
+            dragOverCol === 'concluido'
+              ? 'bg-emerald-50/40 border-emerald-400 ring-2 ring-emerald-200/60'
+              : 'bg-slate-50/70 border-slate-200/80'
           }`}
         >
-          <div className="space-y-4">
-            <div className="flex items-center justify-between font-extrabold text-xs text-slate-800 pb-3 border-b border-slate-200">
-              <span className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" /> Concluídos
-              </span>
-              <span className="font-mono bg-white px-2.5 py-0.5 rounded-full border border-slate-200 text-slate-700 text-[11px]">
+          <div className="space-y-3.5">
+            <div className="flex items-center justify-between px-1 pb-2.5 border-b border-slate-200/80">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Concluídos
+                </h3>
+              </div>
+              <span className="font-mono text-[11px] font-semibold bg-white px-2 py-0.5 rounded-md border border-slate-200/80 text-slate-600">
                 {chamadosFiltrados.filter(c => c.status === 'concluido').length}
               </span>
             </div>
 
-            <div className="space-y-3.5">
+            <div className="space-y-3">
               {chamadosFiltrados.filter(c => c.status === 'concluido').map(c => (
-                <div 
-                  key={c.id} 
+                <div
+                  key={c.id}
                   draggable
                   onDragStart={(e) => handleDragStart(e, c.id)}
                   onDragEnd={() => setDraggingCardId(null)}
@@ -724,30 +790,36 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                     soundFX.playClick();
                     setChamadoSelecionado(c);
                   }}
-                  className={`bg-white rounded-2xl p-4 border border-emerald-200 shadow-xs space-y-3 cursor-pointer select-none opacity-90 hover:opacity-100 transition group hover:border-emerald-400 ${
-                    draggingCardId === c.id ? 'opacity-40 scale-95' : ''
+                  className={`bg-white/90 hover:bg-white rounded-xl p-4 border border-slate-200/80 shadow-2xs hover:shadow-md transition-all space-y-3 cursor-pointer select-none group ${
+                    draggingCardId === c.id ? 'opacity-40 scale-98' : ''
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-[10px] font-bold text-slate-500 bg-slate-50 px-2 py-0.5 rounded">
+                    <span className="font-mono text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
                       {c.codigo}
                     </span>
-                    <span className="text-[10px] font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <Check size={12} /> Resolvido
+                    <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/70 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Check size={11} /> Resolvido
                     </span>
                   </div>
 
                   <div>
-                    <h4 className="font-bold text-xs text-slate-700 line-through leading-snug group-hover:text-emerald-800 transition-colors">{c.titulo}</h4>
-                    <p className="text-[11px] text-slate-400 mt-1">{c.descricao}</p>
+                    <h4 className="font-medium text-xs sm:text-[13px] text-slate-600 line-through leading-snug group-hover:text-slate-900 transition-colors">
+                      {c.titulo}
+                    </h4>
+                    <p className="text-[11px] text-slate-400 line-clamp-2 mt-1">
+                      {c.solucao || c.descricao}
+                    </p>
                   </div>
 
-                  <div className="p-2 bg-emerald-50/60 rounded-xl text-[10px] text-emerald-800 flex justify-between font-mono">
-                    <span>Atendido no Prazo</span>
-                    <span>100% SLA</span>
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                    <span className="flex items-center gap-1 text-emerald-700 font-sans font-medium">
+                      <ShieldCheck size={12} /> Dentro do SLA
+                    </span>
+                    <span>{c.abertoEm.split(' ')[0]}</span>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2 pt-0.5">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -755,9 +827,9 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                         soundFX.playClick();
                         setChamadoSelecionado(c);
                       }}
-                      className="flex-1 text-[11px] font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 py-1.5 rounded-lg transition cursor-pointer flex items-center justify-center gap-1"
+                      className="flex-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 py-1.5 rounded-lg border border-slate-200/80 transition cursor-pointer flex items-center justify-center gap-1"
                     >
-                      <FileText size={12} /> Ver Relatório
+                      <FileText size={12} /> Relatório
                     </button>
                     <button
                       type="button"
@@ -765,46 +837,59 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                         e.stopPropagation();
                         moverStatus(c.id, 'em_andamento');
                       }}
-                      className="flex-1 text-[11px] font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-100 py-1.5 rounded-lg border border-slate-200 transition cursor-pointer"
+                      className="px-2.5 py-1.5 text-[11px] font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg border border-slate-200/80 transition cursor-pointer flex items-center gap-1"
+                      title="Reabrir chamado"
                     >
-                      Reabrir ↩
+                      <RotateCcw size={11} /> Reabrir
                     </button>
                   </div>
                 </div>
               ))}
+
+              {chamadosFiltrados.filter(c => c.status === 'concluido').length === 0 && (
+                <div className="text-center py-12 px-4 rounded-xl border border-dashed border-slate-200 text-xs text-slate-400">
+                  Nenhum chamado concluído neste filtro.
+                </div>
+              )}
             </div>
           </div>
         </div>
 
       </div>
 
-      {/* Modal de Abertura de Novo Chamado */}
+      {/* =====================================================================
+          SEÇÃO 3: CLEAN MODAL FOR NEW TICKET & DRAWER DE INSPEÇÃO
+         ===================================================================== */}
       {modalNovo && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-4 sm:p-7 shadow-2xl border border-slate-200 animate-in zoom-in-95">
+        <div className="fixed inset-0 bg-slate-950/40 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 shadow-2xl border border-slate-200/80 animate-in zoom-in-95">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                <Plus size={20} className="text-indigo-600" />
-                Abertura de Chamado / Ordem de Serviço
-              </h3>
-              <button 
+              <div>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                  Ordem de Serviço Interna
+                </span>
+                <h3 className="text-base font-bold text-slate-900 mt-0.5">
+                  Abrir Novo Chamado Técnico
+                </h3>
+              </div>
+              <button
                 onClick={() => setModalNovo(false)}
-                className="text-slate-400 hover:text-slate-600 cursor-pointer font-bold text-sm"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
               >
-                ✕
+                <X size={16} />
               </button>
             </div>
 
-            {/* Atalhos de Diagnóstico Rápido em 1 Clique */}
-            <div className="pt-3 pb-3 border-b border-slate-100">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
-                Atalhos de Diagnóstico Rápido (1 Clique):
+            {/* Atalhos de Preenchimento Rápido */}
+            <div className="py-3.5 border-b border-slate-100">
+              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-2">
+                Modelos Rápidos (1 Clique):
               </span>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   {
                     icon: '🖨️',
-                    label: 'Toner da Impressora',
+                    label: 'Toner de Impressora',
                     tipo: 'TI',
                     prioridade: 'media',
                     titulo: 'Troca de toner da impressora HP',
@@ -820,7 +905,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                   },
                   {
                     icon: '❄️',
-                    label: 'Ar-Condicionado / Manutenção',
+                    label: 'Climatização / Ar',
                     tipo: 'Manutenção',
                     prioridade: 'alta',
                     titulo: 'Falha ou gotejamento no ar-condicionado',
@@ -828,7 +913,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                   },
                   {
                     icon: '📦',
-                    label: 'Resmas de Papel A4',
+                    label: 'Insumos & Papel A4',
                     tipo: 'Almoxarifado',
                     prioridade: 'baixa',
                     titulo: 'Reposição de resmas de papel sulfite A4',
@@ -840,15 +925,15 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                     type="button"
                     onClick={() => {
                       soundFX.playClick();
-                      setTipo(diag.tipo as any);
-                      setPrioridade(diag.prioridade as any);
+                      setTipo(diag.tipo as Chamado['tipo']);
+                      setPrioridade(diag.prioridade as Chamado['prioridade']);
                       setTitulo(diag.titulo);
                       setDescricao(diag.desc);
                     }}
-                    className="p-2.5 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 rounded-xl text-left transition cursor-pointer flex items-center gap-2 group"
+                    className="p-2.5 bg-slate-50/80 hover:bg-slate-100 border border-slate-200/80 rounded-xl text-left transition cursor-pointer flex items-center gap-2"
                   >
-                    <span className="text-base shrink-0">{diag.icon}</span>
-                    <span className="text-[11px] font-bold text-slate-700 group-hover:text-indigo-800 leading-tight">
+                    <span className="text-sm shrink-0">{diag.icon}</span>
+                    <span className="text-[11px] font-medium text-slate-700 leading-tight">
                       {diag.label}
                     </span>
                   </button>
@@ -856,29 +941,29 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
               </div>
             </div>
 
-            <form onSubmit={handleCriarChamado} className="space-y-4 pt-3 text-xs">
+            <form onSubmit={handleCriarChamado} className="space-y-4 pt-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Setor de Atendimento *</label>
+                  <label className="block font-semibold text-slate-700 mb-1.5">Categoria de Suporte</label>
                   <select
                     value={tipo}
-                    onChange={e => setTipo(e.target.value as any)}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-800 outline-hidden"
+                    onChange={e => setTipo(e.target.value as Chamado['tipo'])}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-medium text-slate-800 outline-hidden focus:bg-white focus:border-slate-400"
                   >
-                    <option value="TI">Suporte de TI & Informática</option>
-                    <option value="Manutenção">Manutenção Predial & Ar</option>
-                    <option value="Almoxarifado">Almoxarifado & Materiais</option>
+                    <option value="TI">Suporte de TI & Redes</option>
+                    <option value="Manutenção">Manutenção Predial</option>
+                    <option value="Almoxarifado">Almoxarifado & Insumos</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Prioridade *</label>
+                  <label className="block font-semibold text-slate-700 mb-1.5">Nível de Prioridade</label>
                   <select
                     value={prioridade}
-                    onChange={e => setPrioridade(e.target.value as any)}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-800 outline-hidden"
+                    onChange={e => setPrioridade(e.target.value as Chamado['prioridade'])}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-medium text-slate-800 outline-hidden focus:bg-white focus:border-slate-400"
                   >
-                    <option value="urgente">🔥 Urgente (SLA 1h)</option>
+                    <option value="urgente">Urgente (SLA 1h)</option>
                     <option value="alta">Alta (SLA 2h)</option>
                     <option value="media">Média (SLA 4h)</option>
                     <option value="baixa">Baixa (SLA 8h)</option>
@@ -887,42 +972,42 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Título do Chamado *</label>
+                <label className="block font-semibold text-slate-700 mb-1.5">Assunto Principal *</label>
                 <input
                   type="text"
                   required
                   value={titulo}
                   onChange={e => setTitulo(e.target.value)}
-                  placeholder="Ex: Teclado quebrado no gabinete, impressora sem toner..."
-                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 outline-hidden"
+                  placeholder="Ex: Configuração de estação de trabalho, reparo de impressora..."
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-medium text-slate-800 outline-hidden focus:bg-white focus:border-slate-400"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Descrição Detalhada do Problema *</label>
+                <label className="block font-semibold text-slate-700 mb-1.5">Especificação Técnica / Localização *</label>
                 <textarea
                   required
                   rows={3}
                   value={descricao}
                   onChange={e => setDescricao(e.target.value)}
-                  placeholder="Informe o número da sala, ramal de contato e detalhes do equipamento..."
-                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 outline-hidden"
+                  placeholder="Informe o andar, sala, patrimônio do equipamento ou detalhes do ocorrido..."
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-medium text-slate-800 outline-hidden focus:bg-white focus:border-slate-400"
                 />
               </div>
 
-              <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+              <div className="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setModalNovo(false)}
-                  className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition cursor-pointer"
+                  className="px-4 py-2 rounded-xl border border-slate-200/90 text-slate-600 font-semibold hover:bg-slate-50 transition cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black shadow-md transition cursor-pointer flex items-center gap-1.5"
+                  className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold shadow-2xs transition cursor-pointer flex items-center gap-1.5"
                 >
-                  <Sparkles size={16} /> Registrar Chamado no Kanban
+                  <Sparkles size={14} /> Registrar Chamado
                 </button>
               </div>
             </form>
@@ -930,38 +1015,34 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
         </div>
       )}
 
-      {/* Drawer de Inspeção Detalhada do Chamado */}
+      {/* Drawer Lateral de Inspeção do Chamado */}
       {chamadoSelecionado && (
-        <div 
-          className="fixed inset-0 bg-slate-950/60 z-50 flex items-center justify-end backdrop-blur-xs animate-in fade-in"
+        <div
+          className="fixed inset-0 bg-slate-950/40 z-50 flex items-center justify-end backdrop-blur-xs animate-in fade-in"
           onClick={() => setChamadoSelecionado(null)}
         >
-          <div 
-            className="bg-white w-full max-w-xl h-full shadow-2xl border-l border-slate-200 p-4 sm:p-6 overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-200 pt-safe pb-safe"
+          <div
+            className="bg-white w-full max-w-xl h-full shadow-2xl border-l border-slate-200/80 p-5 sm:p-6 overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-200"
             onClick={e => e.stopPropagation()}
           >
-            
-            {/* Topo do Drawer */}
-            <div className="space-y-4">
+            <div className="space-y-5">
+              {/* Cabeçalho do Drawer */}
               <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-                <div className="flex items-center gap-2.5">
-                  <span className="font-mono text-xs font-black text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold text-slate-800 bg-slate-100 border border-slate-200/80 px-2.5 py-1 rounded-lg">
                     {chamadoSelecionado.codigo}
                   </span>
-                  <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-full ${
-                    chamadoSelecionado.prioridade === 'urgente' ? 'bg-red-100 text-red-800 border border-red-200' :
-                    chamadoSelecionado.prioridade === 'alta' ? 'bg-orange-100 text-orange-800' : 'bg-slate-100 text-slate-700'
-                  }`}>
-                    {chamadoSelecionado.prioridade}
+                  <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border ${getPrioridadeStyle(chamadoSelecionado.prioridade).badge}`}>
+                    {getPrioridadeStyle(chamadoSelecionado.prioridade).label}
                   </span>
-                  <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                  <span className="text-[10px] font-medium text-slate-500 bg-slate-50 border border-slate-200/70 px-2.5 py-1 rounded-full">
                     {chamadoSelecionado.tipo}
                   </span>
                 </div>
 
                 <button
                   onClick={() => setChamadoSelecionado(null)}
-                  className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                  className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition cursor-pointer"
                 >
                   <X size={18} />
                 </button>
@@ -969,47 +1050,47 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
 
               {/* Título e Descrição */}
               <div>
-                <h3 className="text-base font-black text-slate-900 leading-tight">
+                <h3 className="text-base font-bold text-slate-900 leading-snug">
                   {chamadoSelecionado.titulo}
                 </h3>
-                <p className="text-xs text-slate-600 mt-2 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200/80">
+                <p className="text-xs text-slate-600 mt-2 leading-relaxed bg-slate-50/80 p-3.5 rounded-xl border border-slate-200/80">
                   {chamadoSelecionado.descricao}
                 </p>
               </div>
 
-              {/* Informações do Solicitante */}
-              <div className="grid grid-cols-2 gap-3 text-xs p-3.5 bg-blue-50/50 rounded-xl border border-blue-100">
+              {/* Metadados do Solicitante */}
+              <div className="grid grid-cols-2 gap-3 text-xs p-3.5 bg-white rounded-xl border border-slate-200/80">
                 <div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase">Solicitante</div>
-                  <div className="font-bold text-slate-800 mt-0.5">{chamadoSelecionado.solicitante}</div>
+                  <div className="text-[10px] font-semibold text-slate-400 uppercase">Solicitante</div>
+                  <div className="font-semibold text-slate-800 mt-0.5">{chamadoSelecionado.solicitante}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase">Setor / Lotação</div>
-                  <div className="font-bold text-slate-800 mt-0.5">{chamadoSelecionado.setor}</div>
+                  <div className="text-[10px] font-semibold text-slate-400 uppercase">Unidade / Setor</div>
+                  <div className="font-semibold text-slate-800 mt-0.5">{chamadoSelecionado.setor}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase">Aberto em</div>
-                  <div className="font-semibold text-slate-600 mt-0.5">{chamadoSelecionado.abertoEm}</div>
+                  <div className="text-[10px] font-semibold text-slate-400 uppercase">Abertura</div>
+                  <div className="font-mono text-[11px] text-slate-600 mt-0.5">{chamadoSelecionado.abertoEm}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase">Status Atual</div>
-                  <div className="font-bold capitalize mt-0.5 text-indigo-700">
+                  <div className="text-[10px] font-semibold text-slate-400 uppercase">Etapa Atual</div>
+                  <div className="font-semibold capitalize mt-0.5 text-slate-900">
                     {chamadoSelecionado.status.replace('_', ' ')}
                   </div>
                 </div>
               </div>
 
-              {/* Atribuição de Especialista */}
+              {/* Designação de Especialista */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                  <User size={14} className="text-indigo-600" /> Atribuir Técnico / Especialista:
+                <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                  <User size={13} className="text-slate-500" /> Especialista Responsável
                 </label>
                 <select
                   value={chamadoSelecionado.tecnico || ''}
                   onChange={(e) => handleAtribuirTecnico(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-hidden focus:ring-2 focus:ring-indigo-400"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl text-xs font-medium text-slate-800 outline-hidden focus:bg-white focus:border-slate-400"
                 >
-                  <option value="">-- Selecione o especialista --</option>
+                  <option value="">-- Aguardando designação --</option>
                   <option value="Rodrigo Mendonça (TI / Redes)">Rodrigo Mendonça (TI / Redes)</option>
                   <option value="Patrícia Lima (Sistemas & Web)">Patrícia Lima (Sistemas & Web)</option>
                   <option value="Lucas Silveira (Hardware & Impressoras)">Lucas Silveira (Hardware & Impressoras)</option>
@@ -1018,16 +1099,18 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                 </select>
               </div>
 
-              {/* SLA Bar */}
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
+              {/* Barra de Progresso SLA */}
+              <div className="p-3.5 bg-slate-50/80 rounded-xl border border-slate-200/80 space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-slate-700">Controle de SLA:</span>
-                  <span className="font-mono font-bold text-indigo-700">
+                  <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                    <Clock size={13} className="text-slate-500" /> Telemetria de SLA
+                  </span>
+                  <span className="font-mono font-bold text-slate-900">
                     {formatarSLA(chamadoSelecionado.slaSegundosRestantes)}
                   </span>
                 </div>
-                <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                  <div 
+                <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div
                     className={`h-full transition-all duration-500 ${
                       chamadoSelecionado.slaSegundosRestantes > 3600 ? 'bg-emerald-500' :
                       chamadoSelecionado.slaSegundosRestantes > 1200 ? 'bg-amber-500' : 'bg-red-500'
@@ -1037,47 +1120,46 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                 </div>
               </div>
 
-              {/* Thread de Notas e Atualizações */}
-              <div className="space-y-3 pt-2">
+              {/* Histórico de Notas Técnicas */}
+              <div className="space-y-3 pt-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <MessageSquare size={14} className="text-indigo-600" /> Histórico & Notas Técnicas
+                  <span className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                    <MessageSquare size={13} className="text-slate-500" /> Diário de Bordo & Notas
                   </span>
-                  <span className="text-[10px] text-slate-400 font-mono">
+                  <span className="text-[11px] text-slate-400 font-mono">
                     {chamadoSelecionado.notas?.length || 0} registros
                   </span>
                 </div>
 
-                <div className="space-y-2 max-h-48 overflow-y-auto p-1">
+                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                   {(!chamadoSelecionado.notas || chamadoSelecionado.notas.length === 0) ? (
-                    <div className="text-center p-4 bg-slate-50 rounded-xl text-xs text-slate-400">
-                      Nenhuma nota técnica registrada ainda.
+                    <div className="text-center p-4 bg-slate-50/60 rounded-xl border border-dashed border-slate-200 text-xs text-slate-400">
+                      Nenhuma anotação técnica registrada.
                     </div>
                   ) : (
                     chamadoSelecionado.notas.map(n => (
-                      <div key={n.id} className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
-                        <div className="flex items-center justify-between text-[10px] font-bold">
-                          <span className="text-indigo-700">{n.autor}</span>
-                          <span className="text-slate-400">{n.dataHora}</span>
+                      <div key={n.id} className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 text-xs space-y-1">
+                        <div className="flex items-center justify-between text-[10px]">
+                          <span className="font-semibold text-slate-800">{n.autor}</span>
+                          <span className="font-mono text-slate-400">{n.dataHora}</span>
                         </div>
-                        <p className="text-slate-700">{n.texto}</p>
+                        <p className="text-slate-600 leading-relaxed">{n.texto}</p>
                       </div>
                     ))
                   )}
                 </div>
 
-                {/* Adicionar Nota */}
                 <form onSubmit={handleAdicionarNota} className="flex gap-2">
                   <input
                     type="text"
                     value={novaNota}
                     onChange={e => setNovaNota(e.target.value)}
-                    placeholder="Adicionar nota técnica ou andamento..."
-                    className="flex-1 p-2 bg-slate-50 border border-slate-300 rounded-xl text-xs outline-hidden focus:ring-2 focus:ring-indigo-400"
+                    placeholder="Registrar evolução técnica ou parecer..."
+                    className="flex-1 p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl text-xs outline-hidden focus:bg-white focus:border-slate-400"
                   />
                   <button
                     type="submit"
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer shrink-0"
+                    className="bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1 cursor-pointer shrink-0"
                   >
                     <Send size={13} />
                   </button>
@@ -1085,25 +1167,24 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
               </div>
             </div>
 
-            {/* Ações de Transição de Status no Rodapé do Drawer */}
-            <div className="pt-4 border-t border-slate-100 flex flex-col gap-2">
+            {/* Rodapé do Drawer */}
+            <div className="pt-4 border-t border-slate-100 mt-4">
               {chamadoSelecionado.status !== 'concluido' ? (
                 <button
                   onClick={() => {
                     moverStatus(chamadoSelecionado.id, 'concluido');
                     setChamadoSelecionado({ ...chamadoSelecionado, status: 'concluido' });
                   }}
-                  className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20"
+                  className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition cursor-pointer flex items-center justify-center gap-2 shadow-2xs"
                 >
-                  <CheckCircle2 size={16} /> Finalizar e Entregar Solução
+                  <CheckCircle2 size={15} /> Concluir Chamado e Arquivar OS
                 </button>
               ) : (
-                <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-center text-xs font-bold text-emerald-800 flex items-center justify-center gap-2">
-                  <CheckCircle2 size={16} /> Chamado Concluído com Sucesso
+                <div className="p-3 bg-emerald-50/80 rounded-xl border border-emerald-200/80 text-center text-xs font-semibold text-emerald-800 flex items-center justify-center gap-2">
+                  <CheckCircle2 size={15} /> Ordem de Serviço Finalizada
                 </div>
               )}
             </div>
-
           </div>
         </div>
       )}

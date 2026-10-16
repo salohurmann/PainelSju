@@ -11,14 +11,13 @@ import {
   ShieldCheck, 
   Clock, 
   Car, 
-  User, 
   MapPin, 
   Calendar, 
   Search, 
-  Smartphone,
   Check,
   CreditCard,
-  List
+  List,
+  FileCheck2
 } from 'lucide-react';
 
 interface FilaAprovacaoProps {
@@ -40,6 +39,10 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({
   const [modalReprovarId, setModalReprovarId] = useState<string | null>(null);
   const [motivoReprovacao, setMotivoReprovacao] = useState('');
   const [processandoId, setProcessandoId] = useState<string | null>(null);
+
+  const totalPendentes = agendamentos.filter(a => a.status === 'pendente').length;
+  const totalAprovados = agendamentos.filter(a => a.status === 'aprovado' || a.status === 'em_andamento' || a.status === 'realizado').length;
+  const totalReprovados = agendamentos.filter(a => a.status === 'reprovado').length;
 
   const listaFiltrada = agendamentos.filter(a => {
     const matchStatus = filtroStatus === 'todos' || a.status === filtroStatus;
@@ -86,43 +89,112 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      {/* Header Executivo da Chefia */}
-      <div className="bg-linear-to-r from-[#00385E] via-[#00538A] to-[#0072BB] rounded-3xl p-6 sm:p-7 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-emerald-300">
-            <Smartphone size={16} /> DELIBERAÇÃO OFICIAL · CHEFIA DE GABINETE
+      {/* Seção 1: Header Executivo & KPI Strip */}
+      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-2xs">
+              <ShieldCheck size={20} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-semibold">
+                  DELIBERAÇÃO OFICIAL · CHEFIA DE GABINETE
+                </span>
+                <span className="text-[10px] font-mono font-medium bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200/70">
+                  SHA-256 Ativo
+                </span>
+              </div>
+              <h2 className="text-lg font-semibold text-slate-900 tracking-tight mt-0.5">
+                Fila de Aprovação de Missões Oficiais
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Autorização em 1 clique com geração imediata de assinatura digital criptográfica e passe de tráfego.
+              </p>
+            </div>
           </div>
-          <h2 className="text-xl sm:text-2xl font-extrabold mt-1">
-            Fila de Aprovação de Missões com 1 Clique
-          </h2>
-          <p className="text-xs text-blue-100/90 mt-1 max-w-xl">
-            Cada autorização gera uma assinatura criptográfica <strong>SHA-256</strong> inviolável e despacha um e-mail com as instruções para o servidor solicitante.
-          </p>
+
+          {/* Alternador de Modo de Visualização */}
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80 self-start md:self-center shrink-0">
+            <button
+              type="button"
+              onClick={() => setVisualizacao('cards')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 cursor-pointer ${
+                visualizacao === 'cards'
+                  ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/60 font-semibold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <List size={14} /> Modo Lista
+            </button>
+            <button
+              type="button"
+              onClick={() => setVisualizacao('passe')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 cursor-pointer ${
+                visualizacao === 'passe'
+                  ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/60 font-semibold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <CreditCard size={14} /> Passe Digital
+            </button>
+          </div>
         </div>
 
-        {/* Alternador de Modo de Visualização */}
-        <div className="flex items-center gap-1 bg-white/10 p-1 rounded-2xl border border-white/20 self-start md:self-auto shrink-0">
-          <button
-            onClick={() => setVisualizacao('cards')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-              visualizacao === 'cards' ? 'bg-white text-slate-900 shadow-sm' : 'text-white hover:bg-white/10'
-            }`}
-          >
-            <List size={14} /> Modo Lista
-          </button>
-          <button
-            onClick={() => setVisualizacao('passe')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-              visualizacao === 'passe' ? 'bg-white text-slate-900 shadow-sm' : 'text-white hover:bg-white/10'
-            }`}
-          >
-            <CreditCard size={14} /> Passe Digital (Wallet)
-          </button>
+        {/* Summary KPI Strip */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/70 flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-medium text-slate-500 block">Total na Fila</span>
+              <span className="text-lg font-semibold text-slate-900 font-mono mt-0.5 block">
+                {agendamentos.length}
+              </span>
+            </div>
+            <div className="w-8 h-8 rounded-lg bg-white border border-slate-200/80 flex items-center justify-center text-slate-600">
+              <FileCheck2 size={16} />
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-amber-50/40 border border-amber-200/60 flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-medium text-amber-800/80 block">Aguardando</span>
+              <span className="text-lg font-semibold text-amber-900 font-mono mt-0.5 block">
+                {totalPendentes}
+              </span>
+            </div>
+            <div className="w-8 h-8 rounded-lg bg-white border border-amber-200/70 flex items-center justify-center text-amber-600">
+              <Clock size={16} />
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-emerald-50/40 border border-emerald-200/60 flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-medium text-emerald-800/80 block">Autorizadas</span>
+              <span className="text-lg font-semibold text-emerald-900 font-mono mt-0.5 block">
+                {totalAprovados}
+              </span>
+            </div>
+            <div className="w-8 h-8 rounded-lg bg-white border border-emerald-200/70 flex items-center justify-center text-emerald-600">
+              <CheckCircle2 size={16} />
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/70 flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-medium text-slate-500 block">Não Autorizadas</span>
+              <span className="text-lg font-semibold text-slate-700 font-mono mt-0.5 block">
+                {totalReprovados}
+              </span>
+            </div>
+            <div className="w-8 h-8 rounded-lg bg-white border border-slate-200/80 flex items-center justify-center text-slate-400">
+              <XCircle size={16} />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Barra de Filtros e Busca */}
-      <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+      {/* Seção 2: Barra de Filtros e Busca */}
+      <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
           {[
             { id: 'pendente', label: 'Pendentes' },
@@ -133,20 +205,22 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({
             const count = tab.id === 'todos' 
               ? agendamentos.length 
               : agendamentos.filter(a => a.status === tab.id).length;
+            const active = filtroStatus === tab.id;
 
             return (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => setFiltroStatus(tab.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shrink-0 cursor-pointer ${
-                  filtroStatus === tab.id
-                    ? 'bg-[#0072BB] text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                className={`px-3.5 py-2 rounded-xl text-xs font-medium transition flex items-center gap-2 shrink-0 cursor-pointer ${
+                  active
+                    ? 'bg-slate-900 text-white shadow-2xs font-semibold'
+                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/60'
                 }`}
               >
                 <span>{tab.label}</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                  filtroStatus === tab.id ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono ${
+                  active ? 'bg-white/15 text-white' : 'bg-slate-200/70 text-slate-700'
                 }`}>
                   {count}
                 </span>
@@ -156,18 +230,18 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({
         </div>
 
         <div className="relative w-full sm:w-72">
-          <Search size={16} className="absolute left-3.5 top-3 text-slate-400" />
+          <Search size={15} className="absolute left-3.5 top-2.5 text-slate-400" />
           <input
             type="text"
             value={busca}
             onChange={e => setBusca(e.target.value)}
-            placeholder="Buscar por nome, ticket ou destino..."
-            className="w-full text-xs pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#0072BB]"
+            placeholder="Buscar servidor, protocolo ou destino..."
+            className="w-full text-xs pl-9 pr-3.5 py-2 bg-slate-50/70 border border-slate-200/90 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white transition"
           />
         </div>
       </div>
 
-      {/* Conteúdo: Lista ou Passes Digitais */}
+      {/* Seção 3: Lista de Cards de Deliberação ou Passes Digitais */}
       {visualizacao === 'passe' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {listaFiltrada.map(ag => (
@@ -184,8 +258,8 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({
       ) : (
         <div className="space-y-4">
           {listaFiltrada.length === 0 ? (
-            <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 text-slate-400 text-xs">
-              Nenhuma solicitação encontrada no momento.
+            <div className="bg-white rounded-2xl p-12 text-center border border-slate-200/80 shadow-2xs text-slate-400 text-xs">
+              Nenhuma solicitação correspondente aos filtros aplicados.
             </div>
           ) : (
             listaFiltrada.map(ag => {
@@ -195,94 +269,101 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({
               return (
                 <div
                   key={ag.id}
-                  className={`bg-white rounded-3xl p-6 border transition-all shadow-xs space-y-4 ${
-                    isPendente 
-                      ? 'border-l-6 border-l-amber-500 border-slate-200 hover:border-slate-300' 
-                      : ag.status === 'aprovado'
-                      ? 'border-l-6 border-l-emerald-500 border-slate-200'
-                      : 'border-l-6 border-l-red-500 border-slate-200 opacity-90'
-                  }`}
+                  className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs hover:border-slate-300/90 transition space-y-5"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-                    <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-2xl bg-blue-50 text-[#0072BB] flex items-center justify-center font-bold text-sm">
+                  {/* Topo do Card: Solicitante, Placa e Status */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200/80 text-slate-800 flex items-center justify-center font-semibold text-sm shrink-0">
                         {ag.nome.charAt(0)}
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-extrabold text-slate-900 text-sm">{ag.nome}</span>
-                          <span className="font-mono text-[11px] bg-slate-100 px-2 py-0.5 rounded-lg text-slate-700 font-bold">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-semibold text-slate-900 text-sm">{ag.nome}</span>
+                          <span className="font-mono text-[11px] bg-slate-50 border border-slate-200/80 px-2 py-0.5 rounded-md text-slate-600 font-medium">
                             {ag.ticket}
                           </span>
                         </div>
-                        <div className="text-xs text-slate-500 mt-0.5 font-mono">
+                        <div className="text-[11px] text-slate-500 mt-0.5 font-mono">
                           CPF: {ag.cpf} · Tel: {ag.telefone}
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 self-start sm:self-center">
                       <PlacaMercosul placa={ag.veiculoPlaca} uf="PR" />
                       {ag.status === 'pendente' && (
-                        <span className="text-xs font-bold bg-amber-100 text-amber-900 px-3 py-1 rounded-full flex items-center gap-1.5">
-                          <Clock size={14} /> Aguardando Validação
+                        <span className="text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200/80 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                          <Clock size={12} /> Aguardando
                         </span>
                       )}
                       {ag.status === 'aprovado' && (
-                        <span className="text-xs font-bold bg-emerald-100 text-emerald-900 px-3 py-1 rounded-full flex items-center gap-1.5">
-                          <CheckCircle2 size={14} /> Autorizado
+                        <span className="text-[11px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                          <CheckCircle2 size={12} /> Autorizado
                         </span>
                       )}
                       {ag.status === 'reprovado' && (
-                        <span className="text-xs font-bold bg-red-100 text-red-900 px-3 py-1 rounded-full">
-                          Não Autorizado
+                        <span className="text-[11px] font-medium bg-red-50 text-red-700 border border-red-200/80 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                          <XCircle size={12} /> Não Autorizado
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-slate-600 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase text-slate-400 block">Veículo</span>
-                      <strong className="text-slate-800">{ag.veiculoNome}</strong>
-                      <div className="text-[11px] text-slate-500 mt-0.5">
-                        {ag.modalidade === 'com_motorista' ? 'Com Motorista' : 'Sem Motorista'}
+                  {/* Corpo Dividido: Detalhes da Missão */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs bg-slate-50/60 p-4 rounded-xl border border-slate-200/60">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono uppercase text-slate-400 flex items-center gap-1">
+                        <Car size={11} /> Veículo Oficial
+                      </span>
+                      <div className="font-semibold text-slate-900">{ag.veiculoNome}</div>
+                      <div className="text-[11px] text-slate-500">
+                        {ag.modalidade === 'com_motorista' ? 'Com Motorista Oficial' : 'Condução Própria'}
                       </div>
                     </div>
 
-                    <div>
-                      <span className="text-[10px] font-bold uppercase text-slate-400 block">Período</span>
-                      <strong className="text-slate-800">{ag.datas.map(d => d.split('-').reverse().join('/')).join(', ')}</strong>
-                      <div className="text-[11px] text-slate-500 mt-0.5 uppercase">
-                        {ag.periodo.replace('_', ' ')}
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono uppercase text-slate-400 flex items-center gap-1">
+                        <Calendar size={11} /> Datas & Período
+                      </span>
+                      <div className="font-mono font-semibold text-slate-900">
+                        {ag.datas.map(d => d.split('-').reverse().join('/')).join(', ')}
+                      </div>
+                      <div className="text-[11px] text-slate-500 capitalize">
+                        Turno: {ag.periodo.replace('_', ' ')}
                       </div>
                     </div>
 
-                    <div>
-                      <span className="text-[10px] font-bold uppercase text-slate-400 block">Destino da Missão</span>
-                      <span className="text-slate-800 line-clamp-2">{ag.destino}</span>
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono uppercase text-slate-400 flex items-center gap-1">
+                        <MapPin size={11} /> Roteiro & Finalidade
+                      </span>
+                      <div className="text-slate-800 font-medium line-clamp-2 leading-relaxed">
+                        {ag.destino}
+                      </div>
                     </div>
                   </div>
 
+                  {/* Rodapé de Auditoria ou Botões de Deliberação */}
                   {ag.hashAuditoria && (
-                    <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-between text-xs text-emerald-900">
-                      <span className="flex items-center gap-1.5 font-bold">
-                        <ShieldCheck size={16} className="text-emerald-700" />
-                        Aprovado por {ag.aprovadorNome} ({ag.aprovadorCpf})
+                    <div className="px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-700">
+                      <span className="flex items-center gap-1.5 font-medium">
+                        <ShieldCheck size={15} className="text-emerald-600 shrink-0" />
+                        Autorizado por <strong className="text-slate-900">{ag.aprovadorNome}</strong> ({ag.aprovadorCpf})
                       </span>
-                      <span className="font-mono text-[10px] bg-white px-2 py-0.5 rounded border border-emerald-200">
+                      <span className="font-mono text-[10px] bg-white text-slate-600 px-2.5 py-1 rounded-md border border-slate-200/80">
                         SHA-256: {formatShortHash(ag.hashAuditoria)}
                       </span>
                     </div>
                   )}
 
                   {isPendente && (
-                    <div className="pt-2 flex flex-col sm:flex-row items-center justify-end gap-2.5">
+                    <div className="pt-1 flex flex-col sm:flex-row items-center justify-end gap-2.5">
                       <button
                         type="button"
                         onClick={() => setModalReprovarId(ag.id)}
                         disabled={isProcessando}
-                        className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold transition cursor-pointer"
+                        className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200/90 bg-white hover:bg-red-50 hover:text-red-700 hover:border-red-200 text-slate-600 text-xs font-semibold transition cursor-pointer"
                       >
                         Reprovar Solicitação
                       </button>
@@ -291,9 +372,9 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({
                         type="button"
                         onClick={() => handleAprovar1Clique(ag)}
                         disabled={isProcessando}
-                        className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer animate-pulse"
+                        className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs shadow-2xs transition flex items-center justify-center gap-2 cursor-pointer"
                       >
-                        <Check size={16} />
+                        <Check size={15} />
                         {isProcessando ? 'Autenticando SHA-256...' : 'Aprovar com 1 Clique'}
                       </button>
                     </div>
@@ -307,31 +388,31 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({
 
       {/* Modal Justificativa Reprovar */}
       {modalReprovarId && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 text-slate-800 shadow-2xl animate-in zoom-in-95">
-            <h4 className="font-extrabold text-sm text-slate-900 mb-1">Reprovar Solicitação</h4>
+        <div className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 text-slate-800 shadow-xl border border-slate-200/80 animate-in zoom-in-95">
+            <h4 className="font-semibold text-sm text-slate-900 mb-1">Reprovar Solicitação Oficial</h4>
             <p className="text-xs text-slate-500 mb-4">
-              Informe a justificativa que será enviada por e-mail ao servidor solicitante:
+              Informe o motivo institucional que será registrado no protocolo e enviado ao servidor:
             </p>
             <textarea
               rows={3}
               value={motivoReprovacao}
               onChange={e => setMotivoReprovacao(e.target.value)}
-              placeholder="Ex: Veículo indisponível devido a comboio oficial..."
-              className="w-full text-xs p-3 border border-slate-300 rounded-xl mb-4 focus:ring-2 focus:ring-red-500 outline-hidden"
+              placeholder="Ex: Viatura realocada para atendimento prioritário de escolta..."
+              className="w-full text-xs p-3 bg-slate-50/70 border border-slate-200/90 rounded-xl mb-4 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white outline-hidden"
             />
             <div className="flex justify-end gap-2 text-xs">
               <button
                 type="button"
                 onClick={() => setModalReprovarId(null)}
-                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer"
+                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl font-medium cursor-pointer transition"
               >
                 Cancelar
               </button>
               <button
                 type="button"
                 onClick={handleConfirmarReprovar}
-                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-xs cursor-pointer"
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-2xs cursor-pointer transition"
               >
                 Confirmar Reprovação
               </button>
