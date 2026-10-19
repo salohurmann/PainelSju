@@ -49,23 +49,7 @@ export const PainelOdometroCombustivel: React.FC<PainelOdometroCombustivelProps>
           backgroundSize: '12px 12px'
         }}
       />
-      <div className="absolute -top-24 left-1/4 w-72 h-36 bg-sky-500/10 blur-3xl pointer-events-none rounded-full" />
-      <div
-        className="absolute -bottom-24 right-1/4 w-72 h-36 blur-3xl pointer-events-none rounded-full transition-colors duration-700"
-        style={{ backgroundColor: `${statusColor}15` }}
-      />
-
-      {/* Reflexo Especular Superior estilo Visor Anti-Reflexo Automotivo */}
-      <div className="absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-sky-400/50 to-transparent pointer-events-none" />
-      <div className="absolute inset-x-24 bottom-0 h-px bg-linear-to-r from-transparent via-slate-700/60 to-transparent pointer-events-none" />
-
-      {/* Cantoneiras Técnicas de Precisão no Cluster Externo */}
-      <div className="absolute top-3 left-3 w-2.5 h-2.5 border-t border-l border-sky-400/40 rounded-tl-xs pointer-events-none" />
-      <div className="absolute top-3 right-3 w-2.5 h-2.5 border-t border-r border-sky-400/40 rounded-tr-xs pointer-events-none" />
-      <div className="absolute bottom-3 left-3 w-2.5 h-2.5 border-b border-l border-slate-700/60 rounded-bl-xs pointer-events-none" />
-      <div className="absolute bottom-3 right-3 w-2.5 h-2.5 border-b border-r border-slate-700/60 rounded-br-xs pointer-events-none" />
-
-      {/* Top Instrument Header — Barra de Telemetria CAN-BUS */}
+      {/* Top Instrument Header — Barra de Telemetria */}
       <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-3.5 mb-5">
         <div className="flex items-center gap-2.5">
           <span className="relative flex h-2 w-2">

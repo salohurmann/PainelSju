@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Agendamento, Veiculo, PeriodoAgendamento, ModalidadeAgendamento } from '../../types';
+import { PlacaMercosul } from '../ui/PlacaMercosul';
 import { 
   Calendar as CalendarIcon, 
   Car, 
@@ -21,7 +22,10 @@ import {
   Navigation,
   AlertTriangle,
   ShieldCheck,
-  ArrowRight
+  ArrowRight,
+  Compass,
+  Sparkles,
+  Route
 } from 'lucide-react';
 import { soundFX } from '../../services/soundFx';
 
@@ -35,12 +39,12 @@ interface NovaSolicitacaoFormProps {
 }
 
 const DESTINOS_PARANA = [
-  { cidade: 'Ponta Grossa', km: 115, rota: 'BR-376 (Campos Gerais)' },
-  { cidade: 'Londrina', km: 380, rota: 'BR-376 (Norte do PR)' },
-  { cidade: 'Maringá', km: 425, rota: 'BR-376 (Noroeste)' },
-  { cidade: 'Cascavel', km: 498, rota: 'BR-277 (Oeste do PR)' },
-  { cidade: 'Foz do Iguaçu', km: 635, rota: 'BR-277 (Fronteira)' },
-  { cidade: 'Paranaguá', km: 90, rota: 'BR-277 (Litoral do PR)' }
+  { cidade: 'Ponta Grossa', km: 115, rota: 'BR-376 (Campos Gerais)', pedagios: 2 },
+  { cidade: 'Londrina', km: 380, rota: 'BR-376 (Norte do PR)', pedagios: 5 },
+  { cidade: 'Maringá', km: 425, rota: 'BR-376 (Noroeste)', pedagios: 6 },
+  { cidade: 'Cascavel', km: 498, rota: 'BR-277 (Oeste do PR)', pedagios: 5 },
+  { cidade: 'Foz do Iguaçu', km: 635, rota: 'BR-277 (Fronteira)', pedagios: 7 },
+  { cidade: 'Paranaguá', km: 90, rota: 'BR-277 (Litoral do PR)', pedagios: 1 }
 ];
 
 export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
@@ -127,6 +131,7 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
   const diasNoMes = new Date(calAno, calMes + 1, 0).getDate();
 
   const handleToggleData = (dataStr: string) => {
+    soundFX.playClick();
     if (datasSelecionadas.includes(dataStr)) {
       setDatasSelecionadas(datasSelecionadas.filter(d => d !== dataStr));
     } else {
@@ -162,6 +167,7 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
   };
 
   const handleNavMes = (dir: number) => {
+    soundFX.playClick();
     let novoMes = calMes + dir;
     let novoAno = calAno;
     if (novoMes > 11) {
@@ -193,7 +199,7 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
     }
     if (!veiculoId) {
       soundFX.playWarning();
-      return setErro('Selecione um veículo oficial para a missão.');
+      return setErro('Selecione um veículo oficial no Showroom para a missão.');
     }
     if (datasSelecionadas.length === 0) {
       soundFX.playWarning();
@@ -245,75 +251,86 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
   const step2Completo = Boolean(veiculoId && datasSelecionadas.length > 0 && destino.trim() && !capacidadeExcedida);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6 font-sans">
       {/* Cabeçalho Executivo & Indicador de Etapas */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs">
+      <div className="relative bg-[var(--surface)] rounded-[var(--radius-lg)] p-5 sm:p-6 border border-[var(--border)] overflow-hidden">
+
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
-          <div className="flex items-start gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-2xs">
-              <Car size={20} />
+          <div className="flex items-start gap-4">
+            <div className="w-11 h-11 rounded-2xl bg-linear-to-br from-slate-900 via-slate-800 to-slate-950 text-white flex items-center justify-center shrink-0 shadow-[0_6px_16px_rgba(15,23,42,0.22),inset_0_1px_0_rgba(255,255,255,0.2)] border border-slate-700/80">
+              <Car size={20} className="text-sky-400" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-slate-400 font-semibold">
-                  REQUISIÇÃO DE FROTA OFICIAL
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-500 font-bold">
+                  ORDEM DE TRÁFEGO OFICIAL · SEJU/PR
                 </span>
-                <span className="text-[10px] font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200/80">
-                  Fluxo 1-Clique
+                <span className="text-[10px] font-mono font-semibold bg-sky-50 text-sky-700 px-2 py-0.5 rounded-md border border-sky-200/80 flex items-center gap-1">
+                  <Sparkles size={10} /> Despacho Express 1-Clique
                 </span>
               </div>
-              <h2 className="text-lg font-semibold text-slate-900 tracking-tight mt-0.5">
-                Nova Solicitação de Veículo Oficial
+              <h2 className="text-lg font-bold text-slate-900 tracking-tight mt-0.5">
+                Nova Requisição de Viatura Oficial
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Preencha as três etapas abaixo para submeter a missão à deliberação da Chefia de Gabinete.
+                Selecione a viatura no Showroom Digital, configure o computador de rota e envie para chancela da Chefia.
               </p>
             </div>
           </div>
 
-          {/* Stepper Horizontal */}
-          <div className="flex items-center gap-2 self-start md:self-center bg-slate-50 p-1.5 rounded-xl border border-slate-200/80">
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-              step1Completo ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/60' : 'text-slate-600'
+          {/* Stepper Horizontal Tátil */}
+          <div className="flex items-center gap-1.5 self-start md:self-center bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/90 shadow-inner">
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              step1Completo
+                ? 'bg-white text-slate-900 shadow-xs border border-emerald-200/80'
+                : 'bg-white/60 text-slate-700 border border-transparent'
             }`}>
-              <span className={`w-5 h-5 rounded-full text-[10px] font-mono font-bold flex items-center justify-center ${
-                step1Completo ? 'bg-emerald-600 text-white' : 'bg-slate-900 text-white'
+              <span className={`w-5 h-5 rounded-lg text-[10px] font-mono font-bold flex items-center justify-center transition-colors ${
+                step1Completo ? 'bg-emerald-600 text-white shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'bg-slate-900 text-white'
               }`}>
-                {step1Completo ? '✓' : '1'}
+                {step1Completo ? '✓' : '01'}
               </span>
               <span className="hidden sm:inline">Servidor</span>
             </div>
 
-            <ChevronRight size={14} className="text-slate-300" />
+            <ChevronRight size={13} className="text-slate-400" />
 
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-              step2Completo ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/60' : 'text-slate-600'
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              step2Completo
+                ? 'bg-white text-slate-900 shadow-xs border border-emerald-200/80'
+                : 'text-slate-600'
             }`}>
-              <span className={`w-5 h-5 rounded-full text-[10px] font-mono font-bold flex items-center justify-center ${
-                step2Completo ? 'bg-emerald-600 text-white' : step1Completo ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-600'
+              <span className={`w-5 h-5 rounded-lg text-[10px] font-mono font-bold flex items-center justify-center transition-colors ${
+                step2Completo
+                  ? 'bg-emerald-600 text-white shadow-[0_0_8px_rgba(16,185,129,0.4)]'
+                  : step1Completo
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-slate-200 text-slate-600'
               }`}>
-                {step2Completo ? '✓' : '2'}
+                {step2Completo ? '✓' : '02'}
               </span>
-              <span className="hidden sm:inline">Veículo & Roteiro</span>
+              <span className="hidden sm:inline">Showroom & Rota</span>
             </div>
 
-            <ChevronRight size={14} className="text-slate-300" />
+            <ChevronRight size={13} className="text-slate-400" />
 
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600">
-              <span className={`w-5 h-5 rounded-full text-[10px] font-mono font-bold flex items-center justify-center ${
-                step1Completo && step2Completo ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-600'
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              step1Completo && step2Completo ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-500'
+            }`}>
+              <span className={`w-5 h-5 rounded-lg text-[10px] font-mono font-bold flex items-center justify-center ${
+                step1Completo && step2Completo ? 'bg-sky-400 text-slate-950' : 'bg-slate-200 text-slate-600'
               }`}>
-                3
+                03
               </span>
-              <span className="hidden sm:inline">Confirmação</span>
+              <span className="hidden sm:inline">Chancela</span>
             </div>
           </div>
         </div>
 
         {erro && (
-          <div className="mt-5 p-3.5 bg-red-50/80 border border-red-200/80 rounded-xl text-xs text-red-700 flex items-center gap-2.5">
+          <div className="mt-5 p-3.5 bg-red-50/90 border border-red-200 rounded-xl text-xs text-red-800 flex items-center gap-2.5 shadow-2xs">
             <AlertCircle size={16} className="text-red-600 shrink-0" />
-            <span className="font-medium">{erro}</span>
+            <span className="font-semibold">{erro}</span>
           </div>
         )}
       </div>
@@ -322,42 +339,48 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
         {/* Coluna Principal: Etapas 1 e 2 */}
         <div className="lg:col-span-8 space-y-6">
           {/* STEP 1: IDENTIFICAÇÃO DO SERVIDOR */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs space-y-5">
+          <div className="bg-[var(--surface)] rounded-[var(--radius-lg)] p-5 sm:p-6 border border-[var(--border)] space-y-5">
+
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <span className="w-6 h-6 rounded-lg bg-slate-100 border border-slate-200/80 text-slate-800 font-mono text-xs font-bold flex items-center justify-center">
+                <span className="w-7 h-7 rounded-xl bg-slate-900 text-white font-mono text-xs font-bold flex items-center justify-center shadow-2xs">
                   01
                 </span>
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900">
-                    Identificação do Servidor
+                  <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                    Credencial Funcional do Servidor Requisitante
                   </h3>
                   <p className="text-[11px] text-slate-500">
-                    Dados funcionais do responsável pela requisição e recebimento do passe digital
+                    Dados oficiais do responsável pela missão e emissão do QR-Pass de portaria
                   </p>
                 </div>
               </div>
-              <User size={16} className="text-slate-400" />
+              <div className="px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80 text-[10px] font-mono text-slate-500 flex items-center gap-1.5">
+                <User size={12} className="text-slate-600" /> CADASTRO SEJU
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">
-                  Nome Completo *
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                  Nome Completo do Servidor *
                 </label>
-                <input
-                  type="text"
-                  required
-                  value={nome}
-                  onChange={e => setNome(e.target.value)}
-                  placeholder="Nome completo do servidor"
-                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50/70 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white outline-hidden transition"
-                />
+                <div className="relative">
+                  <User size={14} className="absolute left-3.5 top-2.5 text-slate-400" />
+                  <input
+                    type="text"
+                    required
+                    value={nome}
+                    onChange={e => setNome(e.target.value)}
+                    placeholder="Nome completo do servidor"
+                    className="w-full text-xs pl-9 pr-3.5 py-2.5 bg-slate-50/80 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-sky-500/20 focus:border-slate-900 focus:bg-white outline-hidden transition font-medium text-slate-900"
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">
-                  CPF *
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                  CPF Funcional *
                 </label>
                 <input
                   type="text"
@@ -365,12 +388,12 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
                   value={cpf}
                   onChange={e => setCpf(formatarCpf(e.target.value))}
                   placeholder="000.000.000-00"
-                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50/70 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white outline-hidden font-mono transition"
+                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50/80 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-sky-500/20 focus:border-slate-900 focus:bg-white outline-hidden font-mono font-semibold text-slate-900 transition"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
                   Telefone Funcional / WhatsApp *
                 </label>
                 <div className="relative">
@@ -381,13 +404,13 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
                     value={telefone}
                     onChange={e => setTelefone(formatarTelefone(e.target.value))}
                     placeholder="(41) 99999-9999"
-                    className="w-full text-xs pl-9 pr-3.5 py-2.5 bg-slate-50/70 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white outline-hidden transition"
+                    className="w-full text-xs pl-9 pr-3.5 py-2.5 bg-slate-50/80 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-sky-500/20 focus:border-slate-900 focus:bg-white outline-hidden font-mono font-medium text-slate-900 transition"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
                   E-mail Institucional
                 </label>
                 <div className="relative">
@@ -397,107 +420,215 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="servidor@seju.pr.gov.br"
-                    className="w-full text-xs pl-9 pr-3.5 py-2.5 bg-slate-50/70 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white outline-hidden transition"
+                    className="w-full text-xs pl-9 pr-3.5 py-2.5 bg-slate-50/80 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-sky-500/20 focus:border-slate-900 focus:bg-white outline-hidden transition text-slate-900"
                   />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* STEP 2: SELEÇÃO DO VEÍCULO & ROTEIRO */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs space-y-6">
+          {/* STEP 2: SHOWROOM DE SELEÇÃO DO VEÍCULO & COMPUTADOR DE BORDO */}
+          <div className="bg-[var(--surface)] rounded-[var(--radius-lg)] p-5 sm:p-6 border border-[var(--border)] space-y-6">
+
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <span className="w-6 h-6 rounded-lg bg-slate-100 border border-slate-200/80 text-slate-800 font-mono text-xs font-bold flex items-center justify-center">
+                <span className="w-7 h-7 rounded-xl bg-slate-900 text-white font-mono text-xs font-bold flex items-center justify-center shadow-2xs">
                   02
                 </span>
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900">
-                    Seleção do Veículo & Roteiro
+                  <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                    Showroom de Viaturas & Computador de Rota
                   </h3>
                   <p className="text-[11px] text-slate-500">
-                    Escolha a viatura oficial, datas disponíveis e especifique o destino da missão
+                    Selecione a viatura oficial abaixo, defina a condução e programe a telemetria rodoviária
                   </p>
                 </div>
               </div>
-              <MapPin size={16} className="text-slate-400" />
+              <span className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-lg bg-slate-900 text-sky-400 font-semibold">
+                {veiculos.length} VIATURAS NO PÁTIO
+              </span>
             </div>
 
-            {/* Veículo e Modalidade */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">
-                  Veículo Solicitado *
+            {/* Cards de Seleção de Veículo Estilo Showroom com Borda Iluminada */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                  <Car size={13} className="text-slate-700" /> Selecione a Viatura no Showroom *
                 </label>
+                {/* Select rápido auxiliar sincronizado */}
                 <select
-                  required
                   value={veiculoId}
                   onChange={e => {
+                    soundFX.playClick();
                     setVeiculoId(e.target.value);
                     setDatasSelecionadas([]);
                   }}
-                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50/70 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white outline-hidden transition"
+                  className="text-[11px] font-medium px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 outline-hidden focus:border-slate-900 cursor-pointer"
                 >
-                  <option value="">Selecione um veículo da frota oficial SEJU</option>
+                  <option value="">Troca rápida por lista...</option>
                   {veiculos.map(v => (
                     <option key={v.id} value={v.id}>
-                      {v.modelo} — Placa {v.placa} ({v.capacidade} lugares, {v.cor})
+                      {v.modelo} ({v.placa})
                     </option>
                   ))}
                 </select>
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">
-                  Modalidade de Condução *
-                </label>
-                <select
-                  value={modalidade}
-                  onChange={e => setModalidade(e.target.value as ModalidadeAgendamento)}
-                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50/70 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white outline-hidden transition"
-                >
-                  <option value="com_motorista">Com Motorista Oficial</option>
-                  <option value="sem_motorista">Condução Própria</option>
-                </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                {veiculos.map(v => {
+                  const selecionado = veiculoId === v.id;
+                  const disp = v.status === 'disponivel';
+                  return (
+                    <div
+                      key={v.id}
+                      onClick={() => {
+                        soundFX.playClick();
+                        setVeiculoId(v.id);
+                        setDatasSelecionadas([]);
+                      }}
+                      className={`relative rounded-2xl p-4 border transition-all duration-300 cursor-pointer select-none overflow-hidden group ${
+                        selecionado
+                          ? 'bg-linear-to-br from-slate-900 via-[#0F172A] to-slate-950 text-white border-sky-400 shadow-[0_0_0_2px_rgba(56,189,248,0.35),0_12px_28px_-6px_rgba(15,23,42,0.45)] -translate-y-0.5'
+                          : 'bg-slate-50/70 hover:bg-white text-slate-900 border-slate-200/90 hover:border-slate-300 hover:shadow-sm'
+                      }`}
+                    >
+                      {/* Brilho especular superior quando selecionado */}
+                      {selecionado && (
+                        <div className="absolute inset-x-6 top-0 h-[1.5px] bg-[var(--brand)]" />
+                      )}
+
+                      <div className="flex items-start justify-between gap-2 mb-3">
+                        <PlacaMercosul placa={v.placa} uf="PR" className="scale-90 origin-top-left" />
+                        <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${
+                          selecionado
+                            ? 'bg-sky-500/20 text-sky-300 border-sky-400/40'
+                            : disp
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${
+                            selecionado ? 'bg-sky-400 animate-pulse' : disp ? 'bg-emerald-500' : 'bg-amber-500'
+                          }`} />
+                          {selecionado ? 'SELECIONADO' : disp ? 'PÁTIO LIVRE' : v.status.toUpperCase()}
+                        </span>
+                      </div>
+
+                      <div className="font-bold text-sm tracking-tight truncate">
+                        {v.modelo}
+                      </div>
+
+                      <div className={`flex items-center justify-between text-[11px] mt-2 pt-2 border-t ${
+                        selecionado ? 'border-slate-800 text-slate-300' : 'border-slate-200/70 text-slate-500'
+                      }`}>
+                        <span className="flex items-center gap-1 font-medium">
+                          <Users size={12} className={selecionado ? 'text-sky-400' : 'text-slate-400'} />
+                          {v.capacidade} lug · {v.cor}
+                        </span>
+                        <span className="flex items-center gap-1.5 font-mono text-[10px]">
+                          <Fuel size={11} className={v.nivelCombustivel > 30 ? 'text-emerald-400' : 'text-amber-400'} />
+                          {v.nivelCombustivel}%
+                          <span className="opacity-50">|</span>
+                          {(v.kmAtual / 1000).toFixed(1)}k km
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Calendário e Período em Grid Dividido */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-5 pt-1">
+            {/* Modalidade de Condução Tátil */}
+            <div className="pt-2">
+              <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-600 mb-2">
+                Modalidade de Condução Oficial *
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  {
+                    id: 'com_motorista',
+                    titulo: 'Com Motorista Oficial SEJU',
+                    sub: 'Condutor credenciado designado pelo Setor de Transporte',
+                    badge: 'RECOMENDADO'
+                  },
+                  {
+                    id: 'sem_motorista',
+                    titulo: 'Condução Própria (Servidor Autorizado)',
+                    sub: 'Requer CNH válida e termo de responsabilidade funcional',
+                    badge: 'AUTÔNOMO'
+                  }
+                ].map(mod => {
+                  const ativo = modalidade === mod.id;
+                  return (
+                    <button
+                      key={mod.id}
+                      type="button"
+                      onClick={() => {
+                        soundFX.playClick();
+                        setModalidade(mod.id as ModalidadeAgendamento);
+                      }}
+                      className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex items-start justify-between gap-2 ${
+                        ativo
+                          ? 'bg-slate-900 text-white border-slate-900 shadow-[0_6px_16px_rgba(15,23,42,0.16)]'
+                          : 'bg-slate-50/70 hover:bg-white text-slate-700 border-slate-200/90'
+                      }`}
+                    >
+                      <div>
+                        <div className="text-xs font-bold">{mod.titulo}</div>
+                        <div className={`text-[10px] mt-0.5 ${ativo ? 'text-slate-300' : 'text-slate-500'}`}>
+                          {mod.sub}
+                        </div>
+                      </div>
+                      <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-md shrink-0 ${
+                        ativo ? 'bg-sky-500/20 text-sky-300 border border-sky-400/30' : 'bg-slate-200/70 text-slate-600'
+                      }`}>
+                        {mod.badge}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Calendário e Período em Grid Dividido com Acabamento Tátil */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-5 pt-2">
               {/* Calendário */}
-              <div className="md:col-span-7 p-4 bg-slate-50/60 border border-slate-200/80 rounded-2xl space-y-3">
-                <div className="flex items-center justify-between">
+              <div className="md:col-span-7 p-4.5 bg-slate-50/80 border border-slate-200/90 rounded-2xl space-y-3.5 shadow-inner">
+                <div className="flex items-center justify-between bg-white px-3.5 py-2 rounded-xl border border-slate-200/80 shadow-2xs">
                   <div className="flex items-center gap-2">
-                    <CalendarIcon size={15} className="text-slate-700" />
-                    <span className="text-xs font-semibold text-slate-800">
-                      {mesesNomes[calMes]} {calAno}
+                    <CalendarIcon size={15} className="text-slate-900" />
+                    <span className="text-xs font-bold text-slate-900 tracking-tight">
+                      {mesesNomes[calMes]} <span className="font-mono text-slate-500">{calAno}</span>
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
                       onClick={() => handleNavMes(-1)}
-                      className="p-1.5 rounded-lg hover:bg-white text-slate-600 border border-transparent hover:border-slate-200/80 transition cursor-pointer"
+                      className="p-1.5 rounded-lg bg-slate-50 hover:bg-slate-900 hover:text-white text-slate-700 border border-slate-200/80 transition cursor-pointer"
                     >
-                      <ChevronLeft size={15} />
+                      <ChevronLeft size={14} />
                     </button>
                     <button
                       type="button"
                       onClick={() => handleNavMes(1)}
-                      className="p-1.5 rounded-lg hover:bg-white text-slate-600 border border-transparent hover:border-slate-200/80 transition cursor-pointer"
+                      className="p-1.5 rounded-lg bg-slate-50 hover:bg-slate-900 hover:text-white text-slate-700 border border-slate-200/80 transition cursor-pointer"
                     >
-                      <ChevronRight size={15} />
+                      <ChevronRight size={14} />
                     </button>
                   </div>
                 </div>
 
                 {!veiculoId ? (
-                  <div className="py-10 px-4 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl bg-white/50">
-                    Selecione um veículo acima para consultar a disponibilidade no calendário.
+                  <div className="py-12 px-4 text-center text-xs text-slate-500 border border-dashed border-slate-300 rounded-xl bg-white/80 space-y-1.5">
+                    <Car size={22} className="mx-auto text-slate-400" />
+                    <div className="font-semibold text-slate-700">Nenhuma viatura selecionada</div>
+                    <div className="text-[11px] text-slate-400">
+                      Clique em um dos veículos do Showroom acima para sincronizar a agenda do pátio.
+                    </div>
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-medium text-slate-400 uppercase">
+                    <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-mono font-bold text-slate-400 uppercase">
                       <span>Dom</span>
                       <span>Seg</span>
                       <span>Ter</span>
@@ -507,9 +638,9 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
                       <span>Sáb</span>
                     </div>
 
-                    <div className="grid grid-cols-7 gap-1 text-xs">
+                    <div className="grid grid-cols-7 gap-1.5 text-xs">
                       {Array.from({ length: primeiroDiaSemana }).map((_, i) => (
-                        <div key={`empty-${i}`} className="h-8" />
+                        <div key={`empty-${i}`} className="h-8.5" />
                       ))}
 
                       {Array.from({ length: diasNoMes }).map((_, i) => {
@@ -520,15 +651,15 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
                         const isSelected = datasSelecionadas.includes(dataKey);
                         const { ocupado, parcial, passado } = checkDataStatus(dataKey);
 
-                        let bgClass = 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200/80';
+                        let bgClass = 'bg-white hover:bg-slate-900 hover:text-white text-slate-800 border-slate-200/90 shadow-2xs';
                         if (passado) {
-                          bgClass = 'bg-slate-100/60 text-slate-300 border-transparent cursor-not-allowed';
+                          bgClass = 'bg-slate-100/50 text-slate-300 border-transparent cursor-not-allowed';
                         } else if (ocupado) {
-                          bgClass = 'bg-red-50/70 text-red-400 border-red-100 cursor-not-allowed line-through';
+                          bgClass = 'bg-red-50/80 text-red-400 border-red-200/70 cursor-not-allowed line-through';
                         } else if (isSelected) {
-                          bgClass = 'bg-slate-900 text-white border-slate-900 font-semibold shadow-2xs';
+                          bgClass = 'bg-slate-900 text-sky-300 border-sky-400 font-bold shadow-[0_0_0_2px_rgba(56,189,248,0.25)] scale-[1.03]';
                         } else if (parcial) {
-                          bgClass = 'bg-amber-50 text-amber-800 border-amber-200 font-medium';
+                          bgClass = 'bg-amber-50 text-amber-900 border-amber-300 font-semibold';
                         }
 
                         return (
@@ -537,7 +668,7 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
                             type="button"
                             disabled={ocupado || passado}
                             onClick={() => handleToggleData(dataKey)}
-                            className={`h-8 rounded-lg border flex items-center justify-center font-mono text-[11px] transition cursor-pointer ${bgClass}`}
+                            className={`h-8.5 rounded-xl border flex items-center justify-center font-mono text-[11px] transition-all cursor-pointer ${bgClass}`}
                           >
                             {diaNum}
                           </button>
@@ -545,53 +676,67 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
                       })}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 pt-2 text-[10px] text-slate-500 border-t border-slate-200/60">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 text-[10px] font-medium text-slate-500 border-t border-slate-200/80">
                       <span className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-white border border-slate-300" /> Livre
+                        <span className="w-2.5 h-2.5 rounded-sm bg-white border border-slate-300" /> Livre
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-slate-900" /> Selecionado
+                        <span className="w-2.5 h-2.5 rounded-sm bg-slate-900 border border-sky-400" /> Selecionado
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-amber-400" /> Parcial
+                        <span className="w-2.5 h-2.5 rounded-sm bg-amber-400" /> Parcial
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-red-400" /> Ocupado
+                        <span className="w-2.5 h-2.5 rounded-sm bg-red-400" /> Reservado
                       </span>
                     </div>
                   </>
                 )}
               </div>
 
-              {/* Período e Datas Selecionadas */}
+              {/* Período e Datas Selecionadas com Acabamento Tátil */}
               <div className="md:col-span-5 flex flex-col justify-between space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-2">
-                    Turno de Utilização *
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-600 mb-2">
+                    Seletor Tátil de Turno *
                   </label>
                   <div className="space-y-2">
                     {[
-                      { id: 'manha', label: 'Período da Manhã', desc: '08h00 às 12h00' },
-                      { id: 'tarde', label: 'Período da Tarde', desc: '13h00 às 18h00' },
-                      { id: 'dia_todo', label: 'Integral (Dia Todo)', desc: '08h00 às 18h00' }
+                      { id: 'manha', label: 'Turno Matutino', desc: '08:00 — 12:00', code: 'AM' },
+                      { id: 'tarde', label: 'Turno Vespertino', desc: '13:00 — 18:00', code: 'PM' },
+                      { id: 'dia_todo', label: 'Missão Integral', desc: '08:00 — 18:00', code: 'FULL' }
                     ].map(p => {
                       const active = periodo === p.id;
                       return (
                         <button
                           key={p.id}
                           type="button"
-                          onClick={() => setPeriodo(p.id as PeriodoAgendamento)}
-                          className={`w-full p-3 rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
+                          onClick={() => {
+                            soundFX.playClick();
+                            setPeriodo(p.id as PeriodoAgendamento);
+                          }}
+                          className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between cursor-pointer ${
                             active
-                              ? 'border-slate-900 bg-slate-900 text-white shadow-2xs'
-                              : 'border-slate-200/80 bg-white text-slate-700 hover:bg-slate-50'
+                              ? 'border-sky-400 bg-slate-900 text-white shadow-[0_6px_16px_rgba(15,23,42,0.18)]'
+                              : 'border-slate-200/90 bg-white text-slate-700 hover:bg-slate-50'
                           }`}
                         >
-                          <div>
-                            <div className="text-xs font-semibold">{p.label}</div>
-                            <div className={`text-[10px] ${active ? 'text-slate-300' : 'text-slate-400'}`}>{p.desc}</div>
+                          <div className="flex items-center gap-2.5">
+                            <span className={`w-8 h-8 rounded-lg font-mono text-[10px] font-black flex items-center justify-center border ${
+                              active
+                                ? 'bg-sky-500/20 text-sky-300 border-sky-400/40'
+                                : 'bg-slate-100 text-slate-600 border-slate-200'
+                            }`}>
+                              {p.code}
+                            </span>
+                            <div>
+                              <div className="text-xs font-bold">{p.label}</div>
+                              <div className={`text-[10px] font-mono ${active ? 'text-slate-300' : 'text-slate-400'}`}>
+                                {p.desc}
+                              </div>
+                            </div>
                           </div>
-                          <Clock size={14} className={active ? 'text-white' : 'text-slate-400'} />
+                          <Clock size={14} className={active ? 'text-sky-400' : 'text-slate-400'} />
                         </button>
                       );
                     })}
@@ -599,21 +744,23 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
                 </div>
 
                 {/* Chips de Datas */}
-                <div className="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/80">
-                  <div className="text-[11px] font-medium text-slate-500 mb-2 flex items-center justify-between">
-                    <span>Datas selecionadas</span>
-                    <span className="font-mono font-bold text-slate-800">{datasSelecionadas.length}</span>
+                <div className="p-3.5 bg-slate-50/90 rounded-2xl border border-slate-200/90 shadow-inner">
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-slate-500 mb-2 flex items-center justify-between">
+                    <span>Diárias Selecionadas</span>
+                    <span className="font-mono font-black text-xs px-2 py-0.5 rounded-md bg-slate-900 text-sky-300">
+                      {datasSelecionadas.length}
+                    </span>
                   </div>
                   {datasSelecionadas.length === 0 ? (
-                    <div className="text-[11px] text-slate-400">
-                      Nenhuma data marcada no calendário.
+                    <div className="text-[11px] text-slate-400 py-1">
+                      Toque nos dias livres do calendário ao lado.
                     </div>
                   ) : (
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
                       {datasSelecionadas.map(d => (
                         <span
                           key={d}
-                          className="inline-flex items-center gap-1 bg-white text-slate-800 text-[11px] font-mono font-medium px-2.5 py-1 rounded-lg border border-slate-200/80 shadow-2xs"
+                          className="inline-flex items-center gap-1 bg-white text-slate-900 text-[11px] font-mono font-bold px-2.5 py-1 rounded-lg border border-slate-300 shadow-2xs"
                         >
                           {d.split('-').reverse().join('/')}
                           <button
@@ -631,18 +778,29 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
               </div>
             </div>
 
-            {/* Destinos Rápidos & Telemetria */}
-            <div className="pt-4 border-t border-slate-100 space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-medium text-slate-700 flex items-center gap-1.5">
-                    <Navigation size={13} className="text-slate-500" /> Rotas Oficiais Frequentes (Atalhos)
-                  </label>
-                  <span className="text-[10px] text-slate-400">Preenche roteiro e calcula estimativa</span>
+            {/* COMPUTADOR DE BORDO & TELEMETRIA DE ROTA (BR-277 / BR-376) */}
+            <div className="pt-5 border-t border-slate-100 space-y-4">
+              <div className="bg-[#0B0F19] text-white rounded-2xl p-5 border border-slate-800 shadow-[0_16px_36px_-10px_rgba(2,6,23,0.6)] relative overflow-hidden space-y-4">
+                {/* Highlight especular superior */}
+                <div className="absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-sky-400/50 to-transparent pointer-events-none" />
+
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                  <div className="flex items-center gap-2">
+                    <Compass size={16} className="text-sky-400 animate-pulse" />
+                    <span className="text-[11px] font-mono uppercase tracking-[0.16em] text-slate-200 font-bold">
+                      COMPUTADOR DE BORDO · TELEMETRIA RODOVIÁRIA PR
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-0.5 rounded-md">
+                    DER-PR / MALHA BR-277 & BR-376
+                  </span>
                 </div>
+
+                {/* Botões de Rotas Oficiais Estilo Cockpit */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
                   {DESTINOS_PARANA.map(d => {
                     const isSel = cidadeDestino === d.cidade || (destino && destino.toLowerCase().includes(d.cidade.toLowerCase()));
+                    const isBR277 = d.rota.includes('BR-277');
                     return (
                       <button
                         key={d.cidade}
@@ -652,59 +810,79 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
                           soundFX.playClick();
                           setDestino(`${d.cidade}/PR via ${d.rota} — Vistoria técnica institucional e atendimento regional SEJU`);
                         }}
-                        className={`p-2.5 rounded-xl border text-left transition cursor-pointer ${
+                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer relative overflow-hidden ${
                           isSel
-                            ? 'border-slate-900 bg-slate-900 text-white shadow-2xs'
-                            : 'border-slate-200/80 bg-slate-50/50 hover:bg-white text-slate-700'
+                            ? 'border-sky-400 bg-sky-950/60 text-white shadow-[0_0_15px_rgba(56,189,248,0.2)]'
+                            : 'border-slate-800 bg-slate-900/70 hover:bg-slate-900 hover:border-slate-700 text-slate-300'
                         }`}
                       >
-                        <div className="text-xs font-semibold truncate">{d.cidade}</div>
-                        <div className={`text-[10px] font-mono mt-0.5 ${isSel ? 'text-slate-300' : 'text-slate-400'}`}>
-                          {d.km} km
+                        <div className="flex items-center justify-between gap-1 mb-1">
+                          <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded-xs ${
+                            isBR277 ? 'bg-amber-500/20 text-amber-300' : 'bg-sky-500/20 text-sky-300'
+                          }`}>
+                            {d.rota.split(' ')[0]}
+                          </span>
+                          <Navigation size={10} className={isSel ? 'text-sky-400' : 'text-slate-600'} />
+                        </div>
+                        <div className="text-xs font-bold truncate">{d.cidade}</div>
+                        <div className="text-[10px] font-mono text-slate-400 mt-0.5">
+                          {d.km} km <span className="text-slate-600">·</span> ida
                         </div>
                       </button>
                     );
                   })}
                 </div>
+
+                {/* Leitura de Telemetria da Rota Selecionada */}
+                {destInfo ? (
+                  <div className="p-4 bg-[#060911] border border-slate-800/90 rounded-xl space-y-3.5">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs border-b border-slate-800/70 pb-2.5">
+                      <span className="font-bold text-white flex items-center gap-2">
+                        <Route size={14} className="text-sky-400" />
+                        Rota Calculada: Curitiba (Sede Hauer) ⇄ {destInfo.cidade}
+                      </span>
+                      <span className="text-[10px] font-mono font-bold text-sky-300 bg-sky-950/70 px-2.5 py-0.5 rounded-md border border-sky-500/30">
+                        EIXO {destInfo.rota.toUpperCase()}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                      <div className="bg-slate-900/70 p-3 rounded-xl border border-slate-800">
+                        <div className="text-[9px] font-mono uppercase text-slate-400">Distância Ida/Volta</div>
+                        <div className="font-bold text-white font-mono text-base mt-0.5">
+                          {destInfo.km * 2} <span className="text-xs text-sky-400">km</span>
+                        </div>
+                      </div>
+                      <div className="bg-slate-900/70 p-3 rounded-xl border border-slate-800">
+                        <div className="text-[9px] font-mono uppercase text-slate-400">Combustível Est.</div>
+                        <div className="font-bold text-white font-mono text-base mt-0.5">
+                          {((destInfo.km * 2) / 10.8).toFixed(1)} <span className="text-xs text-amber-400">L</span>
+                        </div>
+                      </div>
+                      <div className="bg-slate-900/70 p-3 rounded-xl border border-slate-800">
+                        <div className="text-[9px] font-mono uppercase text-slate-400">Custo Combustível</div>
+                        <div className="font-bold text-emerald-400 font-mono text-base mt-0.5">
+                          R$ {(((destInfo.km * 2) / 10.8) * 5.89).toFixed(2).replace('.', ',')}
+                        </div>
+                      </div>
+                      <div className="bg-slate-900/70 p-3 rounded-xl border border-slate-800">
+                        <div className="text-[9px] font-mono uppercase text-slate-400">Tempo de Voo/Trecho</div>
+                        <div className="font-bold text-white font-mono text-base mt-0.5">
+                          ~{Math.floor(destInfo.km / 82)}h{Math.round(((destInfo.km / 82) % 1) * 60).toString().padStart(2, '0')}m
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-[11px] font-mono text-slate-400 flex items-center justify-between px-1">
+                    <span>Selecione um destino rápido acima para simular consumo, pedágios e telemetria BR-277 / BR-376.</span>
+                    <span className="text-sky-400 hidden sm:inline">GPS PRONTO</span>
+                  </div>
+                )}
               </div>
 
-              {destInfo && (
-                <div className="p-4 bg-slate-50/80 border border-slate-200/80 rounded-xl space-y-3">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-slate-800 flex items-center gap-1.5">
-                      <Gauge size={14} className="text-slate-600" /> Estimativa de Deslocamento: Curitiba ⇄ {destInfo.cidade}
-                    </span>
-                    <span className="text-[10px] font-mono font-medium text-slate-600 bg-white px-2.5 py-0.5 rounded-md border border-slate-200/80">
-                      {destInfo.rota}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/70">
-                      <div className="text-[10px] text-slate-400">Distância Total</div>
-                      <div className="font-semibold text-slate-900 font-mono text-sm mt-0.5">{destInfo.km * 2} km</div>
-                    </div>
-                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/70">
-                      <div className="text-[10px] text-slate-400">Combustível Est.</div>
-                      <div className="font-semibold text-slate-900 font-mono text-sm mt-0.5">{((destInfo.km * 2) / 10.5).toFixed(1)} L</div>
-                    </div>
-                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/70">
-                      <div className="text-[10px] text-slate-400">Custo Estimado</div>
-                      <div className="font-semibold text-emerald-700 font-mono text-sm mt-0.5">
-                        R$ {(((destInfo.km * 2) / 10.5) * 5.89).toFixed(2).replace('.', ',')}
-                      </div>
-                    </div>
-                    <div className="bg-white p-2.5 rounded-xl border border-slate-200/70">
-                      <div className="text-[10px] text-slate-400">Tempo por Trecho</div>
-                      <div className="font-semibold text-slate-900 font-mono text-sm mt-0.5">
-                        ~{Math.floor(destInfo.km / 80)}h{Math.round(((destInfo.km / 80) % 1) * 60).toString().padStart(2, '0')}m
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
                   Destino e Finalidade Oficial da Missão *
                 </label>
                 <textarea
@@ -713,18 +891,18 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
                   value={destino}
                   onChange={e => setDestino(e.target.value)}
                   placeholder="Descreva a cidade, órgão visitado e objetivo institucional da viagem..."
-                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50/70 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white outline-hidden transition"
+                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50/80 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-sky-500/20 focus:border-slate-900 focus:bg-white outline-hidden transition text-slate-900 font-medium"
                 />
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-medium text-slate-700">
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-600">
                     Passageiros Adicionais (separados por vírgula)
                   </label>
                   {veicSel && (
-                    <span className="text-[11px] text-slate-500">
-                      Ocupação: <strong className={capacidadeExcedida ? 'text-red-600' : 'text-slate-900'}>{totalOcupantes}</strong>/{veicSel.capacidade} lugares
+                    <span className="text-[11px] font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                      Lotação: <strong className={capacidadeExcedida ? 'text-red-600' : 'text-slate-900'}>{totalOcupantes}</strong>/{veicSel.capacidade} assentos
                     </span>
                   )}
                 </div>
@@ -737,20 +915,20 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
                     placeholder="Ex: Carlos Silveira, Ana Beatriz"
                     className={`w-full text-xs pl-9 pr-3.5 py-2.5 border rounded-xl outline-hidden transition ${
                       capacidadeExcedida
-                        ? 'border-red-300 bg-red-50/50 focus:border-red-500'
-                        : 'bg-slate-50/70 border-slate-200/90 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 focus:bg-white'
+                        ? 'border-red-400 bg-red-50/60 focus:border-red-600 text-red-900'
+                        : 'bg-slate-50/80 border-slate-200/90 focus:ring-2 focus:ring-sky-500/20 focus:border-slate-900 focus:bg-white text-slate-900'
                     }`}
                   />
                 </div>
               </div>
 
               {capacidadeExcedida && veicSel && (
-                <div className="p-3.5 bg-red-50/80 border border-red-200/80 rounded-xl text-xs text-red-800 flex items-start gap-2.5">
+                <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 flex items-start gap-2.5">
                   <AlertTriangle size={16} className="text-red-600 shrink-0 mt-0.5" />
                   <div>
-                    <div className="font-semibold">Limite de ocupantes excedido</div>
+                    <div className="font-bold">Limite de assentos excedido</div>
                     <p className="text-[11px] text-red-700 mt-0.5">
-                      O veículo {veicSel.modelo} comporta {veicSel.capacidade} pessoas, mas há {totalOcupantes} ocupantes listados. Selecione um utilitário maior ou ajuste a lista.
+                      A viatura {veicSel.modelo} comporta até {veicSel.capacidade} ocupantes, mas foram informados {totalOcupantes}. Escolha um utilitário maior no Showroom.
                     </p>
                   </div>
                 </div>
@@ -759,89 +937,112 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
           </div>
         </div>
 
-        {/* Coluna Lateral: STEP 3: CONFIRMAÇÃO & SUBMISSÃO */}
+        {/* Coluna Lateral: STEP 3: CONFIRMAÇÃO & SUBMISSÃO COM BRILHO EXECUTIVO */}
         <div className="lg:col-span-4 lg:sticky lg:top-6 space-y-6">
-          <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-2xs space-y-5">
+          <div className="relative bg-white rounded-2xl p-6 border border-slate-200/90 shadow-[0_12px_32px_rgb(15,23,42,0.06)] space-y-5 overflow-hidden">
+            {/* Faixa superior executiva */}
+            <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-slate-900 via-sky-500 to-slate-900" />
+
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <span className="w-6 h-6 rounded-lg bg-slate-900 text-white font-mono text-xs font-bold flex items-center justify-center">
+                <span className="w-7 h-7 rounded-xl bg-slate-900 text-sky-400 font-mono text-xs font-bold flex items-center justify-center shadow-2xs">
                   03
                 </span>
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900">
-                    Revisão & Confirmação
+                  <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                    Ordem de Tráfego Digital
                   </h3>
                   <p className="text-[11px] text-slate-500">
-                    Resumo da ordem de tráfego
+                    Conferência pré-despacho da Chefia
                   </p>
                 </div>
               </div>
-              <ShieldCheck size={16} className="text-slate-400" />
+              <ShieldCheck size={18} className="text-emerald-600" />
             </div>
 
+            {/* Card da Viatura Selecionada no Resumo */}
+            {veicSel ? (
+              <div className="p-3.5 rounded-xl bg-slate-900 text-white border border-slate-800 space-y-2.5 shadow-sm">
+                <div className="flex items-center justify-between gap-2">
+                  <PlacaMercosul placa={veicSel.placa} uf="PR" className="scale-90 origin-left" />
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 border border-emerald-500/30 px-2 py-0.5 rounded-md">
+                    {veicSel.nivelCombustivel}% TANQUE
+                  </span>
+                </div>
+                <div className="text-xs font-bold text-white tracking-tight">
+                  {veicSel.modelo}
+                </div>
+                <div className="text-[10px] font-mono text-slate-400 flex items-center justify-between pt-1 border-t border-slate-800">
+                  <span>HODÔMETRO: {veicSel.kmAtual.toLocaleString('pt-BR')} KM</span>
+                  <span>{veicSel.capacidade} LUGARES</span>
+                </div>
+              </div>
+            ) : (
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-dashed border-slate-300 text-center text-[11px] text-slate-400">
+                Selecione uma viatura no Showroom para visualizar o cartão de tráfego.
+              </div>
+            )}
+
             <div className="space-y-3 text-xs">
-              <div className="p-3.5 bg-slate-50/80 rounded-xl border border-slate-200/70 space-y-2.5">
+              <div className="p-4 bg-slate-50/90 rounded-xl border border-slate-200/80 space-y-2.5">
                 <div className="flex justify-between items-start gap-2">
-                  <span className="text-slate-400">Solicitante</span>
-                  <span className="font-medium text-slate-900 text-right truncate max-w-[180px]">
+                  <span className="text-slate-400 font-medium">Servidor</span>
+                  <span className="font-bold text-slate-900 text-right truncate max-w-[180px]">
                     {nome || '—'}
                   </span>
                 </div>
                 <div className="flex justify-between items-center gap-2">
-                  <span className="text-slate-400">CPF</span>
-                  <span className="font-mono text-slate-700">
+                  <span className="text-slate-400 font-medium">CPF</span>
+                  <span className="font-mono font-semibold text-slate-700">
                     {cpf || '—'}
                   </span>
                 </div>
-                <div className="flex justify-between items-start gap-2 pt-2 border-t border-slate-200/60">
-                  <span className="text-slate-400">Viatura</span>
-                  <span className="font-medium text-slate-900 text-right">
-                    {veicSel ? `${veicSel.modelo} (${veicSel.placa})` : 'Não selecionada'}
+                <div className="flex justify-between items-center gap-2 pt-2 border-t border-slate-200/70">
+                  <span className="text-slate-400 font-medium">Condução</span>
+                  <span className="text-slate-800 font-semibold">
+                    {modalidade === 'com_motorista' ? 'Motorista Oficial' : 'Condução Própria'}
                   </span>
                 </div>
                 <div className="flex justify-between items-center gap-2">
-                  <span className="text-slate-400">Modalidade</span>
-                  <span className="text-slate-700 font-medium">
-                    {modalidade === 'com_motorista' ? 'Com Motorista' : 'Condução Própria'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center gap-2">
-                  <span className="text-slate-400">Datas</span>
-                  <span className="font-mono text-slate-800 font-medium">
+                  <span className="text-slate-400 font-medium">Diárias</span>
+                  <span className="font-mono text-slate-900 font-bold">
                     {datasSelecionadas.length > 0 ? `${datasSelecionadas.length} dia(s)` : 'Nenhuma'}
                   </span>
                 </div>
                 <div className="flex justify-between items-center gap-2">
-                  <span className="text-slate-400">Ocupação</span>
-                  <span className="text-slate-700 font-medium">
+                  <span className="text-slate-400 font-medium">Lotação</span>
+                  <span className="text-slate-800 font-semibold">
                     {totalOcupantes} {totalOcupantes === 1 ? 'ocupante' : 'ocupantes'}
                   </span>
                 </div>
               </div>
 
               {destino && (
-                <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/70">
-                  <span className="text-[10px] font-mono uppercase text-slate-400 block mb-1">
-                    Roteiro Especificado
+                <div className="p-3.5 bg-slate-50/90 rounded-xl border border-slate-200/80">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold block mb-1">
+                    Roteiro & Missão Oficial
                   </span>
-                  <p className="text-slate-700 line-clamp-3 leading-relaxed">
+                  <p className="text-slate-800 font-medium line-clamp-3 leading-relaxed">
                     {destino}
                   </p>
                 </div>
               )}
             </div>
 
+            {/* Botão de Submissão com Brilho Executivo */}
             <div className="pt-2 space-y-2.5">
               <button
                 type="submit"
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-5 py-3.5 rounded-xl shadow-2xs transition flex items-center justify-center gap-2 cursor-pointer"
+                className="relative w-full overflow-hidden bg-linear-to-r from-slate-950 via-slate-900 to-slate-950 hover:from-slate-900 hover:via-slate-800 hover:to-slate-900 text-white text-xs font-bold px-5 py-4 rounded-xl shadow-[0_10px_25px_-5px_rgba(15,23,42,0.45),inset_0_1px_0_rgba(255,255,255,0.22)] border border-slate-700/80 transition-all flex items-center justify-center gap-2.5 cursor-pointer group active:scale-[0.99]"
               >
-                <CheckCircle2 size={16} />
-                Enviar para Validação da Chefia
-                <ArrowRight size={14} />
+                {/* Reflexo luminoso superior no botão */}
+                <span className="absolute inset-x-6 top-0 h-px bg-linear-to-r from-transparent via-sky-400/70 to-transparent" />
+                <CheckCircle2 size={16} className="text-sky-400 shrink-0" />
+                <span className="tracking-wide">Protocolar & Enviar à Chefia</span>
+                <ArrowRight size={14} className="text-sky-300 group-hover:translate-x-1 transition-transform shrink-0" />
               </button>
               <p className="text-[10px] text-slate-400 text-center leading-relaxed">
-                Gera protocolo auditável imediato e notifica a Chefia de Gabinete para aprovação em 1 clique.
+                Emite protocolo auditável imediato e notifica a Chefia de Gabinete para deliberação em 1 clique.
               </p>
             </div>
           </div>
@@ -850,35 +1051,36 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
 
       {/* Modal de Comprovante de Solicitação */}
       {comprovante && (
-        <div className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200/80 animate-in zoom-in-95">
+        <div className="fixed inset-0 bg-slate-950/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200/90 animate-in zoom-in-95 relative overflow-hidden">
+            <div className="absolute inset-x-0 top-0 h-1.5 bg-linear-to-r from-emerald-500 via-sky-500 to-emerald-500" />
             <div className="text-center border-b border-slate-100 pb-5 mb-5">
-              <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center justify-center mx-auto mb-3">
-                <FileCheck2 size={22} />
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center justify-center mx-auto mb-3 shadow-2xs">
+                <FileCheck2 size={24} />
               </div>
-              <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60 font-semibold">
-                Requisição Protocolada
+              <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-800 bg-emerald-50 px-3 py-0.5 rounded-full border border-emerald-200 font-bold">
+                Ordem de Tráfego Protocolada
               </span>
-              <h3 className="text-base font-semibold text-slate-900 mt-2">
+              <h3 className="text-base font-bold text-slate-900 mt-2">
                 Solicitação Registrada com Sucesso
               </h3>
-              <div className="text-xs font-mono text-slate-700 font-semibold mt-1">
+              <div className="text-xs font-mono text-slate-800 font-bold mt-1 bg-slate-100 inline-block px-3 py-1 rounded-lg border border-slate-200">
                 Protocolo: {comprovante.ticket}
               </div>
             </div>
 
-            <div className="space-y-2.5 text-xs text-slate-600 mb-6 bg-slate-50/70 p-4 rounded-xl border border-slate-200/70">
+            <div className="space-y-2.5 text-xs text-slate-600 mb-6 bg-slate-50/90 p-4 rounded-xl border border-slate-200/80">
               <div className="flex justify-between py-1 border-b border-slate-200/60">
                 <span className="text-slate-400">Solicitante</span>
-                <span className="font-semibold text-slate-900">{comprovante.nome}</span>
+                <span className="font-bold text-slate-900">{comprovante.nome}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-slate-200/60">
-                <span className="text-slate-400">Veículo</span>
-                <span className="font-semibold text-slate-900">{comprovante.veiculoNome} ({comprovante.veiculoPlaca})</span>
+              <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
+                <span className="text-slate-400">Viatura</span>
+                <span className="font-bold text-slate-900">{comprovante.veiculoNome} ({comprovante.veiculoPlaca})</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200/60">
                 <span className="text-slate-400">Data(s)</span>
-                <span className="font-mono font-medium text-slate-800">{comprovante.datas.join(', ')}</span>
+                <span className="font-mono font-semibold text-slate-800">{comprovante.datas.join(', ')}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-slate-200/60">
                 <span className="text-slate-400">Destino</span>
@@ -886,8 +1088,8 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
               </div>
               <div className="flex justify-between items-center pt-1">
                 <span className="text-slate-400">Status</span>
-                <span className="text-[11px] font-medium text-amber-800 bg-amber-50 border border-amber-200/80 px-2.5 py-0.5 rounded-full">
-                  Aguardando Aprovação
+                <span className="text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">
+                  Aguardando Chancela
                 </span>
               </div>
             </div>
@@ -896,9 +1098,9 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200/90 text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition"
+                className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition"
               >
-                <Printer size={15} /> Imprimir
+                <Printer size={15} /> Imprimir Guia
               </button>
               <button
                 type="button"
@@ -914,3 +1116,4 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
     </div>
   );
 };
+
