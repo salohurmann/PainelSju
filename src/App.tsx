@@ -15,6 +15,8 @@ import {
   notifyUserApproved, 
   notifyUserRejected 
 } from './services/notifications';
+import { eventBus } from './services/eventBus';
+import { crossCuttingService } from './services/crossCuttingService';
 import { Sidebar } from './components/layout/Sidebar';
 import { TopBar } from './components/layout/TopBar';
 import { AppLauncherHub, AppModuleId } from './components/hub/AppLauncherHub';
@@ -74,6 +76,27 @@ export function App() {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, []);
 
+  // Inicialização e Assinatura do Barramento de Eventos Transversais
+  useEffect(() => {
+    crossCuttingService.init();
+    const unsubLog = crossCuttingService.onLog((log) => {
+      setState(prev => {
+        if (prev.logs.some(l => l.id === log.id)) return prev;
+        return { ...prev, logs: [log, ...prev.logs] };
+      });
+    });
+    const unsubNotif = crossCuttingService.onNotificacao((notif) => {
+      setState(prev => {
+        if (prev.notificacoes.some(n => n.id === notif.id)) return prev;
+        return { ...prev, notificacoes: [notif, ...prev.notificacoes] };
+      });
+    });
+    return () => {
+      unsubLog();
+      unsubNotif();
+    };
+  }, []);
+
   // Sincroniza estado com o LocalStorage
   useEffect(() => {
     saveStateToStorage(state);
@@ -108,25 +131,19 @@ export function App() {
 
   // Enviar Nova Solicitação de Veículo
   const handleNovaSolicitacao = async (novoAg: Agendamento) => {
-    const novoLog: AuditoriaLog = {
-      id: 'log-' + Date.now(),
-      time: new Date().toISOString(),
-      user: state.currentUser.nome,
-      cpf: state.currentUser.cpf,
-      ip: '187.115.82.14',
-      action: 'SOLICITACAO_CRIADA',
-      details: `Ticket ${novoAg.ticket} — Veículo ${novoAg.veiculoPlaca} — Destino: ${novoAg.destino.slice(0, 30)}...`,
-      hash: novoAg.ticket
-    };
-
-    const notif = await notifyManagerNewRequest(novoAg, 'gestor.frota@seju.pr.gov.br');
-
     setState(prev => ({
       ...prev,
-      agendamentos: [novoAg, ...prev.agendamentos],
-      logs: [novoLog, ...prev.logs],
-      notificacoes: [notif, ...prev.notificacoes]
+      agendamentos: [novoAg, ...prev.agendamentos]
     }));
+
+    eventBus.emit('viatura.solicitada', {
+      agendamentoId: novoAg.id,
+      veiculoPlaca: novoAg.veiculoPlaca,
+      solicitante: state.currentUser.nome,
+      cpfSolicitante: state.currentUser.cpf,
+      destino: novoAg.destino,
+      ticket: novoAg.ticket
+    });
 
     showToast('Solicitação registrada', `Ticket ${novoAg.ticket} aguarda despacho da Chefia.`, 'success');
   };
@@ -145,25 +162,18 @@ export function App() {
       hashAuditoria: hash
     };
 
-    const novoLog: AuditoriaLog = {
-      id: 'log-' + Date.now(),
-      time: new Date().toISOString(),
-      user: aprovador.nome,
-      cpf: aprovador.cpf,
-      ip: '187.115.82.10',
-      action: 'APROVACAO_CHEFIA_1CLIQUE',
-      details: `Ticket ${ag.ticket} aprovado com assinatura digital SHA-256`,
-      hash
-    };
-
-    const notif = await notifyUserApproved(agAprovado);
-
     setState(prev => ({
       ...prev,
-      agendamentos: prev.agendamentos.map(a => a.id === agId ? agAprovado : a),
-      logs: [novoLog, ...prev.logs],
-      notificacoes: [notif, ...prev.notificacoes]
+      agendamentos: prev.agendamentos.map(a => a.id === agId ? agAprovado : a)
     }));
+
+    eventBus.emit('viatura.aprovada', {
+      agendamentoId: ag.id,
+      ticket: ag.ticket,
+      aprovador: aprovador.nome,
+      cpfAprovador: aprovador.cpf,
+      hashAprovacao: hash
+    });
 
     showToast('Missão autorizada', `Ticket ${ag.ticket} liberado com assinatura SHA-256.`, 'success');
   };
@@ -182,23 +192,11 @@ export function App() {
       aprovadoEm: new Date().toISOString()
     };
 
-    const novoLog: AuditoriaLog = {
-      id: 'log-' + Date.now(),
-      time: new Date().toISOString(),
-      user: aprovador.nome,
-      cpf: aprovador.cpf,
-      ip: '187.115.82.10',
-      action: 'REPROVACAO_CHEFIA',
-      details: `Ticket ${ag.ticket} reprovado. Motivo: ${motivo}`,
-      hash: 'REPROVADO-' + ag.ticket
-    };
-
     const notif = await notifyUserRejected(agReprovado, motivo);
 
     setState(prev => ({
       ...prev,
       agendamentos: prev.agendamentos.map(a => a.id === agId ? agReprovado : a),
-      logs: [novoLog, ...prev.logs],
       notificacoes: [notif, ...prev.notificacoes]
     }));
 
@@ -207,16 +205,8 @@ export function App() {
 
   // Vistoria Check-in / Check-out com 4 Fotos
   const handleRegistrarVistoria = (vistoria: Vistoria, veiculoAtualizado: Partial<Veiculo>) => {
-    const novoLog: AuditoriaLog = {
-      id: 'log-' + Date.now(),
-      time: vistoria.dataHora,
-      user: state.currentUser.nome,
-      cpf: state.currentUser.cpf,
-      ip: '187.115.82.20',
-      action: vistoria.tipo === 'checkin' ? 'CHECKIN_VISTORIA_FOTOS' : 'CHECKOUT_DEVOLUCAO_FOTOS',
-      details: `Ticket ${vistoria.ticket} — Odômetro: ${vistoria.km} km — Tanque: ${vistoria.nivelCombustivel}%`,
-      hash: vistoria.hashAuditoria
-    };
+    const veiculoAlvo = state.veiculos.find(v => v.id === vistoria.veiculoId);
+    const placa = veiculoAtualizado.placa || veiculoAlvo?.placa || '';
 
     setState(prev => ({
       ...prev,
@@ -232,9 +222,17 @@ export function App() {
           };
         }
         return a;
-      }),
-      logs: [novoLog, ...prev.logs]
+      })
     }));
+
+    eventBus.emit('viatura.vistoria_concluida', {
+      vistoriaId: vistoria.id,
+      agendamentoId: vistoria.agendamentoId,
+      veiculoPlaca: placa,
+      tipo: vistoria.tipo,
+      km: vistoria.km,
+      vistoriador: vistoria.motoristaNome
+    });
 
     showToast(
       vistoria.tipo === 'checkin' ? 'Check-in registrado' : 'Check-out finalizado',

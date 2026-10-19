@@ -33,6 +33,7 @@ import {
 import { Usuario } from '../../types';
 import { soundFX } from '../../services/soundFx';
 import { BrasaoParana } from '../common/BrasaoParana';
+import { eventBus } from '../../services/eventBus';
 
 interface FundoRotativoCenseViewProps {
   currentUser: Usuario;
@@ -1002,6 +1003,14 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
     setAbaDetalhe('notas');
     setFeedbackMsg(`Nota Fiscal ${novaNota.numeroNf} registrada no ${censeAtual.nome}.`);
     setTimeout(() => setFeedbackMsg(null), 4000);
+
+    eventBus.emit('cense.nfe_lancada', {
+      chaveAcesso: novaNota.chaveAcesso || '41261000000000000000550010000000001000000000',
+      unidade: censeAtual.nome,
+      valor: novaNota.valor,
+      rubrica: novaNota.rubrica,
+      gestor: censeAtual.diretorSuprido
+    });
   };
 
   const handleHomologarPrestacao = () => {

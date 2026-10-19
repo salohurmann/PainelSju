@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Usuario } from '../../types';
 import confetti from 'canvas-confetti';
 import { soundFX } from '../../services/soundFx';
+import { eventBus } from '../../services/eventBus';
 import { 
   Wrench, 
   Plus, 
@@ -266,6 +267,17 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
   };
 
   const moverStatus = (id: string, novoStatus: 'a_fazer' | 'em_andamento' | 'concluido') => {
+    const chamadoAlvo = chamados.find(c => c.id === id);
+    if (chamadoAlvo && chamadoAlvo.status !== novoStatus) {
+      eventBus.emit('chamado.status_alterado', {
+        chamadoId: chamadoAlvo.codigo,
+        titulo: chamadoAlvo.titulo,
+        statusAnterior: chamadoAlvo.status,
+        novoStatus,
+        responsavel: currentUser.nome
+      });
+    }
+
     setChamados(prev => prev.map(c => {
       if (c.id === id) {
         return {
@@ -338,6 +350,14 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
     setModalNovo(false);
     setTitulo('');
     setDescricao('');
+
+    eventBus.emit('chamado.criado', {
+      chamadoId: novo.codigo,
+      titulo: novo.titulo,
+      prioridade: novo.prioridade,
+      setor: novo.setor,
+      solicitante: novo.solicitante
+    });
 
     confetti({
       particleCount: 30,

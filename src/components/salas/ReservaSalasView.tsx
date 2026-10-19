@@ -29,6 +29,7 @@ import {
 import { Usuario } from '../../types';
 import confetti from 'canvas-confetti';
 import { soundFX } from '../../services/soundFx';
+import { eventBus } from '../../services/eventBus';
 
 export interface Reserva {
   id: string;
@@ -275,6 +276,15 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
     setModalNovo(false);
     setMotivo('');
     soundFX.playSuccess();
+
+    eventBus.emit('sala.reservada', {
+      reservaId: nova.id,
+      salaNome: nova.salaNome,
+      horario: `${nova.horaInicio}:00 - ${nova.horaFim}:00`,
+      data: nova.data,
+      solicitante: nova.responsavel,
+      pauta: nova.motivo
+    });
 
     confetti({
       particleCount: 55,
