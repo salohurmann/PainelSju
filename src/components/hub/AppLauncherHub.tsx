@@ -15,15 +15,23 @@ import {
   CheckCircle2,
   Lock,
   ChevronRight,
-  FileText
+  FileText,
+  Sparkles,
+  Bot
 } from 'lucide-react';
 import { Usuario, Agendamento, Veiculo } from '../../types';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../ui/Card';
+import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { JornadaInterativaModal } from '../experiencia/JornadaInterativaModal';
-
 import { temPermissao, Permissao } from '../../services/rbac';
+import { HeroJustica20 } from './HeroJustica20';
+import { IndicadoresStrip } from './IndicadoresStrip';
+import { AcessoRapidoGrid } from './AcessoRapidoGrid';
+import { SistemasSetorView } from './SistemasSetorView';
+import { CatalogoSistemasModal } from './CatalogoSistemasModal';
+import { PastasArquivosModal } from './PastasArquivosModal';
+import { AssistenteLgpdModal } from './AssistenteLgpdModal';
 
 export type AppModuleId = 'frota' | 'chamados' | 'salas' | 'diarias' | 'cense' | 'ramais';
 
@@ -48,6 +56,8 @@ interface AppLauncherHubProps {
   onOpenApp: (appId: AppModuleId, subTab?: string) => void;
   onOpenAuditoria: () => void;
   onOpenCommandPalette?: () => void;
+  onSwitchUser?: (u: Usuario) => void;
+  usuariosDisponiveis?: Usuario[];
 }
 
 export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
@@ -56,25 +66,18 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
   agendamentos,
   onOpenApp,
   onOpenAuditoria,
-  onOpenCommandPalette
+  onOpenCommandPalette,
+  onSwitchUser,
+  usuariosDisponiveis = []
 }) => {
   const [showJornadaModal, setShowJornadaModal] = useState(false);
+  const [showCatalogoModal, setShowCatalogoModal] = useState(false);
+  const [showPastasModal, setShowPastasModal] = useState(false);
+  const [showAssistenteModal, setShowAssistenteModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const pendentesFrota = agendamentos.filter(a => a.status === 'pendente');
   const disponiveisFrota = veiculos.filter(v => v.status === 'disponivel').length;
-  const primeiroNome = currentUser.nome.split(' ')[0];
-
-  // Saudação de acordo com o horário do dia
-  const hora = new Date().getHours();
-  const saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
-  
-  // Data formatada por extenso
-  const dataExtenso = new Date().toLocaleDateString('pt-BR', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
 
   const todosModulos: ModuloHomeItem[] = [
     {
@@ -160,50 +163,43 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
   const modulos = todosModulos.filter(m => temPermissao(currentUser, m.permissaoMinima));
 
   return (
-    <div className="relative space-y-8 select-none">
+    <div className="relative space-y-7 select-none pb-12">
       {/* Ambient background illumination */}
       <div className="ambient-mesh" />
 
-      {/* 1. SAUDAÇÃO & CABEÇALHO DA HOME */}
-      <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-[var(--border)]">
-        <div>
-          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] capitalize mb-1.5">
-            <span className="font-mono text-[11px]">{dataExtenso}</span>
-            <span>·</span>
-            <span className="font-medium text-[var(--brand)] bg-[var(--brand-soft)] px-2 py-0.5 rounded-full border border-[var(--brand-border)]">
-              {currentUser.setor}
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-[var(--text)] font-heading">
-            {saudacao}, {primeiroNome}
-          </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-1.5 max-w-2xl leading-relaxed">
-            Painel Executivo Unificado da Secretaria da Justiça e Cidadania do Estado do Paraná.
-          </p>
-        </div>
+      {/* 1. HERO BANNER JUSTIÇA 2.0 (O COMEÇO COM ESSE BEM VINDO DO SLIDE 1 E 4) */}
+      <HeroJustica20
+        currentUser={currentUser}
+        onSwitchUser={onSwitchUser}
+        usuariosDisponiveis={usuariosDisponiveis}
+        onOpenCommandPalette={onOpenCommandPalette}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
 
-        <div className="flex items-center gap-2.5">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => onOpenCommandPalette?.()}
-            icon={<Search size={14} className="text-[var(--brand)]" />}
-            className="shadow-2xs hover:shadow-xs transition-shadow"
-          >
-            Busca Rápida <kbd className="ml-1.5 px-1 py-0.2 bg-[var(--surface-2)] text-[10px] font-mono rounded border border-[var(--border)]">Ctrl+K</kbd>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowJornadaModal(true)}
-            className="text-[var(--text-muted)] hover:text-[var(--text)]"
-          >
-            Tour Guiado
-          </Button>
-        </div>
-      </div>
+      {/* 2. FAIXA DE INDICADORES RÁPIDOS (OS 4 CARDS DO SLIDE 1 E 4) */}
+      <IndicadoresStrip
+        setor={currentUser.setor}
+        onOpenSistemas={() => setShowCatalogoModal(true)}
+        onOpenPastas={() => setShowPastasModal(true)}
+        onOpenChamados={() => onOpenApp('chamados')}
+      />
 
-      {/* 2. BLOCO 'PRECISA DA SUA ATENÇÃO' (SEÇÃO PRIORITÁRIA DE TAREFAS) */}
+      {/* 3. ACESSO RÁPIDO (GMS, e-PROTOCOLO, GESTÃO DE FROTA, E-MAIL, DRIVE, PATRIMÔNIO) */}
+      <AcessoRapidoGrid
+        onOpenApp={onOpenApp}
+        onOpenSistemas={() => setShowCatalogoModal(true)}
+        onOpenPastas={() => setShowPastasModal(true)}
+      />
+
+      {/* 4. SISTEMAS DO SEU SETOR (NAS vs UTEC) & AVISOS OFICIAIS */}
+      <SistemasSetorView
+        currentUser={currentUser}
+        onOpenApp={onOpenApp}
+        onOpenSistemas={() => setShowCatalogoModal(true)}
+      />
+
+      {/* 5. BLOCO 'PRECISA DA SUA ATENÇÃO' (SEÇÃO PRIORITÁRIA DE TAREFAS OPERACIONAIS) */}
       <div className="relative z-10 space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 font-heading">
@@ -293,61 +289,16 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
         </div>
       </div>
 
-      {/* 3. AÇÕES RÁPIDAS (4 BOTÕES OBJETIVOS) */}
-      <div className="relative z-10 space-y-3">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] font-heading">
-          Ações Rápidas
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={() => onOpenApp('frota', 'nova-solicitacao')}
-            icon={<Car size={16} className="text-[#0072BB] dark:text-[#38BDF8]" />}
-            className="w-full justify-start text-xs font-semibold h-12 shadow-2xs hover:shadow-xs transition-all hover:-translate-y-0.5 border-[var(--border)] hover:border-[var(--brand)]"
-          >
-            Solicitar Veículo
-          </Button>
-
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={() => onOpenApp('chamados')}
-            icon={<Headphones size={16} className="text-indigo-600 dark:text-indigo-400" />}
-            className="w-full justify-start text-xs font-semibold h-12 shadow-2xs hover:shadow-xs transition-all hover:-translate-y-0.5 border-[var(--border)] hover:border-[var(--brand)]"
-          >
-            Abrir Chamado TI
-          </Button>
-
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={() => onOpenApp('salas')}
-            icon={<CalendarDays size={16} className="text-emerald-600 dark:text-emerald-400" />}
-            className="w-full justify-start text-xs font-semibold h-12 shadow-2xs hover:shadow-xs transition-all hover:-translate-y-0.5 border-[var(--border)] hover:border-[var(--brand)]"
-          >
-            Reservar Sala
-          </Button>
-
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={() => onOpenApp('diarias')}
-            icon={<Briefcase size={16} className="text-amber-600 dark:text-amber-400" />}
-            className="w-full justify-start text-xs font-semibold h-12 shadow-2xs hover:shadow-xs transition-all hover:-translate-y-0.5 border-[var(--border)] hover:border-[var(--brand)]"
-          >
-            Calcular Diária
-          </Button>
-        </div>
-      </div>
-
-      {/* 4. GRID UNIFORME DE MÓDULOS (6 CARDS BENTO EM ALTO PADRÃO) */}
+      {/* 6. MÓDULOS DE GESTÃO INTEGRADA (OS 6 MÓDULOS COMPLETOS NO NOVO BENTO GRID) */}
       <div className="relative z-10 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] font-heading">
-            Módulos de Gestão
-          </h2>
-          <span className="text-xs text-[var(--text-muted)] font-mono">6 módulos integrados</span>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] font-heading">
+              Módulos Integrados de Gestão
+            </h2>
+            <span className="text-[10px] font-mono text-[var(--text-muted)]">· SEJU 2.0</span>
+          </div>
+          <span className="text-xs text-[var(--text-muted)] font-mono">6 módulos operacionais</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -387,7 +338,7 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
         </div>
       </div>
 
-      {/* 5. ATIVIDADES RECENTES & COFRE DE AUDITORIA SHA-256 */}
+      {/* 7. ATIVIDADES RECENTES, ASSISTENTE LGPD & COFRE DE AUDITORIA SHA-256 */}
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-4 pt-2">
         <div className="lg:col-span-2 p-5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-xl)] shadow-gov-card space-y-3.5">
           <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
@@ -434,32 +385,84 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
           </div>
         </div>
 
-        {/* Card do Cofre de Auditoria */}
-        <div
-          onClick={onOpenAuditoria}
-          className="group card-sheen p-5 bg-[var(--surface-2)] border border-[var(--border)] rounded-[var(--radius-xl)] shadow-gov-card hover:border-[var(--brand)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between gap-4"
-        >
-          <div>
-            <div className="flex items-center justify-between mb-3.5">
-              <div className="w-10 h-10 rounded-[var(--radius-lg)] bg-[var(--surface)] border border-[var(--border)] text-[var(--brand)] flex items-center justify-center group-hover:scale-105 transition-transform">
-                <ShieldCheck size={19} />
+        {/* Card Duplo: Assistente Virtual & Cofre de Auditoria */}
+        <div className="space-y-3">
+          {/* Card do Assistente Virtual */}
+          <div
+            onClick={() => setShowAssistenteModal(true)}
+            className="group card-sheen p-4 bg-gradient-to-br from-blue-900/10 to-sky-900/15 dark:from-blue-950/40 dark:to-slate-900 border border-blue-500/30 rounded-[var(--radius-xl)] shadow-gov-card hover:border-[var(--brand)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between gap-3"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] border border-[var(--brand-border)] text-[var(--brand)] flex items-center justify-center">
+                <Bot size={17} />
+              </div>
+              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                LGPD Protegido
+              </span>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-bold text-[var(--text)] font-heading">
+                Assistente Virtual · Justiça 2.0
+              </h3>
+              <p className="text-[11px] text-[var(--text-muted)] mt-0.5 leading-snug">
+                Dúvidas sobre sistemas, pastas e rotinas do setor {currentUser.setor}.
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-[var(--border)] flex items-center justify-between text-xs font-semibold text-[var(--brand)]">
+              <span>Fazer uma pergunta</span>
+              <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
+            </div>
+          </div>
+
+          {/* Card do Cofre de Auditoria */}
+          <div
+            onClick={onOpenAuditoria}
+            className="group card-sheen p-4 bg-[var(--surface-2)] border border-[var(--border)] rounded-[var(--radius-xl)] shadow-gov-card hover:border-[var(--brand)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between gap-3"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-8 h-8 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-[var(--brand)] flex items-center justify-center group-hover:scale-105 transition-transform">
+                <ShieldCheck size={17} />
               </div>
               <Badge variant="success" dot>ICP-PR 2026</Badge>
             </div>
-            <h3 className="text-sm font-bold text-[var(--text)] font-heading">Trilha de Auditoria SHA-256</h3>
-            <p className="text-xs text-[var(--text-muted)] mt-1.5 leading-relaxed">
-              Registros imutáveis com carimbo de tempo, blindagem LGPD e encadeamento criptográfico seguro.
-            </p>
-          </div>
 
-          <div className="pt-2.5 border-t border-[var(--border)] flex items-center justify-between text-xs font-semibold text-[var(--brand)]">
-            <span>Consultar registros</span>
-            <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
+            <div>
+              <h3 className="text-xs font-bold text-[var(--text)] font-heading">Trilha de Auditoria SHA-256</h3>
+              <p className="text-[11px] text-[var(--text-muted)] mt-0.5 leading-snug">
+                Registros imutáveis, blindagem LGPD e zero-hash visível.
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-[var(--border)] flex items-center justify-between text-xs font-semibold text-[var(--brand)]">
+              <span>Consultar cofre</span>
+              <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Modal do Tour Interativo */}
+      {/* Modais Integrados da Experiência Justiça 2.0 */}
+      <CatalogoSistemasModal
+        isOpen={showCatalogoModal}
+        onClose={() => setShowCatalogoModal(false)}
+        onOpenApp={onOpenApp}
+        setor={currentUser.setor}
+      />
+
+      <PastasArquivosModal
+        isOpen={showPastasModal}
+        onClose={() => setShowPastasModal(false)}
+        currentUser={currentUser}
+      />
+
+      <AssistenteLgpdModal
+        isOpen={showAssistenteModal}
+        onClose={() => setShowAssistenteModal(false)}
+        currentUser={currentUser}
+      />
+
       <JornadaInterativaModal 
         isOpen={showJornadaModal} 
         onClose={() => setShowJornadaModal(false)}

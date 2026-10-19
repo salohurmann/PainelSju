@@ -109,7 +109,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             onClick={() => onNavigateApp('hub')}
             className="text-[var(--text-muted)] hover:text-[var(--brand)] font-medium transition-colors cursor-pointer hidden sm:inline"
           >
-            SEJU
+            Justiça 2.0
           </button>
           <ChevronRight size={13} className="text-[var(--border-strong)] hidden sm:inline" />
           <span className="font-bold text-[var(--text)] truncate font-heading">

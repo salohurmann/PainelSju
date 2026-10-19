@@ -126,11 +126,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
             {!collapsed && (
               <div className="flex flex-col min-w-0">
-                <span className="text-xs font-bold tracking-tight text-[var(--text)] uppercase truncate leading-none">
-                  SEJU · PARANÁ
+                <span className="text-xs font-bold tracking-tight text-[var(--text)] uppercase truncate leading-none font-heading">
+                  Justiça 2.0
                 </span>
                 <span className="text-[10px] text-[var(--text-muted)] truncate leading-tight mt-0.5">
-                  Gestão Integrada
+                  Portal de Sistemas · SEJU-PR
                 </span>
               </div>
             )}

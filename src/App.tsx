@@ -8,7 +8,8 @@ import {
 } from './types';
 import { 
   loadInitialState, 
-  saveStateToStorage 
+  saveStateToStorage,
+  USUARIOS_MOCK
 } from './services/store';
 import { 
   notifyManagerNewRequest, 
@@ -420,6 +421,8 @@ export function App() {
               onOpenApp={handleOpenApp}
               onOpenAuditoria={() => setActiveApp('auditoria')}
               onOpenCommandPalette={() => setCommandPaletteOpen(true)}
+              onSwitchUser={handleSwitchUser}
+              usuariosDisponiveis={USUARIOS_MOCK}
             />
           )}
 

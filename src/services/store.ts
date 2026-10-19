@@ -4,6 +4,26 @@ const STORAGE_KEY = 'portal_seju_gestao_v1';
 
 export const USUARIOS_MOCK: Usuario[] = [
   {
+    id: 'u-lucia',
+    nome: 'Lúcia Andrade Viana',
+    username: 'lucia.viana',
+    role: 'servidor',
+    email: 'lucia.viana@seju.pr.gov.br',
+    cpf: '341.892.519-72',
+    setor: 'NAS',
+    cargo: 'Técnica Administrativa · Núcleo Administrativo Setorial'
+  },
+  {
+    id: 'u-otavio',
+    nome: 'Otávio Lins Carvalho',
+    username: 'otavio.carvalho',
+    role: 'servidor',
+    email: 'otavio.carvalho@seju.pr.gov.br',
+    cpf: '582.109.348-15',
+    setor: 'UTEC',
+    cargo: 'Analista de Sistemas · Unidade Técnica de TI'
+  },
+  {
     id: 'u-servidor',
     nome: 'Carlos Silveira',
     username: 'carlos.silveira',
