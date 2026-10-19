@@ -574,11 +574,21 @@ export function App() {
         {/* Rodapé Institucional Silencioso */}
         <footer className="mt-auto border-t border-[var(--border)] bg-[var(--surface)] py-4 px-6 text-xs text-[var(--text-muted)]">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-center sm:text-left">
-              <MapPin size={13} className="text-[var(--brand)] shrink-0 hidden sm:inline" />
-              <span>
-                SEJU · Rua Tenente Francisco Ferreira de Souza, 766 · Hauer · Curitiba/PR · CEP 81630-010 · (41) 3210-2400
-              </span>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 text-center sm:text-left">
+              <div className="flex items-center gap-2">
+                <MapPin size={13} className="text-[var(--brand)] shrink-0 hidden sm:inline" />
+                <span>
+                  SEJU · Rua Tenente Francisco Ferreira de Souza, 766 · Hauer · Curitiba/PR · CEP 81630-010 · (41) 3210-2400
+                </span>
+              </div>
+              <span className="hidden sm:inline text-[var(--border-strong)]">·</span>
+              <a
+                href="mailto:dpo@seju.pr.gov.br"
+                className="text-[11px] text-[var(--text-muted)] hover:text-[var(--brand)] transition-colors underline-offset-2 hover:underline"
+                title="Canal do Encarregado de Proteção de Dados (LGPD)"
+              >
+                Privacidade & DPO (dpo@seju.pr.gov.br)
+              </a>
             </div>
             <div className="flex items-center gap-3 text-[11px] font-mono">
               <span className="flex items-center gap-1 text-[var(--success)]">

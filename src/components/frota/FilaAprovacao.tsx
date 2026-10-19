@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Agendamento, Usuario } from '../../types';
 import { generateAuditHash, formatShortHash } from '../../services/crypto';
+import { podeAprovarSolicitacao } from '../../services/rbac';
 import { PlacaMercosul } from '../ui/PlacaMercosul';
+import { MascaraCpfLgpd } from '../ui/MascaraCpfLgpd';
 import { PasseViagemOficial } from './PasseViagemOficial';
 import { soundFX } from '../../services/soundFx';
 import confetti from 'canvas-confetti';
@@ -314,8 +316,14 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({
                             Despacho Gabinete
                           </span>
                         </div>
-                        <div className="text-[11px] text-slate-500 mt-0.5 font-mono">
-                          CPF: {ag.cpf} · Contato: {ag.telefone}
+                        <div className="text-[11px] text-slate-500 mt-0.5 font-mono flex items-center gap-1.5">
+                          <span>CPF:</span>
+                          <MascaraCpfLgpd
+                            cpf={ag.cpf}
+                            servidorConsultorNome={currentUser.nome}
+                            contexto="Fila de Aprovação de Frota"
+                          />
+                          <span>· Contato: {ag.telefone}</span>
                         </div>
                       </div>
                     </div>
@@ -407,8 +415,14 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({
                           <span className="font-bold block sm:inline">
                             Chancela Digital ICP-PR Homologada:{' '}
                           </span>
-                          <span className="text-emerald-800">
-                            Despacho assinado por <strong>{ag.aprovadorNome}</strong> ({ag.aprovadorCpf})
+                          <span className="text-emerald-800 inline-flex items-center gap-1.5 flex-wrap">
+                            Despacho assinado por <strong>{ag.aprovadorNome}</strong> (
+                            <MascaraCpfLgpd
+                              cpf={ag.aprovadorCpf || ''}
+                              servidorConsultorNome={currentUser.nome}
+                              contexto="Chancela de Aprovador ICP-PR"
+                            />
+                            )
                           </span>
                         </div>
                       </div>
@@ -419,37 +433,58 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({
                   )}
 
                   {isPendente && (
-                    <div className="pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-100">
-                      {/* Selo de Assinatura Digital ICP-PR */}
-                      <div className="flex items-center gap-2 text-[11px] text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200/80">
-                        <Fingerprint size={15} className="text-[#005A9C] shrink-0" />
-                        <span>
-                          Selo Digital <strong>ICP-PR · A3</strong> pronto para chancela de{' '}
-                          <strong className="text-slate-900">{currentUser.nome}</strong>
-                        </span>
-                      </div>
+                    <div className="pt-2 flex flex-col gap-3 border-t border-slate-100">
+                      {/* Alerta de Segregação de Funções caso o usuário tente aprovar a si mesmo */}
+                      {!podeAprovarSolicitacao(currentUser, ag.cpf, 'frotas').permitido && (
+                        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs">
+                          <ShieldCheck size={16} className="text-amber-600 shrink-0" />
+                          <span>{podeAprovarSolicitacao(currentUser, ag.cpf, 'frotas').motivo}</span>
+                        </div>
+                      )}
 
-                      <div className="flex flex-col sm:flex-row items-center gap-2.5">
-                        <button
-                          type="button"
-                          onClick={() => setModalReprovarId(ag.id)}
-                          disabled={isProcessando}
-                          className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200/90 bg-white hover:bg-red-50 hover:text-red-700 hover:border-red-200 text-slate-600 text-xs font-bold transition cursor-pointer"
-                        >
-                          Indeferir Pedido
-                        </button>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        {/* Selo de Assinatura Digital ICP-PR */}
+                        <div className="flex items-center gap-2 text-[11px] text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200/80">
+                          <Fingerprint size={15} className="text-[#005A9C] shrink-0" />
+                          <span>
+                            Selo Digital <strong>ICP-PR · A3</strong> pronto para chancela de{' '}
+                            <strong className="text-slate-900">{currentUser.nome}</strong>
+                          </span>
+                        </div>
 
-                        <button
-                          type="button"
-                          onClick={() => handleAprovar1Clique(ag)}
-                          disabled={isProcessando}
-                          className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-linear-to-r from-[#0A192F] via-[#004B87] to-[#005A9C] hover:brightness-110 text-white font-bold text-xs shadow-sm ring-1 ring-amber-400/40 transition flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <Fingerprint size={15} className="text-amber-300" />
-                          {isProcessando
-                            ? 'Chancelando ICP-PR...'
-                            : 'Assinar ICP-PR · Aprovar em 1 Clique'}
-                        </button>
+                        <div className="flex flex-col sm:flex-row items-center gap-2.5">
+                          <button
+                            type="button"
+                            onClick={() => setModalReprovarId(ag.id)}
+                            disabled={isProcessando || !podeAprovarSolicitacao(currentUser, ag.cpf, 'frotas').permitido}
+                            className={`w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200/90 text-xs font-bold transition ${
+                              !podeAprovarSolicitacao(currentUser, ag.cpf, 'frotas').permitido
+                                ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400'
+                                : 'bg-white hover:bg-red-50 hover:text-red-700 hover:border-red-200 text-slate-600 cursor-pointer'
+                            }`}
+                          >
+                            Indeferir Pedido
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleAprovar1Clique(ag)}
+                            disabled={isProcessando || !podeAprovarSolicitacao(currentUser, ag.cpf, 'frotas').permitido}
+                            title={podeAprovarSolicitacao(currentUser, ag.cpf, 'frotas').motivo}
+                            className={`w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold text-xs shadow-sm transition flex items-center justify-center gap-2 ${
+                              !podeAprovarSolicitacao(currentUser, ag.cpf, 'frotas').permitido
+                                ? 'opacity-40 cursor-not-allowed bg-slate-300 text-slate-500'
+                                : 'bg-linear-to-r from-[#0A192F] via-[#004B87] to-[#005A9C] hover:brightness-110 text-white ring-1 ring-amber-400/40 cursor-pointer'
+                            }`}
+                          >
+                            <Fingerprint size={15} className={!podeAprovarSolicitacao(currentUser, ag.cpf, 'frotas').permitido ? 'text-slate-400' : 'text-amber-300'} />
+                            {isProcessando
+                              ? 'Chancelando ICP-PR...'
+                              : !podeAprovarSolicitacao(currentUser, ag.cpf, 'frotas').permitido
+                              ? 'Aprovação Bloqueada'
+                              : 'Assinar ICP-PR · Aprovar em 1 Clique'}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}

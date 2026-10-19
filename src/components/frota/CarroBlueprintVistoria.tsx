@@ -34,6 +34,18 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
   const handleFileChange = (posicao: keyof VistoriaFotos, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validação Estrita de Segurança (Tipos MIME permitidos e limite de 5MB)
+      const tiposPermitidos = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!tiposPermitidos.includes(file.type)) {
+        alert('Formato não suportado. Por favor, envie uma foto válida nos formatos JPG, PNG ou WebP.');
+        return;
+      }
+      const limiteBytes = 5 * 1024 * 1024; // 5 MB
+      if (file.size > limiteBytes) {
+        alert('A foto selecionada excede o limite de segurança de 5 MB.');
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         dispararScanner(posicao, reader.result as string);

@@ -3,6 +3,7 @@ import { Agendamento, Usuario } from '../../types';
 import { formatShortHash } from '../../services/crypto';
 import { PasseViagemOficial } from './PasseViagemOficial';
 import { PlacaMercosul } from '../ui/PlacaMercosul';
+import { MascaraCpfLgpd } from '../ui/MascaraCpfLgpd';
 import { soundFX } from '../../services/soundFx';
 import {
   Search,
@@ -222,8 +223,13 @@ export const ConsultaCpf: React.FC<ConsultaCpfProps> = ({ agendamentos, currentU
                           {ag.ticket}
                         </span>
                       </div>
-                      <div className="text-[11px] text-slate-400 mt-0.5 font-mono">
-                        Protocolado em {new Date(ag.criadoEm).toLocaleDateString('pt-BR')} · CPF {ag.cpf}
+                      <div className="text-[11px] text-slate-400 mt-0.5 font-mono flex items-center gap-1.5 flex-wrap">
+                        <span>Protocolado em {new Date(ag.criadoEm).toLocaleDateString('pt-BR')} · CPF:</span>
+                        <MascaraCpfLgpd
+                          cpf={ag.cpf}
+                          servidorConsultorNome={currentUser?.nome}
+                          contexto="Consulta de Protocolos por CPF"
+                        />
                       </div>
                     </div>
 
