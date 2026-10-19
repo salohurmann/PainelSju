@@ -1,29 +1,29 @@
 import React, { useState } from 'react';
 import { 
   Car, 
-  Wrench, 
-  Calendar, 
-  Plane, 
+  Headphones, 
+  CalendarDays, 
+  Briefcase, 
+  Coins, 
   PhoneCall, 
   ShieldCheck, 
-  ArrowUpRight, 
+  ArrowRight, 
   Clock, 
   Search,
-  Sparkles,
   PlusCircle,
-  CheckSquare,
-  MapPin,
+  AlertTriangle,
+  CheckCircle2,
   Lock,
-  ClipboardCheck,
-  Building2
+  ChevronRight,
+  FileText
 } from 'lucide-react';
 import { Usuario, Agendamento, Veiculo } from '../../types';
-import { PlacaMercosul } from '../ui/PlacaMercosul';
-import { soundFX } from '../../services/soundFx';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../ui/Card';
+import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
 import { JornadaInterativaModal } from '../experiencia/JornadaInterativaModal';
 
 export type AppModuleId = 'frota' | 'chamados' | 'salas' | 'diarias' | 'cense' | 'ramais';
-type CategoriaDesign = 'todos' | 'mobilidade' | 'espacos' | 'gestao';
 
 interface AppLauncherHubProps {
   currentUser: Usuario;
@@ -43,469 +43,369 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
   onOpenCommandPalette
 }) => {
   const [showJornadaModal, setShowJornadaModal] = useState(false);
-  const [categoria, setCategoria] = useState<CategoriaDesign>('todos');
 
-  const pendentesFrota = agendamentos.filter(a => a.status === 'pendente').length;
+  const pendentesFrota = agendamentos.filter(a => a.status === 'pendente');
   const disponiveisFrota = veiculos.filter(v => v.status === 'disponivel').length;
   const primeiroNome = currentUser.nome.split(' ')[0];
 
+  // Saudação de acordo com o horário do dia
+  const hora = new Date().getHours();
+  const saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
+  
+  // Data formatada por extenso
+  const dataExtenso = new Date().toLocaleDateString('pt-BR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  const modulos = [
+    {
+      id: 'frota' as AppModuleId,
+      titulo: 'Gestão de Frotas & Viaturas',
+      descricao: 'Requisição de saída de veículos oficiais, despacho pela Chefia e laudos periciais.',
+      icon: Car,
+      badge: `${disponiveisFrota} disponíveis`,
+      badgeVariant: 'brand' as const,
+      metrica: `${veiculos.length} veículos na frota`
+    },
+    {
+      id: 'chamados' as AppModuleId,
+      titulo: 'Chamados & Suporte TI',
+      descricao: 'Quadro Kanban para requisições de informática, infraestrutura e conectividade.',
+      icon: Headphones,
+      badge: 'SLA 98.4%',
+      badgeVariant: 'success' as const,
+      metrica: 'Tempo médio: 42 min'
+    },
+    {
+      id: 'salas' as AppModuleId,
+      titulo: 'Reserva de Salas & Espaços',
+      descricao: 'Agendamento corporativo com prevenção de conflitos e suporte a videoconferência.',
+      icon: CalendarDays,
+      badge: '4 salas livres',
+      badgeVariant: 'neutral' as const,
+      metrica: 'Auditório e 6 salas'
+    },
+    {
+      id: 'diarias' as AppModuleId,
+      titulo: 'Diárias & Deslocamentos',
+      descricao: 'Calculadora oficial conforme Decreto Estadual nº 1.428/PR e demonstrativo financeiro.',
+      icon: Briefcase,
+      badge: 'Decreto 1.428/PR',
+      badgeVariant: 'neutral' as const,
+      metrica: 'Tabela de diárias 2026'
+    },
+    {
+      id: 'cense' as AppModuleId,
+      titulo: 'Fundo Rotativo CENSE',
+      descricao: 'Prestação de contas das 19 unidades, leitor de DANFE NF-e e conformidade fiscal TCE-PR.',
+      icon: Coins,
+      badge: '19 unidades',
+      badgeVariant: 'brand' as const,
+      metrica: 'Rubricas 33.90.30/39'
+    },
+    {
+      id: 'ramais' as AppModuleId,
+      titulo: 'Telefonia & Guia de Ramais',
+      descricao: 'Diretório telefônico da sede no Hauer e regionais com discagem VoIP e organograma.',
+      icon: PhoneCall,
+      badge: 'VoIP Ativo',
+      badgeVariant: 'success' as const,
+      metrica: '142 servidores conectados'
+    }
+  ];
+
   return (
-    <div className="space-y-6 sm:space-y-8 max-w-6xl mx-auto pb-12 font-sans">
+    <div className="space-y-8 select-none">
       
-      {/* 1. HERO MINIMALISTA DE ALTO IMPACTO VISUAL */}
-      <div className="relative overflow-hidden rounded-3xl bg-white border border-slate-200/80 shadow-gov-card p-6 sm:p-8">
-        <div className="absolute -right-20 -top-20 w-72 h-72 rounded-full bg-blue-500/5 blur-3xl pointer-events-none" />
-        <div className="absolute right-20 -bottom-24 w-64 h-64 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2.5 max-w-xl">
-            <div className="inline-flex items-center gap-2 text-[11px] font-semibold text-slate-500">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span>{currentUser.setor} · {currentUser.cargo}</span>
-            </div>
-
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
-              Olá, {primeiroNome}
-            </h1>
-
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
-              Tudo pronto para sua rotina na Secretaria da Justiça e Cidadania.
-            </p>
-
-            <div className="pt-2 flex flex-wrap items-center gap-2.5">
-              <button
-                type="button"
-                onClick={() => {
-                  soundFX.playClick();
-                  setShowJornadaModal(true);
-                }}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs shadow-2xs transition-all cursor-pointer active:scale-95"
-              >
-                <Sparkles size={14} className="text-blue-400" />
-                <span>Experiência 360°</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => onOpenCommandPalette?.()}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100/90 hover:bg-slate-200/70 text-slate-700 font-semibold text-xs transition-all cursor-pointer active:scale-95"
-              >
-                <Search size={14} className="text-slate-400" />
-                <span>Busca Rápida</span>
-                <kbd className="hidden sm:inline text-[10px] font-mono text-slate-400 bg-white px-1.5 py-0.2 rounded border border-slate-200">
-                  ⌘K
-                </kbd>
-              </button>
-            </div>
+      {/* 1. SAUDAÇÃO & CABEÇALHO DA HOME */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-[var(--border)]">
+        <div>
+          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] capitalize mb-1">
+            <span>{dataExtenso}</span>
+            <span>·</span>
+            <span className="font-medium text-[var(--text)]">{currentUser.setor}</span>
           </div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text)]">
+            {saudacao}, {primeiroNome}
+          </h1>
+          <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-1">
+            Portal Unificado de Operações e Governança da Secretaria da Justiça e Cidadania do Paraná.
+          </p>
+        </div>
 
-          {/* Métricas Esculpidas em Vidro */}
-          <div className="grid grid-cols-3 gap-2.5 sm:gap-3 lg:w-96 shrink-0">
-            <div 
-              onClick={() => onOpenApp('frota', 'frota')}
-              className="p-3.5 sm:p-4 rounded-2xl bg-slate-50/90 hover:bg-slate-100/80 border border-slate-200/70 transition cursor-pointer text-center"
-            >
-              <div className="text-xl sm:text-2xl font-extrabold text-slate-900">{disponiveisFrota}</div>
-              <div className="text-[10px] font-semibold text-slate-500 mt-0.5">Frota Livre</div>
-            </div>
-
-            <div 
-              onClick={() => onOpenApp('frota', 'aprovacoes')}
-              className="p-3.5 sm:p-4 rounded-2xl bg-slate-50/90 hover:bg-slate-100/80 border border-slate-200/70 transition cursor-pointer text-center"
-            >
-              <div className="text-xl sm:text-2xl font-extrabold text-amber-600">{pendentesFrota}</div>
-              <div className="text-[10px] font-semibold text-slate-500 mt-0.5">Despachos</div>
-            </div>
-
-            <div 
-              onClick={() => onOpenApp('chamados')}
-              className="p-3.5 sm:p-4 rounded-2xl bg-slate-50/90 hover:bg-slate-100/80 border border-slate-200/70 transition cursor-pointer text-center"
-            >
-              <div className="text-xl sm:text-2xl font-extrabold text-emerald-600">98%</div>
-              <div className="text-[10px] font-semibold text-slate-500 mt-0.5">SLA Ativo</div>
-            </div>
-          </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => onOpenCommandPalette?.()}
+            icon={<Search size={14} />}
+          >
+            Busca Rápida (Ctrl+K)
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowJornadaModal(true)}
+          >
+            Tour da Plataforma
+          </Button>
         </div>
       </div>
 
-      {/* 2. FILTRO SEGMENTADO ULTRA-CLEAN + BENTO GRID VISUAL */}
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
-          <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-            Ambientes Digitais
+      {/* 2. BLOCO 'PRECISA DA SUA ATENÇÃO' (SEÇÃO PRIORITÁRIA DE TAREFAS) */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[var(--warning)]" />
+            Precisa da sua atenção
           </h2>
-
-          <div className="inline-flex items-center gap-1 bg-slate-200/60 p-1 rounded-xl self-start sm:self-auto">
-            {[
-              { id: 'todos', label: 'Todos' },
-              { id: 'mobilidade', label: 'Mobilidade' },
-              { id: 'espacos', label: 'TI & Salas' },
-              { id: 'gestao', label: 'Diárias & Ramais' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => {
-                  soundFX.playClick();
-                  setCategoria(tab.id as CategoriaDesign);
-                }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  categoria === tab.id
-                    ? 'bg-white text-slate-900 shadow-2xs'
-                    : 'text-slate-500 hover:text-slate-900'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <span className="text-xs text-[var(--text-muted)]">3 itens pendentes</span>
         </div>
 
-        {/* BENTO GRID SOFISTICADO */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-          
-          {/* CARD 1: FROTA & MOBILIDADE (DESTAQUE 12 COLUNAS) */}
-          {(categoria === 'todos' || categoria === 'mobilidade') && (
-            <div 
-              onClick={() => onOpenApp('frota')}
-              className="md:col-span-12 group bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-7 shadow-gov-card hover:shadow-gov-card-hover hover:border-slate-300 design-card-lift cursor-pointer"
-            >
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                <div className="space-y-4 max-w-xl">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-[#0072BB] text-white flex items-center justify-center shadow-sm shrink-0">
-                      <Car size={22} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2.5">
-                        <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-                          Frota & Veículos Oficiais
-                        </h3>
-                        <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full">
-                          {disponiveisFrota} livres
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        Requisição digital, aprovação de gabinete e vistoria fotográfica em 4 ângulos.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Ações Rápidas Esculpidas */}
-                  <div className="flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpenApp('frota', 'nova-solicitacao');
-                      }}
-                      className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer active:scale-95"
-                    >
-                      <PlusCircle size={14} /> Solicitar Carro
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpenApp('frota', 'aprovacoes');
-                      }}
-                      className="bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-semibold px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer active:scale-95"
-                    >
-                      <CheckSquare size={14} className="text-amber-600" /> Aprovações ({pendentesFrota})
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpenApp('frota', 'checkin-checkout');
-                      }}
-                      className="bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-semibold px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer active:scale-95"
-                    >
-                      <ClipboardCheck size={14} className="text-emerald-600" /> Vistoria 4 Fotos
-                    </button>
-                  </div>
-                </div>
-
-                {/* Vitrine Minimalista dos Carros no Pátio */}
-                <div className="hidden sm:grid grid-cols-2 gap-3 shrink-0">
-                  {veiculos.slice(0, 2).map((v) => (
-                    <div key={v.id} className="bg-slate-50/90 p-3.5 rounded-2xl border border-slate-200/70 min-w-44">
-                      <PlacaMercosul placa={v.placa} className="scale-75 origin-left -mb-1" />
-                      <div className="text-xs font-bold text-slate-900 truncate mt-1.5">
-                        {v.modelo.split(' ').slice(0, 2).join(' ')}
-                      </div>
-                      <div className="flex items-center justify-between text-[10px] text-slate-400 mt-1">
-                        <span>{v.nivelCombustivel}% tanque</span>
-                        <span className="text-emerald-600 font-semibold">● Livre</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {/* Card 1: Despacho de Viagens */}
+          <div
+            onClick={() => onOpenApp('frota', 'aprovacoes')}
+            className="p-3.5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] hover:border-[var(--brand)] hover:shadow-xs transition-all cursor-pointer flex flex-col justify-between gap-3"
+          >
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <Badge variant="warning" dot>Chefia de Gabinete</Badge>
+                <span className="text-[10px] text-[var(--text-muted)] font-mono">Urgente</span>
               </div>
+              <h3 className="text-sm font-semibold text-[var(--text)] pt-1">
+                {pendentesFrota.length > 0
+                  ? `${pendentesFrota.length} viagem${pendentesFrota.length > 1 ? 'ns' : ''} aguardando despacho`
+                  : 'Nenhuma viagem pendente'}
+              </h3>
+              <p className="text-xs text-[var(--text-muted)] line-clamp-1">
+                {pendentesFrota.length > 0
+                  ? `Destino: ${pendentesFrota[0].destino}`
+                  : 'Todas as requisições foram deliberadas'}
+              </p>
             </div>
-          )}
-
-          {/* CARD 2: CHAMADOS & SUPORTE TI (6 COLUNAS) */}
-          {(categoria === 'todos' || categoria === 'espacos') && (
-            <div 
-              onClick={() => onOpenApp('chamados')}
-              className="md:col-span-6 group bg-white rounded-3xl border border-slate-200/80 p-6 shadow-gov-card hover:shadow-gov-card-hover hover:border-slate-300 design-card-lift cursor-pointer flex flex-col justify-between gap-6"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                    <Wrench size={20} />
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-slate-50 text-slate-400 group-hover:bg-slate-900 group-hover:text-white flex items-center justify-center transition-colors">
-                    <ArrowUpRight size={15} />
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                    Chamados & Suporte TI
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    Quadro Kanban em tempo real para suporte técnico, redes e manutenção predial.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-500">
-                <span>Fila inteligente com SLA</span>
-                <span className="text-indigo-600 font-bold">Tempo médio: 38m</span>
-              </div>
+            <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-medium text-[var(--brand)]">
+              <span>Despachar agora</span>
+              <ChevronRight size={14} />
             </div>
-          )}
+          </div>
 
-          {/* CARD 3: RESERVA DE SALAS (6 COLUNAS) */}
-          {(categoria === 'todos' || categoria === 'espacos') && (
-            <div 
-              onClick={() => onOpenApp('salas')}
-              className="md:col-span-6 group bg-white rounded-3xl border border-slate-200/80 p-6 shadow-gov-card hover:shadow-gov-card-hover hover:border-slate-300 design-card-lift cursor-pointer flex flex-col justify-between gap-6"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                    <Calendar size={20} />
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-slate-50 text-slate-400 group-hover:bg-slate-900 group-hover:text-white flex items-center justify-center transition-colors">
-                    <ArrowUpRight size={15} />
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                    Salas & Auditórios
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    Planta interativa de ocupação com bloqueio automático de conflitos de horário.
-                  </p>
-                </div>
+          {/* Card 2: Chamado Crítico */}
+          <div
+            onClick={() => onOpenApp('chamados')}
+            className="p-3.5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] hover:border-[var(--brand)] hover:shadow-xs transition-all cursor-pointer flex flex-col justify-between gap-3"
+          >
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <Badge variant="danger" dot>TI · SLA &lt; 1h</Badge>
+                <span className="text-[10px] text-[var(--text-muted)] font-mono">#TI-2026-084</span>
               </div>
-
-              <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-500">
-                <span>5 espaços corporativos</span>
-                <span className="text-emerald-600 font-bold">Grade 08h–18h</span>
-              </div>
+              <h3 className="text-sm font-semibold text-[var(--text)] pt-1">
+                Link de Internet CENSE São José
+              </h3>
+              <p className="text-xs text-[var(--text-muted)] line-clamp-1">
+                Lentidão no tráfego de dados para emissão de certidões
+              </p>
             </div>
-          )}
-
-          {/* CARD 4: CALCULADORA DE DIÁRIAS (6 COLUNAS) */}
-          {(categoria === 'todos' || categoria === 'gestao') && (
-            <div 
-              onClick={() => onOpenApp('diarias')}
-              className="md:col-span-6 group bg-white rounded-3xl border border-slate-200/80 p-6 shadow-gov-card hover:shadow-gov-card-hover hover:border-slate-300 design-card-lift cursor-pointer flex flex-col justify-between gap-6"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                    <Plane size={20} />
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-slate-50 text-slate-400 group-hover:bg-slate-900 group-hover:text-white flex items-center justify-center transition-colors">
-                    <ArrowUpRight size={15} />
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                    Calculadora de Diárias
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    Mapa interativo das regionais do Paraná e emissão automática de nota de empenho.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-500">
-                <span>Decreto Estadual 1.428/PR</span>
-                <span className="text-amber-700 font-bold">Anexo I Oficial</span>
-              </div>
+            <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-medium text-[var(--brand)]">
+              <span>Ver atendimento</span>
+              <ChevronRight size={14} />
             </div>
-          )}
+          </div>
 
-          {/* CARD 5: GUIA DE RAMAIS (6 COLUNAS) */}
-          {(categoria === 'todos' || categoria === 'gestao') && (
-            <div 
-              onClick={() => onOpenApp('ramais')}
-              className="md:col-span-6 group bg-white rounded-3xl border border-slate-200/80 p-6 shadow-gov-card hover:shadow-gov-card-hover hover:border-slate-300 design-card-lift cursor-pointer flex flex-col justify-between gap-6"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="w-11 h-11 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center group-hover:bg-sky-600 group-hover:text-white transition-colors">
-                    <PhoneCall size={20} />
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-slate-50 text-slate-400 group-hover:bg-slate-900 group-hover:text-white flex items-center justify-center transition-colors">
-                    <ArrowUpRight size={15} />
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                    Guia de Ramais & Unidades
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    Catálogo instantâneo de servidores, gabinetes e coordenações com status ao vivo.
-                  </p>
-                </div>
+          {/* Card 3: Pauta da Reunião de Hoje */}
+          <div
+            onClick={() => onOpenApp('salas')}
+            className="p-3.5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] hover:border-[var(--brand)] hover:shadow-xs transition-all cursor-pointer flex flex-col justify-between gap-3"
+          >
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <Badge variant="brand" dot>Hoje às 14:30</Badge>
+                <span className="text-[10px] text-[var(--text-muted)]">Sala de Atos</span>
               </div>
-
-              <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-500">
-                <span>Diretório & Organograma</span>
-                <span className="text-sky-600 font-bold">Discagem 1 clique</span>
-              </div>
+              <h3 className="text-sm font-semibold text-[var(--text)] pt-1">
+                Alinhamento Diretoria Geral
+              </h3>
+              <p className="text-xs text-[var(--text-muted)] line-clamp-1">
+                Pauta orçamentária do 4º trimestre e novos termos de cooperação
+              </p>
             </div>
-          )}
-
-          {/* CARD 6: GESTÃO FISCAL DE FUNDO ROTATIVO DOS CENSES (12 COLUNAS) */}
-          {(categoria === 'todos' || categoria === 'gestao') && (
-            <div 
-              onClick={() => onOpenApp('cense')}
-              className="md:col-span-12 group bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-7 shadow-gov-card hover:shadow-gov-card-hover hover:border-slate-300 design-card-lift cursor-pointer flex flex-col lg:flex-row lg:items-center justify-between gap-5"
-            >
-              <div className="flex items-start sm:items-center gap-4 max-w-2xl">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-sm shrink-0">
-                  <Building2 size={22} />
-                </div>
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                      Fundo Rotativo · 19 Unidades CENSE
-                    </h3>
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/70">
-                      Scanner NF-e · TCE-PR
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    Gestão fiscal das 19 unidades socioeducativas do Paraná, leitor inteligente de DANFE/Chave 44 dígitos, análise 33.90.30 vs 33.90.39 e exportação Excel/TCE-PR.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 self-start lg:self-auto shrink-0">
-                <div className="px-3.5 py-2 rounded-2xl bg-slate-50 border border-slate-200/70 text-right hidden sm:block">
-                  <div className="text-[10px] font-semibold text-slate-400">Rede Socioeducativa</div>
-                  <div className="text-xs font-extrabold text-slate-900">19 CENSEs Ativos</div>
-                </div>
-                <span className="px-4 py-2.5 rounded-xl bg-slate-900 group-hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-1.5 transition">
-                  <span>Abrir Gestão Fiscal</span>
-                  <ArrowUpRight size={14} />
-                </span>
-              </div>
+            <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-medium text-[var(--brand)]">
+              <span>Acessar agenda</span>
+              <ChevronRight size={14} />
             </div>
-          )}
-
+          </div>
         </div>
       </div>
 
-      {/* 3. AGENDA DO DIA + AUDITORIA CRIPTOGRÁFICA EM LINHA ELEGANTE */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div className="lg:col-span-8 bg-white rounded-3xl p-6 border border-slate-200/80 shadow-gov-card space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <h3 className="text-sm font-bold text-slate-900">Agenda de Hoje</h3>
-            </div>
-            <span className="text-[11px] text-slate-400 font-medium">
-              {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'short' })}
-            </span>
+      {/* 3. AÇÕES RÁPIDAS (4 BOTÕES OBJETIVOS) */}
+      <div className="space-y-3">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          Ações Rápidas
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={() => onOpenApp('frota', 'nova-solicitacao')}
+            icon={<Car size={15} />}
+            className="w-full justify-start text-xs font-medium h-11"
+          >
+            Solicitar Veículo
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={() => onOpenApp('chamados')}
+            icon={<Headphones size={15} />}
+            className="w-full justify-start text-xs font-medium h-11"
+          >
+            Abrir Chamado TI
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={() => onOpenApp('salas')}
+            icon={<CalendarDays size={15} />}
+            className="w-full justify-start text-xs font-medium h-11"
+          >
+            Reservar Sala
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={() => onOpenApp('diarias')}
+            icon={<Briefcase size={15} />}
+            className="w-full justify-start text-xs font-medium h-11"
+          >
+            Calcular Diária
+          </Button>
+        </div>
+      </div>
+
+      {/* 4. GRID UNIFORME DE MÓDULOS (6 CARDS IDÊNTICOS EM ESTRUTURA) */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+            Módulos de Gestão
+          </h2>
+          <span className="text-xs text-[var(--text-muted)]">6 módulos operacionais</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {modulos.map((mod) => {
+            const Icon = mod.icon;
+            return (
+              <Card
+                key={mod.id}
+                hoverable
+                padding="md"
+                onClick={() => onOpenApp(mod.id)}
+                className="flex flex-col justify-between gap-4 h-[190px]"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-8 h-8 rounded-[var(--radius-md)] bg-[var(--surface-2)] border border-[var(--border)] text-[var(--brand)] flex items-center justify-center">
+                      <Icon size={16} strokeWidth={1.75} />
+                    </div>
+                    <Badge variant={mod.badgeVariant}>{mod.badge}</Badge>
+                  </div>
+
+                  <h3 className="text-sm font-semibold text-[var(--text)] group-hover:text-[var(--brand)] transition-colors">
+                    {mod.titulo}
+                  </h3>
+                  <p className="text-xs text-[var(--text-muted)] mt-1 line-clamp-2 leading-relaxed">
+                    {mod.descricao}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--text-muted)]">
+                  <span className="truncate">{mod.metrica}</span>
+                  <span className="text-[var(--brand)] font-medium flex items-center gap-1 shrink-0">
+                    Acessar <ArrowRight size={12} />
+                  </span>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 5. ATIVIDADES RECENTES & COFRE DE AUDITORIA SHA-256 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-2">
+        <div className="lg:col-span-2 p-5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] space-y-3">
+          <div className="flex items-center justify-between border-b border-[var(--border)] pb-2.5">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
+              <FileText size={14} className="text-[var(--brand)]" />
+              Atividades Recentes na SEJU
+            </h3>
+            <span className="text-[11px] text-[var(--text-muted)]">Ao vivo</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div 
-              onClick={() => onOpenApp('salas')}
-              className="p-3.5 rounded-2xl bg-slate-50/80 hover:bg-slate-100/70 border border-slate-200/60 transition cursor-pointer space-y-1.5"
-            >
-              <div className="text-[10px] font-bold text-indigo-600 flex items-center gap-1">
-                <Clock size={11} /> 14:00 – 15:30
+          <div className="space-y-2.5 text-xs">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-medium text-[var(--text)]">Despacho de Viagem · Ticket PR-2026-0842</p>
+                <p className="text-[11px] text-[var(--text-muted)]">Carlos Silva autorizou saída para Regional Londrina</p>
               </div>
-              <div className="text-xs font-bold text-slate-900 truncate">Plano Plurianual</div>
-              <div className="text-[11px] text-slate-500 flex items-center gap-1 truncate">
-                <MapPin size={10} /> Auditório · 4º Andar
-              </div>
+              <span className="text-[10px] text-[var(--text-muted)] font-mono shrink-0">Há 14 min</span>
             </div>
 
-            <div 
-              onClick={() => onOpenApp('frota')}
-              className="p-3.5 rounded-2xl bg-slate-50/80 hover:bg-slate-100/70 border border-slate-200/60 transition cursor-pointer space-y-1.5"
-            >
-              <div className="text-[10px] font-bold text-emerald-700 flex items-center gap-1">
-                <Car size={11} /> Saída 16:30
+            <div className="flex items-start justify-between gap-3 pt-2 border-t border-[var(--border-subtle)]">
+              <div>
+                <p className="font-medium text-[var(--text)]">Check-in Pericial · Corolla BCB-4A12</p>
+                <p className="text-[11px] text-[var(--text-muted)]">Vistoria realizada com 4 fotografias arquivadas</p>
               </div>
-              <div className="text-xs font-bold text-slate-900 truncate">Missão Paranaguá</div>
-              <div className="text-[11px] text-slate-500 truncate">Corolla · BCB-4A12</div>
+              <span className="text-[10px] text-[var(--text-muted)] font-mono shrink-0">Há 45 min</span>
             </div>
 
-            <div 
-              onClick={() => onOpenApp('chamados')}
-              className="p-3.5 rounded-2xl bg-slate-50/80 hover:bg-slate-100/70 border border-slate-200/60 transition cursor-pointer space-y-1.5"
-            >
-              <div className="text-[10px] font-bold text-amber-700 font-mono">
-                #TI-2026-441
+            <div className="flex items-start justify-between gap-3 pt-2 border-t border-[var(--border-subtle)]">
+              <div>
+                <p className="font-medium text-[var(--text)]">NF-e 44 Dígitos · CENSE Cascavel</p>
+                <p className="text-[11px] text-[var(--text-muted)]">Prestação de contas aprovada na Rubrica 33.90.30</p>
               </div>
-              <div className="text-xs font-bold text-slate-900 truncate">Revisão de Scanner</div>
-              <div className="text-[11px] text-slate-500 truncate">SLA ativo · 38 min</div>
+              <span className="text-[10px] text-[var(--text-muted)] font-mono shrink-0">Há 2 horas</span>
             </div>
           </div>
         </div>
 
-        {/* Card Escuro Minimalista de Segurança Blindada */}
-        <div 
+        {/* Card do Cofre de Auditoria */}
+        <div
           onClick={onOpenAuditoria}
-          className="lg:col-span-4 bg-slate-900 hover:bg-slate-800 text-white rounded-3xl p-6 shadow-gov-card design-card-lift cursor-pointer flex flex-col justify-between gap-4"
+          className="p-5 bg-[var(--surface-2)] border border-[var(--border)] rounded-[var(--radius-lg)] hover:border-[var(--brand)] transition-colors cursor-pointer flex flex-col justify-between gap-4"
         >
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-2xl bg-white/10 text-emerald-400 flex items-center justify-center">
-              <Lock size={18} />
-            </div>
-            <span className="text-[10px] font-mono text-emerald-300 bg-emerald-500/15 px-2.5 py-0.5 rounded-full">
-              Cofre Blindado
-            </span>
-          </div>
-
           <div>
-            <h3 className="text-base font-bold text-white">Segurança & Privacidade</h3>
-            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-              Assinaturas e chaves permanecem 100% ocultas e protegidas no cofre.
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-8 h-8 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] text-[var(--brand)] flex items-center justify-center">
+                <ShieldCheck size={16} />
+              </div>
+              <Badge variant="success" dot>ICP-PR</Badge>
+            </div>
+            <h3 className="text-sm font-semibold text-[var(--text)]">Trilha de Auditoria SHA-256</h3>
+            <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">
+              Registros imutáveis com carimbo de tempo, identificação do servidor e hash criptográfico.
             </p>
           </div>
 
-          <div className="flex items-center justify-between text-xs font-semibold text-emerald-400 pt-2 border-t border-white/10">
-            <span>Painel de Segurança</span>
-            <ShieldCheck size={15} />
+          <div className="pt-2 border-t border-[var(--border)] flex items-center justify-between text-xs font-medium text-[var(--brand)]">
+            <span>Consultar registros</span>
+            <ArrowRight size={13} />
           </div>
         </div>
       </div>
 
-      {/* MODAL DE EXPERIÊNCIA INTERATIVA 360° */}
+      {/* Modal do Tour Interativo */}
       <JornadaInterativaModal 
         isOpen={showJornadaModal} 
         onClose={() => setShowJornadaModal(false)}
         onNavigateApp={(appId) => onOpenApp(appId as AppModuleId)}
       />
-
     </div>
   );
 };
