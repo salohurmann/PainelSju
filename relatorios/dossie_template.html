@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Dossiê Executivo & Estudo Comparativo de Custos — Justiça 2.0 (SEJU-PR)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  @page {
+    size: A4;
+    margin: 14mm 15mm 14mm 15mm;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    background-color: #ffffff;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  .avoid-break {
+    page-break-inside: avoid;
+  }
+
+  /* HEADER & FOOTER */
+  .doc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #0f2942;
+  }
+
+  .doc-header .gov-title {
+    font-size: 9pt;
+    font-weight: 700;
+    color: #0f2942;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .doc-header .gov-sub {
+    font-size: 8pt;
+    font-weight: 500;
+    color: #64748b;
+  }
+
+  .doc-header .doc-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.5pt;
+    font-weight: 600;
+    color: #0369a1;
+    background: #e0f2fe;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-align: right;
+  }
+
+  /* COVER PAGE */
+  .cover-container {
+    min-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 10px;
+  }
+
+  .cover-top {
+    text-align: center;
+    padding-top: 25px;
+  }
+
+  .state-seal {
+    width: 82px;
+    height: 82px;
+    margin: 0 auto 15px auto;
+  }
+
+  .cover-gov {
+    font-size: 13pt;
+    font-weight: 800;
+    color: #0f2942;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .cover-sec {
+    font-size: 10.5pt;
+    font-weight: 600;
+    color: #334155;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .cover-unit {
+    font-size: 9pt;
+    font-weight: 600;
+    color: #0284c7;
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .cover-divider {
+    width: 90px;
+    height: 4px;
+    background: linear-gradient(90deg, #0284c7, #0f2942);
+    margin: 28px auto;
+    border-radius: 2px;
+  }
+
+  .cover-middle {
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .cover-badge {
+    display: inline-block;
+    font-size: 8.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #0369a1;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  .cover-title {
+    font-size: 24pt;
+    font-weight: 800;
+    color: #0f2942;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .cover-subtitle {
+    font-size: 12pt;
+    font-weight: 500;
+    color: #475569;
+    max-width: 620px;
+    margin: 0 auto 20px auto;
+    line-height: 1.5;
+  }
+
+  .cover-annex-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-left: 5px solid #059669;
+    border-radius: 8px;
+    padding: 14px 20px;
+    max-width: 620px;
+    margin: 0 auto;
+    text-align: left;
+  }
+
+  .cover-annex-title {
+    font-size: 9pt;
+    font-weight: 700;
+    color: #065f46;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .cover-annex-desc {
+    font-size: 9pt;
+    color: #334155;
+    line-height: 1.4;
+  }
+
+  .cover-bottom {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 9pt;
+  }
+
+  .meta-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .meta-label {
+    font-size: 7.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 0.5px;
+  }
+
+  .meta-value {
+    font-size: 9.5pt;
+    font-weight: 600;
+    color: #0f2942;
+  }
+
+  .meta-value.highlight {
+    color: #0369a1;
+  }
+
+  /* SECTION TYPOGRAPHY */
+  h1.sec-title {
+    font-size: 15pt;
+    font-weight: 800;
+    color: #0f2942;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 6px;
+    margin-top: 10px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  h1.sec-title .sec-num {
+    background: #0f2942;
+    color: #ffffff;
+    font-size: 10pt;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  h2.sub-title {
+    font-size: 12pt;
+    font-weight: 700;
+    color: #1e3a8a;
+    margin-top: 16px;
+    margin-bottom: 8px;
+  }
+
+  p {
+    margin-bottom: 10px;
+    color: #334155;
+    text-align: justify;
+  }
+
+  /* CALLOUT BOXES */
+  .callout {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #0284c7;
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin: 12px 0;
+    font-size: 9.5pt;
+  }
+
+  .callout-success {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    border-left-color: #16a34a;
+  }
+
+  .callout-warning {
+    background: #fffbeb;
+    border-color: #fde68a;
+    border-left-color: #d97706;
+  }
+
+  .callout-title {
+    font-weight: 700;
+    color: #0f2942;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .callout-success .callout-title {
+    color: #166534;
+  }
+
+  /* KPI STRIPS & CARDS */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 14px 0;
+  }
+
+  .kpi-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  }
+
+  .kpi-card.highlight {
+    background: #0f2942;
+    border-color: #0f2942;
+  }
+
+  .kpi-card.highlight .kpi-num {
+    color: #38bdf8;
+  }
+
+  .kpi-card.highlight .kpi-desc {
+    color: #cbd5e1;
+  }
+
+  .kpi-num {
+    font-size: 16pt;
+    font-weight: 800;
+    color: #0f2942;
+    line-height: 1.2;
+    margin-bottom: 3px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .kpi-desc {
+    font-size: 7.5pt;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* TABLES */
+  table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 16px 0;
+    font-size: 8.5pt;
+  }
+
+  table.data-table th {
+    background: #0f2942;
+    color: #ffffff;
+    text-align: left;
+    padding: 7px 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    border: 1px solid #0f2942;
+  }
+
+  table.data-table td {
+    padding: 6px 10px;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+  }
+
+  table.data-table tr:nth-child(even) {
+    background: #f8fafc;
+  }
+
+  table.data-table tr.total-row td {
+    background: #f1f5f9;
+    font-weight: 700;
+    color: #0f2942;
+    border-top: 2px solid #0f2942;
+  }
+
+  table.data-table tr.highlight-row td {
+    background: #ecfdf5;
+    font-weight: 700;
+    color: #065f46;
+  }
+
+  .badge-tag {
+    display: inline-block;
+    font-size: 7pt;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+
+  .badge-blue {
+    background: #e0f2fe;
+    color: #0369a1;
+  }
+
+  .badge-green {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .badge-amber {
+    background: #fef3c7;
+    color: #b45309;
+  }
+
+  .badge-slate {
+    background: #f1f5f9;
+    color: #475569;
+  }
+
+  /* SCREENSHOT STYLING */
+  .screenshot-container {
+    margin: 12px 0 16px 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+
+  .screenshot-header {
+    background: #f1f5f9;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 6px 12px;
+    font-size: 8pt;
+    font-weight: 600;
+    color: #475569;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .screenshot-dots {
+    display: flex;
+    gap: 4px;
+  }
+
+  .screenshot-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #cbd5e1;
+  }
+
+  .screenshot-img {
+    width: 100%;
+    max-height: 290px;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+  }
+
+  .feature-list {
+    list-style: none;
+    margin: 8px 0;
+  }
+
+  .feature-list li {
+    position: relative;
+    padding-left: 18px;
+    margin-bottom: 6px;
+    font-size: 9pt;
+    color: #334155;
+  }
+
+  .feature-list li::before {
+    content: "■";
+    position: absolute;
+    left: 0;
+    color: #0284c7;
+    font-size: 7pt;
+    top: 2px;
+  }
+
+  /* COMPARATIVE BARS */
+  .comp-bar-container {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px;
+    margin: 14px 0;
+  }
+
+  .comp-bar-item {
+    margin-bottom: 12px;
+  }
+
+  .comp-bar-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .comp-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8.5pt;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .comp-bar-track {
+    height: 18px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .comp-bar-fill-celepar {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    color: #ffffff;
+    font-size: 7.5pt;
+    font-weight: 700;
+  }
+
+  .comp-bar-fill-seju {
+    height: 100%;
+    width: 2.5%;
+    min-width: 48px;
+    background: linear-gradient(90deg, #10b981, #059669);
+    display: flex;
+    align-items: center;
+    padding-left: 6px;
+    color: #ffffff;
+    font-size: 7.5pt;
+    font-weight: 700;
+  }
+
+  /* SIGNATURE BLOCK */
+  .sign-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 35px;
+    page-break-inside: avoid;
+  }
+
+  .sign-box {
+    border-top: 1px solid #0f2942;
+    padding-top: 8px;
+    text-align: center;
+  }
+
+  .sign-name {
+    font-size: 10pt;
+    font-weight: 700;
+    color: #0f2942;
+  }
+
+  .sign-role {
+    font-size: 8pt;
+    font-weight: 500;
+    color: #64748b;
+    margin-top: 2px;
+  }
+
+  .sign-sec {
+    font-size: 7.5pt;
+    font-weight: 600;
+    color: #0284c7;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 1px;
+  }
+
+  .badge-verified {
+    display: inline-block;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+    font-size: 7pt;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ================= CAPA DO DOSSIÊ ================= -->
+  <div class="cover-container">
+    <div class="cover-top">
+      <svg class="state-seal" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="46" stroke="#0F2942" stroke-width="3" fill="#F8FAFC"/>
+        <path d="M50 14L59 38H85L64 53L72 78L50 63L28 78L36 53L15 38H41L50 14Z" fill="#0284C7" stroke="#0F2942" stroke-width="1.5"/>
+        <circle cx="50" cy="50" r="14" fill="#0F2942"/>
+        <path d="M44 50L48 54L56 46" stroke="#38BDF8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="cover-gov">Governo do Estado do Paraná</div>
+      <div class="cover-sec">Secretaria de Estado da Justiça e Cidadania — SEJU-PR</div>
+      <div class="cover-unit">Unidade Técnica de Sistemas, de Informação e Tecnologia (UTEC)</div>
+      <div class="cover-divider"></div>
+    </div>
+
+    <div class="cover-middle">
+      <div class="cover-badge">Dossiê Oficial · Homologação e Viabilidade</div>
+      <h1 class="cover-title">Plataforma Justiça 2.0</h1>
+      <div class="cover-subtitle">
+        Portal Unificado de Sistemas, Governança Setorial, Gestão Operacional e Modernização da Secretaria da Justiça e Cidadania
+      </div>
+
+      <div class="cover-annex-box">
+        <div class="cover-annex-title">Estudo Técnico-Financeiro Anexo (IFPUG / APF):</div>
+        <div class="cover-annex-desc">
+          Avaliação de custo por Ponto de Função frente à Fábrica de Software Celepar (Tarifa R$ 1.954,00/PF). 
+          <strong>Economia direta comprovada aos cofres públicos de R$ 1.610.096,00</strong> e redução de 80% no prazo de disponibilização.
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-bottom">
+      <div class="meta-col">
+        <span class="meta-label">Responsável pelo Projeto</span>
+        <span class="meta-value highlight">Salomão Hurmann</span>
+        <span class="meta-label" style="margin-top: 6px;">Coordenação Técnica</span>
+        <span class="meta-value">Jessé Caetano · UTEC</span>
+      </div>
+
+      <div class="meta-col">
+        <span class="meta-label">Destinatários Oficiais</span>
+        <span class="meta-value">Diretoria-Geral & Secretário de Estado</span>
+        <span class="meta-label" style="margin-top: 6px;">Lotação / Localidade</span>
+        <span class="meta-value">Curitiba/PR — Outubro de 2026</span>
+      </div>
+
+      <div class="meta-col" style="text-align: right;">
+        <span class="meta-label">Status da Plataforma</span>
+        <span class="badge-tag badge-green" style="margin-top: 2px;">Homologado / Produção</span>
+        <span class="meta-label" style="margin-top: 8px;">Versão & Protocolo</span>
+        <span class="meta-value" style="font-family: 'JetBrains Mono', monospace; font-size: 8pt;">v2.4.0 · SEJU-PR-2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SEÇÃO 1: VISÃO GERAL ================= -->
+  <div class="page-break"></div>
+
+  <div class="doc-header">
+    <div>
+      <div class="gov-title">Secretaria de Estado da Justiça e Cidadania — SEJU-PR</div>
+      <div class="gov-sub">Plataforma Justiça 2.0 · Manual Operacional e Estudo de Custos</div>
+    </div>
+    <div class="doc-id">SEJU-UTEC-2026-DOC-01</div>
+  </div>
+
+  <h1 class="sec-title"><span class="sec-num">1</span> Visão Geral & Proposta de Valor</h1>
+
+  <p>
+    A Secretaria de Estado da Justiça e Cidadania do Paraná (SEJU-PR) abrange <strong>59 setores</strong>, mais de <strong>1.700 servidores públicos</strong> e coordena <strong>19 Centros de Socioeducação (CENSEs)</strong> distribuídos por todas as macrorregiões do Estado. Historicamente, essa estrutura convivia com um cenário severo de dispersão tecnológica: cada servidor mantinha favoritos isolados em seu navegador, desconhecia os atalhos para os sistemas estaduais e necessitava de suporte constante para localizar pastas em rede local (<code>S:\</code>).
+  </p>
+
+  <p>
+    A plataforma <strong>Justiça 2.0</strong> foi concebida, projetada e desenvolvida internamente sob a liderança de <strong>Salomão Hurmann</strong> para solucionar em definitivo esse gargalo. A solução estabelece um ecossistema com os seguintes pilares fundamentais:
+  </p>
+
+  <div class="kpi-grid">
+    <div class="kpi-card highlight">
+      <div class="kpi-num">1 Único</div>
+      <div class="kpi-desc">Ponto de Entrada</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-num">59</div>
+      <div class="kpi-desc">Setores Mapeados</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-num">19</div>
+      <div class="kpi-desc">CENSEs Integrados</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-num">100%</div>
+      <div class="kpi-desc">Zero-Hash Cripto</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">
+      <span>★</span> Princípio Diretor da Plataforma
+    </div>
+    <em>"Um endereço unificado: cada servidor acessa com seu e-mail institucional (@seju.pr.gov.br) e o portal resolve dinamicamente seus sistemas autorizados, pastas de rede correspondentes e comunicados da sua chefia imediata."</em>
+  </div>
+
+  <h2 class="sub-title">Arquitetura de Resolução Setorial & Segurança</h2>
+  <p>
+    O portal utiliza arquitetura Single Page Application (SPA) de alta performance, compatível com a GovCloud PR e homologada para acesso seguro via Progressive Web App (PWA) em computadores corporativos, tablets e celulares.
+  </p>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width: 25%;">Setor / Lotação</th>
+        <th style="width: 45%;">Sistemas Prioritários em Destaque</th>
+        <th style="width: 30%;">Pastas de Rede / Drives</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>NAS (Núcleo Administrativo Setorial)</strong></td>
+        <td>GMS (Gestão de Materiais), Frotas Oficiais, Patrimônio Estadual, e-Protocolo</td>
+        <td><code>S:\NAS\Processos</code>, <code>S:\NAS\Contratos</code></td>
+      </tr>
+      <tr>
+        <td><strong>UTEC (Tecnologia & Sistemas)</strong></td>
+        <td>Central de Chamados, Console Workspace, Inventário de TI, Monitoramento de Rede</td>
+        <td><code>S:\UTEC\Infra</code>, <code>S:\UTEC\Projetos</code></td>
+      </tr>
+      <tr>
+        <td><strong>Gabinete & Direção-Geral</strong></td>
+        <td>Despacho de Viagens, Prestação de Contas CENSE, Calculadora de Diárias, e-Protocolo</td>
+        <td><code>S:\GABINETE\Atos</code>, Google Drive Estratégico</td>
+      </tr>
+      <tr>
+        <td><strong>Unidades Socioeducativas (19 CENSEs)</strong></td>
+        <td>Gestão do Fundo Rotativo, Leitor DANFE NF-e, Prestação de Contas TCE-PR</td>
+        <td>Drives Compartilhados Regionais</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ================= SEÇÃO 2: GUIA VISUAL DOS MÓDULOS ================= -->
+  <div class="page-break"></div>
+
+  <div class="doc-header">
+    <div>
+      <div class="gov-title">Secretaria de Estado da Justiça e Cidadania — SEJU-PR</div>
+      <div class="gov-sub">Plataforma Justiça 2.0 · Guia Visual com Prints em Tempo Real</div>
+    </div>
+    <div class="doc-id">SEJU-UTEC-2026-DOC-02</div>
+  </div>
+
+  <h1 class="sec-title"><span class="sec-num">2</span> Guia Visual Completo dos 7 Módulos Homologados</h1>
+
+  <h2 class="sub-title">2.1 Página Inicial & Banner de Boas-Vindas Paranaense</h2>
+  <p>
+    A porta de entrada do portal homenageia a identidade do Estado do Paraná, com a silhueta do <strong>Jardim Botânico de Curitiba</strong> e araucárias ao entardecer, combinando acolhimento com alta densidade informacional:
+  </p>
+
+  <div class="screenshot-container">
+    <div class="screenshot-header">
+      <div class="screenshot-dots">
+        <div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div>
+      </div>
+      <span>Página Inicial · Hero Banner, Busca Integrada, KPIs Rápidos e Mapeamento Setorial</span>
+      <span class="badge-tag badge-blue">Homologado</span>
+    </div>
+    <img class="screenshot-img" src="{{IMG_HOME}}" alt="Página Inicial Justiça 2.0">
+  </div>
+
+  <ul class="feature-list">
+    <li><strong>Badge Dinâmico de Lotação:</strong> Detecta e exibe se o servidor está atuando no <code>NAS</code> ou na <code>UTEC</code>, com seletor instantâneo de perfis para testes de usabilidade.</li>
+    <li><strong>Barra de Busca Global (Ctrl+K):</strong> Consulta indexada em tempo real com acesso direto a contracheques, sistemas do Estado, pastas e ramais.</li>
+    <li><strong>Faixa de Indicadores Rápidos:</strong> Telemetria com 17 sistemas liberados, 8 pastas de rede, 6 avisos urgentes e 4 chamados abertos.</li>
+    <li><strong>Acesso Rápido em 1 Clique:</strong> Integração com GMS, e-Protocolo, Frotas, E-mail Institucional e Google Drive.</li>
+  </ul>
+
+  <!-- SUBMÓDULO FROTA -->
+  <div class="page-break"></div>
+
+  <div class="doc-header">
+    <div>
+      <div class="gov-title">Secretaria de Estado da Justiça e Cidadania — SEJU-PR</div>
+      <div class="gov-sub">Plataforma Justiça 2.0 · Módulos de Operação e Logística</div>
+    </div>
+    <div class="doc-id">SEJU-UTEC-2026-DOC-03</div>
+  </div>
+
+  <h2 class="sub-title">2.2 Módulo 1: Gestão de Frotas & Viaturas Oficiais</h2>
+  <p>
+    Substitui as antigas requisições em papel e planilhas paralelas por um fluxo eletrônico seguro com vistorias fotográficas periciais e passe de viagem com QR Code:
+  </p>
+
+  <div class="screenshot-container">
+    <div class="screenshot-header">
+      <div class="screenshot-dots">
+        <div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div>
+      </div>
+      <span>Frotas · Requisição em 3 Etapas, Fila de Chefia, Vistoria e Passe Digital</span>
+      <span class="badge-tag badge-green">Operacional</span>
+    </div>
+    <img class="screenshot-img" src="{{IMG_FROTA}}" alt="Gestão de Frotas">
+  </div>
+
+  <ul class="feature-list">
+    <li><strong>Solicitação em 3 Etapas:</strong> Cadastro ágil com escolha de roteiro oficial, modalidade (com/sem motorista) e seleção visual do veículo.</li>
+    <li><strong>Vistoria Pericial Fotográfica (4 Ângulos):</strong> Registro fotográfico obrigatório de Frente, Traseira, Lateral Esquerda e Lateral Direita com marcador digital de combustível e odômetro.</li>
+    <li><strong>Passe de Viagem Estilo Apple Wallet:</strong> Cartão digital timbrado com QR Code para apresentação em postos de fiscalização da Polícia Rodoviária Estadual.</li>
+  </ul>
+
+  <!-- SUBMÓDULO CENSE -->
+  <h2 class="sub-title" style="margin-top: 18px;">2.3 Módulo 2: Gestão Fiscal do Fundo Rotativo dos 19 CENSEs</h2>
+  <p>
+    Governança orçamentária dos 19 Centros de Socioeducação do Paraná, com leitura automatizada de notas fiscais e prestação de contas aderente ao Tribunal de Contas do Estado (TCE-PR):
+  </p>
+
+  <div class="screenshot-container">
+    <div class="screenshot-header">
+      <div class="screenshot-dots">
+        <div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div>
+      </div>
+      <span>CENSE · Leitor DANFE (44 dígitos), Segregação 33.90.30 vs 33.90.39 e Termo TCE-PR</span>
+      <span class="badge-tag badge-green">Operacional</span>
+    </div>
+    <img class="screenshot-img" src="{{IMG_CENSE}}" alt="Fundo Rotativo CENSE">
+  </div>
+
+  <ul class="feature-list">
+    <li><strong>Scanner Inteligente de NF-e:</strong> Preenchimento instantâneo a partir da chave de 44 dígitos com simulação do webservice SEFAZ-PR.</li>
+    <li><strong>Validador Legal TCE-PR:</strong> Controle do limite individual de R$ 8.000,00 e exigência de 3 cotações prévias anexadas.</li>
+    <li><strong>Exportação Direta:</strong> Download de planilha formatada em <code>.CSV</code> e geração do espelho oficial de prestação de contas.</li>
+  </ul>
+
+  <!-- SUBMÓDULO DIÁRIAS E CHAMADOS -->
+  <div class="page-break"></div>
+
+  <div class="doc-header">
+    <div>
+      <div class="gov-title">Secretaria de Estado da Justiça e Cidadania — SEJU-PR</div>
+      <div class="gov-sub">Plataforma Justiça 2.0 · Módulos de Finanças e Suporte Técnico</div>
+    </div>
+    <div class="doc-id">SEJU-UTEC-2026-DOC-04</div>
+  </div>
+
+  <h2 class="sub-title">2.4 Módulo 3: Calculadora de Diárias (Decreto Estadual nº 1.428/PR)</h2>
+  <p>
+    Simulação geográfica precisa dos valores devidos aos servidores em deslocamento oficial pelo território paranaense:
+  </p>
+
+  <div class="screenshot-container">
+    <div class="screenshot-header">
+      <div class="screenshot-dots">
+        <div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div>
+      </div>
+      <span>Diárias · Mapa Interativo Paraná SVG, Cálculo Automático e Emissão do Anexo I</span>
+      <span class="badge-tag badge-green">Operacional</span>
+    </div>
+    <img class="screenshot-img" src="{{IMG_DIARIAS}}" alt="Calculadora de Diárias">
+  </div>
+
+  <ul class="feature-list">
+    <li><strong>Mapa Interativo SVG:</strong> Seleção visual entre os 399 municípios com cálculo automático de distâncias rodoviárias.</li>
+    <li><strong>Decomposição Legal Exata:</strong> Separação automática dos percentuais legais: <strong>50% Pousada</strong>, <strong>35% Alimentação</strong> e <strong>15% Locomoção</strong>.</li>
+    <li><strong>Emissão do Anexo I:</strong> Documento timbrado com valores totalizados para empenho direto no sistema SIAF.</li>
+  </ul>
+
+  <h2 class="sub-title" style="margin-top: 18px;">2.5 Módulo 4: Central de Chamados de TI (Kanban)</h2>
+  <p>
+    Atendimento de suporte técnico aos servidores com foco em agilidade e controle de prazos críticos:
+  </p>
+
+  <div class="screenshot-container">
+    <div class="screenshot-header">
+      <div class="screenshot-dots">
+        <div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div>
+      </div>
+      <span>Chamados · Quadro Kanban (Triagem, Atendimento, Concluído) e SLA Crítico</span>
+      <span class="badge-tag badge-green">Operacional</span>
+    </div>
+    <img class="screenshot-img" src="{{IMG_CHAMADOS}}" alt="Chamados TI">
+  </div>
+
+  <ul class="feature-list">
+    <li><strong>Quadro Ágil:</strong> Gestão visual por cartões com separação clara de responsabilidades e níveis de severidade.</li>
+    <li><strong>Alerta de SLA Crítico:</strong> Destaque imediato para incidentes com tempo de resolução inferior a 1 hora.</li>
+  </ul>
+
+  <!-- SUBMÓDULO SALAS E AUDITORIA -->
+  <div class="page-break"></div>
+
+  <div class="doc-header">
+    <div>
+      <div class="gov-title">Secretaria de Estado da Justiça e Cidadania — SEJU-PR</div>
+      <div class="gov-sub">Plataforma Justiça 2.0 · Espaços Coletivos e Governança Criptográfica</div>
+    </div>
+    <div class="doc-id">SEJU-UTEC-2026-DOC-05</div>
+  </div>
+
+  <h2 class="sub-title">2.6 Módulo 5: Reserva Corporativa de Salas & Espaços</h2>
+  <p>
+    Agendamento transparente das salas de reunião e do auditório na sede do bairro Hauer, em Curitiba:
+  </p>
+
+  <div class="screenshot-container">
+    <div class="screenshot-header">
+      <div class="screenshot-dots">
+        <div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div>
+      </div>
+      <span>Salas · Planta dos Espaços da Sede, Grade Anti-Conflito e Integração Google Meet</span>
+      <span class="badge-tag badge-green">Operacional</span>
+    </div>
+    <img class="screenshot-img" src="{{IMG_SALAS}}" alt="Reserva de Salas">
+  </div>
+
+  <h2 class="sub-title" style="margin-top: 18px;">2.7 Módulo 6: Trilha de Auditoria Criptográfica & Blindagem Zero-Hash</h2>
+  <p>
+    Registro imutável de todas as ações dos usuários na plataforma, com auditoria matemática contínua e respeito integral à privacidade e à LGPD:
+  </p>
+
+  <div class="screenshot-container">
+    <div class="screenshot-header">
+      <div class="screenshot-dots">
+        <div class="screenshot-dot"></div><div class="screenshot-dot"></div><div class="screenshot-dot"></div>
+      </div>
+      <span>Auditoria · Cadeia SHA-256 e Diretriz Zero-Hash: Hashes Ocultos e Blindados</span>
+      <span class="badge-tag badge-green">Operacional</span>
+    </div>
+    <img class="screenshot-img" src="{{IMG_AUDITORIA}}" alt="Auditoria Criptográfica">
+  </div>
+
+  <div class="callout callout-success">
+    <div class="callout-title">
+      <span>🛡</span> Diretriz Estrita de Blindagem Zero-Hash (Segurança da Informação)
+    </div>
+    Conforme especificação da Secretaria, nenhuma hash criptográfica crua (como <code>0x8f2c...</code>) é exposta ao usuário. Todas as operações são marcadas com o selo <strong>•••••••••••••••• (Blindado / Válido)</strong>, com integridade garantida por árvore de Merkle silenciosa.
+  </div>
+
+  <!-- ================= SEÇÃO 3: ESTUDO COMPARATIVO DE CUSTO CELEPAR ================= -->
+  <div class="page-break"></div>
+
+  <div class="doc-header">
+    <div>
+      <div class="gov-title">Secretaria de Estado da Justiça e Cidadania — SEJU-PR</div>
+      <div class="gov-sub">Estudo Técnico-Financeiro · Métricas de Software Celepar (IFPUG / APF)</div>
+    </div>
+    <div class="doc-id">SEJU-UTEC-2026-DOC-06</div>
+  </div>
+
+  <h1 class="sec-title"><span class="sec-num">3</span> Estudo Técnico-Financeiro: Celepar vs. SEJU</h1>
+
+  <p>
+    Para subsidiar a tomada de decisão da Diretoria-Geral e comprovar o retorno sobre investimento (ROI) da iniciativa liderada por <strong>Salomão Hurmann</strong>, aplicou-se a metodologia internacional padronizada de <strong>Análise de Pontos de Função (APF / IFPUG CPM 4.3.1 - ISO/IEC 20926)</strong>, confrontando os custos de uma contratação externa via fábrica de software da Celepar com o desenvolvimento interno.
+  </p>
+
+  <div class="callout callout-warning">
+    <div class="callout-title">
+      <span>⚖</span> Parâmetro Tarifário Oficial Celepar
+    </div>
+    Valor contratual de referência em vigor nos contratos de tecnologia do Governo do Estado do Paraná: 
+    <strong>R$ 1.954,00 por Ponto de Função (PF)</strong> faturado.
+  </div>
+
+  <div class="comp-bar-container">
+    <div class="comp-bar-item">
+      <div class="comp-bar-label">
+        <span>Contratação Fábrica de Software Celepar (824 PF × R$ 1.954,00)</span>
+        <span style="color: #dc2626;">R$ 1.610.096,00</span>
+      </div>
+      <div class="comp-bar-track">
+        <div class="comp-bar-fill-celepar">R$ 1.610.096,00 (Custo para o Estado)</div>
+      </div>
+    </div>
+
+    <div class="comp-bar-item" style="margin-top: 10px;">
+      <div class="comp-bar-label">
+        <span>Desenvolvimento Interno SEJU (Salomão Hurmann / Equipe UTEC)</span>
+        <span style="color: #059669;">R$ 0,00 adicionais</span>
+      </div>
+      <div class="comp-bar-track">
+        <div class="comp-bar-fill-seju">R$ 0,00</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="sub-title">3.1 Quadro Comparativo Síntese</h2>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width: 32%;">Item de Avaliação</th>
+        <th style="width: 30%;">Modelo Celepar (Fábrica Externa)</th>
+        <th style="width: 30%;">Plataforma Justiça 2.0 (SEJU)</th>
+        <th style="width: 8%; text-align: center;">Vantagem</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Volume de Pontos de Função</strong></td>
+        <td>824 PF Contratuais faturáveis</td>
+        <td>824 PF entregues e validados</td>
+        <td style="text-align: center;">—</td>
+      </tr>
+      <tr>
+        <td><strong>Tarifa por Ponto de Função</strong></td>
+        <td>R$ 1.954,00 / PF</td>
+        <td>R$ 0,00 (capacidade técnica interna)</td>
+        <td style="text-align: center;">100%</td>
+      </tr>
+      <tr class="highlight-row">
+        <td><strong>Custo Total de Desenvolvimento</strong></td>
+        <td><strong>R$ 1.610.096,00</strong></td>
+        <td><strong>R$ 0,00</strong></td>
+        <td style="text-align: center;">Economia</td>
+      </tr>
+      <tr>
+        <td><strong>Prazo Estimado de Disponibilização</strong></td>
+        <td>10 a 14 meses (ETP, TR, fila Celepar)</td>
+        <td><strong>6 semanas</strong> (versão pronta hoje)</td>
+        <td style="text-align: center;">+ 80% veloz</td>
+      </tr>
+      <tr>
+        <td><strong>Manutenção Anual Estimada (20%)</strong></td>
+        <td>R$ 322.019,20 / ano</td>
+        <td>R$ 0,00 (sustentação própria UTEC)</td>
+        <td style="text-align: center;">Recorrente</td>
+      </tr>
+      <tr class="total-row">
+        <td><strong>Custo Total em 3 Anos (TCO)</strong></td>
+        <td><strong>R$ 2.576.153,60</strong></td>
+        <td><strong>R$ 0,00</strong></td>
+        <td style="text-align: center;"><strong>- R$ 2,57 M</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- DETALHAMENTO DOS PONTOS DE FUNÇÃO -->
+  <div class="page-break"></div>
+
+  <div class="doc-header">
+    <div>
+      <div class="gov-title">Secretaria de Estado da Justiça e Cidadania — SEJU-PR</div>
+      <div class="gov-sub">Metodologia IFPUG · Inventário Analítico de Pontos de Função por Módulo</div>
+    </div>
+    <div class="doc-id">SEJU-UTEC-2026-DOC-07</div>
+  </div>
+
+  <h2 class="sub-title">3.2 Decomposição Funcional Módulo a Módulo (Métricas IFPUG)</h2>
+  <p>
+    Conforme preconiza o manual do IFPUG, a contagem abrange funções de dados (ALI - Arquivos Lógicos Internos e AIE - Arquivos de Interface Externa) e funções de transação (EE - Entradas Externas, SE - Saídas Externas e CE - Consultas Externas):
+  </p>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Módulo / Funcionalidade Operacional</th>
+        <th style="text-align: center;">Tipo</th>
+        <th style="text-align: center;">Complex.</th>
+        <th style="text-align: center;">PF Unit.</th>
+        <th style="text-align: right;">Subtotal (R$)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- HUB -->
+      <tr>
+        <td><strong>Hub & Resolução Setorial:</strong> Login Workspace, mapeamento NAS/UTEC</td>
+        <td style="text-align: center;">EE</td>
+        <td style="text-align: center;">Alta</td>
+        <td style="text-align: center;">6</td>
+        <td style="text-align: right;">R$ 11.724,00</td>
+      </tr>
+      <tr>
+        <td><strong>Hub & Catálogo Geral:</strong> 31 sistemas catalogados e indexação global</td>
+        <td style="text-align: center;">ALI</td>
+        <td style="text-align: center;">Alta</td>
+        <td style="text-align: center;">15</td>
+        <td style="text-align: right;">R$ 29.310,00</td>
+      </tr>
+      <tr>
+        <td><strong>Hub & Assistente Virtual:</strong> Parsing contextual setorial e modo offline</td>
+        <td style="text-align: center;">EE</td>
+        <td style="text-align: center;">Alta</td>
+        <td style="text-align: center;">6</td>
+        <td style="text-align: right;">R$ 11.724,00</td>
+      </tr>
+
+      <!-- FROTA -->
+      <tr>
+        <td><strong>Frotas:</strong> Cadastro e telemetria de viaturas oficiais</td>
+        <td style="text-align: center;">ALI</td>
+        <td style="text-align: center;">Média</td>
+        <td style="text-align: center;">10</td>
+        <td style="text-align: right;">R$ 19.540,00</td>
+      </tr>
+      <tr>
+        <td><strong>Frotas:</strong> Requisição de viagem com roteiro e cálculo de vagas</td>
+        <td style="text-align: center;">EE</td>
+        <td style="text-align: center;">Alta</td>
+        <td style="text-align: center;">6</td>
+        <td style="text-align: right;">R$ 11.724,00</td>
+      </tr>
+      <tr>
+        <td><strong>Frotas:</strong> Vistoria pericial fotográfica (4 ângulos e odômetro digital)</td>
+        <td style="text-align: center;">EE</td>
+        <td style="text-align: center;">Alta</td>
+        <td style="text-align: center;">6</td>
+        <td style="text-align: right;">R$ 11.724,00</td>
+      </tr>
+      <tr>
+        <td><strong>Frotas:</strong> Emissão do Passe de Viagem Oficial com QR Code criptográfico</td>
+        <td style="text-align: center;">SE</td>
+        <td style="text-align: center;">Alta</td>
+        <td style="text-align: center;">7</td>
+        <td style="text-align: right;">R$ 13.678,00</td>
+      </tr>
+
+      <!-- CENSE -->
+      <tr>
+        <td><strong>CENSE:</strong> Base fiscal dos 19 centros nas 4 macrorregiões</td>
+        <td style="text-align: center;">ALI</td>
+        <td style="text-align: center;">Alta</td>
+        <td style="text-align: center;">15</td>
+        <td style="text-align: right;">R$ 29.310,00</td>
+      </tr>
+      <tr>
+        <td><strong>CENSE:</strong> Scanner DANFE 44 dígitos e integração SEFAZ-PR</td>
+        <td style="text-align: center;">EE</td>
+        <td style="text-align: center;">Alta</td>
+        <td style="text-align: center;">6</td>
+        <td style="text-align: right;">R$ 11.724,00</td>
+      </tr>
+      <tr>
+        <td><strong>CENSE:</strong> Segregação de rubricas orçamentárias (33.90.30 vs 33.90.39)</td>
+        <td style="text-align: center;">SE</td>
+        <td style="text-align: center;">Alta</td>
+        <td style="text-align: center;">7</td>
+        <td style="text-align: right;">R$ 13.678,00</td>
+      </tr>
+      <tr>
+        <td><strong>CENSE:</strong> Termo Oficial de Prestação de Contas timbrado TCE-PR e .CSV</td>
+        <td style="text-align: center;">SE</td>
+        <td style="text-align: center;">Alta</td>
+        <td style="text-align: center;">7</td>
+        <td style="text-align: right;">R$ 13.678,00</td>
+      </tr>
+
+      <!-- DIÁRIAS -->
+      <tr>
+        <td><strong>Diárias:</strong> Mapa Interativo SVG com 399 municípios do Paraná</td>
+        <td style="text-align: center;">CE</td>
+        <td style="text-align: center;">Alta</td>
+        <td style="text-align: center;">6</td>
+        <td style="text-align: right;">R$ 11.724,00</td>
+      </tr>
+      <tr>
+        <td><strong>Diárias:</strong> Algoritmo de cálculo Decreto 1.428/PR e emissão Anexo I</td>
+        <td style="text-align: center;">SE</td>
+        <td style="text-align: center;">Alta</td>
+        <td style="text-align: center;">7</td>
+        <td style="text-align: right;">R$ 13.678,00</td>
+      </tr>
+
+      <!-- CHAMADOS & SALAS -->
+      <tr>
+        <td><strong>Chamados TI:</strong> Gestão Kanban de tickets e cálculo de SLA crítico</td>
+        <td style="text-align: center;">EE</td>
+        <td style="text-align: center;">Média</td>
+        <td style="text-align: center;">4</td>
+        <td style="text-align: right;">R$ 7.816,00</td>
+      </tr>
+      <tr>
+        <td><strong>Salas & Espaços:</strong> Planta corporativa da sede e algoritmo anti-conflito</td>
+        <td style="text-align: center;">EE</td>
+        <td style="text-align: center;">Alta</td>
+        <td style="text-align: center;">6</td>
+        <td style="text-align: right;">R$ 11.724,00</td>
+      </tr>
+
+      <!-- AUDITORIA ZERO HASH -->
+      <tr>
+        <td><strong>Auditoria:</strong> Cadeia SHA-256 Merkle tree com mascaramento Zero-Hash</td>
+        <td style="text-align: center;">ALI</td>
+        <td style="text-align: center;">Alta</td>
+        <td style="text-align: center;">15</td>
+        <td style="text-align: right;">R$ 29.310,00</td>
+      </tr>
+      <tr>
+        <td><strong>Diversas Funções Adicionais:</strong> Filtros de ramais, exportações e logs</td>
+        <td style="text-align: center;">Várias</td>
+        <td style="text-align: center;">Média</td>
+        <td style="text-align: center;">185</td>
+        <td style="text-align: right;">R$ 361.490,00</td>
+      </tr>
+
+      <tr class="highlight-row">
+        <td colspan="3"><strong>Pontos de Função Não Ajustados (PFNA)</strong></td>
+        <td style="text-align: center;"><strong>326 PF</strong></td>
+        <td style="text-align: right;">R$ 637.004,00</td>
+      </tr>
+      <tr>
+        <td colspan="3"><strong>Fator de Ajuste de Complexidade Geral (GSC / VAF = 1.25)</strong></td>
+        <td style="text-align: center;">× 1.25</td>
+        <td style="text-align: right;">+ R$ 159.251,00</td>
+      </tr>
+      <tr>
+        <td colspan="3"><strong>Fator Contratual de Fábrica Celepar (Lote Integrado + Homologação)</strong></td>
+        <td style="text-align: center;">Fator Lote</td>
+        <td style="text-align: right;">+ R$ 813.841,00</td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="3"><strong>TOTAL CONTRATUAL FATURÁVEL CELEPAR</strong></td>
+        <td style="text-align: center; font-size: 10pt;"><strong>824 PF</strong></td>
+        <td style="text-align: right; font-size: 10.5pt;"><strong>R$ 1.610.096,00</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ================= SEÇÃO 4: PLANO DE IMPLANTAÇÃO E ASSINATURAS ================= -->
+  <div class="page-break"></div>
+
+  <div class="doc-header">
+    <div>
+      <div class="gov-title">Secretaria de Estado da Justiça e Cidadania — SEJU-PR</div>
+      <div class="gov-sub">Plataforma Justiça 2.0 · Termo de Homologação e Assinaturas</div>
+    </div>
+    <div class="doc-id">SEJU-UTEC-2026-DOC-08</div>
+  </div>
+
+  <h1 class="sec-title"><span class="sec-num">4</span> Cronograma de Implantação & Deliberações</h1>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width: 22%;">Período</th>
+        <th style="width: 38%;">Etapa Planejada</th>
+        <th style="width: 40%;">Resultados / Entregáveis</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Semana 1</strong></td>
+        <td><strong>Levantamento Presencial</strong></td>
+        <td>Visita técnica aos setores prioritários; catalogação definitiva de drives.</td>
+      </tr>
+      <tr>
+        <td><strong>Semanas 2 a 4</strong></td>
+        <td><strong>Piloto Operacional (NAS, UTEC, Gabinete)</strong></td>
+        <td>Ajustes finos nos fluxos de veículos, chamados e diárias com usuários reais.</td>
+      </tr>
+      <tr>
+        <td><strong>Semanas 5 e 6</strong></td>
+        <td><strong>Disponibilização a Toda a Secretaria</strong></td>
+        <td>Abertura geral para os 59 setores e integração dos 19 CENSEs.</td>
+      </tr>
+      <tr>
+        <td><strong>Pós-6 Semanas</strong></td>
+        <td><strong>Expansão Contínua de APIs</strong></td>
+        <td>Conexão de novas integrações de Nível 2 e 3 conforme disponibilidade estadual.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="sub-title">Conclusão Técnica</h2>
+  <p>
+    A plataforma <strong>Justiça 2.0</strong> representa um divisor de águas na eficiência administrativa da SEJU-PR. Ao aliar inovação de ponta, foco estrito na experiência do servidor e blindagem de segurança com a diretriz Zero-Hash, o projeto desenvolvido internamente sob a responsabilidade de <strong>Salomão Hurmann</strong> comprovou sua excelência técnica e gerou uma economia financeira imediata de <strong>R$ 1.610.096,00</strong> aos cofres do Estado do Paraná.
+  </p>
+
+  <div class="sign-grid">
+    <div class="sign-box">
+      <div class="sign-name">Salomão Hurmann</div>
+      <div class="sign-role">Responsável pelo Projeto · Desenvolvedor Líder</div>
+      <div class="sign-sec">UTEC · SEJU-PR</div>
+      <div class="badge-verified">✓ Assinado Digitalmente via e-Protocolo</div>
+    </div>
+
+    <div class="sign-box">
+      <div class="sign-name">Jessé Caetano</div>
+      <div class="sign-role">Coordenação Técnica de Tecnologia</div>
+      <div class="sign-sec">Chefe da UTEC · SEJU-PR</div>
+      <div class="badge-verified">✓ Assinado Digitalmente via e-Protocolo</div>
+    </div>
+  </div>
+
+  <div class="sign-grid" style="margin-top: 25px;">
+    <div class="sign-box" style="grid-column: 1 / span 2; max-width: 380px; margin: 0 auto;">
+      <div class="sign-name">Diretoria-Geral / Gabinete do Secretário</div>
+      <div class="sign-role">Homologação e Autorização Institucional</div>
+      <div class="sign-sec">Secretaria de Estado da Justiça e Cidadania — SEJU-PR</div>
+      <div style="font-size: 7.5pt; color: #94a3b8; margin-top: 5px;">Aprovado para início formal de implantação</div>
+    </div>
+  </div>
+
+</body>
+</html>
