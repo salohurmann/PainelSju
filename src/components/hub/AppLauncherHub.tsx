@@ -23,7 +23,20 @@ import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { JornadaInterativaModal } from '../experiencia/JornadaInterativaModal';
 
+import { temPermissao, Permissao } from '../../services/rbac';
+
 export type AppModuleId = 'frota' | 'chamados' | 'salas' | 'diarias' | 'cense' | 'ramais';
+
+interface ModuloHomeItem {
+  id: AppModuleId;
+  titulo: string;
+  descricao: string;
+  icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
+  badge: string;
+  badgeVariant: 'brand' | 'success' | 'warning' | 'danger' | 'neutral';
+  metrica: string;
+  permissaoMinima: Permissao;
+}
 
 interface AppLauncherHubProps {
   currentUser: Usuario;
@@ -60,7 +73,7 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
     year: 'numeric'
   });
 
-  const modulos = [
+  const todosModulos: ModuloHomeItem[] = [
     {
       id: 'frota' as AppModuleId,
       titulo: 'Gestão de Frotas & Viaturas',
@@ -68,7 +81,8 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
       icon: Car,
       badge: `${disponiveisFrota} disponíveis`,
       badgeVariant: 'brand' as const,
-      metrica: `${veiculos.length} veículos na frota`
+      metrica: `${veiculos.length} veículos na frota`,
+      permissaoMinima: 'frotas:ver'
     },
     {
       id: 'chamados' as AppModuleId,
@@ -77,7 +91,8 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
       icon: Headphones,
       badge: 'SLA 98.4%',
       badgeVariant: 'success' as const,
-      metrica: 'Tempo médio: 42 min'
+      metrica: 'Tempo médio: 42 min',
+      permissaoMinima: 'chamados:ver'
     },
     {
       id: 'salas' as AppModuleId,
@@ -86,7 +101,8 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
       icon: CalendarDays,
       badge: '4 salas livres',
       badgeVariant: 'neutral' as const,
-      metrica: 'Auditório e 6 salas'
+      metrica: 'Auditório e 6 salas',
+      permissaoMinima: 'salas:ver'
     },
     {
       id: 'diarias' as AppModuleId,
@@ -95,7 +111,8 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
       icon: Briefcase,
       badge: 'Decreto 1.428/PR',
       badgeVariant: 'neutral' as const,
-      metrica: 'Tabela de diárias 2026'
+      metrica: 'Tabela de diárias 2026',
+      permissaoMinima: 'diarias:ver'
     },
     {
       id: 'cense' as AppModuleId,
@@ -104,7 +121,8 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
       icon: Coins,
       badge: '19 unidades',
       badgeVariant: 'brand' as const,
-      metrica: 'Rubricas 33.90.30/39'
+      metrica: 'Rubricas 33.90.30/39',
+      permissaoMinima: 'cense:ver'
     },
     {
       id: 'ramais' as AppModuleId,
@@ -113,9 +131,12 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
       icon: PhoneCall,
       badge: 'VoIP Ativo',
       badgeVariant: 'success' as const,
-      metrica: '142 servidores conectados'
+      metrica: '142 servidores conectados',
+      permissaoMinima: 'ramais:ver'
     }
   ];
+
+  const modulos = todosModulos.filter(m => temPermissao(currentUser, m.permissaoMinima));
 
   return (
     <div className="space-y-8 select-none">

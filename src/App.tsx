@@ -274,6 +274,7 @@ export function App() {
         mobileOpen={mobileSidebarOpen}
         onCloseMobile={() => setMobileSidebarOpen(false)}
         pendentesFrotaCount={pendentesChefia}
+        currentUser={state.currentUser}
       />
 
       {/* Container Principal com Margem Dinâmica da Sidebar */}

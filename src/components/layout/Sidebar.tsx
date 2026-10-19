@@ -1,22 +1,16 @@
 import React from 'react';
 import {
   LayoutGrid,
-  Car,
-  Headphones,
-  CalendarDays,
-  Briefcase,
-  Coins,
-  PhoneCall,
-  ShieldCheck,
   ChevronLeft,
   ChevronRight,
-  ExternalLink,
   MapPin,
-  CheckCircle2,
   X
 } from 'lucide-react';
 import { BrasaoParana } from '../common/BrasaoParana';
 import { AppModuleId } from '../hub/AppLauncherHub';
+import { Usuario } from '../../types';
+import { MODULOS_REGISTRY } from '../../modules/moduleRegistry';
+import { temPermissao } from '../../services/rbac';
 
 export interface NavItem {
   id: 'hub' | AppModuleId | 'auditoria';
@@ -39,6 +33,7 @@ export interface SidebarProps {
   mobileOpen: boolean;
   onCloseMobile: () => void;
   pendentesFrotaCount?: number;
+  currentUser?: Usuario;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -48,8 +43,40 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleCollapse,
   mobileOpen,
   onCloseMobile,
-  pendentesFrotaCount = 0
+  pendentesFrotaCount = 0,
+  currentUser
 }) => {
+  // Constrói as seções filtradas por permissão RBAC a partir do registro de manifestos
+  const modulosPermitidos = MODULOS_REGISTRY.filter(m => 
+    !currentUser || temPermissao(currentUser, m.permissaoMinima)
+  );
+
+  const operacaoItems: NavItem[] = modulosPermitidos
+    .filter(m => m.grupo === 'operacao')
+    .map(m => ({
+      id: m.id as any,
+      label: m.nome,
+      icon: m.icone,
+      badge: m.id === 'frota' && pendentesFrotaCount > 0 ? pendentesFrotaCount : undefined,
+      badgeVariant: 'warning'
+    }));
+
+  const gestaoItems: NavItem[] = modulosPermitidos
+    .filter(m => m.grupo === 'gestao')
+    .map(m => ({
+      id: m.id as any,
+      label: m.nome,
+      icon: m.icone
+    }));
+
+  const segurancaItems: NavItem[] = modulosPermitidos
+    .filter(m => m.grupo === 'seguranca')
+    .map(m => ({
+      id: m.id as any,
+      label: m.nome,
+      icon: m.icone
+    }));
+
   const sections: NavSection[] = [
     {
       title: 'Principal',
@@ -57,34 +84,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         { id: 'hub', label: 'Painel Geral', icon: LayoutGrid }
       ]
     },
-    {
-      title: 'Operação & Logística',
-      items: [
-        {
-          id: 'frota',
-          label: 'Frotas Oficiais',
-          icon: Car,
-          badge: pendentesFrotaCount > 0 ? pendentesFrotaCount : undefined,
-          badgeVariant: 'warning'
-        },
-        { id: 'chamados', label: 'Chamados & TI', icon: Headphones },
-        { id: 'salas', label: 'Reserva de Salas', icon: CalendarDays }
-      ]
-    },
-    {
-      title: 'Administração & Finanças',
-      items: [
-        { id: 'diarias', label: 'Diárias & Viagens', icon: Briefcase },
-        { id: 'cense', label: 'Fundo Rotativo CENSE', icon: Coins },
-        { id: 'ramais', label: 'Telefonia & Ramais', icon: PhoneCall }
-      ]
-    },
-    {
-      title: 'Segurança & Controle',
-      items: [
-        { id: 'auditoria', label: 'Trilha SHA-256', icon: ShieldCheck }
-      ]
-    }
+    ...(operacaoItems.length > 0 ? [{ title: 'Operação & Logística', items: operacaoItems }] : []),
+    ...(gestaoItems.length > 0 ? [{ title: 'Administração & Finanças', items: gestaoItems }] : []),
+    ...(segurancaItems.length > 0 ? [{ title: 'Segurança & Controle', items: segurancaItems }] : [])
   ];
 
   const handleItemClick = (id: 'hub' | AppModuleId | 'auditoria') => {
