@@ -6,16 +6,18 @@
 [![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=black)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Vite](https://img.shields.io/badge/Vite-8.3-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
+[![Vitest](https://img.shields.io/badge/Vitest-5.0-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev)
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4.0-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Decreto Estadual](https://img.shields.io/badge/Conformidade-Decreto%201.428%2FPR-0072BB)](#)
 [![TCE-PR](https://img.shields.io/badge/Fiscaliza%C3%A7%C3%A3o-TCE--PR-009B54)](#)
 [![Auditoria](https://img.shields.io/badge/Integridade-SHA--256%20ICP--PR-0072BB)](#)
+[![LGPD](https://img.shields.io/badge/Privacidade-LGPD%20Blindada-0A192F)](#)
 
 ---
 
 ## 🧭 Visão Geral
 
-O **Portal de Gestão Integrada SEJU** reúne em um ambiente único e seguro os pilares essenciais de administração e atendimento da Secretaria:
+O **Portal de Gestão Integrada SEJU** reúne em um ambiente único e seguro os pilares essenciais de administração, operações e governança da Secretaria:
 
 1. **Gestão de Frotas & Viaturas Oficiais (`frota`)**: Requisição de saída com validação de CPF e ocupantes, despacho da Chefia de Gabinete em 1 clique, vistoria pericial em 4 ângulos, registro de odômetro/combustível e emissão de Passe Oficial de Viagem.
 2. **Central de Atendimento & Suporte de TI (`chamados`)**: Quadro Kanban interativo (*A Fazer*, *Em Atendimento*, *Concluídos*), controle de SLA regressivo em tempo real, gaveta lateral de pareceres técnicos e abertura rápida de ordens de serviço.
@@ -27,75 +29,88 @@ O **Portal de Gestão Integrada SEJU** reúne em um ambiente único e seguro os 
 
 ---
 
+## 🛡️ Arquitetura & Governança (Prompts 2, 3, 4 e 5)
+
+A aplicação foi estruturada seguindo rigorosos padrões de engenharia institucional:
+
+### 1. Monolito Modular & Manifestos de Módulos (`src/modules/`)
+- **`moduleRegistry.ts`**: Cada módulo declara seu manifesto contendo identificador, ícone institucional, permissão mínima exigida, ações rápidas, regras de pendências e resumo para a tela inicial.
+- **Desacoplamento de Navegação**: A barra lateral e o lançador de aplicativos na Home consomem os manifestos registrados filtrados dinamicamente pelas permissões do servidor conectado.
+
+### 2. Barramento de Eventos de Domínio (`src/services/eventBus.ts`)
+- Padrão Publisher/Subscriber em memória fortemente tipado.
+- Os módulos emitem eventos de domínio (`viatura.solicitada`, `viatura.aprovada`, `chamado.criado`, `sala.reservada`, `cense.nfe_lancada`).
+- **Serviço Transversal (`src/services/crossCuttingService.ts`)**: Assina os eventos e alimenta de forma automática a cadeia de logs criptográficos SHA-256 e a central de notificações, desacoplando completamente a lógica de interface.
+
+### 3. Matriz RBAC & Regra de Ouro da Segregação de Funções (`src/services/rbac.ts`)
+- Controle de acesso granular baseado em papéis (`servidor`, `gestor_frota`, `chefe_gabinete`, `admin`) no formato `modulo:acao`.
+- **Segregação de Funções**: Um servidor **nunca** pode aprovar sua própria solicitação de viagem ou diária. Se o CPF do solicitante for idêntico ao do usuário logado, o botão de homologação é desabilitado e um aviso explícito de conformidade é exibido.
+
+### 4. Proteção de Dados LGPD (`src/components/ui/MascaraCpfLgpd.tsx`)
+- Todos os CPFs exibidos em tabelas e formulários são mascarados por padrão (`***.456.789-**`).
+- A revelação temporária dos dígitos é feita mediante clique voluntário, que dispara evento no barramento de auditoria registrando o servidor solicitante e o contexto.
+- Conta com temporizador de **auto-remasking após 10 segundos** para proteger dados em telas desacompanhadas.
+
+### 5. Interatividade & Atalhos Globais de Teclado
+- **Rascunho Automático com Debounce (500ms)**: Preenchimentos no formulário de veículos são persistidos no `localStorage` e recuperados automaticamente em caso de navegação acidental.
+- **Polling Inteligente com Detecção de Aba Oculta (`src/hooks/useSmartPolling.ts`)**: Pausa sincronizações periódicas quando a aba é minimizada, poupando CPU e bateria, e executa verificação instantânea no instante em que o usuário retorna.
+- **Atalhos Globais**:
+  - `Ctrl + K`: Busca Rápida e Paleta de Comandos.
+  - `?`: Guia Completo de Atalhos.
+  - `Esc`: Fechar modais, gavetas e menus.
+  - `G + H`: Ir para o Painel Geral (Home).
+  - `G + F`: Ir para Frotas & Viaturas.
+  - `G + C`: Ir para Chamados & Suporte TI.
+  - `G + S`: Ir para Reserva de Salas.
+  - `G + D`: Ir para Diárias & Deslocamentos.
+  - `G + R`: Ir para Fundo Rotativo CENSE.
+  - `G + T`: Ir para Telefonia & Ramais.
+  - `G + A`: Ir para Trilha de Auditoria SHA-256.
+
+### 6. Observabilidade & Painel de Suporte N1/N2 (`src/components/navigation/PainelDiagnosticoModal.tsx`)
+- Acessível diretamente pelo rodapé (`GovCloud PR · 99.98%`) ou pelo menu do servidor no topo.
+- Exibe telemetria em tempo real do ambiente, consumo do armazenamento local e buffer de eventos do barramento.
+- Botão de **1-Clique para Copiar Relatório Estruturado (JSON)** pronto para abertura de chamados na Celepar.
+
+---
+
+## 🧪 Testes Automatizados & CI/CD
+
+O projeto possui suíte de testes unitários com **Vitest** cobrindo regras críticas de negócio:
+
+```bash
+npm test
+```
+
+### Cobertura de Testes:
+- **`src/tests/regrasNegocio.test.ts`**:
+  - Validador oficial de CPF (Algoritmo Módulo 11 da Receita Federal).
+  - Cálculo de diárias e decomposição fazendária do **Decreto Estadual nº 1.428/PR**.
+  - Mecanismo anti-colisão de horários de reserva de salas corporativas.
+- **`src/tests/rbac.test.ts`**:
+  - Matriz de permissões por perfil.
+  - Regra de ouro da segregação de funções (bloqueio de auto-aprovação).
+- **`src/tests/eventBus.test.ts`**:
+  - Emissão, escuta tipada, cancelamento de inscrição e histórico circular de eventos.
+
+### Esteira CI/CD GitHub Actions (`.github/workflows/ci.yml`)
+- Disparada em todo `push` ou `pull request` para o branch `main`.
+- Executa checagem estrita de tipos TypeScript (`tsc -b`), testes unitários (`npm test`) e compilação do bundle de produção (`npm run build`).
+
+---
+
 ## 🎨 Design System Institucional (Padrão Silencioso e Moderno)
 
-O front-end do portal foi estruturado a partir do **Design System Oficial SEJU**, inspirado nas melhores referências globais de software executivo (**Linear**, **Stripe**, **Vercel** e **gov.br**):
+O front-end do portal foi estruturado a partir do **Design System Oficial SEJU**, inspirado nas melhores referências globais de software corporativo (**Linear**, **Stripe**, **Vercel** e **gov.br**):
 
-### Princípios de Design
-- **Silencioso e Focado na Informação:** Eliminação de ruídos visuais, cantoneiras nos cantos, gradientes holográficos e elementos artificiais de IA.
-- **Tipografia Escalar e Precisa:** Uso de `tabular-nums` para valores financeiros, quilometragens e relógios. Fontes monoespaçadas restritas a protocolos, placas de veículos e hashes.
+### Princípios Visuais:
+- **Silencioso e Focado na Informação:** Eliminação de ruídos visuais, cantoneiras exageradas, gradientes holográficos e elementos artificiais.
+- **Tipografia Escalar:** Uso de `tabular-nums` para valores monetários, quilometragens e cronômetros.
 - **Paleta Governamental:**
   - `Azul Paraná (#0072BB)`: Cor primária institucional e foco.
   - `Verde Paraná (#009B54)`: Confirmações, aprovações e status ativo.
   - `Superfícies Neutras`: `--surface` (#FFFFFF), `--surface-2` (#F8FAFC) e `--border` (#E2E8F0).
-  - `Modo Midnight (Dark Mode)`: Superfícies profundas de ardósia para uso executivo noturno.
-
-### Tokens de Design (`src/styles/tokens.css`)
-Todas as variáveis visuais são centralizadas em tokens semânticos:
-```css
-:root {
-  --brand: #0072bb;
-  --surface: #ffffff;
-  --surface-2: #f8fafc;
-  --border: #e2e8f0;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-}
-```
-
-### Biblioteca de Componentes Base (`src/components/ui/`)
-- `Button`: Variantes Primary, Secondary, Ghost e Danger com estados de loading e tamanhos sm (32px), md (36px) e lg (40px).
-- `Input`, `Select`, `Textarea`: Campos padronizados com altura de 40px, focus-ring acessível, label superior e suporte a ícones.
-- `Card`: Superfície limpa com borda de 1px, raio de 12px e padding de 20px.
-- `Badge`: Pílula de 22px de altura com fundo suave e texto escuro de alto contraste.
-- `KpiStat`: Métricas em 28-32px com comparador de tendência e rótulos concisos.
-- `Table`: Cabeçalho institucional, hover sutil e alinhamento numérico à direita.
-- `Tabs`: Variantes Underline e Segmented Control.
-- `Modal` & `Drawer`: Diálogos centralizados e painéis laterais com bloqueio de scroll e tecla `ESC`.
-- `Toast`: Notificações discretas no canto inferior direito com timer automático de 4s.
-- `PlacaMercosul`: Reprodução gráfica vetorial hiper-realista da placa brasileira padrão Mercosul.
-
----
-
-## ⚡ Estrutura do Shell da Aplicação
-
-- **Sidebar Fixa (264px)**:
-  - Brasão oficial do Estado do Paraná em escala proporcional.
-  - Navegação organizada em 4 categorias: *Principal*, *Operação & Logística*, *Administração & Finanças* e *Segurança & Controle*.
-  - Estado colapsável para 72px e gaveta com backdrop em resoluções mobile (< 1024px).
-  - Rodapé institucional com endereço oficial e telemetria de uptime (`GovCloud PR · 99.98%`).
-- **Top Bar Horizontal (56px)**:
-  - Breadcrumb dinâmico contextual (`SEJU > Frotas Oficiais`).
-  - Campo de busca global com atalho universal `Ctrl + K`.
-  - Alternador de tema Claro / Midnight.
-  - Dropdown de notificações com badges numéricos de pendências.
-  - Seletor de perfil com avatar e dados funcionais do servidor logado.
-
----
-
-## 🛠️ Tecnologias Utilizadas
-
-| Camada | Tecnologia | Finalidade |
-| :--- | :--- | :--- |
-| **Framework** | [React 19](https://react.dev) | Renderização reativa de alta performance |
-| **Linguagem** | [TypeScript 6](https://www.typescriptlang.org) | Tipagem estática rigorosa e prevenção de regressões |
-| **Build Tool** | [Vite 8.3](https://vitejs.dev) | Bundler ultrarrápido com tempo médio de build de 440ms |
-| **Estilização** | [Tailwind CSS v4](https://tailwindcss.com) + Tokens CSS | Sistema utility-first conectado ao design system |
-| **Ícones** | [Lucide React](https://lucide.dev) | Iconografia proporcional (18px, stroke 1.75) |
-| **Segurança** | Web Crypto API | Criptografia nativa SHA-256 para integridade de auditoria |
+  - `Modo Midnight`: Superfícies de ardósia para uso executivo noturno.
 
 ---
 
@@ -118,7 +133,12 @@ npm run dev
 ```
 Acesse no navegador: **`http://localhost:5173/`**
 
-### 4. Compilar para produção (Build & Validação de Tipos)
+### 4. Executar os testes automatizados
+```bash
+npm test
+```
+
+### 5. Compilar para produção (Build & Validação de Tipos)
 ```bash
 npm run build
 ```
@@ -132,4 +152,5 @@ Os artefatos minificados são gerados em `dist/` com validação completa do `ts
 * **Governo:** Governo do Estado do Paraná
 * **Endereço Oficial:** Rua Tenente Francisco Ferreira de Souza, 766 – Hauer – Curitiba/PR – CEP 81630-010
 * **Central Telefônica:** (41) 3210-2400
-* **Data Center:** GovCloud Paraná · Hospedagem Governamental de Alta Disponibilidade
+* **Privacidade & DPO:** `dpo@seju.pr.gov.br`
+* **Data Center:** GovCloud Paraná · Hospedagem Governamental de Alta Disponibilidade (Celepar)

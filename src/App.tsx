@@ -33,6 +33,7 @@ import { GuiaRamaisView } from './components/ramais/GuiaRamaisView';
 import { FundoRotativoCenseView } from './components/cense/FundoRotativoCenseView';
 import { CommandPalette } from './components/navigation/CommandPalette';
 import { HotkeysHelpModal } from './components/navigation/HotkeysHelpModal';
+import { PainelDiagnosticoModal } from './components/navigation/PainelDiagnosticoModal';
 import { useSmartPolling } from './hooks/useSmartPolling';
 import { Toast, ToastItem } from './components/ui/Toast';
 import { Tabs } from './components/ui/Tabs';
@@ -64,6 +65,7 @@ export function App() {
   const [toast, setToast] = useState<ToastItem | null>(null);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [hotkeysHelpOpen, setHotkeysHelpOpen] = useState(false);
+  const [diagnosticoOpen, setDiagnosticoOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
@@ -85,6 +87,7 @@ export function App() {
         setCommandPaletteOpen(false);
         setMobileSidebarOpen(false);
         setHotkeysHelpOpen(false);
+        setDiagnosticoOpen(false);
         return;
       }
 
@@ -396,6 +399,7 @@ export function App() {
           onNavigateApp={handleOpenApp}
           onOpenCommandPalette={() => setCommandPaletteOpen(true)}
           onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
+          onOpenDiagnostico={() => setDiagnosticoOpen(true)}
         />
 
         {/* Notificação Toast Flutuante Discreta */}
@@ -591,10 +595,15 @@ export function App() {
               </a>
             </div>
             <div className="flex items-center gap-3 text-[11px] font-mono">
-              <span className="flex items-center gap-1 text-[var(--success)]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" />
+              <button
+                type="button"
+                onClick={() => setDiagnosticoOpen(true)}
+                className="flex items-center gap-1 text-[var(--success)] hover:underline cursor-pointer"
+                title="Abrir Painel de Diagnóstico & Telemetria N1/N2"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)] animate-pulse" />
                 GovCloud PR · 99.98%
-              </span>
+              </button>
               <span>·</span>
               <span>ICP-PR SHA-256</span>
             </div>
@@ -618,6 +627,13 @@ export function App() {
       <HotkeysHelpModal
         isOpen={hotkeysHelpOpen}
         onClose={() => setHotkeysHelpOpen(false)}
+      />
+
+      {/* Painel de Diagnóstico & Telemetria de Suporte N1/N2 */}
+      <PainelDiagnosticoModal
+        isOpen={diagnosticoOpen}
+        onClose={() => setDiagnosticoOpen(false)}
+        currentUser={state.currentUser}
       />
     </div>
   );

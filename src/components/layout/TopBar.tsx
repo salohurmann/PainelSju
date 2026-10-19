@@ -13,7 +13,8 @@ import {
   Info,
   LogOut,
   Shield,
-  Layers
+  Layers,
+  Activity
 } from 'lucide-react';
 import { Usuario, Notificacao } from '../../types';
 import { USUARIOS_MOCK } from '../../services/store';
@@ -30,6 +31,7 @@ export interface TopBarProps {
   onNavigateApp: (appId: 'hub' | AppModuleId | 'auditoria', subTab?: string) => void;
   onOpenCommandPalette: () => void;
   onOpenMobileSidebar: () => void;
+  onOpenDiagnostico?: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
@@ -40,7 +42,8 @@ export const TopBar: React.FC<TopBarProps> = ({
   activeApp,
   onNavigateApp,
   onOpenCommandPalette,
-  onOpenMobileSidebar
+  onOpenMobileSidebar,
+  onOpenDiagnostico
 }) => {
   const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -261,7 +264,7 @@ export const TopBar: React.FC<TopBarProps> = ({
                 })}
               </div>
 
-              <div className="p-2 border-t border-[var(--border)]">
+              <div className="p-2 border-t border-[var(--border)] space-y-0.5">
                 <button
                   onClick={() => {
                     onNavigateApp('auditoria');
@@ -272,6 +275,19 @@ export const TopBar: React.FC<TopBarProps> = ({
                   <Shield size={14} className="text-[var(--text-muted)]" />
                   <span>Segurança & Auditoria</span>
                 </button>
+
+                {onOpenDiagnostico && (
+                  <button
+                    onClick={() => {
+                      onOpenDiagnostico();
+                      setUserDropdownOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-[var(--radius-sm)] text-xs text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer"
+                  >
+                    <Activity size={14} className="text-[var(--brand)]" />
+                    <span>Diagnóstico de Suporte N1/N2</span>
+                  </button>
+                )}
               </div>
             </div>
           )}
