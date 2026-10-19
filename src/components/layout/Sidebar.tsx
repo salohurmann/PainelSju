@@ -165,17 +165,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       key={item.id}
                       onClick={() => handleItemClick(item.id)}
                       title={collapsed ? item.label : undefined}
-                      className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-[var(--radius-md)] text-xs font-medium transition-colors cursor-pointer text-left ${
+                      className={`group w-full flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-lg)] text-xs font-medium transition-all duration-150 cursor-pointer text-left ${
                         isActive
-                          ? 'bg-[var(--brand-subtle)] text-[var(--brand)] font-semibold'
-                          : 'text-[var(--text)] hover:bg-[var(--surface-2)]'
+                          ? 'bg-[var(--brand-subtle)] text-[var(--brand)] font-semibold shadow-2xs border border-[var(--brand-border)]/50'
+                          : 'text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]'
                       } ${collapsed ? 'justify-center px-0' : ''}`}
                     >
                       <Icon
                         size={17}
-                        strokeWidth={isActive ? 2 : 1.75}
-                        className={`shrink-0 ${
-                          isActive ? 'text-[var(--brand)]' : 'text-[var(--text-muted)]'
+                        strokeWidth={isActive ? 2.2 : 1.75}
+                        className={`shrink-0 transition-transform group-hover:scale-105 ${
+                          isActive ? 'text-[var(--brand)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text)]'
                         }`}
                       />
 
@@ -184,7 +184,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           <span className="truncate">{item.label}</span>
                           {item.badge !== undefined && (
                             <span
-                              className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
+                              className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full font-mono ${
                                 item.badgeVariant === 'warning'
                                   ? 'bg-[var(--warning-subtle)] text-[var(--warning)] border border-[var(--warning)]/20'
                                   : 'bg-[var(--surface-2)] text-[var(--text-muted)]'

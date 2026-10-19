@@ -36,6 +36,9 @@ interface ModuloHomeItem {
   badgeVariant: 'brand' | 'success' | 'warning' | 'danger' | 'neutral';
   metrica: string;
   permissaoMinima: Permissao;
+  iconColor: string;
+  iconBg: string;
+  tagColor: string;
 }
 
 interface AppLauncherHubProps {
@@ -82,7 +85,10 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
       badge: `${disponiveisFrota} disponíveis`,
       badgeVariant: 'brand' as const,
       metrica: `${veiculos.length} veículos na frota`,
-      permissaoMinima: 'frotas:ver'
+      permissaoMinima: 'frotas:ver',
+      iconColor: 'text-[#0072BB] dark:text-[#38BDF8]',
+      iconBg: 'bg-blue-500/10 border-blue-500/20',
+      tagColor: 'hover:border-blue-500/40'
     },
     {
       id: 'chamados' as AppModuleId,
@@ -92,7 +98,10 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
       badge: 'SLA 98.4%',
       badgeVariant: 'success' as const,
       metrica: 'Tempo médio: 42 min',
-      permissaoMinima: 'chamados:ver'
+      permissaoMinima: 'chamados:ver',
+      iconColor: 'text-indigo-600 dark:text-indigo-400',
+      iconBg: 'bg-indigo-500/10 border-indigo-500/20',
+      tagColor: 'hover:border-indigo-500/40'
     },
     {
       id: 'salas' as AppModuleId,
@@ -102,7 +111,10 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
       badge: '4 salas livres',
       badgeVariant: 'neutral' as const,
       metrica: 'Auditório e 6 salas',
-      permissaoMinima: 'salas:ver'
+      permissaoMinima: 'salas:ver',
+      iconColor: 'text-emerald-600 dark:text-emerald-400',
+      iconBg: 'bg-emerald-500/10 border-emerald-500/20',
+      tagColor: 'hover:border-emerald-500/40'
     },
     {
       id: 'diarias' as AppModuleId,
@@ -112,7 +124,10 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
       badge: 'Decreto 1.428/PR',
       badgeVariant: 'neutral' as const,
       metrica: 'Tabela de diárias 2026',
-      permissaoMinima: 'diarias:ver'
+      permissaoMinima: 'diarias:ver',
+      iconColor: 'text-amber-600 dark:text-amber-400',
+      iconBg: 'bg-amber-500/10 border-amber-500/20',
+      tagColor: 'hover:border-amber-500/40'
     },
     {
       id: 'cense' as AppModuleId,
@@ -122,7 +137,10 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
       badge: '19 unidades',
       badgeVariant: 'brand' as const,
       metrica: 'Rubricas 33.90.30/39',
-      permissaoMinima: 'cense:ver'
+      permissaoMinima: 'cense:ver',
+      iconColor: 'text-sky-600 dark:text-sky-400',
+      iconBg: 'bg-sky-500/10 border-sky-500/20',
+      tagColor: 'hover:border-sky-500/40'
     },
     {
       id: 'ramais' as AppModuleId,
@@ -132,72 +150,83 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
       badge: 'VoIP Ativo',
       badgeVariant: 'success' as const,
       metrica: '142 servidores conectados',
-      permissaoMinima: 'ramais:ver'
+      permissaoMinima: 'ramais:ver',
+      iconColor: 'text-teal-600 dark:text-teal-400',
+      iconBg: 'bg-teal-500/10 border-teal-500/20',
+      tagColor: 'hover:border-teal-500/40'
     }
   ];
 
   const modulos = todosModulos.filter(m => temPermissao(currentUser, m.permissaoMinima));
 
   return (
-    <div className="space-y-8 select-none">
-      
+    <div className="relative space-y-8 select-none">
+      {/* Ambient background illumination */}
+      <div className="ambient-mesh" />
+
       {/* 1. SAUDAÇÃO & CABEÇALHO DA HOME */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-[var(--border)]">
+      <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-[var(--border)]">
         <div>
-          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] capitalize mb-1">
-            <span>{dataExtenso}</span>
+          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] capitalize mb-1.5">
+            <span className="font-mono text-[11px]">{dataExtenso}</span>
             <span>·</span>
-            <span className="font-medium text-[var(--text)]">{currentUser.setor}</span>
+            <span className="font-medium text-[var(--brand)] bg-[var(--brand-soft)] px-2 py-0.5 rounded-full border border-[var(--brand-border)]">
+              {currentUser.setor}
+            </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text)]">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-[var(--text)] font-heading">
             {saudacao}, {primeiroNome}
           </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-1">
-            Portal Unificado de Operações e Governança da Secretaria da Justiça e Cidadania do Paraná.
+          <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-1.5 max-w-2xl leading-relaxed">
+            Painel Executivo Unificado da Secretaria da Justiça e Cidadania do Estado do Paraná.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <Button
             variant="secondary"
             size="sm"
             onClick={() => onOpenCommandPalette?.()}
-            icon={<Search size={14} />}
+            icon={<Search size={14} className="text-[var(--brand)]" />}
+            className="shadow-2xs hover:shadow-xs transition-shadow"
           >
-            Busca Rápida (Ctrl+K)
+            Busca Rápida <kbd className="ml-1.5 px-1 py-0.2 bg-[var(--surface-2)] text-[10px] font-mono rounded border border-[var(--border)]">Ctrl+K</kbd>
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setShowJornadaModal(true)}
+            className="text-[var(--text-muted)] hover:text-[var(--text)]"
           >
-            Tour da Plataforma
+            Tour Guiado
           </Button>
         </div>
       </div>
 
       {/* 2. BLOCO 'PRECISA DA SUA ATENÇÃO' (SEÇÃO PRIORITÁRIA DE TAREFAS) */}
-      <div className="space-y-3">
+      <div className="relative z-10 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[var(--warning)]" />
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-2 font-heading">
+            <span className="w-2 h-2 rounded-full bg-[var(--warning)] animate-pulse" />
             Precisa da sua atenção
           </h2>
-          <span className="text-xs text-[var(--text-muted)]">3 itens pendentes</span>
+          <span className="text-xs text-[var(--text-muted)] font-mono">3 pendências operacionais</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
           {/* Card 1: Despacho de Viagens */}
           <div
             onClick={() => onOpenApp('frota', 'aprovacoes')}
-            className="p-3.5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] hover:border-[var(--brand)] hover:shadow-xs transition-all cursor-pointer flex flex-col justify-between gap-3"
+            className="group card-sheen p-4 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-xl)] shadow-gov-card hover:border-[var(--brand)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between gap-3.5"
           >
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Badge variant="warning" dot>Chefia de Gabinete</Badge>
-                <span className="text-[10px] text-[var(--text-muted)] font-mono">Urgente</span>
+                <span className="text-[10px] text-[var(--warning)] font-mono font-semibold bg-[var(--warning-soft)] px-1.5 py-0.5 rounded border border-[var(--warning-border)]">
+                  Urgente
+                </span>
               </div>
-              <h3 className="text-sm font-semibold text-[var(--text)] pt-1">
+              <h3 className="text-sm font-bold text-[var(--text)] group-hover:text-[var(--brand)] transition-colors pt-1 font-heading">
                 {pendentesFrota.length > 0
                   ? `${pendentesFrota.length} viagem${pendentesFrota.length > 1 ? 'ns' : ''} aguardando despacho`
                   : 'Nenhuma viagem pendente'}
@@ -205,66 +234,68 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
               <p className="text-xs text-[var(--text-muted)] line-clamp-1">
                 {pendentesFrota.length > 0
                   ? `Destino: ${pendentesFrota[0].destino}`
-                  : 'Todas as requisições foram deliberadas'}
+                  : 'Todas as requisições foram deliberadas com sucesso'}
               </p>
             </div>
-            <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-medium text-[var(--brand)]">
-              <span>Despachar agora</span>
-              <ChevronRight size={14} />
+            <div className="pt-2.5 border-t border-[var(--border)] flex items-center justify-between text-xs font-semibold text-[var(--brand)]">
+              <span>Despachar autorização</span>
+              <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
 
           {/* Card 2: Chamado Crítico */}
           <div
             onClick={() => onOpenApp('chamados')}
-            className="p-3.5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] hover:border-[var(--brand)] hover:shadow-xs transition-all cursor-pointer flex flex-col justify-between gap-3"
+            className="group card-sheen p-4 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-xl)] shadow-gov-card hover:border-[var(--brand)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between gap-3.5"
           >
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Badge variant="danger" dot>TI · SLA &lt; 1h</Badge>
-                <span className="text-[10px] text-[var(--text-muted)] font-mono">#TI-2026-084</span>
+                <span className="text-[10px] text-[var(--danger)] font-mono font-semibold bg-[var(--danger-soft)] px-1.5 py-0.5 rounded border border-[var(--danger-border)]">
+                  #TI-2026-084
+                </span>
               </div>
-              <h3 className="text-sm font-semibold text-[var(--text)] pt-1">
+              <h3 className="text-sm font-bold text-[var(--text)] group-hover:text-[var(--brand)] transition-colors pt-1 font-heading">
                 Link de Internet CENSE São José
               </h3>
               <p className="text-xs text-[var(--text-muted)] line-clamp-1">
                 Lentidão no tráfego de dados para emissão de certidões
               </p>
             </div>
-            <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-medium text-[var(--brand)]">
-              <span>Ver atendimento</span>
-              <ChevronRight size={14} />
+            <div className="pt-2.5 border-t border-[var(--border)] flex items-center justify-between text-xs font-semibold text-[var(--brand)]">
+              <span>Ver atendimento de N2</span>
+              <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
 
           {/* Card 3: Pauta da Reunião de Hoje */}
           <div
             onClick={() => onOpenApp('salas')}
-            className="p-3.5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] hover:border-[var(--brand)] hover:shadow-xs transition-all cursor-pointer flex flex-col justify-between gap-3"
+            className="group card-sheen p-4 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-xl)] shadow-gov-card hover:border-[var(--brand)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between gap-3.5"
           >
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Badge variant="brand" dot>Hoje às 14:30</Badge>
-                <span className="text-[10px] text-[var(--text-muted)]">Sala de Atos</span>
+                <span className="text-[10px] text-[var(--text-muted)] font-mono">Sala de Atos</span>
               </div>
-              <h3 className="text-sm font-semibold text-[var(--text)] pt-1">
+              <h3 className="text-sm font-bold text-[var(--text)] group-hover:text-[var(--brand)] transition-colors pt-1 font-heading">
                 Alinhamento Diretoria Geral
               </h3>
               <p className="text-xs text-[var(--text-muted)] line-clamp-1">
                 Pauta orçamentária do 4º trimestre e novos termos de cooperação
               </p>
             </div>
-            <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-medium text-[var(--brand)]">
-              <span>Acessar agenda</span>
-              <ChevronRight size={14} />
+            <div className="pt-2.5 border-t border-[var(--border)] flex items-center justify-between text-xs font-semibold text-[var(--brand)]">
+              <span>Acessar pauta & mapa</span>
+              <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
         </div>
       </div>
 
       {/* 3. AÇÕES RÁPIDAS (4 BOTÕES OBJETIVOS) */}
-      <div className="space-y-3">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+      <div className="relative z-10 space-y-3">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] font-heading">
           Ações Rápidas
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -272,8 +303,8 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
             variant="secondary"
             size="md"
             onClick={() => onOpenApp('frota', 'nova-solicitacao')}
-            icon={<Car size={15} />}
-            className="w-full justify-start text-xs font-medium h-11"
+            icon={<Car size={16} className="text-[#0072BB] dark:text-[#38BDF8]" />}
+            className="w-full justify-start text-xs font-semibold h-12 shadow-2xs hover:shadow-xs transition-all hover:-translate-y-0.5 border-[var(--border)] hover:border-[var(--brand)]"
           >
             Solicitar Veículo
           </Button>
@@ -282,8 +313,8 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
             variant="secondary"
             size="md"
             onClick={() => onOpenApp('chamados')}
-            icon={<Headphones size={15} />}
-            className="w-full justify-start text-xs font-medium h-11"
+            icon={<Headphones size={16} className="text-indigo-600 dark:text-indigo-400" />}
+            className="w-full justify-start text-xs font-semibold h-12 shadow-2xs hover:shadow-xs transition-all hover:-translate-y-0.5 border-[var(--border)] hover:border-[var(--brand)]"
           >
             Abrir Chamado TI
           </Button>
@@ -292,8 +323,8 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
             variant="secondary"
             size="md"
             onClick={() => onOpenApp('salas')}
-            icon={<CalendarDays size={15} />}
-            className="w-full justify-start text-xs font-medium h-11"
+            icon={<CalendarDays size={16} className="text-emerald-600 dark:text-emerald-400" />}
+            className="w-full justify-start text-xs font-semibold h-12 shadow-2xs hover:shadow-xs transition-all hover:-translate-y-0.5 border-[var(--border)] hover:border-[var(--brand)]"
           >
             Reservar Sala
           </Button>
@@ -302,96 +333,103 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
             variant="secondary"
             size="md"
             onClick={() => onOpenApp('diarias')}
-            icon={<Briefcase size={15} />}
-            className="w-full justify-start text-xs font-medium h-11"
+            icon={<Briefcase size={16} className="text-amber-600 dark:text-amber-400" />}
+            className="w-full justify-start text-xs font-semibold h-12 shadow-2xs hover:shadow-xs transition-all hover:-translate-y-0.5 border-[var(--border)] hover:border-[var(--brand)]"
           >
             Calcular Diária
           </Button>
         </div>
       </div>
 
-      {/* 4. GRID UNIFORME DE MÓDULOS (6 CARDS IDÊNTICOS EM ESTRUTURA) */}
-      <div className="space-y-3">
+      {/* 4. GRID UNIFORME DE MÓDULOS (6 CARDS BENTO EM ALTO PADRÃO) */}
+      <div className="relative z-10 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] font-heading">
             Módulos de Gestão
           </h2>
-          <span className="text-xs text-[var(--text-muted)]">6 módulos operacionais</span>
+          <span className="text-xs text-[var(--text-muted)] font-mono">6 módulos integrados</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {modulos.map((mod) => {
             const Icon = mod.icon;
             return (
-              <Card
+              <div
                 key={mod.id}
-                hoverable
-                padding="md"
                 onClick={() => onOpenApp(mod.id)}
-                className="flex flex-col justify-between gap-4 h-[190px]"
+                className={`group card-sheen p-5 bg-[var(--surface)] border border-[var(--border)] ${mod.tagColor} rounded-[var(--radius-xl)] shadow-gov-card hover:shadow-gov-card hover:-translate-y-1 transition-all duration-200 cursor-pointer flex flex-col justify-between gap-4 h-[200px]`}
               >
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-8 h-8 rounded-[var(--radius-md)] bg-[var(--surface-2)] border border-[var(--border)] text-[var(--brand)] flex items-center justify-center">
-                      <Icon size={16} strokeWidth={1.75} />
+                  <div className="flex items-center justify-between mb-3.5">
+                    <div className={`w-10 h-10 rounded-[var(--radius-lg)] ${mod.iconBg} border flex items-center justify-center transition-transform group-hover:scale-105`}>
+                      <Icon size={19} strokeWidth={2} className={mod.iconColor} />
                     </div>
                     <Badge variant={mod.badgeVariant}>{mod.badge}</Badge>
                   </div>
 
-                  <h3 className="text-sm font-semibold text-[var(--text)] group-hover:text-[var(--brand)] transition-colors">
+                  <h3 className="text-sm font-bold text-[var(--text)] group-hover:text-[var(--brand)] transition-colors font-heading tracking-tight">
                     {mod.titulo}
                   </h3>
-                  <p className="text-xs text-[var(--text-muted)] mt-1 line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-[var(--text-muted)] mt-1.5 line-clamp-2 leading-relaxed">
                     {mod.descricao}
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--text-muted)]">
-                  <span className="truncate">{mod.metrica}</span>
-                  <span className="text-[var(--brand)] font-medium flex items-center gap-1 shrink-0">
-                    Acessar <ArrowRight size={12} />
+                <div className="pt-2.5 border-t border-[var(--border)] flex items-center justify-between text-xs text-[var(--text-muted)]">
+                  <span className="truncate font-medium">{mod.metrica}</span>
+                  <span className="text-[var(--brand)] font-semibold flex items-center gap-1 shrink-0 group-hover:translate-x-0.5 transition-transform">
+                    Acessar <ArrowRight size={13} />
                   </span>
                 </div>
-              </Card>
+              </div>
             );
           })}
         </div>
       </div>
 
       {/* 5. ATIVIDADES RECENTES & COFRE DE AUDITORIA SHA-256 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-2">
-        <div className="lg:col-span-2 p-5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] space-y-3">
-          <div className="flex items-center justify-between border-b border-[var(--border)] pb-2.5">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
-              <FileText size={14} className="text-[var(--brand)]" />
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-4 pt-2">
+        <div className="lg:col-span-2 p-5 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-xl)] shadow-gov-card space-y-3.5">
+          <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-2 font-heading">
+              <FileText size={15} className="text-[var(--brand)]" />
               Atividades Recentes na SEJU
             </h3>
-            <span className="text-[11px] text-[var(--text-muted)]">Ao vivo</span>
+            <span className="text-[11px] text-[var(--success)] font-medium flex items-center gap-1.5 font-mono">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)] animate-pulse" />
+              Tempo Real
+            </span>
           </div>
 
-          <div className="space-y-2.5 text-xs">
+          <div className="space-y-3 text-xs">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-medium text-[var(--text)]">Despacho de Viagem · Ticket PR-2026-0842</p>
-                <p className="text-[11px] text-[var(--text-muted)]">Carlos Silva autorizou saída para Regional Londrina</p>
+                <p className="font-semibold text-[var(--text)] font-heading">Despacho de Viagem · Ticket PR-2026-0842</p>
+                <p className="text-[11px] text-[var(--text-muted)] mt-0.5">Carlos Silva autorizou saída para Regional Londrina</p>
               </div>
-              <span className="text-[10px] text-[var(--text-muted)] font-mono shrink-0">Há 14 min</span>
+              <span className="text-[10px] text-[var(--text-muted)] font-mono shrink-0 bg-[var(--surface-2)] px-2 py-0.5 rounded border border-[var(--border)]">
+                Há 14 min
+              </span>
             </div>
 
-            <div className="flex items-start justify-between gap-3 pt-2 border-t border-[var(--border-subtle)]">
+            <div className="flex items-start justify-between gap-3 pt-2.5 border-t border-[var(--border)]">
               <div>
-                <p className="font-medium text-[var(--text)]">Check-in Pericial · Corolla BCB-4A12</p>
-                <p className="text-[11px] text-[var(--text-muted)]">Vistoria realizada com 4 fotografias arquivadas</p>
+                <p className="font-semibold text-[var(--text)] font-heading">Check-in Pericial · Corolla BCB-4A12</p>
+                <p className="text-[11px] text-[var(--text-muted)] mt-0.5">Vistoria realizada com 4 fotografias arquivadas</p>
               </div>
-              <span className="text-[10px] text-[var(--text-muted)] font-mono shrink-0">Há 45 min</span>
+              <span className="text-[10px] text-[var(--text-muted)] font-mono shrink-0 bg-[var(--surface-2)] px-2 py-0.5 rounded border border-[var(--border)]">
+                Há 45 min
+              </span>
             </div>
 
-            <div className="flex items-start justify-between gap-3 pt-2 border-t border-[var(--border-subtle)]">
+            <div className="flex items-start justify-between gap-3 pt-2.5 border-t border-[var(--border)]">
               <div>
-                <p className="font-medium text-[var(--text)]">NF-e 44 Dígitos · CENSE Cascavel</p>
-                <p className="text-[11px] text-[var(--text-muted)]">Prestação de contas aprovada na Rubrica 33.90.30</p>
+                <p className="font-semibold text-[var(--text)] font-heading">NF-e 44 Dígitos · CENSE Cascavel</p>
+                <p className="text-[11px] text-[var(--text-muted)] mt-0.5">Prestação de contas aprovada na Rubrica 33.90.30</p>
               </div>
-              <span className="text-[10px] text-[var(--text-muted)] font-mono shrink-0">Há 2 horas</span>
+              <span className="text-[10px] text-[var(--text-muted)] font-mono shrink-0 bg-[var(--surface-2)] px-2 py-0.5 rounded border border-[var(--border)]">
+                Há 2 horas
+              </span>
             </div>
           </div>
         </div>
@@ -399,24 +437,24 @@ export const AppLauncherHub: React.FC<AppLauncherHubProps> = ({
         {/* Card do Cofre de Auditoria */}
         <div
           onClick={onOpenAuditoria}
-          className="p-5 bg-[var(--surface-2)] border border-[var(--border)] rounded-[var(--radius-lg)] hover:border-[var(--brand)] transition-colors cursor-pointer flex flex-col justify-between gap-4"
+          className="group card-sheen p-5 bg-[var(--surface-2)] border border-[var(--border)] rounded-[var(--radius-xl)] shadow-gov-card hover:border-[var(--brand)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between gap-4"
         >
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-8 h-8 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] text-[var(--brand)] flex items-center justify-center">
-                <ShieldCheck size={16} />
+            <div className="flex items-center justify-between mb-3.5">
+              <div className="w-10 h-10 rounded-[var(--radius-lg)] bg-[var(--surface)] border border-[var(--border)] text-[var(--brand)] flex items-center justify-center group-hover:scale-105 transition-transform">
+                <ShieldCheck size={19} />
               </div>
-              <Badge variant="success" dot>ICP-PR</Badge>
+              <Badge variant="success" dot>ICP-PR 2026</Badge>
             </div>
-            <h3 className="text-sm font-semibold text-[var(--text)]">Trilha de Auditoria SHA-256</h3>
-            <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">
-              Registros imutáveis com carimbo de tempo, identificação do servidor e hash criptográfico.
+            <h3 className="text-sm font-bold text-[var(--text)] font-heading">Trilha de Auditoria SHA-256</h3>
+            <p className="text-xs text-[var(--text-muted)] mt-1.5 leading-relaxed">
+              Registros imutáveis com carimbo de tempo, blindagem LGPD e encadeamento criptográfico seguro.
             </p>
           </div>
 
-          <div className="pt-2 border-t border-[var(--border)] flex items-center justify-between text-xs font-medium text-[var(--brand)]">
+          <div className="pt-2.5 border-t border-[var(--border)] flex items-center justify-between text-xs font-semibold text-[var(--brand)]">
             <span>Consultar registros</span>
-            <ArrowRight size={13} />
+            <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
           </div>
         </div>
       </div>

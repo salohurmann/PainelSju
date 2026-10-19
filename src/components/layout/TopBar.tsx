@@ -93,7 +93,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   const unreadCount = notificacoes.filter((n) => !n.lida).length;
 
   return (
-    <header className="sticky top-0 z-30 h-14 bg-[var(--surface)] border-b border-[var(--border)] px-4 flex items-center justify-between gap-3 select-none">
+    <header className="sticky top-0 z-30 h-14 bg-[var(--surface)]/90 backdrop-blur-md border-b border-[var(--border)] px-4 sm:px-6 flex items-center justify-between gap-3 select-none transition-colors">
       {/* Esquerda: Botão Menu Mobile + Breadcrumb */}
       <div className="flex items-center gap-2.5 min-w-0">
         <button
@@ -107,12 +107,12 @@ export const TopBar: React.FC<TopBarProps> = ({
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs">
           <button
             onClick={() => onNavigateApp('hub')}
-            className="text-[var(--text-muted)] hover:text-[var(--text)] font-medium transition-colors cursor-pointer hidden sm:inline"
+            className="text-[var(--text-muted)] hover:text-[var(--brand)] font-medium transition-colors cursor-pointer hidden sm:inline"
           >
             SEJU
           </button>
           <ChevronRight size={13} className="text-[var(--border-strong)] hidden sm:inline" />
-          <span className="font-semibold text-[var(--text)] truncate">
+          <span className="font-bold text-[var(--text)] truncate font-heading">
             {appBreadcrumbNames[activeApp] || 'Painel'}
           </span>
         </nav>
@@ -123,13 +123,13 @@ export const TopBar: React.FC<TopBarProps> = ({
         <button
           type="button"
           onClick={onOpenCommandPalette}
-          className="w-full h-9 px-3 bg-[var(--surface-2)] hover:bg-[var(--surface-2)]/80 text-[var(--text-muted)] border border-[var(--border)] rounded-[var(--radius-md)] flex items-center justify-between text-xs transition-colors cursor-pointer"
+          className="w-full h-9 px-3.5 bg-[var(--surface-2)]/70 hover:bg-[var(--surface-2)] text-[var(--text-muted)] hover:text-[var(--text)] border border-[var(--border)] hover:border-[var(--brand)]/40 rounded-[var(--radius-lg)] flex items-center justify-between text-xs transition-all cursor-pointer shadow-2xs"
         >
-          <div className="flex items-center gap-2 truncate">
-            <Search size={14} />
+          <div className="flex items-center gap-2.5 truncate">
+            <Search size={14} className="text-[var(--brand)]" />
             <span className="truncate">Buscar módulo, placa, servidor ou diária...</span>
           </div>
-          <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--text-muted)]">
+          <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--text-muted)] shadow-2xs">
             Ctrl+K
           </kbd>
         </button>

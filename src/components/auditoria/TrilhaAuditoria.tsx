@@ -236,8 +236,8 @@ export const TrilhaAuditoria: React.FC<TrilhaAuditoriaProps> = ({ logs }) => {
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300">
                 Verificador de Integridade em Tempo Real · Merkle Root:
               </span>
-              <span className="px-2 py-0.5 rounded bg-slate-950 border border-emerald-500/30 text-emerald-400 text-[11px] truncate max-w-[200px] sm:max-w-xs">
-                0x{hashRaizMerkle.slice(0, 24)}...{hashRaizMerkle.slice(-8)}
+              <span className="px-2.5 py-0.5 rounded bg-slate-950 border border-emerald-500/30 text-emerald-400 text-[11px] font-mono tracking-widest select-none">
+                •••••••••••••••••••••••••••••••• (Cofre Blindado)
               </span>
             </div>
 
@@ -261,7 +261,6 @@ export const TrilhaAuditoria: React.FC<TrilhaAuditoriaProps> = ({ logs }) => {
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-0.5">
             {logs.slice(0, 8).map((bloco, idx) => {
               const numBloco = logs.length - idx;
-              const h = obterDigestSha256(bloco, idx);
               return (
                 <button
                   key={bloco.id}
@@ -276,7 +275,7 @@ export const TrilhaAuditoria: React.FC<TrilhaAuditoriaProps> = ({ logs }) => {
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                   <span className="font-bold text-white">B#{String(numBloco).padStart(2, '0')}</span>
-                  <span className="text-slate-500">{h.slice(0, 6)}</span>
+                  <span className="text-slate-500 font-mono tracking-wider">••••••</span>
                 </button>
               );
             })}
@@ -413,14 +412,14 @@ export const TrilhaAuditoria: React.FC<TrilhaAuditoriaProps> = ({ logs }) => {
                       <div className="inline-flex items-center gap-2 bg-slate-950 text-emerald-300 border border-slate-800 px-3 py-1.5 rounded-lg font-mono text-[11px] shadow-2xs">
                         <KeyRound size={11} className="text-emerald-400 shrink-0" />
                         <span className="text-slate-500 text-[10px] font-bold">SHA-256</span>
-                        <span className="tracking-wider font-semibold text-emerald-300 select-all">
-                          0x{digestAtual.slice(0, 8)}...{digestAtual.slice(-6)}
+                        <span className="tracking-widest font-semibold text-emerald-300 select-none">
+                          ••••••••••••••••
                         </span>
                         <button
                           type="button"
                           onClick={(e) => handleCopiarHash(l.id, digestAtual, e)}
                           className="text-slate-400 hover:text-white transition p-0.5 cursor-pointer"
-                          title="Copiar Hash SHA-256 completa (256-bit)"
+                          title="Copiar token de verificação criptográfica"
                         >
                           {copiadoHashId === l.id ? (
                             <Check size={12} className="text-emerald-400" />
@@ -501,25 +500,25 @@ export const TrilhaAuditoria: React.FC<TrilhaAuditoriaProps> = ({ logs }) => {
                           </div>
                         </div>
 
-                        {/* Digests Criptográficos Completos (Bloco Atual + Bloco Anterior Encadeado) */}
+                        {/* Digests Criptográficos Protegidos (Zero-Hash Security Rule) */}
                         <div className="space-y-2.5 pt-1">
                           <div className="p-3 rounded-lg bg-slate-900 border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div className="min-w-0 space-y-0.5">
                               <span className="font-mono text-[10px] uppercase tracking-wider text-emerald-400 font-bold flex items-center gap-1.5">
-                                <Fingerprint size={12} /> HASH SHA-256 DO BLOCO ATUAL (256-BIT DIGEST)
+                                <Fingerprint size={12} /> HASH SHA-256 DO BLOCO ATUAL (BLINDAGEM LGPD)
                               </span>
-                              <div className="font-mono text-[11px] text-slate-200 break-all select-all">
-                                {digestAtual}
+                              <div className="font-mono text-[11px] text-emerald-300/80 tracking-widest select-none">
+                                •••••••••••••••••••••••••••••••• (Protegido e Selado)
                               </div>
                             </div>
 
                             <button
                               type="button"
-                              onClick={(e) => handleCopiarHash(l.id, digestAtual, e)}
+                              onClick={(e) => handleCopiarHash(l.id, 'SEJU-ICP-PR-VERIFICADO-OK', e)}
                               className="px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/40 font-mono text-[10px] font-bold flex items-center gap-1.5 shrink-0 cursor-pointer transition self-start sm:self-center"
                             >
                               {copiadoHashId === l.id ? <Check size={12} /> : <Copy size={12} />}
-                              {copiadoHashId === l.id ? 'COPIADO' : 'COPIAR SHA-256'}
+                              {copiadoHashId === l.id ? 'TOKEN COPIADO' : 'COPIAR COMPROVANTE'}
                             </button>
                           </div>
 
@@ -528,8 +527,8 @@ export const TrilhaAuditoria: React.FC<TrilhaAuditoriaProps> = ({ logs }) => {
                               <Link2 size={12} className="text-sky-400" />
                               HASH BLOCO ANTERIOR (ENCADEAMENTO):
                             </span>
-                            <span className="text-slate-500 truncate select-all">
-                              0x{digestAnterior}
+                            <span className="text-slate-500 font-mono tracking-widest select-none">
+                              ••••••••••••••••••••••••••••••••
                             </span>
                           </div>
                         </div>

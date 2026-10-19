@@ -38,34 +38,60 @@
   --info-soft: #EFF8FF;
   --info-border: #B2DDFF;
 
+  /* Aliases Semânticos Subtis */
+  --brand-subtle: var(--brand-soft);
+  --success-subtle: var(--success-soft);
+  --warning-subtle: var(--warning-soft);
+  --danger-subtle: var(--danger-soft);
+  --info-subtle: var(--info-soft);
+  --border-subtle: var(--border);
+
+  /* Tipografia */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
   /* 4.3 Raios de Borda */
   --radius-xs: 4px;
   --radius-sm: 6px;   /* Campos pequenos, tags */
   --radius-md: 8px;   /* Botões, inputs */
   --radius-lg: 12px;  /* Cards, painéis */
-  --radius-xl: 16px;  /* Modais */
+  --radius-xl: 16px;  /* Modais, Bento cards */
+  --radius-2xl: 20px; /* Hero containers */
   --radius-full: 999px; /* Badges, avatares */
 
-  /* Sombras Padronizadas (Apenas 2 níveis) */
-  --shadow-sm: 0 4px 12px rgba(15, 27, 51, 0.08); /* Menus, popovers, dropdowns */
-  --shadow-md: 0 12px 32px rgba(15, 27, 51, 0.12); /* Modais */
+  /* Sombras Padronizadas & Efeitos de Profundidade */
+  --shadow-2xs: 0 1px 2px rgba(15, 27, 51, 0.04);
+  --shadow-xs: 0 1px 3px rgba(15, 27, 51, 0.06), 0 1px 2px rgba(15, 27, 51, 0.04);
+  --shadow-sm: 0 4px 12px rgba(15, 27, 51, 0.06);
+  --shadow-card: 0 1px 3px 0 rgba(15, 27, 51, 0.05), 0 4px 16px -2px rgba(15, 27, 51, 0.04);
+  --shadow-card-hover: 0 12px 28px -6px rgba(0, 114, 187, 0.12), 0 4px 12px -2px rgba(15, 27, 51, 0.06);
+  --shadow-md: 0 12px 32px rgba(15, 27, 51, 0.12);
+  --shadow-glow: 0 0 24px -4px rgba(0, 114, 187, 0.18);
+
+  /* Glassmorphism & Sheen */
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --card-gradient: linear-gradient(180deg, #FFFFFF 0%, #FAFBFC 100%);
 
   /* Transições & Movimento */
-  --ease-default: cubic-bezier(0, 0, 0.2, 1);
+  --ease-default: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --duration-fast: 150ms;
-  --duration-normal: 200ms;
+  --duration-normal: 220ms;
 }
 
 /* Modo Escuro (Midnight) */
 [data-theme="dark"],
-html[data-design-theme="midnight"] {
+html[data-design-theme="midnight"],
+.dark {
   --bg: #0B0F19;
-  --surface: #131A29;
-  --surface-2: #1C263B;
-  --border: #26334D;
-  --border-strong: #374768;
+  --surface: #121826;
+  --surface-2: #1A2234;
+  --border: #232F46;
+  --border-strong: #334363;
   
-  --text: #F1F5F9;
+  --text: #F8FAFC;
   --text-muted: #94A3B8;
   --text-subtle: #64748B;
   
@@ -90,6 +116,23 @@ html[data-design-theme="midnight"] {
   --info-soft: rgba(96, 165, 250, 0.12);
   --info-border: rgba(96, 165, 250, 0.3);
 
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.6);
+  /* Aliases Semânticos Subtis */
+  --brand-subtle: var(--brand-soft);
+  --success-subtle: var(--success-soft);
+  --warning-subtle: var(--warning-soft);
+  --danger-subtle: var(--danger-soft);
+  --info-subtle: var(--info-soft);
+  --border-subtle: var(--border);
+
+  --shadow-2xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 4px 16px -2px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 12px 28px -6px rgba(56, 189, 248, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 28px -4px rgba(56, 189, 248, 0.22);
+
+  --glass-bg: rgba(18, 24, 38, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --card-gradient: linear-gradient(180deg, #141B2B 0%, #111724 100%);
 }
