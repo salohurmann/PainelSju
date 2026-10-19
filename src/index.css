@@ -1,23 +1,7 @@
 @import "tailwindcss";
+@import "./styles/tokens.css";
 
 @layer base {
-  :root {
-    --azul-gov: #0072BB;
-    --azul-gov-dark: #00538A;
-    --azul-gov-deep: #00385E;
-    --azul-claro: #00AEEF;
-    --verde-gov: #068833;
-    --verde-serv: #009B54;
-    --ouro-gov: #C59B27;
-    --cinza-bg: #F6F8FA;
-    --cinza-topo: #FFFFFF;
-    --cinza-texto: #475569;
-    --cinza-escuro: #0F172A;
-    --cinza-mid: #64748B;
-    --borda: #E2E8F0;
-    --borda-esc: #CBD5E1;
-  }
-
   html {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
@@ -26,113 +10,29 @@
   }
 
   body {
-    background-color: #F6F8FA;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(0, 114, 187, 0.04) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.03) 0px, transparent 50%);
-    background-attachment: fixed;
-    color: var(--cinza-escuro);
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
     min-height: -webkit-fill-available;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
     letter-spacing: -0.011em;
-    transition: background-color 0.25s ease, color 0.25s ease;
+    line-height: 1.5;
+    font-size: 14px;
+    transition: background-color var(--duration-normal) var(--ease-default), color var(--duration-normal) var(--ease-default);
   }
 
-  /* Temas Visuais Dinâmicos da Estrutura de Design */
-  html[data-design-theme="pearl"] body {
-    background-color: #FAF9F6;
-    background-image: 
-      radial-gradient(at 15% 0%, rgba(197, 155, 39, 0.05) 0px, transparent 55%),
-      radial-gradient(at 85% 0%, rgba(0, 114, 187, 0.04) 0px, transparent 55%);
+  /* Ativação padrão de números tabulares em tabelas, KPIs, horários e valores */
+  table, .tabular-nums, [data-tabular] {
+    font-variant-numeric: tabular-nums;
   }
 
-  html[data-design-theme="nordic"] body {
-    background-color: #F1F5F9;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(15, 23, 42, 0.04) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(56, 189, 248, 0.05) 0px, transparent 50%);
-  }
-
-  /* =====================================================================
-     MODO ESCURO EXECUTIVO REAL (MIDNIGHT DARK MODE)
-     ===================================================================== */
-  html[data-design-theme="midnight"] {
-    color-scheme: dark;
-  }
-
-  html[data-design-theme="midnight"] body {
-    background-color: #090D16 !important;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(0, 114, 187, 0.12) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.08) 0px, transparent 50%) !important;
-    color: #F1F5F9 !important;
-  }
-
-  html[data-design-theme="midnight"] .glass-surface,
-  html[data-design-theme="midnight"] nav.fixed.bottom-0 {
-    background: rgba(15, 23, 42, 0.88) !important;
-    border-color: rgba(51, 65, 85, 0.7) !important;
-  }
-
-  html[data-design-theme="midnight"] .bg-white,
-  html[data-design-theme="midnight"] .bg-slate-50\/30 {
-    background-color: #111827 !important;
-    color: #F1F5F9;
-  }
-
-  html[data-design-theme="midnight"] .bg-slate-50,
-  html[data-design-theme="midnight"] .bg-slate-50\/80,
-  html[data-design-theme="midnight"] .bg-slate-50\/90,
-  html[data-design-theme="midnight"] .bg-slate-50\/60,
-  html[data-design-theme="midnight"] .bg-slate-50\/50,
-  html[data-design-theme="midnight"] .bg-slate-50\/40,
-  html[data-design-theme="midnight"] .bg-slate-100,
-  html[data-design-theme="midnight"] .bg-slate-100\/80,
-  html[data-design-theme="midnight"] .bg-slate-100\/90 {
-    background-color: #1E293B !important;
-  }
-
-  html[data-design-theme="midnight"] .border-slate-200,
-  html[data-design-theme="midnight"] .border-slate-200\/80,
-  html[data-design-theme="midnight"] .border-slate-200\/70,
-  html[data-design-theme="midnight"] .border-slate-200\/60,
-  html[data-design-theme="midnight"] .border-slate-200\/90,
-  html[data-design-theme="midnight"] .border-slate-100,
-  html[data-design-theme="midnight"] .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
-    border-color: #293548 !important;
-  }
-
-  html[data-design-theme="midnight"] .text-slate-900,
-  html[data-design-theme="midnight"] .text-slate-800 {
-    color: #F8FAFC !important;
-  }
-
-  html[data-design-theme="midnight"] .text-slate-700,
-  html[data-design-theme="midnight"] .text-slate-600 {
-    color: #CBD5E1 !important;
-  }
-
-  html[data-design-theme="midnight"] .text-slate-500,
-  html[data-design-theme="midnight"] .text-slate-400 {
-    color: #94A3B8 !important;
-  }
-
-  html[data-design-theme="midnight"] input,
-  html[data-design-theme="midnight"] select,
-  html[data-design-theme="midnight"] textarea {
-    background-color: #0F172A !important;
-    border-color: #334155 !important;
-    color: #F8FAFC !important;
-  }
-
-  /* Densidade Visual Compacta */
-  html[data-design-density="compact"] main {
-    padding-top: 1rem !important;
-    padding-bottom: 4rem !important;
+  /* Foco visível padrão acessível (WCAG 2.2 AA) */
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
   }
 
   /* Prevenção de Auto-Zoom no iOS Safari ao focar inputs/selects */
@@ -141,46 +41,37 @@
       font-size: 16px !important;
     }
   }
+
+  /* Respeito a prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
-/* Utilitários de Safe Area para Dispositivos Móveis (iOS Notch / Home Bar / Android Navigation) */
-.pb-safe {
-  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 1.25rem));
+/* Utilitários Institucionais Silenciosos */
+.card-clean {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
 }
 
-.pt-safe {
-  padding-top: max(0.5rem, env(safe-area-inset-top, 0.5rem));
+.card-clickable {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  transition: border-color var(--duration-fast) var(--ease-default), background-color var(--duration-fast) var(--ease-default);
+  cursor: pointer;
 }
-
-.bottom-safe {
-  bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
-}
-
-/* Sombras Multicamadas Estilo Apple / Linear */
-.shadow-gov-card {
-  box-shadow: 
-    0 1px 2px rgba(15, 23, 42, 0.03),
-    0 4px 16px -2px rgba(15, 23, 42, 0.05);
-}
-
-.shadow-gov-card-hover {
-  box-shadow: 
-    0 4px 6px -1px rgba(15, 23, 42, 0.04),
-    0 16px 32px -4px rgba(0, 114, 187, 0.10);
-}
-
-.glass-surface {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-}
-
-/* Transições Suaves de Elevação */
-.design-card-lift {
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease;
-}
-.design-card-lift:hover {
-  transform: translateY(-2px);
+.card-clickable:hover {
+  border-color: var(--brand);
+  background-color: var(--surface-2);
 }
 
 /* Ocultar barra de rolagem mantendo a navegação por toque ou trackpad */
@@ -192,7 +83,7 @@
   scrollbar-width: none;
 }
 
-/* Scrollbars customizados finos e discretos para desktop */
+/* Scrollbars customizados discretos para desktop */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -201,16 +92,16 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--border-strong);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--text-muted);
 }
 
-/* Otimização para Impressão de Relatórios Oficiais (TCE-PR / Diárias / Passes) */
+/* Otimização para Impressão de Relatórios Oficiais */
 @media print {
-  header, footer, nav {
+  header, footer, nav, aside {
     display: none !important;
   }
   body {

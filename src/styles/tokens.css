@@ -1,0 +1,95 @@
+/* =====================================================================
+   SEJU Gestão Integrada · Design System Tokens
+   Tokens oficiais conforme o Padrão Digital de Governo e Especificação Mestre
+   ===================================================================== */
+
+:root {
+  /* 4.1 Cores (Modo Claro) */
+  --bg: #F6F7F9;
+  --surface: #FFFFFF;
+  --surface-2: #F1F3F6;
+  --border: #E3E6EC;
+  --border-strong: #CBD5E1;
+  
+  --text: #0F1B33;
+  --text-muted: #5B6475;
+  --text-subtle: #8A94A6;
+  
+  /* Azul Paraná Oficial da SEJU */
+  --brand: #0072BB;
+  --brand-hover: #005E9B;
+  --brand-soft: #EBF4FC;
+  --brand-border: #B3D7F2;
+  
+  /* Cores Semânticas de Status */
+  --success: #067647;
+  --success-soft: #EDFDF2;
+  --success-border: #A6F4C5;
+  
+  --warning: #B54708;
+  --warning-soft: #FFFAEB;
+  --warning-border: #FEDF89;
+  
+  --danger: #B42318;
+  --danger-soft: #FEF3F2;
+  --danger-border: #FECDCA;
+  
+  --info: #1570EF;
+  --info-soft: #EFF8FF;
+  --info-border: #B2DDFF;
+
+  /* 4.3 Raios de Borda */
+  --radius-xs: 4px;
+  --radius-sm: 6px;   /* Campos pequenos, tags */
+  --radius-md: 8px;   /* Botões, inputs */
+  --radius-lg: 12px;  /* Cards, painéis */
+  --radius-xl: 16px;  /* Modais */
+  --radius-full: 999px; /* Badges, avatares */
+
+  /* Sombras Padronizadas (Apenas 2 níveis) */
+  --shadow-sm: 0 4px 12px rgba(15, 27, 51, 0.08); /* Menus, popovers, dropdowns */
+  --shadow-md: 0 12px 32px rgba(15, 27, 51, 0.12); /* Modais */
+
+  /* Transições & Movimento */
+  --ease-default: cubic-bezier(0, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+}
+
+/* Modo Escuro (Midnight) */
+[data-theme="dark"],
+html[data-design-theme="midnight"] {
+  --bg: #0B0F19;
+  --surface: #131A29;
+  --surface-2: #1C263B;
+  --border: #26334D;
+  --border-strong: #374768;
+  
+  --text: #F1F5F9;
+  --text-muted: #94A3B8;
+  --text-subtle: #64748B;
+  
+  --brand: #38BDF8;
+  --brand-hover: #7DD3FC;
+  --brand-soft: rgba(56, 189, 248, 0.12);
+  --brand-border: rgba(56, 189, 248, 0.3);
+  
+  --success: #34D399;
+  --success-soft: rgba(52, 211, 153, 0.12);
+  --success-border: rgba(52, 211, 153, 0.3);
+  
+  --warning: #FBBF24;
+  --warning-soft: rgba(251, 191, 36, 0.12);
+  --warning-border: rgba(251, 191, 36, 0.3);
+  
+  --danger: #F87171;
+  --danger-soft: rgba(248, 113, 113, 0.12);
+  --danger-border: rgba(248, 113, 113, 0.3);
+  
+  --info: #60A5FA;
+  --info-soft: rgba(96, 165, 250, 0.12);
+  --info-border: rgba(96, 165, 250, 0.3);
+
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
