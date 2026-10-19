@@ -417,14 +417,9 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
           onClick={() => setModalNovo(false)}
         >
           <div
-            className="relative bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-200/90 animate-in zoom-in-95 overflow-hidden"
+            className="relative bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-xl border border-slate-200/90 animate-in zoom-in-95 overflow-hidden"
             onClick={e => e.stopPropagation()}
           >
-            {/* Faixa superior executiva & Cantoneiras */}
-            <div className="absolute inset-x-0 top-0 h-1.5 bg-linear-to-r from-slate-900 via-sky-500 to-emerald-500" />
-            <div className="absolute top-3 left-3 w-2 h-2 border-t border-l border-slate-300 pointer-events-none" />
-            <div className="absolute top-3 right-3 w-2 h-2 border-t border-r border-slate-300 pointer-events-none" />
-
             <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-slate-900 text-sky-400 flex items-center justify-center shadow-2xs">
