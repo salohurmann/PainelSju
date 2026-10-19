@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Agendamento, 
   Veiculo, 
@@ -32,6 +32,8 @@ import { CalculadoraDiariasView } from './components/diarias/CalculadoraDiariasV
 import { GuiaRamaisView } from './components/ramais/GuiaRamaisView';
 import { FundoRotativoCenseView } from './components/cense/FundoRotativoCenseView';
 import { CommandPalette } from './components/navigation/CommandPalette';
+import { HotkeysHelpModal } from './components/navigation/HotkeysHelpModal';
+import { useSmartPolling } from './hooks/useSmartPolling';
 import { Toast, ToastItem } from './components/ui/Toast';
 import { Tabs } from './components/ui/Tabs';
 import { Button } from './components/ui/Button';
@@ -61,20 +63,123 @@ export function App() {
   const [frotaTab, setFrotaTab] = useState<FrotaSubTab>('nova-solicitacao');
   const [toast, setToast] = useState<ToastItem | null>(null);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [hotkeysHelpOpen, setHotkeysHelpOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Tecla global de atalho Ctrl+K / Cmd+K para busca rápida
+  const pendingGKeyRef = useRef(false);
+  const pendingGTimerRef = useRef<number | null>(null);
+
+  // Sistema Global de Atalhos de Teclado (Ctrl+K, ?, Esc, G+H, G+F, etc.)
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // 1. Ctrl+K ou Cmd+K sempre abre/fecha Command Palette
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setCommandPaletteOpen(prev => !prev);
+        return;
+      }
+
+      // 2. Esc fecha qualquer overlay ativo
+      if (e.key === 'Escape') {
+        setCommandPaletteOpen(false);
+        setMobileSidebarOpen(false);
+        setHotkeysHelpOpen(false);
+        return;
+      }
+
+      // Se o foco estiver em campo de texto, não dispara atalhos de navegação
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      // 3. ? ou Shift+/ abre modal de ajuda de atalhos
+      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        e.preventDefault();
+        setHotkeysHelpOpen(prev => !prev);
+        return;
+      }
+
+      // 4. Sequência G + tecla (Go To)
+      const key = e.key.toLowerCase();
+      if (key === 'g' && !pendingGKeyRef.current) {
+        pendingGKeyRef.current = true;
+        if (pendingGTimerRef.current) clearTimeout(pendingGTimerRef.current);
+        pendingGTimerRef.current = window.setTimeout(() => {
+          pendingGKeyRef.current = false;
+        }, 1200);
+        return;
+      }
+
+      if (pendingGKeyRef.current) {
+        pendingGKeyRef.current = false;
+        if (pendingGTimerRef.current) clearTimeout(pendingGTimerRef.current);
+
+        switch (key) {
+          case 'h':
+            e.preventDefault();
+            setActiveApp('hub');
+            break;
+          case 'f':
+            e.preventDefault();
+            setActiveApp('frota');
+            break;
+          case 'c':
+            e.preventDefault();
+            setActiveApp('chamados');
+            break;
+          case 's':
+            e.preventDefault();
+            setActiveApp('salas');
+            break;
+          case 'd':
+            e.preventDefault();
+            setActiveApp('diarias');
+            break;
+          case 'r':
+            e.preventDefault();
+            setActiveApp('cense');
+            break;
+          case 't':
+            e.preventDefault();
+            setActiveApp('ramais');
+            break;
+          case 'a':
+            e.preventDefault();
+            setActiveApp('auditoria');
+            break;
+        }
       }
     };
+
     window.addEventListener('keydown', handleGlobalKeyDown);
-    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleGlobalKeyDown);
+      if (pendingGTimerRef.current) clearTimeout(pendingGTimerRef.current);
+    };
   }, []);
+
+  // Polling Inteligente (30s) com pausa imediata em abas em segundo plano
+  useSmartPolling(() => {
+    try {
+      const persisted = localStorage.getItem('seju_gestao_integrada_v2');
+      if (persisted) {
+        const parsed = JSON.parse(persisted);
+        if (parsed.agendamentos && parsed.agendamentos.length !== state.agendamentos.length) {
+          setState(prev => ({ ...prev, agendamentos: parsed.agendamentos }));
+        }
+      }
+    } catch {
+      // Ignora falhas pontuais de leitura
+    }
+  }, 30000, true);
 
   // Inicialização e Assinatura do Barramento de Eventos Transversais
   useEffect(() => {
@@ -497,6 +602,12 @@ export function App() {
             setFrotaTab(subTab as FrotaSubTab);
           }
         }}
+      />
+
+      {/* Modal Institucional de Atalhos de Teclado (?) */}
+      <HotkeysHelpModal
+        isOpen={hotkeysHelpOpen}
+        onClose={() => setHotkeysHelpOpen(false)}
       />
     </div>
   );

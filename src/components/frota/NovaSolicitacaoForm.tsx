@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Agendamento, Veiculo, PeriodoAgendamento, ModalidadeAgendamento } from '../../types';
 import { PlacaMercosul } from '../ui/PlacaMercosul';
 import { 
@@ -67,6 +67,63 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
   const [destino, setDestino] = useState('');
   const [passageiros, setPassageiros] = useState('');
   const [cidadeDestino, setCidadeDestino] = useState<string | null>(null);
+  const [rascunhoSalvoEm, setRascunhoSalvoEm] = useState<string | null>(null);
+
+  // Carregar rascunho salvo do localStorage ao montar
+  useEffect(() => {
+    try {
+      const savedJson = localStorage.getItem('seju_rascunho_solicitacao_frota');
+      if (savedJson) {
+        const d = JSON.parse(savedJson);
+        if (d.telefone) setTelefone(d.telefone);
+        if (d.veiculoId) setVeiculoId(d.veiculoId);
+        if (Array.isArray(d.datasSelecionadas) && d.datasSelecionadas.length > 0) {
+          setDatasSelecionadas(d.datasSelecionadas);
+        }
+        if (d.periodo) setPeriodo(d.periodo);
+        if (d.modalidade) setModalidade(d.modalidade);
+        if (d.destino) setDestino(d.destino);
+        if (d.passageiros) setPassageiros(d.passageiros);
+        if (d.salvoEm) setRascunhoSalvoEm(d.salvoEm);
+      }
+    } catch {
+      // Ignorar erros de parse de rascunho corrompido
+    }
+  }, []);
+
+  // Debounce de 500ms para salvar rascunho automaticamente
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (destino || telefone || veiculoId || datasSelecionadas.length > 0 || passageiros) {
+        const agora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const draftData = {
+          telefone,
+          veiculoId,
+          datasSelecionadas,
+          periodo,
+          modalidade,
+          destino,
+          passageiros,
+          salvoEm: agora
+        };
+        localStorage.setItem('seju_rascunho_solicitacao_frota', JSON.stringify(draftData));
+        setRascunhoSalvoEm(agora);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [telefone, veiculoId, datasSelecionadas, periodo, modalidade, destino, passageiros]);
+
+  const limparRascunho = () => {
+    localStorage.removeItem('seju_rascunho_solicitacao_frota');
+    setTelefone('');
+    setVeiculoId('');
+    setDatasSelecionadas([]);
+    setDestino('');
+    setPassageiros('');
+    setCidadeDestino(null);
+    setRascunhoSalvoEm(null);
+  };
 
   // Verificação de Capacidade e Telemetria de Viagem
   const veicSel = veiculos.find(v => v.id === veiculoId);
@@ -239,7 +296,9 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
     soundFX.playSuccess();
     setComprovante(novoAgendamento);
 
-    // Reset formulário
+    // Reset formulário e limpa rascunho persistido
+    localStorage.removeItem('seju_rascunho_solicitacao_frota');
+    setRascunhoSalvoEm(null);
     setDatasSelecionadas([]);
     setDestino('');
     setPassageiros('');
@@ -272,9 +331,25 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
               <h2 className="text-lg font-bold text-slate-900 tracking-tight mt-0.5">
                 Nova Requisição de Viatura Oficial
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Selecione a viatura no Showroom Digital, configure o computador de rota e envie para chancela da Chefia.
-              </p>
+              <div className="flex flex-wrap items-center gap-2 mt-0.5">
+                <p className="text-xs text-slate-500">
+                  Selecione a viatura no Showroom Digital, configure o computador de rota e envie para chancela da Chefia.
+                </p>
+                {rascunhoSalvoEm && (
+                  <div className="flex items-center gap-1.5 text-[11px] bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full border border-slate-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Rascunho salvo ({rascunhoSalvoEm})</span>
+                    <button
+                      type="button"
+                      onClick={limparRascunho}
+                      className="text-[10px] text-rose-600 hover:underline ml-1 cursor-pointer font-medium"
+                      title="Descartar rascunho salvo"
+                    >
+                      Limpar
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
