@@ -61,7 +61,15 @@ export type FrotaSubTab =
 
 export function App() {
   const [state, setState] = useState(() => loadInitialState());
-  const [activeApp, setActiveApp] = useState<'hub' | AppModuleId | 'auditoria'>('hub');
+  const [activeApp, setActiveApp] = useState<'hub' | AppModuleId | 'auditoria'>(() => {
+    if (typeof window !== 'undefined') {
+      const urlApp = new URLSearchParams(window.location.search).get('app') as any;
+      if (urlApp && ['hub', 'frota', 'chamados', 'salas', 'diarias', 'cense', 'ramais', 'auditoria'].includes(urlApp)) {
+        return urlApp;
+      }
+    }
+    return 'hub';
+  });
   const [frotaTab, setFrotaTab] = useState<FrotaSubTab>('nova-solicitacao');
   const [toast, setToast] = useState<ToastItem | null>(null);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
