@@ -1,0 +1,39 @@
+name: CI/CD · SEJU Gestão Integrada
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  qualidade-e-build:
+    name: Validação de Qualidade, Testes e Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar Dependências Limpas
+        run: npm ci
+
+      - name: Executar Validação de Tipos TypeScript
+        run: npx tsc -b
+
+      - name: Executar Suíte de Testes Unitários de Regras Críticas
+        run: npm test
+
+      - name: Compilar Bundle de Produção (Vite Build)
+        run: npm run build
+
+      - name: Verificar Integridade do Artefato de Produção
+        run: |
+          test -f dist/index.html || exit 1
+          echo "Artefato de produção compilado com sucesso."
