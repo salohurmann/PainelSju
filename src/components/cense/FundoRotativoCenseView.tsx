@@ -21,7 +21,14 @@ import {
   Clock,
   Sparkles,
   RefreshCw,
-  PieChart
+  PieChart,
+  Landmark,
+  QrCode,
+  Activity,
+  Lock,
+  Layers,
+  Scale,
+  ArrowUpRight
 } from 'lucide-react';
 import { Usuario } from '../../types';
 import { soundFX } from '../../services/soundFx';
@@ -1134,37 +1141,55 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
   const excedeLimiteLegal = valorDigitadoNum > LIMITE_INDIVIDUAL_NOTA;
   const excedeSaldoUnidade = valorDigitadoNum > saldoUnidade;
 
+  const percGlobalExec = dotacaoTotal > 0 ? Math.min(100, Math.round((executadoTotal / dotacaoTotal) * 100)) : 0;
+  const percGlobalSaldo = Math.max(0, 100 - percGlobalExec);
+  const percRede30 = executadoTotal > 0 ? Math.round((totalRede30 / executadoTotal) * 100) : 50;
+  const percRede39 = executadoTotal > 0 ? 100 - percRede30 : 50;
+  const totalGlosasRede = unidades.reduce(
+    (acc, u) => acc + u.notas.filter(n => n.status === 'glosada').length,
+    0
+  );
+  const digitosChave = chaveDanfe.replace(/\D/g, '');
+
   return (
     <div className="space-y-6 font-sans">
       
       {/* =====================================================================
           SEÇÃO 1: HEADER EXECUTIVO & KPIS FISCAIS CONSOLIDADOS DOS 19 CENSES
          ===================================================================== */}
-      <div className="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/80 shadow-gov-card space-y-5">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="relative overflow-hidden bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-gov-card space-y-6">
+        {/* Brilho Especular Superior estilo Stripe Treasury / Terminal Financeiro */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#0072BB] to-emerald-500 opacity-90" />
+        <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-gradient-to-br from-[#0072BB]/[0.05] via-emerald-500/[0.03] to-transparent blur-2xl" />
+
+        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-start sm:items-center gap-3.5">
             <button
               onClick={() => {
                 soundFX.playClick();
                 onVoltarHub();
               }}
-              className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-600 flex items-center justify-center transition cursor-pointer shrink-0 mt-0.5 sm:mt-0"
+              className="group relative w-10 h-10 rounded-xl bg-slate-100/90 hover:bg-slate-900 text-slate-600 hover:text-white border border-slate-200/80 hover:border-slate-900 flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 mt-0.5 sm:mt-0 shadow-2xs active:scale-95"
               title="Voltar ao Início"
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-0.5" />
             </button>
 
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/70">
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50/90 px-2.5 py-0.5 rounded-full border border-emerald-300/70 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   Lei Estadual nº 14.268/PR · DEASE / SEJU
                 </span>
-                <span className="text-[11px] text-slate-400 font-medium">
-                  19 Unidades Socioeducativas · Rede Completa PR
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#0072BB] bg-blue-50/80 px-2.5 py-0.5 rounded-full border border-blue-200/80">
+                  <Landmark size={11} /> BB TESOURARIA · 19 UNIDADES CENSE
+                </span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono font-semibold text-slate-500 bg-slate-100/80 px-2 py-0.5 rounded-md border border-slate-200/60 tabular-nums">
+                  <Activity size={10} className="text-emerald-600" /> SIAF / TCE-PR SYNC
                 </span>
               </div>
-              <h2 className="text-lg sm:text-2xl font-bold text-slate-900 tracking-tight mt-1">
-                Gestão Fiscal de Fundo Rotativo · Unidades CENSE
+              <h2 className="text-lg sm:text-2xl font-extrabold text-slate-900 tracking-tight mt-1.5 flex items-center gap-2">
+                <span>Gestão Fiscal de Fundo Rotativo · Unidades CENSE</span>
               </h2>
             </div>
           </div>
@@ -1173,11 +1198,14 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
             <button
               type="button"
               onClick={handleExportarCsv}
-              className="px-3.5 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+              className="group px-3.5 py-2.5 rounded-xl bg-emerald-50/90 hover:bg-emerald-600 text-emerald-800 hover:text-white border border-emerald-200/90 hover:border-emerald-600 text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-2xs active:scale-[0.98]"
               title="Exportar Planilha Consolidada para Excel (.CSV)"
             >
-              <Download size={14} className="text-emerald-600" />
-              <span>Exportar Planilha (.CSV)</span>
+              <Download size={14} className="text-emerald-600 group-hover:text-white transition-colors" />
+              <span>Exportar Planilha</span>
+              <span className="font-mono text-[10px] px-1.5 py-0.2 rounded bg-emerald-200/60 group-hover:bg-emerald-700 text-emerald-900 group-hover:text-emerald-50">
+                .CSV
+              </span>
             </button>
 
             <button
@@ -1186,10 +1214,11 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                 soundFX.playClick();
                 setAbaDetalhe('nova-despesa');
               }}
-              className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition cursor-pointer"
+              className="group relative overflow-hidden px-4 py-2.5 rounded-xl bg-gradient-to-b from-slate-800 to-slate-950 hover:from-slate-700 hover:to-slate-900 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm ring-1 ring-slate-900/80 transition-all duration-200 cursor-pointer active:scale-[0.98]"
             >
-              <PlusCircle size={14} className="text-emerald-400" />
-              <span>Lançar Nota Fiscal</span>
+              <span className="pointer-events-none absolute inset-x-2 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+              <ScanLine size={14} className="text-emerald-400 group-hover:scale-110 transition-transform" />
+              <span>Scanner / Lançar NF-e</span>
             </button>
 
             <button
@@ -1198,87 +1227,212 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                 soundFX.playClick();
                 setAbaDetalhe('relatorio');
               }}
-              className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+              className="px-3.5 py-2.5 rounded-xl bg-slate-100/90 hover:bg-slate-200/80 text-slate-700 border border-slate-200/80 text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer active:scale-[0.98]"
             >
-              <FileText size={14} />
+              <FileText size={14} className="text-[#0072BB]" />
               <span className="hidden sm:inline">Espelho TCE-PR</span>
             </button>
           </div>
         </div>
 
-        {/* Faixa Consolidada de 4 Indicadores Fiscais */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <div className="p-4 rounded-2xl bg-slate-50/90 border border-slate-200/70">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
-              <span>Dotação Total CENSEs</span>
-              <Wallet size={14} className="text-slate-400" />
+        {/* =================================================================
+            FAIXA CONSOLIDADA DE 4 INDICADORES FISCAIS (CANTONEIRAS TÉCNICAS + BRILHO ESPECULAR + TABULAR-NUMS)
+           ================================================================= */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* KPI 1: ORÇAMENTO GLOBAL / DOTAÇÃO TOTAL */}
+          <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white via-slate-50/60 to-slate-100/40 border border-slate-200/90 shadow-2xs group hover:border-slate-300 transition-all">
+            {/* Brilho Especular Superior */}
+            <div className="pointer-events-none absolute inset-x-4 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-slate-400/60 to-transparent" />
+            {/* Cantoneiras Técnicas nos 4 Cantos */}
+            <span className="pointer-events-none absolute top-2 left-2 w-2.5 h-2.5 border-t-[1.5px] border-l-[1.5px] border-slate-300 group-hover:border-slate-500 transition-colors rounded-tl-[2px]" />
+            <span className="pointer-events-none absolute top-2 right-2 w-2.5 h-2.5 border-t-[1.5px] border-r-[1.5px] border-slate-300 group-hover:border-slate-500 transition-colors rounded-tr-[2px]" />
+            <span className="pointer-events-none absolute bottom-2 left-2 w-2.5 h-2.5 border-b-[1.5px] border-l-[1.5px] border-slate-300 group-hover:border-slate-500 transition-colors rounded-bl-[2px]" />
+            <span className="pointer-events-none absolute bottom-2 right-2 w-2.5 h-2.5 border-b-[1.5px] border-r-[1.5px] border-slate-300 group-hover:border-slate-500 transition-colors rounded-br-[2px]" />
+
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">
+                Orçamento Global · Dotação
+              </span>
+              <div className="w-7 h-7 rounded-lg bg-slate-900/5 border border-slate-200/80 flex items-center justify-center">
+                <Wallet size={13} className="text-slate-700" />
+              </div>
             </div>
-            <div className="text-lg sm:text-xl font-extrabold text-slate-900 mt-1 font-mono">
+
+            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2 font-mono tabular-nums tracking-tight">
               R$ {dotacaoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">
-              {unidades.length} Centros de Socioeducação ativos
+
+            <div className="mt-2.5 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[10px] font-mono tabular-nums">
+              <span className="text-slate-500 font-semibold">
+                {unidades.length} CENSEs · 4º Trim/26
+              </span>
+              <span className="px-1.5 py-0.5 rounded bg-slate-200/70 text-slate-700 font-bold">
+                TETO R$ 8k/NF
+              </span>
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-slate-50/90 border border-slate-200/70">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
-              <span>Total Executado (NF-e)</span>
-              <Receipt size={14} className="text-[#0072BB]" />
+          {/* KPI 2: TOTAL EXECUTADO (NF-e) */}
+          <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white via-blue-50/25 to-blue-50/40 border border-blue-200/80 shadow-2xs group hover:border-blue-300 transition-all">
+            {/* Brilho Especular Superior */}
+            <div className="pointer-events-none absolute inset-x-4 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#0072BB]/70 to-transparent" />
+            {/* Cantoneiras Técnicas nos 4 Cantos */}
+            <span className="pointer-events-none absolute top-2 left-2 w-2.5 h-2.5 border-t-[1.5px] border-l-[1.5px] border-blue-300 group-hover:border-[#0072BB] transition-colors rounded-tl-[2px]" />
+            <span className="pointer-events-none absolute top-2 right-2 w-2.5 h-2.5 border-t-[1.5px] border-r-[1.5px] border-blue-300 group-hover:border-[#0072BB] transition-colors rounded-tr-[2px]" />
+            <span className="pointer-events-none absolute bottom-2 left-2 w-2.5 h-2.5 border-b-[1.5px] border-l-[1.5px] border-blue-300 group-hover:border-[#0072BB] transition-colors rounded-bl-[2px]" />
+            <span className="pointer-events-none absolute bottom-2 right-2 w-2.5 h-2.5 border-b-[1.5px] border-r-[1.5px] border-blue-300 group-hover:border-[#0072BB] transition-colors rounded-br-[2px]" />
+
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0072BB]">
+                Total Executado (NF-e)
+              </span>
+              <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-200/80 flex items-center justify-center">
+                <Receipt size={13} className="text-[#0072BB]" />
+              </div>
             </div>
-            <div className="text-lg sm:text-xl font-extrabold text-[#0072BB] mt-1 font-mono">
-              R$ {executadoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+
+            <div className="flex items-baseline gap-2 mt-2">
+              <div className="text-xl sm:text-2xl font-extrabold text-[#0072BB] font-mono tabular-nums tracking-tight">
+                R$ {executadoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
+              <span className="text-[10px] font-mono font-bold tabular-nums px-1.5 py-0.5 rounded bg-blue-100/80 text-[#0072BB]">
+                {percGlobalExec}%
+              </span>
             </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">
-              33.90.30: R$ {totalRede30.toLocaleString('pt-BR')} · 33.90.39: R$ {totalRede39.toLocaleString('pt-BR')}
+
+            <div className="mt-2.5 pt-2 border-t border-blue-200/50 flex items-center justify-between text-[10px] font-mono tabular-nums text-slate-600">
+              <span>
+                <strong className="text-[#0072BB]">30:</strong> R$ {totalRede30.toLocaleString('pt-BR')}
+              </span>
+              <span className="text-slate-300">|</span>
+              <span>
+                <strong className="text-emerald-700">39:</strong> R$ {totalRede39.toLocaleString('pt-BR')}
+              </span>
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-slate-50/90 border border-slate-200/70">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
-              <span>Saldo em Conta BB</span>
-              <TrendingUp size={14} className="text-emerald-600" />
+          {/* KPI 3: SALDO EM CONTA BB */}
+          <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white via-emerald-50/25 to-emerald-50/40 border border-emerald-200/80 shadow-2xs group hover:border-emerald-300 transition-all">
+            {/* Brilho Especular Superior */}
+            <div className="pointer-events-none absolute inset-x-4 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-500/70 to-transparent" />
+            {/* Cantoneiras Técnicas nos 4 Cantos */}
+            <span className="pointer-events-none absolute top-2 left-2 w-2.5 h-2.5 border-t-[1.5px] border-l-[1.5px] border-emerald-300 group-hover:border-emerald-600 transition-colors rounded-tl-[2px]" />
+            <span className="pointer-events-none absolute top-2 right-2 w-2.5 h-2.5 border-t-[1.5px] border-r-[1.5px] border-emerald-300 group-hover:border-emerald-600 transition-colors rounded-tr-[2px]" />
+            <span className="pointer-events-none absolute bottom-2 left-2 w-2.5 h-2.5 border-b-[1.5px] border-l-[1.5px] border-emerald-300 group-hover:border-emerald-600 transition-colors rounded-bl-[2px]" />
+            <span className="pointer-events-none absolute bottom-2 right-2 w-2.5 h-2.5 border-b-[1.5px] border-r-[1.5px] border-emerald-300 group-hover:border-emerald-600 transition-colors rounded-br-[2px]" />
+
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-700">
+                Saldo em Conta BB
+              </span>
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-200/80 flex items-center justify-center">
+                <TrendingUp size={13} className="text-emerald-600" />
+              </div>
             </div>
-            <div className="text-lg sm:text-xl font-extrabold text-emerald-600 mt-1 font-mono">
-              R$ {saldoTotalDisponivel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+
+            <div className="flex items-baseline gap-2 mt-2">
+              <div className="text-xl sm:text-2xl font-extrabold text-emerald-600 font-mono tabular-nums tracking-tight">
+                R$ {saldoTotalDisponivel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
+              <span className="text-[10px] font-mono font-bold tabular-nums px-1.5 py-0.5 rounded bg-emerald-100/80 text-emerald-800">
+                {percGlobalSaldo}% livre
+              </span>
             </div>
-            <div className="text-[10px] text-slate-400 mt-0.5">
-              Disponibilidade imediata nas 19 unidades
+
+            <div className="mt-2.5 pt-2 border-t border-emerald-200/50 flex items-center justify-between text-[10px] font-mono tabular-nums text-slate-600">
+              <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Liquidez Imediata BB
+              </span>
+              <span className="text-slate-400">19 Contas Ativas</span>
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-slate-50/90 border border-slate-200/70">
-            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
-              <span>Auditoria & Glosas</span>
-              <ShieldCheck size={14} className="text-amber-600" />
+          {/* KPI 4: ALERTAS DE GLOSA TCE-PR & AUDITORIA */}
+          <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white via-amber-50/20 to-slate-50/70 border border-amber-200/85 shadow-2xs group hover:border-amber-300 transition-all">
+            {/* Brilho Especular Superior */}
+            <div className="pointer-events-none absolute inset-x-4 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-amber-500/70 to-transparent" />
+            {/* Cantoneiras Técnicas nos 4 Cantos */}
+            <span className="pointer-events-none absolute top-2 left-2 w-2.5 h-2.5 border-t-[1.5px] border-l-[1.5px] border-amber-300 group-hover:border-amber-600 transition-colors rounded-tl-[2px]" />
+            <span className="pointer-events-none absolute top-2 right-2 w-2.5 h-2.5 border-t-[1.5px] border-r-[1.5px] border-amber-300 group-hover:border-amber-600 transition-colors rounded-tr-[2px]" />
+            <span className="pointer-events-none absolute bottom-2 left-2 w-2.5 h-2.5 border-b-[1.5px] border-l-[1.5px] border-amber-300 group-hover:border-amber-600 transition-colors rounded-bl-[2px]" />
+            <span className="pointer-events-none absolute bottom-2 right-2 w-2.5 h-2.5 border-b-[1.5px] border-r-[1.5px] border-amber-300 group-hover:border-amber-600 transition-colors rounded-br-[2px]" />
+
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-800">
+                Alertas & Glosa TCE-PR
+              </span>
+              <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-200/80 flex items-center justify-center">
+                <ShieldCheck size={13} className="text-amber-600" />
+              </div>
             </div>
-            <div className="text-lg sm:text-xl font-extrabold text-slate-900 mt-1">
-              {unidades.length - unidadesComPendencia} Regulares
+
+            <div className="flex items-baseline gap-2 mt-2">
+              <div className="text-xl sm:text-2xl font-extrabold text-slate-900 font-mono tabular-nums tracking-tight">
+                {unidades.length - unidadesComPendencia}/{unidades.length} Regulares
+              </div>
             </div>
-            <div className="text-[10px] text-amber-600 font-semibold mt-0.5">
-              {unidadesComPendencia} em revisão documental
+
+            <div className="mt-2.5 pt-2 border-t border-amber-200/60 flex items-center justify-between text-[10px] font-mono tabular-nums">
+              <span className="text-amber-700 font-bold flex items-center gap-1">
+                <AlertTriangle size={11} className="text-amber-600" />
+                {unidadesComPendencia} em revisão
+              </span>
+              <span className="px-1.5 py-0.5 rounded bg-red-100/80 text-red-700 font-bold">
+                {totalGlosasRede} {totalGlosasRede === 1 ? 'Glosa' : 'Glosas'}
+              </span>
             </div>
           </div>
         </div>
 
+        {/* Barra de Telemetria Contábil da Rede: 33.90.30 (Consumo) vs 33.90.39 (Serviços PJ) */}
+        <div className="p-3.5 rounded-2xl bg-slate-900 text-white border border-slate-800 shadow-inner flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2.5 text-[11px]">
+            <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono font-bold text-[10px] uppercase tracking-wider">
+              TELEMETRIA ORÇAMENTÁRIA REDE CENSE
+            </span>
+            <span className="text-slate-300 font-mono tabular-nums">
+              Rubrica <strong className="text-sky-400">33.90.30 (Material de Consumo)</strong>: R$ {totalRede30.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ({percRede30}%)
+            </span>
+            <span className="text-slate-600 hidden sm:inline">•</span>
+            <span className="text-slate-300 font-mono tabular-nums">
+              Rubrica <strong className="text-emerald-400">33.90.39 (Serviços Terceiros PJ)</strong>: R$ {totalRede39.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ({percRede39}%)
+            </span>
+          </div>
+
+          <div className="w-full lg:w-64 h-2 bg-slate-800 rounded-full overflow-hidden flex p-0.5 gap-0.5 shrink-0">
+            <div
+              className="h-full rounded-l-full bg-gradient-to-r from-[#0072BB] to-sky-400 transition-all duration-500"
+              style={{ width: `${percRede30}%` }}
+            />
+            <div
+              className="h-full rounded-r-full bg-gradient-to-r from-emerald-500 to-teal-300 transition-all duration-500"
+              style={{ width: `${percRede39}%` }}
+            />
+          </div>
+        </div>
+
         {/* Barra de Busca e Filtros por Regional / Situação Fiscal */}
-        <div className="pt-3 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="pt-2 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="relative flex-1 max-w-md">
             <Search size={15} className="absolute left-3.5 top-2.5 text-slate-400" />
             <input
               type="text"
               value={busca}
               onChange={e => setBusca(e.target.value)}
-              placeholder="Buscar entre os 19 CENSEs por cidade ou gestor suprido..."
-              className="w-full text-xs pl-9 pr-8 py-2 bg-slate-50/80 focus:bg-white border border-slate-200/80 rounded-xl focus:outline-hidden focus:border-slate-400 text-slate-800"
+              placeholder="Buscar entre os 19 CENSEs por cidade, conta BB ou gestor suprido..."
+              className="w-full text-xs pl-9 pr-16 py-2.5 bg-slate-50/90 focus:bg-white border border-slate-200/90 rounded-xl focus:outline-hidden focus:border-slate-900 focus:ring-2 focus:ring-slate-900/5 text-slate-800 transition-all"
             />
-            {busca && (
+            {busca ? (
               <button
                 onClick={() => setBusca('')}
-                className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-700 p-0.5 cursor-pointer"
               >
                 <X size={14} />
               </button>
+            ) : (
+              <span className="pointer-events-none absolute right-2.5 top-2 text-[10px] font-mono font-bold text-slate-400 bg-slate-200/60 px-1.5 py-0.5 rounded">
+                19 UNID
+              </span>
             )}
           </div>
 
@@ -1293,11 +1447,14 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
               <button
                 key={reg.id}
                 type="button"
-                onClick={() => setFiltroRegional(reg.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition cursor-pointer border ${
+                onClick={() => {
+                  soundFX.playClick();
+                  setFiltroRegional(reg.id);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer border ${
                   filtroRegional === reg.id
-                    ? 'bg-slate-900 text-white border-slate-900'
-                    : 'bg-slate-50 text-slate-600 border-slate-200/70 hover:bg-slate-100'
+                    ? 'bg-slate-900 text-white border-slate-900 shadow-2xs'
+                    : 'bg-slate-50/90 text-slate-600 border-slate-200/80 hover:bg-slate-100 hover:border-slate-300'
                 }`}
               >
                 {reg.label}
@@ -1309,12 +1466,15 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
 
       {/* Feedback Toast */}
       {feedbackMsg && (
-        <div className="bg-emerald-900 text-white px-4 py-3 rounded-2xl shadow-md flex items-center justify-between text-xs font-semibold animate-in fade-in">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
-            <span>{feedbackMsg}</span>
+        <div className="relative overflow-hidden bg-slate-900 text-white px-4 py-3.5 rounded-2xl border border-emerald-500/40 shadow-lg flex items-center justify-between text-xs font-semibold animate-in fade-in">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0">
+              <CheckCircle2 size={14} className="text-emerald-400" />
+            </div>
+            <span className="font-mono">{feedbackMsg}</span>
           </div>
-          <button onClick={() => setFeedbackMsg(null)} className="text-emerald-300 hover:text-white cursor-pointer">
+          <button onClick={() => setFeedbackMsg(null)} className="text-slate-400 hover:text-white cursor-pointer p-1">
             <X size={14} />
           </button>
         </div>
@@ -1326,16 +1486,23 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* COLUNA ESQUERDA (5 COLUNAS): UNIDADES CENSE E SALDO DE COTAS */}
-        <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200/80 shadow-gov-card overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200/90 shadow-gov-card overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-200/70 flex flex-wrap items-center justify-between gap-2 bg-gradient-to-b from-slate-50/90 to-white">
             <div className="flex items-center gap-2">
-              <Building2 size={15} className="text-slate-700" />
-              <span className="text-xs font-bold text-slate-900">
-                Unidades Socioeducativas ({unidadesFiltradas.length})
-              </span>
+              <div className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center">
+                <Building2 size={14} />
+              </div>
+              <div>
+                <span className="text-xs font-extrabold text-slate-900 block leading-tight">
+                  Unidades Socioeducativas ({unidadesFiltradas.length})
+                </span>
+                <span className="text-[10px] font-mono text-slate-400 tabular-nums">
+                  Monitoramento de Cotas Trimestrais TCE-PR
+                </span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5 p-1 rounded-xl bg-slate-100 border border-slate-200/70">
               {[
                 { id: 'todos', label: 'Todos' },
                 { id: 'regular', label: 'Regulares' },
@@ -1344,11 +1511,14 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
               ].map(st => (
                 <button
                   key={st.id}
-                  onClick={() => setFiltroStatus(st.id)}
-                  className={`px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition ${
+                  onClick={() => {
+                    soundFX.playClick();
+                    setFiltroStatus(st.id);
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all ${
                     filtroStatus === st.id
-                      ? 'bg-slate-900 text-white'
-                      : 'text-slate-500 hover:bg-slate-100'
+                      ? 'bg-slate-900 text-white shadow-2xs'
+                      : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   {st.label}
@@ -1357,8 +1527,8 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
             </div>
           </div>
 
-          <div className="divide-y divide-slate-100 max-h-[740px] overflow-y-auto">
-            {unidadesFiltradas.map(u => {
+          <div className="divide-y divide-slate-100 max-h-[760px] overflow-y-auto">
+            {unidadesFiltradas.map((u, idx) => {
               const isSelected = u.id === censeAtual.id;
               const execU = u.notas.filter(n => n.status !== 'glosada').reduce((s, n) => s + n.valor, 0);
               const saldoU = Math.max(0, u.cotaTrimestral - execU);
@@ -1371,43 +1541,62 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     soundFX.playClick();
                     setCenseSelecionadoId(u.id);
                   }}
-                  className={`p-4 sm:p-5 transition cursor-pointer ${
+                  className={`group relative p-4 sm:p-5 transition-all duration-150 cursor-pointer ${
                     isSelected
-                      ? 'bg-blue-50/40 border-l-4 border-l-[#0072BB]'
-                      : 'hover:bg-slate-50/80'
+                      ? 'bg-gradient-to-r from-blue-50/75 via-blue-50/25 to-white border-l-4 border-l-[#0072BB]'
+                      : 'hover:bg-slate-50/90 border-l-4 border-l-transparent'
                   }`}
                 >
+                  {isSelected && (
+                    <>
+                      <span className="pointer-events-none absolute top-2 right-2 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-[#0072BB]/60" />
+                      <span className="pointer-events-none absolute bottom-2 right-2 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-[#0072BB]/60" />
+                    </>
+                  )}
+
                   <div className="flex items-start justify-between gap-2">
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-bold text-slate-900">{u.nome}</h3>
-                        <span className="text-[10px] text-slate-400 font-medium">· {u.cidade}</span>
+                        <span className="text-[10px] font-mono font-bold text-slate-400 tabular-nums">
+                          #{String(idx + 1).padStart(2, '0')}
+                        </span>
+                        <h3 className="text-sm font-extrabold text-slate-900 group-hover:text-[#0072BB] transition-colors truncate">
+                          {u.nome}
+                        </h3>
+                        <span className="text-[10px] text-slate-400 font-semibold shrink-0">· {u.cidade}</span>
                       </div>
-                      <div className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-2">
+
+                      <div className="text-[11px] text-slate-500 mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
                         <span>
                           Suprido: <strong className="font-semibold text-slate-700">{u.diretorSuprido}</strong>
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-400 tabular-nums bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200/70">
+                          {u.contaBancoBrasil}
                         </span>
                       </div>
                     </div>
 
                     <div className="flex flex-col items-end gap-1 shrink-0">
                       {u.statusFiscal === 'regular' && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-                          Regular
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300/80 shadow-2xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          Regular TCE
                         </span>
                       )}
                       {u.statusFiscal === 'em_analise' && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/80">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300/80 shadow-2xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                           Em Análise
                         </span>
                       )}
                       {u.statusFiscal === 'alerta_glosa' && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200/80">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-800 border border-red-300/80 shadow-2xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
                           Glosa Fiscal
                         </span>
                       )}
                       <span
-                        className={`text-[10px] font-mono font-semibold flex items-center gap-1 ${
+                        className={`text-[10px] font-mono tabular-nums font-bold flex items-center gap-1 ${
                           u.diasRestantesPrestacao <= 15 ? 'text-amber-600' : 'text-slate-400'
                         }`}
                       >
@@ -1416,24 +1605,25 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Barra de Execução da Cota */}
-                  <div className="mt-3 space-y-1.5">
-                    <div className="flex items-center justify-between text-[11px]">
+                  {/* Barra de Execução da Cota com Gradiente Suave & Tabular-Nums */}
+                  <div className="mt-3 pt-2.5 border-t border-slate-100/90 space-y-1.5">
+                    <div className="flex items-center justify-between text-[11px] font-mono tabular-nums">
                       <span className="text-slate-500">
-                        Executado: <strong className="font-mono text-slate-800">R$ {execU.toLocaleString('pt-BR')}</strong>
+                        Exec.: <strong className="text-slate-900">R$ {execU.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>{' '}
+                        <span className="text-[10px] text-slate-400">({percU}%)</span>
                       </span>
-                      <span className="text-emerald-700 font-mono font-bold">
-                        Livre: R$ {saldoU.toLocaleString('pt-BR')}
+                      <span className="text-emerald-700 font-bold">
+                        Saldo: R$ {saldoU.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </span>
                     </div>
-                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
                       <div
-                        className={`h-full rounded-full transition-all ${
+                        className={`h-full rounded-full transition-all duration-500 ${
                           u.statusFiscal === 'alerta_glosa'
-                            ? 'bg-red-500'
+                            ? 'bg-gradient-to-r from-red-600 via-red-500 to-amber-500'
                             : percU > 85
-                            ? 'bg-amber-500'
-                            : 'bg-[#0072BB]'
+                            ? 'bg-gradient-to-r from-amber-500 to-orange-400'
+                            : 'bg-gradient-to-r from-[#0072BB] via-sky-500 to-emerald-500'
                         }`}
                         style={{ width: `${percU}%` }}
                       />
@@ -1446,32 +1636,37 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
         </div>
 
         {/* COLUNA DIREITA (7 COLUNAS): PAINEL FISCAL DETALHADO DO CENSE SELECIONADO */}
-        <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/80 shadow-gov-card overflow-hidden">
+        <div className="relative lg:col-span-7 bg-white rounded-3xl border border-slate-200/90 shadow-gov-card overflow-hidden">
+          {/* Brilho Especular Superior */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#0072BB] via-sky-400 to-emerald-500" />
           
           {/* Cabeçalho da Unidade Selecionada */}
-          <div className="p-5 sm:p-6 border-b border-slate-100 bg-slate-50/40 space-y-4">
+          <div className="p-5 sm:p-6 border-b border-slate-200/80 bg-gradient-to-b from-slate-50/70 to-white space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500 font-medium">
-                  <span>{censeAtual.regional}</span>
-                  <span>·</span>
-                  <span className="font-mono">{censeAtual.contaBancoBrasil}</span>
-                  <span>·</span>
+                  <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold border border-slate-200/80">
+                    {censeAtual.regional}
+                  </span>
+                  <span className="inline-flex items-center gap-1 font-mono tabular-nums text-[11px] font-bold text-[#0072BB] bg-blue-50/80 px-2.5 py-0.5 rounded-md border border-blue-200/70">
+                    <Landmark size={11} /> {censeAtual.contaBancoBrasil}
+                  </span>
                   <span
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono tabular-nums font-bold border ${
                       censeAtual.diasRestantesPrestacao <= 15
-                        ? 'bg-amber-100 text-amber-800'
-                        : 'bg-slate-200/70 text-slate-700'
+                        ? 'bg-amber-50 text-amber-800 border-amber-300/80'
+                        : 'bg-slate-100 text-slate-700 border-slate-200/80'
                     }`}
                   >
-                    <Clock size={11} /> Prazo Legal 60d: {censeAtual.diasRestantesPrestacao} dias restantes
+                    <Clock size={11} /> Prazo Legal 60d: {censeAtual.diasRestantesPrestacao}d restantes
                   </span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-1">
-                  {censeAtual.nome}
+                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-1.5 tracking-tight">
+                  {censeAtual.nome} <span className="text-sm font-semibold text-slate-400">· {censeAtual.cidade}/PR</span>
                 </h3>
-                <p className="text-xs text-slate-500">
-                  Gestor Suprido: <strong className="text-slate-800">{censeAtual.diretorSuprido}</strong> ({censeAtual.matricula})
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Servidor Suprido: <strong className="text-slate-800 font-bold">{censeAtual.diretorSuprido}</strong>{' '}
+                  <span className="font-mono text-[11px] text-slate-400 tabular-nums">({censeAtual.matricula})</span>
                 </p>
               </div>
 
@@ -1479,72 +1674,123 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                 <button
                   type="button"
                   onClick={handleLiberarNovaCota}
-                  className="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/90 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                  className="group px-3.5 py-2 rounded-xl bg-white hover:bg-blue-50/60 text-slate-700 hover:text-[#0072BB] border border-slate-200/90 hover:border-blue-300 text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-2xs active:scale-[0.98]"
                   title="Liberar Cota Extraordinária / Repasse Suplementar SEJU"
                 >
-                  <RefreshCw size={13} className="text-[#0072BB]" />
+                  <RefreshCw size={13} className="text-[#0072BB] group-hover:rotate-180 transition-transform duration-500" />
                   <span>Liberar Nova Cota</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleHomologarPrestacao}
-                  className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition cursor-pointer"
+                  className="group relative overflow-hidden px-3.5 py-2 rounded-xl bg-gradient-to-b from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm ring-1 ring-emerald-700/60 transition-all duration-200 cursor-pointer active:scale-[0.98]"
                 >
-                  <CheckCircle2 size={14} />
+                  <span className="pointer-events-none absolute inset-x-2 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                  <CheckCircle2 size={14} className="text-emerald-100" />
                   <span>Homologar Prestação</span>
                 </button>
               </div>
             </div>
 
             {/* Mini Resumo Orçamentário da Unidade */}
-            <div className="grid grid-cols-3 gap-2.5">
-              <div className="p-3 rounded-2xl bg-white border border-slate-200/70">
-                <div className="text-[10px] font-semibold uppercase text-slate-400">Cota Trimestral</div>
-                <div className="text-sm sm:text-base font-extrabold text-slate-900 font-mono mt-0.5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div className="p-3.5 rounded-xl bg-white border border-slate-200/85 shadow-2xs">
+                <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+                  Cota Trimestral
+                </div>
+                <div className="text-sm sm:text-base font-extrabold text-slate-900 font-mono tabular-nums mt-1">
                   R$ {censeAtual.cotaTrimestral.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
               </div>
-              <div className="p-3 rounded-2xl bg-white border border-slate-200/70">
-                <div className="text-[10px] font-semibold uppercase text-slate-400">Notas Lançadas ({percentualExecutado}%)</div>
-                <div className="text-sm sm:text-base font-extrabold text-[#0072BB] font-mono mt-0.5">
+
+              <div className="p-3.5 rounded-xl bg-white border border-blue-200/80 shadow-2xs">
+                <div className="flex items-center justify-between text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+                  <span>Executado NF-e</span>
+                  <span className="text-[#0072BB] tabular-nums">{percentualExecutado}%</span>
+                </div>
+                <div className="text-sm sm:text-base font-extrabold text-[#0072BB] font-mono tabular-nums mt-1">
                   R$ {executadoUnidade.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
               </div>
-              <div className="p-3 rounded-2xl bg-white border border-slate-200/70">
-                <div className="text-[10px] font-semibold uppercase text-slate-400">Saldo Disponível</div>
-                <div className="text-sm sm:text-base font-extrabold text-emerald-600 font-mono mt-0.5">
+
+              <div className="p-3.5 rounded-xl bg-white border border-emerald-200/80 shadow-2xs">
+                <div className="flex items-center justify-between text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+                  <span>Saldo Conta BB</span>
+                  <span className="text-emerald-700 tabular-nums">{100 - percentualExecutado}%</span>
+                </div>
+                <div className="text-sm sm:text-base font-extrabold text-emerald-600 font-mono tabular-nums mt-1">
                   R$ {saldoUnidade.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
               </div>
             </div>
 
-            {/* Painel Analítico de Rubricas: 33.90.30 (Consumo) vs 33.90.39 (Serviços Terceiros / Manutenção) */}
-            <div className="p-3.5 rounded-2xl bg-white border border-slate-200/70 space-y-2">
+            {/* DECOMPOSIÇÃO VISUAL IMPECÁVEL DAS RUBRICAS: 33.90.30 (CONSUMO) VS 33.90.39 (SERVIÇOS PJ) */}
+            <div className="p-4 rounded-2xl bg-slate-50/90 border border-slate-200/85 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
-                <span className="font-bold text-slate-700 flex items-center gap-1.5">
+                <span className="font-extrabold text-slate-800 flex items-center gap-1.5 uppercase tracking-wide text-[10px]">
                   <PieChart size={13} className="text-[#0072BB]" />
-                  <span>Execução por Natureza de Despesa (CENSE Selecionado)</span>
+                  <span>Decomposição Contábil por Natureza de Despesa · TCE-PR</span>
                 </span>
-                <div className="flex items-center gap-3 font-mono text-[11px]">
-                  <span className="text-slate-700">
-                    <strong className="text-[#0072BB]">33.90.30 Consumo:</strong> R${' '}
-                    {unidadeConsumo30.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ({percConsumo30}%)
-                  </span>
-                  <span className="text-slate-700">
-                    <strong className="text-emerald-600">33.90.39 Serviços:</strong> R${' '}
-                    {unidadeServicos39.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ({percServicos39}%)
-                  </span>
+                <span className="text-[10px] font-mono text-slate-400 tabular-nums">
+                  {notasValidasUnidade.length} {notasValidasUnidade.length === 1 ? 'documento válido' : 'documentos válidos'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="p-3 rounded-xl bg-white border border-blue-200/70 flex items-center justify-between gap-2 shadow-2xs">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200/80 text-[#0072BB] flex items-center justify-center font-mono text-[10px] font-extrabold shrink-0">
+                      .30
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-mono font-bold uppercase text-[#0072BB]">
+                        Rubrica 33.90.30 · Consumo
+                      </div>
+                      <div className="text-[11px] text-slate-500">
+                        Higiene, Oficinas & Saúde
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right font-mono tabular-nums">
+                    <div className="text-xs sm:text-sm font-extrabold text-slate-900">
+                      R$ {unidadeConsumo30.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </div>
+                    <div className="text-[10px] font-bold text-[#0072BB]">{percConsumo30}% do gasto</div>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-white border border-emerald-200/70 flex items-center justify-between gap-2 shadow-2xs">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200/80 text-emerald-700 flex items-center justify-center font-mono text-[10px] font-extrabold shrink-0">
+                      .39
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-mono font-bold uppercase text-emerald-700">
+                        Rubrica 33.90.39 · Serviços PJ
+                      </div>
+                      <div className="text-[11px] text-slate-500">
+                        Manutenção Predial & Reparos
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right font-mono tabular-nums">
+                    <div className="text-xs sm:text-sm font-extrabold text-slate-900">
+                      R$ {unidadeServicos39.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </div>
+                    <div className="text-[10px] font-bold text-emerald-700">{percServicos39}% do gasto</div>
+                  </div>
                 </div>
               </div>
-              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden flex">
+
+              <div className="w-full h-2.5 bg-slate-200/80 rounded-full overflow-hidden flex p-0.5 gap-0.5">
                 <div
-                  className="h-full bg-[#0072BB] transition-all"
+                  className="h-full rounded-l-full bg-gradient-to-r from-[#0072BB] to-sky-500 transition-all duration-500"
                   style={{ width: `${percConsumo30}%` }}
                   title="Material de Consumo (33.90.30)"
                 />
                 <div
-                  className="h-full bg-emerald-500 transition-all"
+                  className="h-full rounded-r-full bg-gradient-to-r from-emerald-600 to-teal-400 transition-all duration-500"
                   style={{ width: `${percServicos39}%` }}
                   title="Outros Serviços de Terceiros - Pessoa Jurídica (33.90.39)"
                 />
@@ -1552,11 +1798,11 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
             </div>
 
             {/* Sub-abas da Unidade */}
-            <div className="flex items-center gap-1.5 pt-1">
+            <div className="flex flex-wrap items-center gap-1.5 pt-1">
               {[
                 { id: 'notas', label: `Notas Fiscais (${censeAtual.notas.length})`, icon: Receipt },
-                { id: 'nova-despesa', label: 'Lançar Nota Fiscal', icon: PlusCircle },
-                { id: 'relatorio', label: 'Relatório TCE-PR', icon: SlidersHorizontal }
+                { id: 'nova-despesa', label: 'Scanner NF-e / Lançar Despesa', icon: ScanLine },
+                { id: 'relatorio', label: 'Espelho Oficial TCE-PR', icon: SlidersHorizontal }
               ].map(t => {
                 const Icon = t.icon;
                 const ativa = abaDetalhe === t.id;
@@ -1564,14 +1810,17 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                   <button
                     key={t.id}
                     type="button"
-                    onClick={() => setAbaDetalhe(t.id as 'notas' | 'nova-despesa' | 'relatorio')}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
+                    onClick={() => {
+                      soundFX.playClick();
+                      setAbaDetalhe(t.id as 'notas' | 'nova-despesa' | 'relatorio');
+                    }}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                       ativa
-                        ? 'bg-slate-900 text-white shadow-2xs'
-                        : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/70'
+                        ? 'bg-slate-900 text-white shadow-sm'
+                        : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
                     }`}
                   >
-                    <Icon size={13} />
+                    <Icon size={13} className={ativa ? 'text-emerald-400' : 'text-slate-500'} />
                     <span>{t.label}</span>
                   </button>
                 );
@@ -1579,126 +1828,189 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
             </div>
           </div>
 
-          {/* CONTEÚDO DA ABA 1: LISTA DE NOTAS FISCAIS E AUDITORIA DE GLOSA */}
+          {/* =================================================================
+              CONTEÚDO DA ABA 1: LISTA DE NOTAS FISCAIS E AUDITORIA DE GLOSA
+             ================================================================= */}
           {abaDetalhe === 'notas' && (
-            <div className="p-5 sm:p-6 space-y-3">
-              {censeAtual.notas.map(nf => (
-                <div
-                  key={nf.id}
-                  className="p-4 rounded-2xl border border-slate-200/80 hover:border-slate-300 bg-white space-y-3 transition"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-mono text-xs font-bold text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded-md">
-                          {nf.numeroNf}
-                        </span>
-                        <span className="text-xs font-bold text-slate-900">{nf.fornecedor}</span>
-                        <span className="text-[11px] font-mono text-slate-400">CNPJ {nf.cnpj}</span>
+            <div className="p-5 sm:p-6 space-y-3.5">
+              {censeAtual.notas.map(nf => {
+                const ehConsumo30 = isRubricaConsumo30(nf.rubrica);
+                return (
+                  <div
+                    key={nf.id}
+                    className={`relative overflow-hidden p-4 sm:p-5 rounded-2xl border bg-white space-y-3 transition-all shadow-2xs hover:shadow-md ${
+                      nf.status === 'glosada'
+                        ? 'border-red-200/90 border-l-4 border-l-red-500'
+                        : nf.status === 'pendente'
+                        ? 'border-amber-200/90 border-l-4 border-l-amber-500'
+                        : 'border-slate-200/90 hover:border-slate-300 border-l-4 border-l-emerald-500'
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5">
+                      <div className="space-y-1.5">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-mono tabular-nums text-xs font-extrabold text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded-lg border border-slate-200/80">
+                            {nf.numeroNf}
+                          </span>
+                          <span className="text-xs sm:text-sm font-extrabold text-slate-900">{nf.fornecedor}</span>
+                          <span className="text-[11px] font-mono tabular-nums text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-200/60">
+                            CNPJ {nf.cnpj}
+                          </span>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono font-bold text-[10px] border ${
+                              ehConsumo30
+                                ? 'bg-blue-50 text-[#0072BB] border-blue-200/70'
+                                : 'bg-emerald-50 text-emerald-700 border-emerald-200/70'
+                            }`}
+                          >
+                            {ehConsumo30 ? '33.90.30 · CONSUMO' : '33.90.39 · SERVIÇOS PJ'}
+                          </span>
+                          <span className="font-medium text-slate-600">{nf.rubrica}</span>
+                          <span className="text-slate-300">·</span>
+                          <span className="font-mono tabular-nums text-slate-500">Emissão: {nf.dataEmissao}</span>
+
+                          {nf.tresOrcamentos !== false && (
+                            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80">
+                              ✓ 3 Cotações Anexas
+                            </span>
+                          )}
+                          {nf.comprovanteNome && (
+                            <span className="text-[10px] font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/70">
+                              {nf.comprovanteNome}
+                            </span>
+                          )}
+                        </div>
+
+                        {nf.chaveAcesso && (
+                          <div className="inline-flex items-center gap-1.5 text-[10px] font-mono tabular-nums text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/70">
+                            <QrCode size={11} className="text-[#0072BB] shrink-0" />
+                            <span className="uppercase font-bold text-slate-400">Chave DANFE:</span>
+                            <span className="tracking-wider text-slate-700">{nf.chaveAcesso}</span>
+                          </div>
+                        )}
                       </div>
-                      <div className="text-[11px] font-medium text-[#0072BB] mt-1 flex flex-wrap items-center gap-2">
-                        <span>{nf.rubrica} · Emitida em {nf.dataEmissao}</span>
-                        {nf.tresOrcamentos !== false && (
-                          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/60">
-                            3 Cotações Anexas
+
+                      <div className="text-left sm:text-right shrink-0">
+                        <div className="text-base sm:text-lg font-extrabold font-mono tabular-nums text-slate-900">
+                          R$ {nf.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </div>
+                        {nf.status === 'aprovada' && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/90 mt-1">
+                            <CheckCircle2 size={11} className="text-emerald-600" /> Atestada TCE-PR
                           </span>
                         )}
-                        {nf.comprovanteNome && (
-                          <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
-                            {nf.comprovanteNome}
+                        {nf.status === 'pendente' && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200/90 mt-1">
+                            <Clock size={11} className="text-amber-600" /> Em Conferência Fiscal
+                          </span>
+                        )}
+                        {nf.status === 'glosada' && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-800 border border-red-200/90 mt-1">
+                            <AlertTriangle size={11} className="text-red-600" /> Nota Glosada
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <div className="text-left sm:text-right shrink-0">
-                      <div className="text-sm font-extrabold font-mono text-slate-900">
-                        R$ {nf.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    <p className="text-xs text-slate-600 bg-slate-50/90 p-3 rounded-xl border border-slate-200/60 leading-relaxed">
+                      {nf.descricao}
+                    </p>
+
+                    {nf.motivoGlosa && (
+                      <div className="p-3 rounded-xl bg-red-50/90 border border-red-200 text-xs text-red-900 flex items-start gap-2">
+                        <AlertTriangle size={14} className="text-red-600 shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="font-bold">Motivo da Glosa Fiscal (TCE-PR / Controle Interno): </strong>
+                          {nf.motivoGlosa}
+                        </div>
                       </div>
-                      {nf.status === 'aprovada' && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700">
-                          <CheckCircle2 size={11} /> Nota Atestada
-                        </span>
-                      )}
-                      {nf.status === 'pendente' && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600">
-                          Em Conferência Fiscal
-                        </span>
-                      )}
-                      {nf.status === 'glosada' && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-red-600">
-                          <AlertTriangle size={11} /> Nota Glosada
-                        </span>
-                      )}
+                    )}
+
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100">
+                      <span className="inline-flex items-center gap-1.5 text-[10px] font-mono text-slate-400 select-none">
+                        <Lock size={10} className="text-emerald-600" />
+                        <span>Hash SEFAZ-PR · ••••••••••••••••</span>
+                      </span>
+
+                      <div className="flex items-center gap-2">
+                        {nf.status !== 'aprovada' && (
+                          <button
+                            type="button"
+                            onClick={() => handleAprovarNota(nf.id)}
+                            className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-600 text-emerald-800 hover:text-white border border-emerald-200/90 hover:border-emerald-600 text-[11px] font-bold flex items-center gap-1 transition-all duration-150 cursor-pointer shadow-2xs active:scale-95"
+                          >
+                            <CheckCircle2 size={12} /> Aprovar NF-e
+                          </button>
+                        )}
+                        {nf.status !== 'glosada' && (
+                          <button
+                            type="button"
+                            onClick={() => handleGlosarNota(nf.id)}
+                            className="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-600 text-red-700 hover:text-white border border-red-200/90 hover:border-red-600 text-[11px] font-bold flex items-center gap-1 transition-all duration-150 cursor-pointer shadow-2xs active:scale-95"
+                          >
+                            <Ban size={12} /> Glosar
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-
-                  <p className="text-xs text-slate-600 bg-slate-50/80 p-3 rounded-xl border border-slate-100">
-                    {nf.descricao}
-                  </p>
-
-                  {nf.motivoGlosa && (
-                    <div className="p-3 rounded-xl bg-red-50 border border-red-200/80 text-xs text-red-800 flex items-start gap-2">
-                      <AlertTriangle size={14} className="text-red-600 shrink-0 mt-0.5" />
-                      <div>
-                        <strong className="font-bold">Motivo da Glosa Fiscal: </strong>
-                        {nf.motivoGlosa}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between pt-1">
-                    <span className="text-[10px] font-mono text-slate-400 select-none">
-                      Selo Fiscal · ••••••••••••••••
-                    </span>
-
-                    <div className="flex items-center gap-2">
-                      {nf.status !== 'aprovada' && (
-                        <button
-                          type="button"
-                          onClick={() => handleAprovarNota(nf.id)}
-                          className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[11px] font-bold flex items-center gap-1 transition cursor-pointer"
-                        >
-                          <CheckCircle2 size={12} /> Aprovar NF
-                        </button>
-                      )}
-                      {nf.status !== 'glosada' && (
-                        <button
-                          type="button"
-                          onClick={() => handleGlosarNota(nf.id)}
-                          className="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-[11px] font-bold flex items-center gap-1 transition cursor-pointer"
-                        >
-                          <Ban size={12} /> Glosar
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
-          {/* CONTEÚDO DA ABA 2: LANÇAR NOVA NOTA FISCAL NO FUNDO ROTATIVO + SCANNER DANFE */}
+          {/* =================================================================
+              CONTEÚDO DA ABA 2: SCANNER LASER FAZENDÁRIO DE DANFE / NF-e (44 DÍGITOS)
+             ================================================================= */}
           {abaDetalhe === 'nova-despesa' && (
-            <form onSubmit={handleLancarNota} className="p-5 sm:p-6 space-y-4">
-              {/* Scanner Inteligente NF-e (44 dígitos) & Importação DANFE */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-slate-900 text-emerald-400 flex items-center justify-center shrink-0">
-                      <ScanLine size={16} />
+            <form onSubmit={handleLancarNota} className="p-5 sm:p-6 space-y-5">
+              
+              {/* ZONA DE SCANNER LASER FAZENDÁRIO (CANTONEIRAS LUMINOSAS + BARRA DE VARREDURA + CRACHÁ SEFAZ-PR / RECEITA FEDERAL) */}
+              <div className="relative overflow-hidden p-5 rounded-2xl bg-slate-950 text-white border border-slate-800 shadow-lg space-y-4">
+                {/* Grade Óptica Fazendária de Fundo */}
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-15"
+                  style={{
+                    backgroundImage:
+                      'radial-gradient(circle at 1px 1px, rgba(16, 185, 129, 0.45) 1px, transparent 0)',
+                    backgroundSize: '18px 18px'
+                  }}
+                />
+
+                {/* Barra de Varredura Laser Sutil */}
+                <div className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/80 to-transparent shadow-[0_0_16px_rgba(16,185,129,0.85)]" />
+
+                {/* 4 Cantoneiras Luminosas do Scanner Laser */}
+                <span className="pointer-events-none absolute top-2.5 left-2.5 w-4 h-4 border-t-2 border-l-2 border-emerald-400 rounded-tl-xs shadow-[-2px_-2px_8px_rgba(16,185,129,0.4)]" />
+                <span className="pointer-events-none absolute top-2.5 right-2.5 w-4 h-4 border-t-2 border-r-2 border-emerald-400 rounded-tr-xs shadow-[2px_-2px_8px_rgba(16,185,129,0.4)]" />
+                <span className="pointer-events-none absolute bottom-2.5 left-2.5 w-4 h-4 border-b-2 border-l-2 border-emerald-400 rounded-bl-xs shadow-[-2px_2px_8px_rgba(16,185,129,0.4)]" />
+                <span className="pointer-events-none absolute bottom-2.5 right-2.5 w-4 h-4 border-b-2 border-r-2 border-emerald-400 rounded-br-xs shadow-[2px_2px_8px_rgba(16,185,129,0.4)]" />
+
+                <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-start sm:items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-400 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(16,185,129,0.25)]">
+                      <ScanLine size={20} />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-slate-900">
-                        Leitor de Chave de Acesso NF-e (44 dígitos) & Importação DANFE
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-mono text-[10px] font-bold uppercase tracking-wider">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          SEFAZ-PR · RECEITA FEDERAL · SPED NF-e
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-400 tabular-nums">
+                          OCR / XML LASER SCANNER
+                        </span>
                       </div>
-                      <div className="text-[11px] text-slate-500">
-                        Preenchimento automático via Webservice SEFAZ-PR ou upload de PDF/XML
+                      <div className="text-sm font-extrabold text-white mt-1">
+                        Scanner Inteligente de DANFE & Chave de Acesso (44 Dígitos)
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -1709,37 +2021,128 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                      className="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 hover:border-slate-500 text-[11px] font-bold flex items-center gap-1.5 transition cursor-pointer"
                     >
-                      <Upload size={12} />
-                      <span>Anexar DANFE / PDF</span>
+                      <Upload size={13} className="text-sky-400" />
+                      <span>Drop DANFE / XML</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={handleSimularLeituraDanfe}
-                      className="px-3 py-1.5 rounded-xl bg-[#0072BB] hover:bg-blue-700 text-white text-[11px] font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 text-[11px] font-extrabold flex items-center gap-1.5 shadow-[0_0_16px_rgba(16,185,129,0.4)] transition cursor-pointer active:scale-95"
                     >
-                      <Sparkles size={12} />
-                      <span>Simular Leitura de DANFE / XML (SEFAZ-PR)</span>
+                      <Sparkles size={13} />
+                      <span>Simular Leitura Laser DANFE (SEFAZ-PR)</span>
                     </button>
                   </div>
                 </div>
 
-                <div>
+                {/* Visor Óptico dos 44 Dígitos da Chave de Acesso */}
+                <div className="relative space-y-2">
+                  <div className="flex items-center justify-between text-[10px] font-mono">
+                    <span className="text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <QrCode size={11} className="text-emerald-400" />
+                      Barramento Óptico de Chave de Acesso NF-e (Modelo 55 / 65)
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 rounded font-bold tabular-nums ${
+                        digitosChave.length === 44
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                          : 'bg-slate-800 text-slate-400 border border-slate-700'
+                      }`}
+                    >
+                      {digitosChave.length}/44 DÍGITOS
+                    </span>
+                  </div>
+
                   <input
                     type="text"
                     value={chaveDanfe}
                     onChange={e => setChaveDanfe(e.target.value)}
-                    placeholder="Cole os 44 dígitos da Chave de Acesso da NF-e para consulta automática..."
-                    className="w-full text-xs font-mono px-3.5 py-2 rounded-xl bg-white border border-slate-200 focus:outline-hidden focus:border-slate-900"
+                    placeholder="4126 1082 3910 4400 0192 5500 1000 0284 1010 9283 7461 (Cole ou escaneie os 44 dígitos)"
+                    className="w-full text-xs font-mono tabular-nums tracking-wider px-4 py-3 rounded-xl bg-slate-900/95 text-emerald-300 placeholder:text-slate-600 border border-emerald-500/30 focus:outline-hidden focus:border-emerald-400 shadow-inner"
                   />
+
                   {comprovanteNome && (
-                    <div className="mt-1.5 text-[11px] text-emerald-700 font-semibold flex items-center gap-1.5">
-                      <CheckCircle2 size={12} /> Documento vinculado: <span className="font-mono">{comprovanteNome}</span>
+                    <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-[11px] text-emerald-300 font-mono">
+                      <span className="flex items-center gap-1.5 font-semibold">
+                        <CheckCircle2 size={13} className="text-emerald-400" />
+                        Autenticado SEFAZ-PR / Receita Federal: <strong>{comprovanteNome}</strong>
+                      </span>
+                      <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
+                        PROTOCOLO VÁLIDO
+                      </span>
                     </div>
                   )}
                 </div>
+              </div>
+
+              {/* Decomposição Interativa de Rubrica no Lançamento: 33.90.30 vs 33.90.39 */}
+              <div className="p-4 rounded-2xl bg-slate-50/90 border border-slate-200/85 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
+                    <Layers size={14} className="text-[#0072BB]" />
+                    <span>Classificação da Rubrica Orçamentária (33.90.30 vs 33.90.39)</span>
+                  </label>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-200/70 text-slate-700">
+                    {isRubricaConsumo30(rubrica) ? 'NATUREZA 33.90.30 · CONSUMO' : 'NATUREZA 33.90.39 · SERVIÇOS PJ'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setRubrica('Material de Consumo & Higiene (33.90.30)')}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      isRubricaConsumo30(rubrica)
+                        ? 'bg-blue-50/90 border-[#0072BB] ring-1 ring-[#0072BB]/30'
+                        : 'bg-white border-slate-200/80 hover:border-slate-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="text-[10px] font-mono font-extrabold uppercase text-[#0072BB]">
+                        Elemento 33.90.30
+                      </div>
+                      <div className="text-xs font-bold text-slate-900 mt-0.5">
+                        Material de Consumo, Oficinas & Saúde
+                      </div>
+                    </div>
+                    <Scale size={15} className="text-[#0072BB] shrink-0" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setRubrica('Manutenção Predial (33.90.39)')}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      !isRubricaConsumo30(rubrica)
+                        ? 'bg-emerald-50/90 border-emerald-600 ring-1 ring-emerald-600/30'
+                        : 'bg-white border-slate-200/80 hover:border-slate-300'
+                    }`}
+                  >
+                    <div>
+                      <div className="text-[10px] font-mono font-extrabold uppercase text-emerald-700">
+                        Elemento 33.90.39
+                      </div>
+                      <div className="text-xs font-bold text-slate-900 mt-0.5">
+                        Serviços de Terceiros PJ & Manutenção
+                      </div>
+                    </div>
+                    <Scale size={15} className="text-emerald-600 shrink-0" />
+                  </button>
+                </div>
+
+                <select
+                  value={rubrica}
+                  onChange={e => setRubrica(e.target.value as RubricaFundo)}
+                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:border-slate-900"
+                >
+                  <option value="Manutenção Predial (33.90.39)">Manutenção Predial (33.90.39)</option>
+                  <option value="Reparos Elétricos & Hidráulicos (33.90.39)">Reparos Elétricos & Hidráulicos (33.90.39)</option>
+                  <option value="Material de Consumo & Higiene (33.90.30)">Material de Consumo & Higiene (33.90.30)</option>
+                  <option value="Insumos Pedagógicos & Oficinas (33.90.30)">Insumos Pedagógicos & Oficinas (33.90.30)</option>
+                  <option value="Suprimento Emergencial Saúde (33.90.30)">Suprimento Emergencial Saúde (33.90.30)</option>
+                </select>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1753,7 +2156,7 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     value={numeroNf}
                     onChange={e => setNumeroNf(e.target.value)}
                     placeholder="Ex: 009.412"
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-slate-900"
+                    className="w-full text-xs font-mono tabular-nums px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-slate-900"
                   />
                 </div>
 
@@ -1768,7 +2171,7 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     value={valorNf}
                     onChange={e => setValorNf(e.target.value)}
                     placeholder="Ex: 1450.00"
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-slate-900 font-mono"
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-slate-900 font-mono tabular-nums"
                   />
                 </div>
 
@@ -1788,33 +2191,16 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
-                    CNPJ do Fornecedor
+                    CNPJ do Fornecedor (Receita Federal)
                   </label>
                   <input
                     type="text"
                     value={cnpj}
                     onChange={e => setCnpj(e.target.value)}
                     placeholder="00.000.000/0001-00"
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-slate-900 font-mono"
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-slate-900 font-mono tabular-nums"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Natureza de Despesa / Rubrica do Fundo Rotativo
-                </label>
-                <select
-                  value={rubrica}
-                  onChange={e => setRubrica(e.target.value as RubricaFundo)}
-                  className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:border-slate-900"
-                >
-                  <option value="Manutenção Predial (33.90.39)">Manutenção Predial (33.90.39)</option>
-                  <option value="Reparos Elétricos & Hidráulicos (33.90.39)">Reparos Elétricos & Hidráulicos (33.90.39)</option>
-                  <option value="Material de Consumo & Higiene (33.90.30)">Material de Consumo & Higiene (33.90.30)</option>
-                  <option value="Insumos Pedagógicos & Oficinas (33.90.30)">Insumos Pedagógicos & Oficinas (33.90.30)</option>
-                  <option value="Suprimento Emergencial Saúde (33.90.30)">Suprimento Emergencial Saúde (33.90.30)</option>
-                </select>
               </div>
 
               <div>
@@ -1831,13 +2217,13 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
               </div>
 
               {/* Validador de Conformidade Legal (Lei Estadual 14.268/PR) */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/85 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
                     <ShieldCheck size={14} className="text-emerald-600" />
-                    <span>Validador de Conformidade Legal · Lei Estadual nº 14.268/PR</span>
+                    <span>Validador de Conformidade Legal · Lei Estadual nº 14.268/PR & TCE-PR</span>
                   </span>
-                  <label className="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                  <label className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={tresOrcamentos}
@@ -1848,11 +2234,11 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                   </label>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[11px] font-mono tabular-nums">
                   <div
                     className={`p-2.5 rounded-xl border flex items-center gap-2 ${
                       excedeLimiteLegal
-                        ? 'bg-red-50 border-red-200 text-red-800 font-semibold'
+                        ? 'bg-red-50 border-red-200 text-red-800 font-bold'
                         : 'bg-white border-slate-200/80 text-slate-700'
                     }`}
                   >
@@ -1861,13 +2247,13 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     ) : (
                       <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
                     )}
-                    <span>Teto Individual: R$ 8.000,00</span>
+                    <span>Teto NF: R$ 8.000,00</span>
                   </div>
 
                   <div
                     className={`p-2.5 rounded-xl border flex items-center gap-2 ${
                       excedeSaldoUnidade
-                        ? 'bg-amber-50 border-amber-200 text-amber-800 font-semibold'
+                        ? 'bg-amber-50 border-amber-200 text-amber-800 font-bold'
                         : 'bg-white border-slate-200/80 text-slate-700'
                     }`}
                   >
@@ -1876,13 +2262,13 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     ) : (
                       <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
                     )}
-                    <span>Saldo Conta BB Disponível</span>
+                    <span>Saldo BB: R$ {saldoUnidade.toLocaleString('pt-BR')}</span>
                   </div>
 
                   <div
                     className={`p-2.5 rounded-xl border flex items-center gap-2 ${
                       !tresOrcamentos
-                        ? 'bg-red-50 border-red-200 text-red-800 font-semibold'
+                        ? 'bg-red-50 border-red-200 text-red-800 font-bold'
                         : 'bg-white border-slate-200/80 text-slate-700'
                     }`}
                   >
@@ -1891,7 +2277,7 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     ) : (
                       <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
                     )}
-                    <span>3 Cotações de Preço</span>
+                    <span>3 Cotações Prévias</span>
                   </div>
                 </div>
               </div>
@@ -1900,32 +2286,35 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setAbaDetalhe('notas')}
-                  className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-600 text-xs font-semibold cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-bold cursor-pointer transition"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 transition"
                 >
-                  Registrar Nota Fiscal no CENSE
+                  <PlusCircle size={14} className="text-emerald-400" />
+                  <span>Registrar Nota Fiscal no CENSE</span>
                 </button>
               </div>
             </form>
           )}
 
-          {/* CONTEÚDO DA ABA 3: ESPELHO OFICIAL DE PRESTAÇÃO DE CONTAS (TCE-PR / SEJU) */}
+          {/* =================================================================
+              CONTEÚDO DA ABA 3: ESPELHO OFICIAL DE PRESTAÇÃO DE CONTAS (TCE-PR / SEJU)
+             ================================================================= */}
           {abaDetalhe === 'relatorio' && (
             <div className="p-5 sm:p-6 space-y-5">
-              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+              <div className="relative overflow-hidden p-5 rounded-2xl bg-slate-50/90 border border-slate-200/90 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
                   <div className="flex items-center gap-3">
                     <BrasaoParana size="sm" />
                     <div>
-                      <div className="text-xs font-extrabold text-slate-900 uppercase">
+                      <div className="text-xs font-extrabold text-slate-900 uppercase tracking-tight">
                         Espelho Oficial de Prestação de Contas · Fundo Rotativo (TCE-PR / SEJU)
                       </div>
-                      <div className="text-[11px] text-slate-500">
+                      <div className="text-[11px] font-mono tabular-nums text-slate-500 mt-0.5">
                         {censeAtual.nome} · {censeAtual.competencia} · {censeAtual.contaBancoBrasil}
                       </div>
                     </div>
@@ -1935,149 +2324,184 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     <button
                       type="button"
                       onClick={handleExportarCsv}
-                      className="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                      className="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/90 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs transition"
                     >
-                      <Download size={13} /> Exportar .CSV
+                      <Download size={13} className="text-emerald-600" /> Exportar .CSV
                     </button>
                     <button
                       type="button"
                       onClick={() => window.print()}
-                      className="px-3.5 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                      className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs transition"
                     >
-                      <Printer size={14} /> Imprimir Termo TCE-PR
+                      <Printer size={14} className="text-emerald-400" /> Imprimir Termo TCE-PR
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-white p-3.5 rounded-xl border border-slate-200/80">
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Unidade Socioeducativa</span>
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Unidade Socioeducativa</span>
                     <strong className="text-slate-900">{censeAtual.nome} ({censeAtual.cidade})</strong>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Servidor Suprido Responsável</span>
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Servidor Suprido</span>
                     <strong className="text-slate-900">{censeAtual.diretorSuprido} ({censeAtual.matricula})</strong>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Última Conferência / Prazo</span>
-                    <strong className="text-slate-900">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Última Conferência / Prazo</span>
+                    <strong className="text-slate-900 font-mono tabular-nums">
                       {censeAtual.ultimaPrestacao} ({censeAtual.diasRestantesPrestacao}d restantes)
                     </strong>
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Blindagem Criptográfica</span>
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Blindagem Criptográfica</span>
                     <strong className="text-emerald-700 font-mono select-none">••••••••••••••••</strong>
                   </div>
                 </div>
 
                 {/* Quadro Sintético por Natureza de Despesa */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="p-3.5 rounded-xl bg-white border border-slate-200/80">
-                    <div className="text-[10px] font-bold uppercase text-slate-400">
+                  <div className="p-3.5 rounded-xl bg-white border border-blue-200/80 shadow-2xs">
+                    <div className="text-[10px] font-mono font-bold uppercase text-[#0072BB]">
                       Material de Consumo (33.90.30)
                     </div>
-                    <div className="text-sm font-extrabold font-mono text-slate-900 mt-1">
+                    <div className="text-sm sm:text-base font-extrabold font-mono tabular-nums text-slate-900 mt-1">
                       R$ {unidadeConsumo30.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </div>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-white border border-slate-200/80">
-                    <div className="text-[10px] font-bold uppercase text-slate-400">
+                  <div className="p-3.5 rounded-xl bg-white border border-emerald-200/80 shadow-2xs">
+                    <div className="text-[10px] font-mono font-bold uppercase text-emerald-700">
                       Serviços de Terceiros PJ (33.90.39)
                     </div>
-                    <div className="text-sm font-extrabold font-mono text-slate-900 mt-1">
+                    <div className="text-sm sm:text-base font-extrabold font-mono tabular-nums text-slate-900 mt-1">
                       R$ {unidadeServicos39.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </div>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-white border border-slate-200/80">
-                    <div className="text-[10px] font-bold uppercase text-slate-400">
+                  <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                    <div className="text-[10px] font-mono font-bold uppercase text-slate-500">
                       Saldo em Conta BB a Reprogramar
                     </div>
-                    <div className="text-sm font-extrabold font-mono text-emerald-700 mt-1">
+                    <div className="text-sm sm:text-base font-extrabold font-mono tabular-nums text-emerald-700 mt-1">
                       R$ {saldoUnidade.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </div>
                   </div>
                 </div>
 
-                {/* Tabela Discriminada de Documentos Fiscais da Prestação */}
-                <div className="bg-white rounded-xl border border-slate-200/80 overflow-hidden">
-                  <div className="px-4 py-2.5 bg-slate-100/80 border-b border-slate-200/80 text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                    Relação de Comprovantes Fiscais Atestados ({censeAtual.notas.length} documentos)
+                {/* Tabela Discriminada de Documentos Fiscais da Prestação (Bloomberg / Stripe Treasury Table) */}
+                <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
+                  <div className="px-4 py-3 bg-slate-900 text-white flex items-center justify-between text-[11px] font-bold uppercase tracking-wider">
+                    <span className="flex items-center gap-2">
+                      <Receipt size={13} className="text-emerald-400" />
+                      <span>Relação de Comprovantes Fiscais Atestados ({censeAtual.notas.length} documentos)</span>
+                    </span>
+                    <span className="font-mono text-[10px] text-slate-400 tabular-nums">
+                      AUDITORIA TCE-PR · LEI 14.268/PR
+                    </span>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse text-xs">
                       <thead>
-                        <tr className="border-b border-slate-200/70 text-[10px] font-bold uppercase text-slate-400 bg-slate-50/50">
-                          <th className="py-2.5 px-3">Documento</th>
+                        <tr className="border-b border-slate-200/80 text-[10px] font-mono font-bold uppercase text-slate-500 bg-slate-50/90">
+                          <th className="py-2.5 px-3.5">Documento</th>
                           <th className="py-2.5 px-3">Emissão</th>
                           <th className="py-2.5 px-3">Credor / CNPJ</th>
-                          <th className="py-2.5 px-3">Natureza</th>
-                          <th className="py-2.5 px-3 text-right">Valor (R$)</th>
-                          <th className="py-2.5 px-3 text-center">Situação</th>
+                          <th className="py-2.5 px-3">Rubrica Contábil</th>
+                          <th className="py-2.5 px-3.5 text-right">Valor (R$)</th>
+                          <th className="py-2.5 px-3.5 text-center">Conformidade TCE</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {censeAtual.notas.map(nf => (
-                          <tr key={nf.id} className="hover:bg-slate-50/70">
-                            <td className="py-2.5 px-3 font-mono font-bold text-slate-900">{nf.numeroNf}</td>
-                            <td className="py-2.5 px-3 text-slate-600">{nf.dataEmissao}</td>
-                            <td className="py-2.5 px-3">
-                              <div className="font-semibold text-slate-800">{nf.fornecedor}</div>
-                              <div className="text-[10px] font-mono text-slate-400">{nf.cnpj}</div>
-                            </td>
-                            <td className="py-2.5 px-3 text-[11px] text-slate-600">{nf.rubrica}</td>
-                            <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900">
-                              R$ {nf.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                            </td>
-                            <td className="py-2.5 px-3 text-center">
-                              <span
-                                className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                  nf.status === 'aprovada'
-                                    ? 'bg-emerald-50 text-emerald-700'
+                        {censeAtual.notas.map(nf => {
+                          const is30 = isRubricaConsumo30(nf.rubrica);
+                          return (
+                            <tr key={nf.id} className="hover:bg-slate-50/90 transition-colors">
+                              <td className="py-3 px-3.5 font-mono tabular-nums font-extrabold text-slate-900">
+                                {nf.numeroNf}
+                              </td>
+                              <td className="py-3 px-3 font-mono tabular-nums text-slate-600">{nf.dataEmissao}</td>
+                              <td className="py-3 px-3">
+                                <div className="font-bold text-slate-900">{nf.fornecedor}</div>
+                                <div className="text-[10px] font-mono tabular-nums text-slate-400">{nf.cnpj}</div>
+                              </td>
+                              <td className="py-3 px-3">
+                                <span
+                                  className={`inline-block font-mono text-[10px] font-bold px-2 py-0.5 rounded border mb-0.5 ${
+                                    is30
+                                      ? 'bg-blue-50 text-[#0072BB] border-blue-200/70'
+                                      : 'bg-emerald-50 text-emerald-700 border-emerald-200/70'
+                                  }`}
+                                >
+                                  {is30 ? '33.90.30' : '33.90.39'}
+                                </span>
+                                <div className="text-[11px] text-slate-600">{nf.rubrica}</div>
+                              </td>
+                              <td className="py-3 px-3.5 text-right font-mono tabular-nums font-extrabold text-slate-900">
+                                R$ {nf.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="py-3 px-3.5 text-center">
+                                <span
+                                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                                    nf.status === 'aprovada'
+                                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300/80'
+                                      : nf.status === 'glosada'
+                                      ? 'bg-red-50 text-red-800 border-red-300/80'
+                                      : 'bg-amber-50 text-amber-800 border-amber-300/80'
+                                  }`}
+                                >
+                                  {nf.status === 'aprovada'
+                                    ? 'Aprovada TCE'
                                     : nf.status === 'glosada'
-                                    ? 'bg-red-50 text-red-700'
-                                    : 'bg-amber-50 text-amber-700'
-                                }`}
-                              >
-                                {nf.status === 'aprovada'
-                                  ? 'Aprovada'
-                                  : nf.status === 'glosada'
-                                  ? 'Glosada'
-                                  : 'Em Análise'}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
+                                    ? 'Glosada'
+                                    : 'Em Análise'}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
+                      <tfoot>
+                        <tr className="bg-slate-50/90 border-t-2 border-slate-200 font-mono tabular-nums text-xs">
+                          <td colSpan={4} className="py-2.5 px-3.5 font-bold text-slate-600 uppercase text-[10px]">
+                            Total Executado Válido ({notasValidasUnidade.length} NFs) · Cota R$ {censeAtual.cotaTrimestral.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="py-2.5 px-3.5 text-right font-extrabold text-[#0072BB]">
+                            R$ {executadoUnidade.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="py-2.5 px-3.5 text-center text-[10px] font-bold text-emerald-700">
+                            {percentualExecutado}% EXEC.
+                          </td>
+                        </tr>
+                      </tfoot>
                     </table>
                   </div>
                 </div>
 
                 {/* Chancelas Eletrônicas Seladas */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                  <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 flex items-center justify-between">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div className="p-3.5 rounded-xl bg-white border border-slate-200/85 flex items-center justify-between shadow-2xs">
                     <div>
                       <div className="text-[10px] uppercase font-bold text-slate-400">
-                        Assinatura do Gestor Suprido
+                        Assinatura Digital · Gestor Suprido
                       </div>
-                      <div className="text-xs font-bold text-slate-900 mt-0.5">
-                        {censeAtual.diretorSuprido} · {censeAtual.matricula}
+                      <div className="text-xs font-extrabold text-slate-900 mt-0.5">
+                        {censeAtual.diretorSuprido} · <span className="font-mono">{censeAtual.matricula}</span>
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200/70 select-none">
+                    <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200/80 select-none">
                       ••••••••••••••••
                     </span>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 flex items-center justify-between">
+                  <div className="p-3.5 rounded-xl bg-white border border-slate-200/85 flex items-center justify-between shadow-2xs">
                     <div>
                       <div className="text-[10px] uppercase font-bold text-slate-400">
                         Inspetoria de Controle Interno SEJU / TCE-PR
                       </div>
-                      <div className="text-xs font-bold text-slate-900 mt-0.5">
+                      <div className="text-xs font-extrabold text-slate-900 mt-0.5">
                         Conformidade Lei Estadual nº 14.268/PR
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200/70 select-none">
+                    <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200/80 select-none">
                       ••••••••••••••••
                     </span>
                   </div>
@@ -2092,3 +2516,4 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
     </div>
   );
 };
+
