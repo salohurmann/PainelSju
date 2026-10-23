@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 import { PlacaMercosul } from '../ui/PlacaMercosul';
 import { soundFX } from '../../services/soundFx';
-import confetti from 'canvas-confetti';
 
 interface JornadaInterativaModalProps {
   isOpen: boolean;
@@ -131,11 +130,6 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
 
   const handleAprovarChefia = () => {
     soundFX.playSuccess();
-    confetti({
-      particleCount: 70,
-      spread: 80,
-      origin: { y: 0.6 }
-    });
     setAprovado(true);
     setHashGerado('d7a8f3b4c1e920584736291aeb082419cfa17b48329e41b9c7e012fa5b8d93c1');
   };
@@ -144,11 +138,11 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-slate-950/65 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 backdrop-blur-md animate-in fade-in duration-150"
+      className="fixed inset-0 bg-slate-950/65 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div 
-        className="relative bg-white/98 backdrop-blur-2xl rounded-t-3xl sm:rounded-3xl max-w-4xl w-full max-h-[92vh] sm:max-h-[90vh] border border-slate-200/90 shadow-[0_28px_80px_-15px_rgba(15,23,42,0.45),0_0_0_1px_rgba(255,255,255,0.9)_inset] overflow-hidden flex flex-col animate-in zoom-in-95 duration-150 font-sans"
+        className="relative bg-white/98 rounded-t-3xl sm:rounded-3xl max-w-4xl w-full max-h-[92vh] sm:max-h-[90vh] border border-slate-200/90 shadow-[0_28px_80px_-15px_rgba(15,23,42,0.45),0_0_0_1px_rgba(255,255,255,0.9)_inset] overflow-hidden flex flex-col animate-in zoom-in-95 duration-150 font-sans"
         onClick={e => e.stopPropagation()}
       >
         {/* Brilho Especular Superior e Cantoneiras de Precisão no Modal */}
@@ -269,7 +263,7 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
 
                   {/* HUD Superior */}
                   <div className="absolute top-4 left-4 right-4 flex items-center justify-between gap-2 z-10">
-                    <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-emerald-300 bg-slate-900/80 backdrop-blur-md px-2.5 py-1 rounded-full border border-emerald-400/25">
+                    <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-emerald-300 bg-slate-900/80 px-2.5 py-1 rounded-full border border-emerald-400/25">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                       SAT-PR · ROTEIRIZADOR ATIVO
                     </div>
@@ -279,7 +273,7 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
                   </div>
 
                   {/* HUD Inferior */}
-                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-[10px] text-slate-300 font-mono bg-slate-900/80 backdrop-blur-md px-3.5 py-2 rounded-xl border border-white/10 z-10">
+                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-[10px] text-slate-300 font-mono bg-slate-900/80 px-3.5 py-2 rounded-xl border border-white/10 z-10">
                     <span className="flex items-center gap-1.5">
                       <Navigation size={11} className="text-sky-400" />
                       Origem: <strong className="text-white">Curitiba</strong>
@@ -613,7 +607,7 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
                   <PlacaMercosul placa={veiculoSel.placa} uf="PR" />
                 </div>
 
-                <div className="p-3.5 bg-white/8 backdrop-blur-md rounded-2xl border border-white/15 space-y-2 text-xs">
+                <div className="p-3.5 bg-white/8 rounded-2xl border border-white/15 space-y-2 text-xs">
                   <div className="flex justify-between">
                     <span className="text-blue-200/80">Destino Oficial</span>
                     <strong className="text-white font-bold">{missaoSel.cidade} ({missaoSel.rota.split(' ')[0]})</strong>
@@ -669,7 +663,7 @@ export const JornadaInterativaModal: React.FC<JornadaInterativaModalProps> = ({
                   <div key={i} className="group relative p-2 bg-white rounded-2xl border border-slate-200/90 shadow-xs space-y-2">
                     <div className="relative overflow-hidden rounded-xl border border-slate-100">
                       <img src={f.img} alt={f.pos} className="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-300" />
-                      <div className="absolute top-1.5 left-1.5 bg-slate-950/75 backdrop-blur-xs text-emerald-300 text-[8px] font-mono font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                      <div className="absolute top-1.5 left-1.5 bg-slate-950/75 text-emerald-300 text-[8px] font-mono font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
                         <Camera size={9} /> {f.cam}
                       </div>
                     </div>

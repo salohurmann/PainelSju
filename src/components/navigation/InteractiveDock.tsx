@@ -43,7 +43,7 @@ export const InteractiveDock: React.FC<InteractiveDockProps> = ({
       className="lg:hidden fixed bottom-2.5 inset-x-2.5 z-40 pointer-events-none font-sans select-none pb-[env(safe-area-inset-bottom,0px)]"
     >
       {/* Floating Island Dock com Vidro Fosco de Alta Saturação e Borda Dupla Especular */}
-      <div className="pointer-events-auto relative max-w-md mx-auto px-1.5 py-1.5 rounded-[26px] bg-white/88 backdrop-blur-2xl backdrop-saturate-200 border border-white/95 ring-1 ring-slate-900/[0.08] shadow-[0_18px_42px_-8px_rgba(15,23,42,0.24),0_4px_14px_-2px_rgba(0,114,187,0.10),inset_0_1px_0_0_#ffffff]">
+      <div className="pointer-events-auto relative max-w-md mx-auto px-1.5 py-1.5 rounded-[26px] bg-white/88 backdrop-saturate-200 border border-white/95 ring-1 ring-slate-900/[0.08] shadow-[0_18px_42px_-8px_rgba(15,23,42,0.24),0_4px_14px_-2px_rgba(0,114,187,0.10),inset_0_1px_0_0_#ffffff]">
         
         {/* Reflexo Especular Institucional no Topo da Ilha */}
         <span

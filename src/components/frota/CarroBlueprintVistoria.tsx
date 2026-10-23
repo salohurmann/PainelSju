@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { VistoriaFotos } from '../../types';
 import { soundFX } from '../../services/soundFx';
-import confetti from 'canvas-confetti';
 
 interface CarroBlueprintVistoriaProps {
   fotos: VistoriaFotos;
@@ -71,11 +70,6 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
       onSimularTodas();
       setEscaneando(false);
       soundFX.playSuccess();
-      confetti({
-        particleCount: 45,
-        spread: 60,
-        origin: { y: 0.75 }
-      });
     }, 450);
   };
 
@@ -626,7 +620,7 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
           </div>
 
           {/* Coluna Direita: Legenda Técnica de Telemetria F1 */}
-          <div className="lg:col-span-5 bg-slate-950/80 border border-sky-500/25 rounded-xl p-4 space-y-3 backdrop-blur-xs">
+          <div className="lg:col-span-5 bg-slate-950/80 border border-sky-500/25 rounded-xl p-4 space-y-3">
             <div className="flex items-center justify-between border-b border-slate-800 pb-2">
               <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-400 flex items-center gap-1.5">
                 <Compass size={12} /> Matriz de Sensores Ópticos
@@ -739,7 +733,7 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
 
                 {/* Top Viewfinder HUD Metadata Bar */}
                 <div className="absolute top-2.5 inset-x-6 flex items-center justify-between text-[8px] font-mono text-sky-200/90 z-20 pointer-events-none">
-                  <span className="bg-slate-950/75 px-1.5 py-0.5 rounded backdrop-blur-xs border border-white/10">
+                  <span className="bg-slate-950/75 px-1.5 py-0.5 rounded border border-white/10">
                     ISO 100 · f/2.8 · GPS PR
                   </span>
                   <span className="bg-slate-950/75 px-1.5 py-0.5 rounded text-emerald-300 border border-white/10">
@@ -759,7 +753,7 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
                       <span className="text-[8px] font-mono text-slate-200 bg-slate-950/75 px-1.5 py-0.5 rounded border border-white/10">
                         {ang.coord}
                       </span>
-                      <span className="bg-emerald-950/90 backdrop-blur-xs px-2 py-0.5 rounded text-[9px] font-mono text-emerald-300 font-bold border border-emerald-400/40 flex items-center gap-1">
+                      <span className="bg-emerald-950/90 px-2 py-0.5 rounded text-[9px] font-mono text-emerald-300 font-bold border border-emerald-400/40 flex items-center gap-1">
                         <Lock size={9} /> SHA-256
                       </span>
                     </div>

@@ -1,138 +1,177 @@
 /* =====================================================================
-   SEJU Gestão Integrada · Design System Tokens
-   Tokens oficiais conforme o Padrão Digital de Governo e Especificação Mestre
+   Painel SJU · Tokens de design (v3 · identidade "Pinheiral")
+   ---------------------------------------------------------------------
+   Identidade do Paraná: azul do céu e da esfera da bandeira, verde da
+   bandeira e das araucárias, branco. Blocos de cor sólida e tipografia
+   grande dão a personalidade; nada de vidro, brilho ou gradiente.
+   - Azul Paraná (#0072BB) = ação e foco. Azul-profundo (#00385E) = âncora.
+   - Verde: --verde (#00703C) é seguro para texto e blocos com texto branco;
+     --verde-vivo (#00A859) só para grafismos (araucária, marcadores).
+   - Títulos e números de destaque: Bricolage Grotesque (--font-display).
+   Contraste: todos os pares texto/fundo usados passam AA (4.5:1).
    ===================================================================== */
 
 :root {
-  /* 4.1 Cores (Modo Claro) */
-  --bg: #F6F7F9;
+  /* Superfícies */
+  --bg: #F3F6F8;
   --surface: #FFFFFF;
-  --surface-2: #F1F3F6;
-  --border: #E3E6EC;
-  --border-strong: #CBD5E1;
-  
-  --text: #0F1B33;
-  --text-muted: #5B6475;
-  --text-subtle: #8A94A6;
-  
-  /* Azul Paraná Oficial da SEJU */
+  --surface-2: #EEF2F5;
+  --surface-3: #E3E9EE;
+  --border: #DCE3E9;
+  --border-strong: #B9C5D0;
+
+  /* Texto */
+  --text: #0E1E33;
+  --text-muted: #46566B;
+  --text-subtle: #5F6F83;
+
+  /* Paraná */
+  --verde: #00703C;
+  --verde-hover: #005C31;
+  --verde-vivo: #00A859;
+  --verde-soft: #E2F3E9;
+  --verde-border: #A9DABE;
+  --ceu: #DCEEFB;
+  --pinhao: #7A4A1E;
+
+  /* Âncora institucional (sidebar, cabeçalhos fortes) */
+  --ink: #00385E;
+  --ink-2: #0B4A75;
+  --ink-text: #FFFFFF;
+  --ink-muted: #B7CADC;
+
+  /* Ação */
   --brand: #0072BB;
   --brand-hover: #005E9B;
-  --brand-soft: #EBF4FC;
-  --brand-border: #B3D7F2;
-  
-  /* Cores Semânticas de Status */
-  --success: #067647;
-  --success-soft: #EDFDF2;
-  --success-border: #A6F4C5;
-  
-  --warning: #B54708;
-  --warning-soft: #FFFAEB;
-  --warning-border: #FEDF89;
-  
-  --danger: #B42318;
-  --danger-soft: #FEF3F2;
-  --danger-border: #FECDCA;
-  
-  --info: #1570EF;
-  --info-soft: #EFF8FF;
-  --info-border: #B2DDFF;
+  --brand-soft: #E8F1F9;
+  --brand-border: #B6D3EC;
 
-  /* Aliases Semânticos Subtis */
+  /* Estados */
+  --success: #00703C;
+  --success-soft: #E2F3E9;
+  --success-border: #A9DABE;
+
+  --warning: #8A4B0B;
+  --warning-soft: #FDF3DC;
+  --warning-border: #EED39A;
+
+  --danger: #A8261B;
+  --danger-soft: #FCEBE8;
+  --danger-border: #F0C0B9;
+
+  --info: #0B4A75;
+  --info-soft: #E8F1F9;
+  --info-border: #B6D3EC;
+
+  /* Aliases usados pelos componentes existentes */
   --brand-subtle: var(--brand-soft);
   --success-subtle: var(--success-soft);
   --warning-subtle: var(--warning-soft);
   --danger-subtle: var(--danger-soft);
   --info-subtle: var(--info-soft);
   --border-subtle: var(--border);
+  --background: var(--bg);
 
   /* Tipografia */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-heading: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  --font-sans: 'Inter Variable', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', 'Inter Variable', system-ui, sans-serif;
+  /* --font-heading continua sans: é usado em rótulos pequenos pelo app */
+  --font-heading: var(--font-sans);
+  --font-mono: ui-monospace, SFMono-Regular, 'Cascadia Mono', Menlo, Consolas, monospace;
 
-  /* 4.3 Raios de Borda */
-  --radius-xs: 4px;
-  --radius-sm: 6px;   /* Campos pequenos, tags */
-  --radius-md: 8px;   /* Botões, inputs */
-  --radius-lg: 12px;  /* Cards, painéis */
-  --radius-xl: 16px;  /* Modais, Bento cards */
-  --radius-2xl: 20px; /* Hero containers */
-  --radius-full: 999px; /* Badges, avatares */
+  /* Raios: discretos */
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 22px;
+  --radius-full: 999px;
 
-  /* Sombras Padronizadas & Efeitos de Profundidade */
-  --shadow-2xs: 0 1px 2px rgba(15, 27, 51, 0.04);
-  --shadow-xs: 0 1px 3px rgba(15, 27, 51, 0.06), 0 1px 2px rgba(15, 27, 51, 0.04);
-  --shadow-sm: 0 4px 12px rgba(15, 27, 51, 0.06);
-  --shadow-card: 0 1px 3px 0 rgba(15, 27, 51, 0.05), 0 4px 16px -2px rgba(15, 27, 51, 0.04);
-  --shadow-card-hover: 0 12px 28px -6px rgba(0, 114, 187, 0.12), 0 4px 12px -2px rgba(15, 27, 51, 0.06);
-  --shadow-md: 0 12px 32px rgba(15, 27, 51, 0.12);
-  --shadow-glow: 0 0 24px -4px rgba(0, 114, 187, 0.18);
+  /* Sombras: só onde há sobreposição real (menus, modais) */
+  --shadow-2xs: 0 1px 0 rgba(19, 33, 58, 0.03);
+  --shadow-xs: 0 1px 2px rgba(19, 33, 58, 0.05);
+  --shadow-sm: 0 2px 6px rgba(19, 33, 58, 0.06);
+  --shadow-card: none;
+  --shadow-card-hover: none;
+  --shadow-md: 0 10px 28px rgba(19, 33, 58, 0.14), 0 2px 6px rgba(19, 33, 58, 0.06);
+  --shadow-glow: none;
 
-  /* Glassmorphism & Sheen */
-  --glass-bg: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.6);
-  --card-gradient: linear-gradient(180deg, #FFFFFF 0%, #FAFBFC 100%);
+  /* Legado (mantidos neutros para não quebrar telas antigas) */
+  --glass-bg: var(--surface);
+  --glass-border: var(--border);
+  --card-gradient: var(--surface);
 
-  /* Transições & Movimento */
-  --ease-default: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --duration-fast: 150ms;
-  --duration-normal: 220ms;
+  /* Movimento */
+  --ease-default: cubic-bezier(0.2, 0, 0, 1);
+  --ease-spring: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 120ms;
+  --duration-normal: 180ms;
 }
 
-/* Modo Escuro (Midnight) */
+/* Modo escuro: azul-noite, sem preto puro, mesma lógica de função */
 [data-theme="dark"],
 html[data-design-theme="midnight"],
 .dark {
-  --bg: #0B0F19;
-  --surface: #121826;
-  --surface-2: #1A2234;
-  --border: #232F46;
-  --border-strong: #334363;
-  
-  --text: #F8FAFC;
-  --text-muted: #94A3B8;
-  --text-subtle: #64748B;
-  
-  --brand: #38BDF8;
-  --brand-hover: #7DD3FC;
-  --brand-soft: rgba(56, 189, 248, 0.12);
-  --brand-border: rgba(56, 189, 248, 0.3);
-  
-  --success: #34D399;
-  --success-soft: rgba(52, 211, 153, 0.12);
-  --success-border: rgba(52, 211, 153, 0.3);
-  
-  --warning: #FBBF24;
-  --warning-soft: rgba(251, 191, 36, 0.12);
-  --warning-border: rgba(251, 191, 36, 0.3);
-  
-  --danger: #F87171;
-  --danger-soft: rgba(248, 113, 113, 0.12);
-  --danger-border: rgba(248, 113, 113, 0.3);
-  
-  --info: #60A5FA;
-  --info-soft: rgba(96, 165, 250, 0.12);
-  --info-border: rgba(96, 165, 250, 0.3);
+  --bg: #0E1726;
+  --surface: #142034;
+  --surface-2: #1A283F;
+  --surface-3: #22324C;
+  --border: #26364F;
+  --border-strong: #3A4D6B;
 
-  /* Aliases Semânticos Subtis */
+  --text: #E9EEF5;
+  --text-muted: #A9B7C9;
+  --text-subtle: #8E9DB2;
+
+  --verde: #5FD39A;
+  --verde-hover: #8BE0B5;
+  --verde-vivo: #3CC27F;
+  --verde-soft: rgba(95, 211, 154, 0.12);
+  --verde-border: rgba(95, 211, 154, 0.3);
+  --ceu: #16304D;
+  --pinhao: #D9A574;
+
+  --ink: #0A1424;
+  --ink-2: #13223A;
+  --ink-text: #E9EEF5;
+  --ink-muted: #94A6BD;
+
+  --brand: #7CC0F0;
+  --brand-hover: #A6D4F5;
+  --brand-soft: rgba(124, 192, 240, 0.12);
+  --brand-border: rgba(124, 192, 240, 0.32);
+
+  --success: #7DD3A0;
+  --success-soft: rgba(125, 211, 160, 0.12);
+  --success-border: rgba(125, 211, 160, 0.3);
+
+  --warning: #F3C178;
+  --warning-soft: rgba(243, 193, 120, 0.12);
+  --warning-border: rgba(243, 193, 120, 0.3);
+
+  --danger: #F29A8E;
+  --danger-soft: rgba(242, 154, 142, 0.12);
+  --danger-border: rgba(242, 154, 142, 0.3);
+
+  --info: #7CC0F0;
+  --info-soft: rgba(124, 192, 240, 0.12);
+  --info-border: rgba(124, 192, 240, 0.3);
+
   --brand-subtle: var(--brand-soft);
   --success-subtle: var(--success-soft);
   --warning-subtle: var(--warning-soft);
   --danger-subtle: var(--danger-soft);
   --info-subtle: var(--info-soft);
   --border-subtle: var(--border);
+  --background: var(--bg);
 
-  --shadow-2xs: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.5);
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 4px 16px -2px rgba(0, 0, 0, 0.4);
-  --shadow-card-hover: 0 12px 28px -6px rgba(56, 189, 248, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.6);
-  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.7);
-  --shadow-glow: 0 0 28px -4px rgba(56, 189, 248, 0.22);
+  --shadow-2xs: none;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.45);
 
-  --glass-bg: rgba(18, 24, 38, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --card-gradient: linear-gradient(180deg, #141B2B 0%, #111724 100%);
+  --glass-bg: var(--surface);
+  --glass-border: var(--border);
+  --card-gradient: var(--surface);
 }

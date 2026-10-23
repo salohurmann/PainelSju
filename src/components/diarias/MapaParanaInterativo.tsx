@@ -303,7 +303,7 @@ export const MapaParanaInterativo: React.FC<MapaParanaInterativoProps> = ({
 
           {/* HUD SUPERIOR ESQUERDO: Origem Sede SEJU Hauer */}
           <div
-            className={`absolute top-5 left-5 z-10 inline-flex items-center gap-2 text-[10px] font-semibold px-3 py-1.5 rounded-full border backdrop-blur-md shadow-xs ${
+            className={`absolute top-5 left-5 z-10 inline-flex items-center gap-2 text-[10px] font-semibold px-3 py-1.5 rounded-full border shadow-xs ${
               modoVisorEscuro
                 ? 'bg-slate-900/85 text-slate-200 border-slate-700/80'
                 : 'bg-white/90 text-slate-700 border-slate-200/90'
@@ -319,7 +319,7 @@ export const MapaParanaInterativo: React.FC<MapaParanaInterativoProps> = ({
           {/* HUD SUPERIOR DIREITO: Eixo Rodoviário em Brilho Neon */}
           {displayCidade.id !== 'curitiba' && (
             <div
-              className={`absolute top-5 right-5 z-10 inline-flex items-center gap-1.5 text-[10px] font-mono font-bold px-3 py-1.5 rounded-full border backdrop-blur-md shadow-xs ${
+              className={`absolute top-5 right-5 z-10 inline-flex items-center gap-1.5 text-[10px] font-mono font-bold px-3 py-1.5 rounded-full border shadow-xs ${
                 modoVisorEscuro
                   ? 'bg-sky-950/90 text-sky-300 border-sky-500/40 shadow-[0_0_15px_rgba(56,189,248,0.2)]'
                   : 'bg-white/95 text-[#005A9C] border-sky-300/80 shadow-xs'
@@ -334,7 +334,7 @@ export const MapaParanaInterativo: React.FC<MapaParanaInterativoProps> = ({
 
           {/* CARD FLUTUANTE DE TELEMETRIA DA REGIONAL (Acabamento em Vidro Escuro/Claro Impecável) */}
           <div
-            className={`absolute bottom-5 left-5 z-10 p-3.5 rounded-2xl border backdrop-blur-xl transition-all duration-300 max-w-[260px] sm:max-w-[290px] ${
+            className={`absolute bottom-5 left-5 z-10 p-3.5 rounded-2xl border transition-all duration-300 max-w-[260px] sm:max-w-[290px] ${
               modoVisorEscuro
                 ? 'bg-slate-900/85 border-slate-700/80 text-white shadow-[0_12px_30px_rgba(0,0,0,0.45)]'
                 : 'bg-white/90 border-slate-200/90 text-slate-900 shadow-[0_12px_30px_rgba(15,23,42,0.10)]'

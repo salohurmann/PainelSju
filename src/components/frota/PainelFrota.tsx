@@ -3,7 +3,6 @@ import { Veiculo, Agendamento } from '../../types';
 import { PlacaMercosul } from '../ui/PlacaMercosul';
 import { PainelOdometroCombustivel } from '../ui/PainelOdometroCombustivel';
 import { soundFX } from '../../services/soundFx';
-import confetti from 'canvas-confetti';
 import { 
   Car, 
   Fuel, 
@@ -413,7 +412,7 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
       {/* Modal Impecável: Incorporar Novo Veículo com Preview Ao Vivo da Placa Mercosul */}
       {modalNovo && (
         <div
-          className="fixed inset-0 bg-slate-950/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in"
+          className="fixed inset-0 bg-slate-950/60 z-50 flex items-center justify-center p-4 animate-in fade-in"
           onClick={() => setModalNovo(false)}
         >
           <div
@@ -556,7 +555,7 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
       {/* Modal de Inspeção: Cockpit Digital & Ficha Patrimonial */}
       {veiculoInspecionado && (
         <div 
-          className="fixed inset-0 bg-slate-950/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in"
+          className="fixed inset-0 bg-slate-950/60 z-50 flex items-center justify-center p-4 animate-in fade-in"
           onClick={() => setVeiculoInspecionado(null)}
         >
           <div 
@@ -657,7 +656,6 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
                   type="button"
                   onClick={() => {
                     soundFX.playSuccess();
-                    confetti({ particleCount: 40, spread: 50, origin: { y: 0.6 } });
                     setVeiculoInspecionado({ ...veiculoInspecionado, nivelCombustivel: 100 });
                     if (onAtualizarVeiculo) {
                       onAtualizarVeiculo(veiculoInspecionado.id, { nivelCombustivel: 100 });

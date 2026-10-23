@@ -27,7 +27,6 @@ import {
   Check
 } from 'lucide-react';
 import { Usuario } from '../../types';
-import confetti from 'canvas-confetti';
 import { soundFX } from '../../services/soundFx';
 import { eventBus } from '../../services/eventBus';
 
@@ -286,11 +285,6 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
       pauta: nova.motivo
     });
 
-    confetti({
-      particleCount: 55,
-      spread: 65,
-      origin: { y: 0.6 }
-    });
   };
 
   // Cancelar ou Liberar Horário
@@ -1330,7 +1324,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
          ===================================================================== */}
       {reservaInspecionada && (
         <div
-          className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in"
+          className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-4 animate-in fade-in"
           onClick={() => setReservaInspecionada(null)}
         >
           <div
@@ -1438,7 +1432,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
          ===================================================================== */}
       {modalNovo && (
         <div
-          className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-xs animate-in fade-in"
+          className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in"
           onClick={() => setModalNovo(false)}
         >
           <div

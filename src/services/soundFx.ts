@@ -1,9 +1,19 @@
-// Efeitos sonoros sintetizados via Web Audio API nativo (sem dependências externas)
+// Efeitos sonoros sintetizados via Web Audio API.
+// DESLIGADOS por padrão: um sistema de trabalho não deve emitir sons a cada
+// clique. Só tocam se a pessoa ativar (localStorage "painel-sju:sons" = "on").
+function sonsAtivos(): boolean {
+  try {
+    return typeof window !== 'undefined' && window.localStorage.getItem('painel-sju:sons') === 'on';
+  } catch {
+    return false;
+  }
+}
 
 class SoundFX {
   private ctx: AudioContext | null = null;
 
   private initCtx() {
+    if (!sonsAtivos()) return;
     if (!this.ctx && typeof window !== 'undefined') {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (AudioCtx) {

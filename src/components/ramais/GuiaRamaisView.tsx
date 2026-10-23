@@ -923,7 +923,7 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
 
       {/* (4) SIMULADOR DE LIGAÇÃO VOIP — WIDGET FLUTUANTE CALLKIT / WEBEX EXECUTIVE */}
       {chamadaAtiva && (
-        <div className="fixed inset-0 bg-slate-950/65 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+        <div className="fixed inset-0 bg-slate-950/65 z-50 flex items-center justify-center p-4 animate-in fade-in">
           <div
             style={{
               clipPath: 'polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px))'

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Usuario } from '../../types';
-import confetti from 'canvas-confetti';
 import { soundFX } from '../../services/soundFx';
 import { eventBus } from '../../services/eventBus';
 import { 
@@ -290,11 +289,6 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
     }));
 
     if (novoStatus === 'concluido') {
-      confetti({
-        particleCount: 60,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
     }
   };
 
@@ -359,11 +353,6 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
       solicitante: novo.solicitante
     });
 
-    confetti({
-      particleCount: 30,
-      spread: 45,
-      origin: { y: 0.8 }
-    });
   };
 
   const handleAdicionarNota = (e: React.FormEvent) => {
@@ -921,7 +910,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
 
           <div className="p-4 space-y-3.5 flex-1">
             {/* Cabeçalho Esculpido da Coluna */}
-            <div className="bg-white/90 backdrop-blur-xs rounded-xl p-3 border border-slate-200/80 shadow-2xs flex items-center justify-between">
+            <div className="bg-white/90 rounded-xl p-3 border border-slate-200/80 shadow-2xs flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <span className="relative flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
@@ -1099,7 +1088,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
 
           <div className="p-4 space-y-3.5 flex-1">
             {/* Cabeçalho Esculpido da Coluna */}
-            <div className="bg-white/90 backdrop-blur-xs rounded-xl p-3 border border-slate-200/80 shadow-2xs flex items-center justify-between">
+            <div className="bg-white/90 rounded-xl p-3 border border-slate-200/80 shadow-2xs flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <span className="relative flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
@@ -1275,7 +1264,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
 
           <div className="p-4 space-y-3.5 flex-1">
             {/* Cabeçalho Esculpido da Coluna */}
-            <div className="bg-white/90 backdrop-blur-xs rounded-xl p-3 border border-slate-200/80 shadow-2xs flex items-center justify-between">
+            <div className="bg-white/90 rounded-xl p-3 border border-slate-200/80 shadow-2xs flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <span className="relative flex h-2.5 w-2.5">
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
@@ -1399,11 +1388,11 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
          ===================================================================== */}
       {modalNovo && (
         <div
-          className="fixed inset-0 bg-slate-950/55 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-md animate-in fade-in"
+          className="fixed inset-0 bg-slate-950/55 z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in"
           onClick={() => setModalNovo(false)}
         >
           <div
-            className="relative bg-white/95 backdrop-blur-xl rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 shadow-[0_24px_64px_-12px_rgba(15,23,42,0.45)] border border-white/80 ring-1 ring-slate-900/10 animate-in zoom-in-95"
+            className="relative bg-white/95 rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 shadow-[0_24px_64px_-12px_rgba(15,23,42,0.45)] border border-white/80 ring-1 ring-slate-900/10 animate-in zoom-in-95"
             onClick={e => e.stopPropagation()}
           >
             {/* Barra Luminosa Superior */}
@@ -1596,11 +1585,11 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
          ===================================================================== */}
       {chamadoInspecionado && (
         <div
-          className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-end backdrop-blur-xs animate-in fade-in"
+          className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-end animate-in fade-in"
           onClick={() => setChamadoSelecionado(null)}
         >
           <div
-            className="relative bg-white/95 backdrop-blur-2xl w-full max-w-xl h-full shadow-[-24px_0_64px_-12px_rgba(15,23,42,0.35)] border-l border-slate-200/90 p-5 sm:p-6 overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-200"
+            className="relative bg-white/95 w-full max-w-xl h-full shadow-[-24px_0_64px_-12px_rgba(15,23,42,0.35)] border-l border-slate-200/90 p-5 sm:p-6 overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-200"
             onClick={e => e.stopPropagation()}
           >
             {/* Brilho Superior no Drawer */}

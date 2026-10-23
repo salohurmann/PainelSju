@@ -47,7 +47,7 @@ export const HeroJustica20: React.FC<HeroJustica20Props> = ({
         <div className="flex-1 p-6 sm:p-8 flex flex-col justify-between space-y-6">
           <div className="space-y-3">
             {/* Tag da Lotação do Servidor */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-semibold tracking-wide text-sky-200">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[11px] font-semibold tracking-wide text-sky-200">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>LOTAÇÃO: {tagLotacao}</span>
             </div>
@@ -226,7 +226,7 @@ export const HeroJustica20: React.FC<HeroJustica20Props> = ({
           </svg>
 
           {/* Legenda de Localização no Canto Inferior Direito (como no protótipo original) */}
-          <div className="absolute bottom-2.5 right-3.5 z-20 px-2 py-0.5 rounded bg-black/40 backdrop-blur-xs border border-white/10 text-[9px] font-mono text-white/80">
+          <div className="absolute bottom-2.5 right-3.5 z-20 px-2 py-0.5 rounded bg-black/40 border border-white/10 text-[9px] font-mono text-white/80">
             Jardim Botânico · Curitiba/PR
           </div>
         </div>

@@ -100,7 +100,7 @@ export const PastasArquivosModal: React.FC<PastasArquivosModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 animate-in fade-in duration-200">
       <div 
         className="w-full max-w-3xl max-h-[88vh] bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-xl)] shadow-2xl flex flex-col overflow-hidden text-[var(--text)]"
         onClick={(e) => e.stopPropagation()}

@@ -273,7 +273,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-slate-950/55 backdrop-blur-md z-50 flex items-start justify-center pt-8 sm:pt-20 p-3 sm:p-4 font-sans animate-in fade-in duration-150 pt-safe"
+      className="fixed inset-0 bg-slate-950/55 z-50 flex items-start justify-center pt-8 sm:pt-20 p-3 sm:p-4 font-sans animate-in fade-in duration-150 pt-safe"
       onClick={onClose}
     >
       {/* Moldura Externa Dupla com Brilho Especular Sutil (Acabamento Raycast / Linear Pro) */}
@@ -281,7 +281,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         className="relative max-w-2xl w-full p-[1.5px] rounded-[22px] bg-gradient-to-b from-white/50 via-slate-300/40 to-slate-400/30 shadow-[0_32px_80px_-16px_rgba(15,23,42,0.48),0_0_0_1px_rgba(15,23,42,0.12),0_0_48px_-12px_rgba(0,114,187,0.22)] animate-in zoom-in-95 duration-150"
         onClick={e => e.stopPropagation()}
       >
-        <div className="bg-white/96 backdrop-blur-2xl rounded-[20px] w-full max-h-[82vh] flex flex-col overflow-hidden border border-white/90 shadow-[inset_0_1px_0_0_#ffffff]">
+        <div className="bg-white/96 rounded-[20px] w-full max-h-[82vh] flex flex-col overflow-hidden border border-white/90 shadow-[inset_0_1px_0_0_#ffffff]">
           
           {/* Fio Luminoso Institucional no Topo do Spotlight */}
           <div className="h-[2.5px] w-full bg-gradient-to-r from-[#0072BB] via-[#009B54] to-[#C59B27]" />

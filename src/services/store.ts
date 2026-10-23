@@ -2,6 +2,19 @@ import { Agendamento, AuditoriaLog, Notificacao, Usuario, Veiculo, Vistoria } fr
 
 const STORAGE_KEY = 'portal_seju_gestao_v1';
 
+// Datas da demonstração relativas a hoje, para a Mesa sempre ter o que mostrar.
+function dia(deslocamento: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + deslocamento);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${dd}`;
+}
+function instante(deslocamento: number, hora: string): string {
+  return `${dia(deslocamento)}T${hora}:00`;
+}
+
 export const USUARIOS_MOCK: Usuario[] = [
   {
     id: 'u-lucia',
@@ -123,13 +136,13 @@ export const AGENDAMENTOS_INICIAIS: Agendamento[] = [
     veiculoId: 'V1',
     veiculoNome: 'Toyota Corolla Sedan 2.0',
     veiculoPlaca: 'BCB-4A12',
-    datas: ['2026-10-16'],
+    datas: [dia(1)],
     periodo: 'dia_todo',
     modalidade: 'com_motorista',
     destino: 'Paranaguá/PR — Inspeção técnica da unidade de atendimento socioeducativo.',
     passageiros: 'Carlos Silveira e Ana Beatriz (Psicóloga)',
     status: 'pendente',
-    criadoEm: '2026-10-15T09:30:00'
+    criadoEm: instante(-1, '16:40')
   },
   {
     id: 'AG-1002',
@@ -141,16 +154,16 @@ export const AGENDAMENTOS_INICIAIS: Agendamento[] = [
     veiculoId: 'V2',
     veiculoNome: 'Renault Duster Intense 1.6',
     veiculoPlaca: 'RHZ-9D88',
-    datas: ['2026-10-15'],
+    datas: [dia(0)],
     periodo: 'dia_todo',
     modalidade: 'sem_motorista',
     destino: 'Ponta Grossa/PR — Audiência pública de conciliação comunitária.',
     passageiros: 'Juliana Mendes',
     status: 'em_andamento',
-    criadoEm: '2026-10-14T14:15:00',
+    criadoEm: instante(-2, '14:15'),
     aprovadorNome: 'Dra. Maria Helena',
     aprovadorCpf: '987.654.321-99',
-    aprovadoEm: '2026-10-14T16:00:00',
+    aprovadoEm: instante(-2, '16:00'),
     hashAuditoria: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
     checkinId: 'vis-1002-in'
   },
@@ -164,18 +177,36 @@ export const AGENDAMENTOS_INICIAIS: Agendamento[] = [
     veiculoId: 'V3',
     veiculoNome: 'Chevrolet Spin Premier 7 Lugares',
     veiculoPlaca: 'BDF-3J21',
-    datas: ['2026-10-14'],
+    datas: [dia(-1)],
     periodo: 'tarde',
     modalidade: 'com_motorista',
     destino: 'São José dos Pinhais/PR — Transporte de equipe para vistoria de acessibilidade.',
     status: 'realizado',
-    criadoEm: '2026-10-13T10:00:00',
+    criadoEm: instante(-3, '10:00'),
     aprovadorNome: 'Dra. Maria Helena',
     aprovadorCpf: '987.654.321-99',
-    aprovadoEm: '2026-10-13T11:20:00',
+    aprovadoEm: instante(-3, '11:20'),
     hashAuditoria: '7d5a99f603f2c13652f11b9ecdcd6f6c04f9ffb6b9d6a36f73a388b17163c45b',
     checkinId: 'vis-1003-in',
     checkoutId: 'vis-1003-out'
+  },
+  {
+    id: 'AG-1004',
+    ticket: 'AG-' + dia(0).replace(/-/g, '') + '-3317',
+    nome: 'Lúcia Andrade Viana',
+    cpf: '341.892.519-72',
+    telefone: '(41) 99654-1122',
+    email: 'lucia.viana@seju.pr.gov.br',
+    veiculoId: 'V3',
+    veiculoNome: 'Chevrolet Spin Premier 7 Lugares',
+    veiculoPlaca: 'BDF-3J21',
+    datas: [dia(5), dia(6)],
+    periodo: 'dia_todo',
+    modalidade: 'sem_motorista',
+    destino: 'Londrina/PR — Capacitação regional das unidades de atendimento.',
+    passageiros: 'Lúcia Viana e Otávio Carvalho',
+    status: 'pendente',
+    criadoEm: instante(0, '08:05')
   }
 ];
 

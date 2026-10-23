@@ -1126,7 +1126,7 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
 
       {/* Modal de Comprovante de Solicitação */}
       {comprovante && (
-        <div className="fixed inset-0 bg-slate-950/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+        <div className="fixed inset-0 bg-slate-950/60 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200/90 animate-in zoom-in-95 relative overflow-hidden">
             <div className="absolute inset-x-0 top-0 h-1.5 bg-linear-to-r from-emerald-500 via-sky-500 to-emerald-500" />
             <div className="text-center border-b border-slate-100 pb-5 mb-5">

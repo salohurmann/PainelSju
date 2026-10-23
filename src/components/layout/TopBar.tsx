@@ -8,12 +8,8 @@ import {
   ChevronRight,
   ChevronDown,
   UserCheck,
-  CheckCircle2,
-  AlertTriangle,
-  Info,
   LogOut,
   Shield,
-  Layers,
   Activity
 } from 'lucide-react';
 import { Usuario, Notificacao } from '../../types';
@@ -84,57 +80,57 @@ export const TopBar: React.FC<TopBarProps> = ({
   };
 
   const appBreadcrumbNames: Record<string, string> = {
-    hub: 'Painel Geral',
-    frota: 'Frotas Oficiais',
-    chamados: 'Chamados & TI',
+    hub: 'Mesa',
+    frota: 'Frotas & Viaturas',
+    chamados: 'Chamados',
     salas: 'Reserva de Salas',
     diarias: 'Diárias & Viagens',
     cense: 'Fundo Rotativo CENSE',
-    ramais: 'Telefonia & Ramais',
-    auditoria: 'Trilha SHA-256'
+    ramais: 'Ramais',
+    auditoria: 'Auditoria'
   };
 
   const unreadCount = notificacoes.filter((n) => !n.lida).length;
 
   return (
-    <header className="sticky top-0 z-30 h-14 bg-[var(--surface)]/90 backdrop-blur-md border-b border-[var(--border)] px-4 sm:px-6 flex items-center justify-between gap-3 select-none transition-colors">
+    <header className="sticky top-0 z-30 h-16 bg-[var(--bg)] border-b border-[var(--border)] px-4 sm:px-8 flex items-center justify-between gap-3 select-none">
       {/* Esquerda: Botão Menu Mobile + Breadcrumb */}
       <div className="flex items-center gap-2.5 min-w-0">
         <button
           onClick={onOpenMobileSidebar}
-          className="lg:hidden p-1.5 rounded-[var(--radius-md)] text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer"
+          className="lg:hidden p-2 rounded-[var(--radius-md)] text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer"
           aria-label="Abrir menu"
         >
           <Menu size={20} />
         </button>
 
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs">
+        <nav aria-label="Você está em" className="flex items-center gap-1.5 text-[13px]">
           <button
             onClick={() => onNavigateApp('hub')}
-            className="text-[var(--text-muted)] hover:text-[var(--brand)] font-medium transition-colors cursor-pointer hidden sm:inline"
+            className="text-[var(--text-muted)] hover:text-[var(--text)] transition-colors cursor-pointer hidden sm:inline"
           >
-            Justiça 2.0
+            Painel
           </button>
-          <ChevronRight size={13} className="text-[var(--border-strong)] hidden sm:inline" />
-          <span className="font-bold text-[var(--text)] truncate font-heading">
+          <ChevronRight size={13} className="text-[var(--border-strong)] hidden sm:inline" aria-hidden="true" />
+          <span className="font-semibold text-[var(--text)] truncate" aria-current="page">
             {appBreadcrumbNames[activeApp] || 'Painel'}
           </span>
         </nav>
       </div>
 
       {/* Centro: Barra de Busca Global (Ctrl+K) */}
-      <div className="flex-1 max-w-md mx-2 hidden md:block">
+      <div className="flex-1 max-w-[420px] mx-2 hidden md:block">
         <button
           type="button"
           onClick={onOpenCommandPalette}
-          className="w-full h-9 px-3.5 bg-[var(--surface-2)]/70 hover:bg-[var(--surface-2)] text-[var(--text-muted)] hover:text-[var(--text)] border border-[var(--border)] hover:border-[var(--brand)]/40 rounded-[var(--radius-lg)] flex items-center justify-between text-xs transition-all cursor-pointer shadow-2xs"
+          className="w-full h-10 px-3.5 bg-[var(--surface)] text-[var(--text-muted)] hover:text-[var(--text)] border border-[var(--border)] hover:border-[var(--border-strong)] rounded-[var(--radius-md)] flex items-center justify-between text-[13px] transition-colors cursor-pointer"
         >
           <div className="flex items-center gap-2.5 truncate">
-            <Search size={14} className="text-[var(--brand)]" />
-            <span className="truncate">Buscar módulo, placa, servidor ou diária...</span>
+            <Search size={15} aria-hidden="true" />
+            <span className="truncate">Buscar protocolo, pessoa ou ação</span>
           </div>
-          <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--text-muted)] shadow-2xs">
-            Ctrl+K
+          <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[11px] font-sans border border-[var(--border)] rounded-[var(--radius-sm)] text-[var(--text-muted)]">
+            Ctrl K
           </kbd>
         </button>
       </div>
@@ -154,8 +150,8 @@ export const TopBar: React.FC<TopBarProps> = ({
         <button
           onClick={toggleTheme}
           className="p-2 rounded-[var(--radius-md)] text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer"
-          title={isDark ? 'Mudar para Modo Claro' : 'Mudar para Modo Midnight (Escuro)'}
-          aria-label="Alternar tema"
+          title={isDark ? 'Usar tema claro' : 'Usar tema escuro'}
+          aria-label={isDark ? 'Usar tema claro' : 'Usar tema escuro'}
         >
           {isDark ? <Sun size={17} /> : <Moon size={17} />}
         </button>
@@ -165,16 +161,16 @@ export const TopBar: React.FC<TopBarProps> = ({
           <button
             onClick={() => setNotifDropdownOpen((prev) => !prev)}
             className="relative p-2 rounded-[var(--radius-md)] text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer"
-            aria-label="Notificações"
+            aria-label={unreadCount > 0 ? `Notificações, ${unreadCount} não lida${unreadCount > 1 ? 's' : ''}` : 'Notificações'}
           >
             <Bell size={17} />
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[var(--warning)]" />
+              <span aria-hidden="true" className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#C2410C]" />
             )}
           </button>
 
           {notifDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-md)] z-50 overflow-hidden">
               <div className="px-4 py-3 border-b border-[var(--border)] flex items-center justify-between">
                 <span className="text-xs font-semibold text-[var(--text)]">Notificações</span>
                 {unreadCount > 0 && (
@@ -222,7 +218,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             <Avatar name={currentUser.nome} size="sm" />
             <div className="hidden sm:flex flex-col text-left leading-tight">
               <span className="text-xs font-semibold text-[var(--text)] max-w-[120px] truncate">
-                {currentUser.nome.split(' ')[0]}
+                {currentUser.nome.replace(/^(Dra?\.|Sr\.|Sra\.)\s+/i, '').split(' ')[0]}
               </span>
               <span className="text-[10px] text-[var(--text-muted)] max-w-[120px] truncate">
                 {currentUser.cargo}
@@ -232,7 +228,7 @@ export const TopBar: React.FC<TopBarProps> = ({
           </button>
 
           {userDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="absolute right-0 mt-2 w-64 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-md)] z-50 overflow-hidden">
               <div className="p-3.5 border-b border-[var(--border)] bg-[var(--surface-2)]/40">
                 <p className="text-xs font-bold text-[var(--text)]">{currentUser.nome}</p>
                 <p className="text-[11px] text-[var(--text-muted)]">{currentUser.cargo}</p>

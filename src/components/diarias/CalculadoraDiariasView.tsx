@@ -23,7 +23,6 @@ import {
 } from 'lucide-react';
 import { Usuario } from '../../types';
 import { MapaParanaInterativo, CIDADES_PARANA, DestinoParana } from './MapaParanaInterativo';
-import confetti from 'canvas-confetti';
 import { soundFX } from '../../services/soundFx';
 import { BrasaoParana } from '../common/BrasaoParana';
 
@@ -193,11 +192,6 @@ export const CalculadoraDiariasView: React.FC<CalculadoraDiariasViewProps> = ({ 
 
     setHistoricoViagens(prev => [novaConcessao, ...prev]);
 
-    confetti({
-      particleCount: 55,
-      spread: 65,
-      origin: { y: 0.6 }
-    });
   };
 
   const handleSelectPreset = (texto: string) => {
@@ -862,7 +856,7 @@ export const CalculadoraDiariasView: React.FC<CalculadoraDiariasViewProps> = ({ 
       {/* (4) MODAL DO ANEXO I OFICIAL — BORDA DUPLA DIPLOMÁTICA, MARCA D'ÁGUA INSTITUCIONAL E SELO CRIPTOGRÁFICO ICP-PR */}
       {modalDocumento && (
         <div
-          className="fixed inset-0 bg-slate-950/75 z-50 flex items-center justify-center p-3 sm:p-5 backdrop-blur-xs animate-in fade-in"
+          className="fixed inset-0 bg-slate-950/75 z-50 flex items-center justify-center p-3 sm:p-5 animate-in fade-in"
           onClick={() => setModalDocumento(false)}
         >
           <div

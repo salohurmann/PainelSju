@@ -454,7 +454,7 @@ export const ConsultaCpf: React.FC<ConsultaCpfProps> = ({ agendamentos, currentU
       {/* Modal do Passe Oficial Digital */}
       {passeSelecionado && (
         <div
-          className="fixed inset-0 bg-slate-950/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-in fade-in"
+          className="fixed inset-0 bg-slate-950/60 z-50 flex items-center justify-center p-4 animate-in fade-in"
           onClick={() => setPasseSelecionado(null)}
         >
           <div

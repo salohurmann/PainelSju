@@ -95,7 +95,7 @@ export const PasseViagemOficial: React.FC<PasseViagemOficialProps> = ({
               </div>
 
               <span
-                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border backdrop-blur-md ${
+                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase border ${
                   isAprovado
                     ? 'bg-emerald-400/15 text-emerald-300 border-emerald-400/35'
                     : 'bg-amber-400/15 text-amber-200 border-amber-400/35'
@@ -324,7 +324,7 @@ export const PasseViagemOficial: React.FC<PasseViagemOficialProps> = ({
 
       {/* Modal Justificativa Reprovar */}
       {modalReprovar && (
-        <div className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+        <div className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-sm w-full p-5 text-slate-800 shadow-2xl border border-slate-200 animate-in zoom-in-95">
             <h4 className="font-bold text-sm text-slate-900 mb-1">Reprovar Solicitação</h4>
             <p className="text-xs text-slate-500 mb-3">Informe o motivo da não autorização:</p>

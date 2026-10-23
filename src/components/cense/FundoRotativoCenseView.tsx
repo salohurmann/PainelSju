@@ -1207,7 +1207,7 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
             <button
               type="button"
               onClick={handleExportarCsv}
-              className="group px-3.5 py-2.5 rounded-xl bg-emerald-50/90 hover:bg-emerald-600 text-emerald-800 hover:text-white border border-emerald-200/90 hover:border-emerald-600 text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-2xs active:scale-[0.98]"
+              className="group px-3.5 py-2.5 rounded-xl bg-emerald-50/90 hover:bg-emerald-600 text-emerald-800 hover:text-white border border-emerald-200/90 hover:border-emerald-600 text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-2xs"
               title="Exportar Planilha Consolidada para Excel (.CSV)"
             >
               <Download size={14} className="text-emerald-600 group-hover:text-white transition-colors" />
@@ -1223,7 +1223,7 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                 soundFX.playClick();
                 setAbaDetalhe('nova-despesa');
               }}
-              className="group relative overflow-hidden px-4 py-2.5 rounded-xl bg-gradient-to-b from-slate-800 to-slate-950 hover:from-slate-700 hover:to-slate-900 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm ring-1 ring-slate-900/80 transition-all duration-200 cursor-pointer active:scale-[0.98]"
+              className="group relative overflow-hidden px-4 py-2.5 rounded-xl bg-gradient-to-b from-slate-800 to-slate-950 hover:from-slate-700 hover:to-slate-900 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm ring-1 ring-slate-900/80 transition-all duration-200 cursor-pointer"
             >
               <span className="pointer-events-none absolute inset-x-2 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
               <ScanLine size={14} className="text-emerald-400 group-hover:scale-110 transition-transform" />
@@ -1236,7 +1236,7 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                 soundFX.playClick();
                 setAbaDetalhe('relatorio');
               }}
-              className="px-3.5 py-2.5 rounded-xl bg-slate-100/90 hover:bg-slate-200/80 text-slate-700 border border-slate-200/80 text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer active:scale-[0.98]"
+              className="px-3.5 py-2.5 rounded-xl bg-slate-100/90 hover:bg-slate-200/80 text-slate-700 border border-slate-200/80 text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer"
             >
               <FileText size={14} className="text-[#0072BB]" />
               <span className="hidden sm:inline">Espelho TCE-PR</span>
@@ -1683,7 +1683,7 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                 <button
                   type="button"
                   onClick={handleLiberarNovaCota}
-                  className="group px-3.5 py-2 rounded-xl bg-white hover:bg-blue-50/60 text-slate-700 hover:text-[#0072BB] border border-slate-200/90 hover:border-blue-300 text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-2xs active:scale-[0.98]"
+                  className="group px-3.5 py-2 rounded-xl bg-white hover:bg-blue-50/60 text-slate-700 hover:text-[#0072BB] border border-slate-200/90 hover:border-blue-300 text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-2xs"
                   title="Liberar Cota Extraordinária / Repasse Suplementar SEJU"
                 >
                   <RefreshCw size={13} className="text-[#0072BB] group-hover:rotate-180 transition-transform duration-500" />
@@ -1693,7 +1693,7 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                 <button
                   type="button"
                   onClick={handleHomologarPrestacao}
-                  className="group relative overflow-hidden px-3.5 py-2 rounded-xl bg-gradient-to-b from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm ring-1 ring-emerald-700/60 transition-all duration-200 cursor-pointer active:scale-[0.98]"
+                  className="group relative overflow-hidden px-3.5 py-2 rounded-xl bg-gradient-to-b from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm ring-1 ring-emerald-700/60 transition-all duration-200 cursor-pointer"
                 >
                   <span className="pointer-events-none absolute inset-x-2 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                   <CheckCircle2 size={14} className="text-emerald-100" />

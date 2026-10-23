@@ -24,6 +24,7 @@ export const Avatar: React.FC<AvatarProps> = ({
   const shapeClasses = shape === 'circle' ? 'rounded-full' : 'rounded-[var(--radius-md)]';
 
   const initials = name
+    .replace(/^(Dra?\.|Sr\.|Sra\.)\s+/i, '')
     .split(' ')
     .filter(Boolean)
     .slice(0, 2)

@@ -652,7 +652,7 @@ export const CheckinCheckoutVistoria: React.FC<CheckinCheckoutVistoriaProps> = (
 
                           {/* Metadados Técnicos Simulados */}
                           <div className="absolute top-1.5 inset-x-3 flex items-center justify-between z-20 pointer-events-none">
-                            <span className="text-[8px] font-mono text-sky-200 bg-slate-950/75 px-1.5 py-0.5 rounded backdrop-blur-xs border border-white/10">
+                            <span className="text-[8px] font-mono text-sky-200 bg-slate-950/75 px-1.5 py-0.5 rounded border border-white/10">
                               {slot.lente}
                             </span>
                           </div>
@@ -698,7 +698,7 @@ export const CheckinCheckoutVistoria: React.FC<CheckinCheckoutVistoriaProps> = (
 
       {/* Modal Sucesso */}
       {sucessoModal && (
-        <div className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+        <div className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 text-center shadow-xl border border-slate-200/80 animate-in zoom-in-95">
             <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center justify-center mx-auto mb-3">
               <CheckCircle2 size={24} />

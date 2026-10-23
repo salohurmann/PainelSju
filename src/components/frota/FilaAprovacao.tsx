@@ -6,7 +6,6 @@ import { PlacaMercosul } from '../ui/PlacaMercosul';
 import { MascaraCpfLgpd } from '../ui/MascaraCpfLgpd';
 import { PasseViagemOficial } from './PasseViagemOficial';
 import { soundFX } from '../../services/soundFx';
-import confetti from 'canvas-confetti';
 import {
   CheckCircle2,
   XCircle,
@@ -77,11 +76,6 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({
 
       await onAprovar(ag.id, hash, currentUser);
       soundFX.playSuccess();
-      confetti({
-        particleCount: 60,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
     } finally {
       setProcessandoId(null);
     }
@@ -497,7 +491,7 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({
 
       {/* Modal Justificativa Reprovar */}
       {modalReprovarId && (
-        <div className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+        <div className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 text-slate-800 shadow-xl border border-slate-200/80 animate-in zoom-in-95">
             <h4 className="font-bold text-sm text-slate-900 mb-1">Reprovar Solicitação Oficial</h4>
             <p className="text-xs text-slate-500 mb-4">

@@ -36,7 +36,7 @@ export const Button: React.FC<ButtonProps> = ({
   return (
     <button
       disabled={isDisabled}
-      className={`inline-flex items-center justify-center rounded-[var(--radius-md)] transition-colors cursor-pointer select-none active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed ${sizeClasses} ${variantClasses} ${className}`}
+      className={`inline-flex items-center justify-center rounded-[var(--radius-md)] transition-colors cursor-pointer select-none disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed ${sizeClasses} ${variantClasses} ${className}`}
       {...props}
     >
       {loading ? (

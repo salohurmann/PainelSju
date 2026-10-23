@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AlertCircle, ArrowLeft, CheckCircle2, Loader2, Lock, Mail } from 'lucide-react';
 import { BrasaoParana } from '../components/common/BrasaoParana';
+import { Pinheiral } from '../components/marca/Araucaria';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import * as sessaoApi from '../data/supabase/sessao';
@@ -9,7 +10,7 @@ import { useSessao } from './contexto';
 /** Moldura institucional comum às telas de acesso. */
 const Moldura: React.FC<{ titulo: string; subtitulo?: string; children: React.ReactNode }> = ({ titulo, subtitulo, children }) => (
   <div className="min-h-screen grid lg:grid-cols-[minmax(320px,440px)_1fr] bg-[var(--bg)]">
-    <aside className="hidden lg:flex flex-col justify-between bg-[#00385E] text-white px-10 py-12">
+    <aside className="relative overflow-hidden hidden lg:flex flex-col justify-between bg-[#00385E] text-white px-10 py-12">
       <div className="flex items-center gap-3">
         <BrasaoParana size="md" />
         <div className="leading-tight">
@@ -17,15 +18,16 @@ const Moldura: React.FC<{ titulo: string; subtitulo?: string; children: React.Re
           <p className="text-sm font-semibold">Secretaria da Justiça e Cidadania</p>
         </div>
       </div>
-      <div>
-        <p className="text-3xl font-semibold tracking-tight leading-snug" style={{ fontFamily: 'var(--font-heading)' }}>
-          Painel de Gestão Integrada
+      <div className="relative z-10 -mt-24">
+        <p className="font-display text-[44px] font-bold leading-[1.02]">
+          Painel de <span className="text-[#3CC27F]">/</span><br />Gestão Integrada
         </p>
         <p className="mt-3 text-sm text-white/75 max-w-xs leading-relaxed">
           Frotas, chamados, salas, diárias e fundo rotativo em um só lugar, com cada decisão registrada.
         </p>
       </div>
-      <p className="text-[11px] text-white/55">Acesso restrito a servidores autorizados.</p>
+      <Pinheiral className="absolute left-8 right-8 bottom-[88px] h-[32%]" />
+      <p className="relative text-[11px] text-white/70">Acesso restrito a servidores autorizados.</p>
     </aside>
 
     <main className="flex items-center justify-center px-4 py-10 sm:px-8">
@@ -34,7 +36,7 @@ const Moldura: React.FC<{ titulo: string; subtitulo?: string; children: React.Re
           <BrasaoParana size="sm" />
           <p className="text-xs font-semibold text-[var(--text)]">SEJU · Painel de Gestão Integrada</p>
         </div>
-        <h1 className="text-xl font-semibold tracking-tight text-[var(--text)]">{titulo}</h1>
+        <h1 className="font-display text-[30px] font-bold text-[var(--text)]">{titulo}</h1>
         {subtitulo && <p className="mt-1.5 text-sm text-[var(--text-muted)] leading-relaxed">{subtitulo}</p>}
         <div className="mt-7">{children}</div>
       </div>

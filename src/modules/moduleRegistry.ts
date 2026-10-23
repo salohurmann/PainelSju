@@ -16,7 +16,7 @@ export const MODULOS_REGISTRY: ModuleManifest[] = [
   {
     id: 'frota',
     nome: 'Frotas & Viaturas',
-    descricao: 'Requisição de veículos oficiais, despacho de missões e laudos de vistoria pericial.',
+    descricao: 'Pedidos de veículo, aprovação e vistorias de saída e retorno.',
     icone: Car,
     grupo: 'operacao',
     permissaoMinima: 'frotas:ver',
@@ -65,8 +65,8 @@ export const MODULOS_REGISTRY: ModuleManifest[] = [
   },
   {
     id: 'chamados',
-    nome: 'Chamados & Suporte TI',
-    descricao: 'Quadro Kanban para requisições de suporte técnico, redes e manutenção predial.',
+    nome: 'Chamados',
+    descricao: 'Suporte de TI, manutenção e almoxarifado, com prazo por prioridade.',
     icone: Headphones,
     grupo: 'operacao',
     permissaoMinima: 'chamados:ver',
@@ -105,8 +105,8 @@ export const MODULOS_REGISTRY: ModuleManifest[] = [
   },
   {
     id: 'salas',
-    nome: 'Reserva de Salas & Espaços',
-    descricao: 'Agendamento corporativo com prevenção anti-colisão e suporte multimídia.',
+    nome: 'Reserva de Salas',
+    descricao: 'Agenda de salas e auditório, sem choque de horários.',
     icone: CalendarDays,
     grupo: 'operacao',
     permissaoMinima: 'salas:ver',
@@ -146,7 +146,7 @@ export const MODULOS_REGISTRY: ModuleManifest[] = [
   {
     id: 'diarias',
     nome: 'Diárias & Viagens',
-    descricao: 'Calculadora de deslocamento fundamentada no Decreto Estadual nº 1.428/PR.',
+    descricao: 'Cálculo e solicitação de diárias de viagem.',
     icone: Briefcase,
     grupo: 'gestao',
     permissaoMinima: 'diarias:ver',
@@ -176,7 +176,7 @@ export const MODULOS_REGISTRY: ModuleManifest[] = [
   {
     id: 'cense',
     nome: 'Fundo Rotativo CENSE',
-    descricao: 'Prestação de contas das 19 unidades, leitor de DANFE NF-e e controle fiscal TCE-PR.',
+    descricao: 'Prestação de contas das 19 unidades socioeducativas.',
     icone: Coins,
     grupo: 'gestao',
     permissaoMinima: 'cense:ver',
@@ -197,8 +197,8 @@ export const MODULOS_REGISTRY: ModuleManifest[] = [
   },
   {
     id: 'ramais',
-    nome: 'Telefonia & Ramais',
-    descricao: 'Diretório telefônico da Sede Hauer e regionais com discador VoIP e organograma.',
+    nome: 'Ramais',
+    descricao: 'Telefones e contatos da sede e das regionais.',
     icone: PhoneCall,
     grupo: 'gestao',
     permissaoMinima: 'ramais:ver',
@@ -219,8 +219,8 @@ export const MODULOS_REGISTRY: ModuleManifest[] = [
   },
   {
     id: 'auditoria',
-    nome: 'Trilha SHA-256',
-    descricao: 'Cofre criptográfico com validação de integridade e mascaramento LGPD.',
+    nome: 'Auditoria',
+    descricao: 'Registro de quem fez o quê no sistema.',
     icone: ShieldCheck,
     grupo: 'seguranca',
     permissaoMinima: 'seguranca:auditar',

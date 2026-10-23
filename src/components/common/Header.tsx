@@ -256,7 +256,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {showDesignMenu && (
-              <div className="absolute right-0 mt-2.5 w-80 bg-white/95 backdrop-blur-2xl rounded-2xl shadow-[0_24px_48px_-12px_rgba(15,23,42,0.22),0_0_0_1px_rgba(15,23,42,0.08)] border border-white/90 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute right-0 mt-2.5 w-80 bg-white/95 rounded-2xl shadow-[0_24px_48px_-12px_rgba(15,23,42,0.22),0_0_0_1px_rgba(15,23,42,0.08)] border border-white/90 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
                 <div className="h-[2px] w-full bg-gradient-to-r from-[#0072BB] via-[#009B54] to-[#C59B27]" />
                 <div className="p-4 space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
@@ -372,7 +372,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {showNotifs && (
-              <div className="absolute right-0 mt-2.5 w-[calc(100vw-24px)] sm:w-96 max-w-sm bg-white/95 backdrop-blur-2xl rounded-2xl shadow-[0_24px_48px_-12px_rgba(15,23,42,0.24),0_0_0_1px_rgba(15,23,42,0.08)] border border-white/90 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute right-0 mt-2.5 w-[calc(100vw-24px)] sm:w-96 max-w-sm bg-white/95 rounded-2xl shadow-[0_24px_48px_-12px_rgba(15,23,42,0.24),0_0_0_1px_rgba(15,23,42,0.08)] border border-white/90 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
                 <div className="h-[2px] w-full bg-gradient-to-r from-[#0072BB] via-[#009B54] to-[#C59B27]" />
 
                 {/* Cabeçalho com Abas em Trilho Usinado */}
@@ -540,7 +540,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             {showRoleMenu && (
-              <div className="absolute right-0 mt-2.5 w-[calc(100vw-24px)] sm:w-76 max-w-xs bg-white/95 backdrop-blur-2xl rounded-2xl shadow-[0_24px_48px_-12px_rgba(15,23,42,0.24),0_0_0_1px_rgba(15,23,42,0.08)] border border-white/90 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute right-0 mt-2.5 w-[calc(100vw-24px)] sm:w-76 max-w-xs bg-white/95 rounded-2xl shadow-[0_24px_48px_-12px_rgba(15,23,42,0.24),0_0_0_1px_rgba(15,23,42,0.08)] border border-white/90 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
                 <div className="h-[2px] w-full bg-gradient-to-r from-[#0072BB] via-[#009B54] to-[#C59B27]" />
                 <div className="p-2">
                   <div className="px-2.5 py-2 flex items-center justify-between border-b border-slate-100">

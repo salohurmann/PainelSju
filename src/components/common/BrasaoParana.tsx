@@ -20,25 +20,15 @@ export const BrasaoParana: React.FC<BrasaoParanaProps> = ({
 
   return (
     <div
-      className={`relative inline-flex items-center justify-center select-none group/brasao ${sizeClasses[size]} ${className}`}
+      className={`relative inline-flex items-center justify-center select-none ${sizeClasses[size]} ${className}`}
     >
-      {/* Halo de Joalheria Institucional (Brilho Especular Tricolor Sutil) */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -inset-1 rounded-full bg-gradient-to-tr from-[#0072BB]/20 via-[#009B54]/15 to-[#C59B27]/25 opacity-75 blur-[3px] group-hover/brasao:opacity-100 group-hover/brasao:blur-[4px] transition-all duration-300"
-      />
-      {/* Anel Filigrana Dourado/Prata Sutil */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -inset-0.5 rounded-xl ring-1 ring-inset ring-[#C59B27]/25 group-hover/brasao:ring-[#C59B27]/45 transition-all duration-300"
-      />
 
       {imgError ? (
         <svg
           viewBox="0 0 64 76"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="relative z-10 w-full h-full select-none drop-shadow-[0_2px_4px_rgba(15,23,42,0.18)]"
+          className="relative z-10 w-full h-full select-none"
         >
           <defs>
             <linearGradient id="escudoPrGrad" x1="8" y1="4" x2="56" y2="72" gradientUnits="userSpaceOnUse">
@@ -72,7 +62,7 @@ export const BrasaoParana: React.FC<BrasaoParanaProps> = ({
           src={`${import.meta.env.BASE_URL}brasao-parana.png`} 
           alt="Brasão do Paraná" 
           onError={() => setImgError(true)}
-          className="relative z-10 w-full h-full object-contain select-none drop-shadow-[0_2px_3px_rgba(15,23,42,0.16)] contrast-[1.05] saturate-[1.06] transition-transform duration-300 group-hover/brasao:scale-[1.04]"
+          className="relative z-10 w-full h-full object-contain select-none"
           loading="eager"
         />
       )}

@@ -20,7 +20,8 @@ import { eventBus } from './services/eventBus';
 import { crossCuttingService } from './services/crossCuttingService';
 import { Sidebar } from './components/layout/Sidebar';
 import { TopBar } from './components/layout/TopBar';
-import { AppLauncherHub, AppModuleId } from './components/hub/AppLauncherHub';
+import type { AppModuleId } from './components/hub/AppLauncherHub';
+import { MesaDespacho } from './components/mesa/MesaDespacho';
 import { NovaSolicitacaoForm } from './components/frota/NovaSolicitacaoForm';
 import { FilaAprovacao } from './components/frota/FilaAprovacao';
 import { CheckinCheckoutVistoria } from './components/frota/CheckinCheckoutVistoria';
@@ -384,6 +385,10 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
   };
 
   const pendentesChefia = state.agendamentos.filter(a => a.status === 'pendente').length;
+  // Selo da Mesa: pendências que esta pessoa pode decidir (nunca as próprias)
+  const pendentesMesa = currentUser.role === 'chefe_gabinete' || currentUser.role === 'admin'
+    ? state.agendamentos.filter(a => a.status === 'pendente' && a.cpf.replace(/\D/g, '') !== currentUser.cpf.replace(/\D/g, '')).length
+    : 0;
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text)] flex">
@@ -396,13 +401,15 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
         mobileOpen={mobileSidebarOpen}
         onCloseMobile={() => setMobileSidebarOpen(false)}
         pendentesFrotaCount={pendentesChefia}
+        pendentesMesaCount={pendentesMesa}
         currentUser={currentUser}
+        modoDemo={!sessao}
       />
 
       {/* Container Principal com Margem Dinâmica da Sidebar */}
       <div
         className={`flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-200 ${
-          sidebarCollapsed ? 'lg:pl-[72px]' : 'lg:pl-[264px]'
+          sidebarCollapsed ? 'lg:pl-[72px]' : 'lg:pl-[248px]'
         }`}
       >
         {/* TopBar Horizontal de 56px */}
@@ -427,18 +434,17 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
         )}
 
         {/* Área Central de Conteúdo */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8 max-w-[1320px] w-full mx-auto">
           {/* TELA INICIAL: O HUB */}
           {activeApp === 'hub' && (
-            <AppLauncherHub
+            <MesaDespacho
               currentUser={currentUser}
               veiculos={state.veiculos}
               agendamentos={state.agendamentos}
               onOpenApp={handleOpenApp}
-              onOpenAuditoria={() => setActiveApp('auditoria')}
               onOpenCommandPalette={() => setCommandPaletteOpen(true)}
-              onSwitchUser={sessao ? undefined : handleSwitchUser}
-              usuariosDisponiveis={sessao ? undefined : USUARIOS_MOCK}
+              onAprovarFrota={handleAprovar}
+              onReprovarFrota={handleReprovar}
             />
           )}
 
@@ -595,36 +601,22 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
         </main>
 
         {/* Rodapé Institucional Silencioso */}
-        <footer className="mt-auto border-t border-[var(--border)] bg-[var(--surface)] py-4 px-6 text-xs text-[var(--text-muted)]">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 text-center sm:text-left">
-              <div className="flex items-center gap-2">
-                <MapPin size={13} className="text-[var(--brand)] shrink-0 hidden sm:inline" />
-                <span>
-                  SEJU · Rua Tenente Francisco Ferreira de Souza, 766 · Hauer · Curitiba/PR · CEP 81630-010 · (41) 3210-2400
-                </span>
-              </div>
-              <span className="hidden sm:inline text-[var(--border-strong)]">·</span>
-              <a
-                href="mailto:dpo@seju.pr.gov.br"
-                className="text-[11px] text-[var(--text-muted)] hover:text-[var(--brand)] transition-colors underline-offset-2 hover:underline"
-                title="Canal do Encarregado de Proteção de Dados (LGPD)"
-              >
-                Privacidade & DPO (dpo@seju.pr.gov.br)
+        <footer className="mt-auto border-t border-[var(--border)] py-5 px-4 sm:px-8 text-[12.5px] text-[var(--text-muted)]">
+          <div className="max-w-[1320px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <span className="text-center sm:text-left">
+              Secretaria da Justiça e Cidadania do Paraná · Rua Tenente Francisco Ferreira de Souza, 766 · Hauer · Curitiba/PR
+            </span>
+            <div className="flex items-center gap-4">
+              <a href="mailto:dpo@seju.pr.gov.br" className="hover:text-[var(--text)] underline-offset-2 hover:underline">
+                Privacidade (LGPD)
               </a>
-            </div>
-            <div className="flex items-center gap-3 text-[11px] font-mono">
               <button
                 type="button"
                 onClick={() => setDiagnosticoOpen(true)}
-                className="flex items-center gap-1 text-[var(--success)] hover:underline cursor-pointer"
-                title="Abrir Painel de Diagnóstico & Telemetria N1/N2"
+                className="hover:text-[var(--text)] underline-offset-2 hover:underline cursor-pointer"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)] animate-pulse" />
-                GovCloud PR · 99.98%
+                Diagnóstico para o suporte
               </button>
-              <span>·</span>
-              <span>ICP-PR SHA-256</span>
             </div>
           </div>
         </footer>

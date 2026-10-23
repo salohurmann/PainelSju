@@ -18,15 +18,16 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
-    letter-spacing: -0.011em;
+    letter-spacing: -0.006em;
     line-height: 1.5;
     font-size: 14px;
+    font-feature-settings: "cv11", "ss01";
     transition: background-color var(--duration-normal) var(--ease-default), color var(--duration-normal) var(--ease-default);
   }
 
   h1, h2, h3, h4, h5, h6, .font-heading {
     font-family: var(--font-heading);
-    letter-spacing: -0.025em;
+    letter-spacing: -0.015em;
   }
 
   /* Ativação padrão de números tabulares em tabelas, KPIs, horários e valores */
@@ -59,78 +60,48 @@
 }
 
 /* =====================================================================
-   Utilitários Visuais Modernos (Apple / Linear / Gov Design)
+   Utilitários visuais (direção "Mesa Editorial")
+   Sem vidro, sem brilho, sem gradiente: superfícies planas, bordas finas.
    ===================================================================== */
+
+/* Display (Bricolage Grotesque) para títulos de página e números de destaque */
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-variation-settings: "wdth" 100;
+  letter-spacing: -0.03em;
+}
 
 .font-heading {
   font-family: var(--font-heading);
 }
 
-.shadow-gov-card {
-  box-shadow: var(--shadow-card);
+/* Rótulo pequeno em caixa alta, usado acima de seções */
+.rotulo {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
-.shadow-gov-card:hover {
-  box-shadow: var(--shadow-card-hover);
-}
+.shadow-gov-card { box-shadow: none; }
+.shadow-gov-card:hover { box-shadow: none; }
+.shadow-gov-elevated { box-shadow: var(--shadow-md); }
 
-.shadow-gov-elevated {
-  box-shadow: var(--shadow-md);
-}
-
+/* Classes antigas neutralizadas (remoção gradual nas telas) */
 .glass-panel {
-  background-color: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
 }
+.ambient-mesh { display: none; }
+.card-sheen { position: relative; }
 
-.ambient-mesh {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 1200px;
-  height: 380px;
-  background: radial-gradient(55% 45% at 50% 0%, rgba(0, 114, 187, 0.07) 0%, rgba(0, 114, 187, 0.02) 60%, transparent 100%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-[data-theme="dark"] .ambient-mesh,
-.dark .ambient-mesh {
-  background: radial-gradient(55% 45% at 50% 0%, rgba(56, 189, 248, 0.09) 0%, rgba(56, 189, 248, 0.02) 60%, transparent 100%);
-}
-
-.card-sheen {
-  position: relative;
-  overflow: hidden;
-}
-
-.card-sheen::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.8) 50%, transparent 100%);
-  opacity: 0.7;
-}
-
-.dark .card-sheen::after {
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.12) 50%, transparent 100%);
-  opacity: 0.9;
-}
-
-/* Utilitários Institucionais Silenciosos */
 .card-clean {
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 20px;
-  box-shadow: var(--shadow-2xs);
 }
 
 .card-clickable {
@@ -138,15 +109,12 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 20px;
-  box-shadow: var(--shadow-2xs);
-  transition: all var(--duration-fast) var(--ease-default);
+  transition: border-color var(--duration-fast) var(--ease-default), background-color var(--duration-fast) var(--ease-default);
   cursor: pointer;
 }
 .card-clickable:hover {
-  border-color: var(--brand);
+  border-color: var(--border-strong);
   background-color: var(--surface-2);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-card-hover);
 }
 
 /* Ocultar barra de rolagem mantendo a navegação por toque ou trackpad */
