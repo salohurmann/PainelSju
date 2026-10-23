@@ -1,2448 +1,685 @@
-import { ModuloCabecalho, AcaoModulo } from '../modulo/ModuloCabecalho';
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  Building2,
-  
-  Search,
-  PlusCircle,
-  CheckCircle2,
-  AlertTriangle,
-  FileText,
-  Receipt,
-  Wallet,
-  TrendingUp,
-  Printer,
-  ShieldCheck,
-  X,
-  SlidersHorizontal,
-  Ban,
-  Download,
-  ScanLine,
-  Upload,
-  Clock,
-  Sparkles,
-  RefreshCw,
-  PieChart,
-  Landmark,
-  QrCode,
-  
-  Lock,
-  Layers,
-  Scale,
-  
-} from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Usuario } from '../../types';
 import { soundFX } from '../../services/soundFx';
-import { BrasaoParana } from '../common/BrasaoParana';
 import { eventBus } from '../../services/eventBus';
+import { temPermissao } from '../../services/rbac';
+import { chaveNfeValida, cnpjValido } from '../../data/supabase/cense';
+import { ModuloCabecalho, AcaoModulo, NumeroModulo } from '../modulo/ModuloCabecalho';
+import { CENSES_INICIAIS, NotaFiscalFundo, RubricaFundo, StatusFiscalCense, UnidadeCenseFundo } from './dadosCense';
+import { Plus, Download, FileText, Search, X, Check, AlertCircle, AlertTriangle, Paperclip, Printer, Ban, Info } from 'lucide-react';
+
+export type { StatusFiscalCense, RubricaFundo, NotaFiscalFundo, UnidadeCenseFundo } from './dadosCense';
 
 interface FundoRotativoCenseViewProps {
   currentUser: Usuario;
   onVoltarHub: () => void;
 }
 
-export type StatusFiscalCense = 'regular' | 'em_analise' | 'alerta_glosa';
-export type RubricaFundo =
-  | 'Manutenção Predial (33.90.39)'
-  | 'Material de Consumo & Higiene (33.90.30)'
-  | 'Insumos Pedagógicos & Oficinas (33.90.30)'
-  | 'Reparos Elétricos & Hidráulicos (33.90.39)'
-  | 'Suprimento Emergencial Saúde (33.90.30)';
+const STORAGE = 'seju_censes_fundo_v3';
 
-export interface NotaFiscalFundo {
-  id: string;
-  numeroNf: string;
-  chaveAcesso?: string;
-  dataEmissao: string;
-  fornecedor: string;
-  cnpj: string;
-  rubrica: RubricaFundo;
-  descricao: string;
-  valor: number;
-  status: 'aprovada' | 'pendente' | 'glosada';
-  tresOrcamentos?: boolean;
-  comprovanteNome?: string;
-  motivoGlosa?: string;
-}
-
-export interface UnidadeCenseFundo {
-  id: string;
-  nome: string;
-  cidade: string;
-  regional: 'Curitiba & RMC' | 'Campos Gerais & Litoral' | 'Norte & Noroeste' | 'Oeste & Sudoeste';
-  diretorSuprido: string;
-  matricula: string;
-  contaBancoBrasil: string;
-  cotaTrimestral: number;
-  competencia: string;
-  statusFiscal: StatusFiscalCense;
-  ultimaPrestacao: string;
-  diasRestantesPrestacao: number;
-  notas: NotaFiscalFundo[];
-}
-
-const STORAGE_KEY_FUNDO_CENSE = 'seju_censes_fundo_v2';
-const LIMITE_INDIVIDUAL_NOTA = 8000;
-
-const CENSES_INICIAIS: UnidadeCenseFundo[] = [
-  // ==================== CURITIBA & RMC (4 UNIDADES) ====================
-  {
-    id: 'cense-curitiba',
-    nome: 'CENSE Curitiba',
-    cidade: 'Curitiba',
-    regional: 'Curitiba & RMC',
-    diretorSuprido: 'Marcos Vinícius Andrade',
-    matricula: 'SEJU-48219',
-    contaBancoBrasil: 'Ag. 3793-1 · CC 44.102-8',
-    cotaTrimestral: 36000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'regular',
-    ultimaPrestacao: '10/10/2026',
-    diasRestantesPrestacao: 42,
-    notas: [
-      {
-        id: 'nf-101',
-        numeroNf: 'NF-e 004.892',
-        chaveAcesso: '41261078412901000144550010000048921084920114',
-        dataEmissao: '04/10/2026',
-        fornecedor: 'Comercial Elétrica Paraná Ltda',
-        cnpj: '78.412.901/0001-44',
-        rubrica: 'Reparos Elétricos & Hidráulicos (33.90.39)',
-        descricao: 'Substituição de refletores LED do pátio interno e disjuntores da ala pedagógica',
-        valor: 4850.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      },
-      {
-        id: 'nf-102',
-        numeroNf: 'NF-e 019.304',
-        chaveAcesso: '41261012990341000119550010000193041092381920',
-        dataEmissao: '09/10/2026',
-        fornecedor: 'Papelaria & Suprimentos Curitiba S/A',
-        cnpj: '12.990.341/0001-19',
-        rubrica: 'Insumos Pedagógicos & Oficinas (33.90.30)',
-        descricao: 'Kits de papelaria, telas de pintura e materiais para oficina profissionalizante',
-        valor: 3290.5,
-        status: 'aprovada',
-        tresOrcamentos: true
-      },
-      {
-        id: 'nf-103',
-        numeroNf: 'NF-e 002.118',
-        chaveAcesso: '41261009331782000180550010000021181044918273',
-        dataEmissao: '14/10/2026',
-        fornecedor: 'Higieniza Sul Distribuidora Ltda',
-        cnpj: '09.331.782/0001-80',
-        rubrica: 'Material de Consumo & Higiene (33.90.30)',
-        descricao: 'Insumos sanitários, dispensadores e produtos de higienização hospitalar',
-        valor: 5120.0,
-        status: 'pendente',
-        tresOrcamentos: true
-      }
-    ]
-  },
-  {
-    id: 'cense-sao-francisco',
-    nome: 'CENSE São Francisco',
-    cidade: 'Piraquara',
-    regional: 'Curitiba & RMC',
-    diretorSuprido: 'Helena Costa Guimarães',
-    matricula: 'SEJU-39104',
-    contaBancoBrasil: 'Ag. 3793-1 · CC 44.219-9',
-    cotaTrimestral: 42000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'em_analise',
-    ultimaPrestacao: '12/10/2026',
-    diasRestantesPrestacao: 18,
-    notas: [
-      {
-        id: 'nf-201',
-        numeroNf: 'NF-e 008.771',
-        dataEmissao: '02/10/2026',
-        fornecedor: 'Hidráulica & Construção Piraquara',
-        cnpj: '14.552.109/0001-05',
-        rubrica: 'Manutenção Predial (33.90.39)',
-        descricao: 'Reparo emergencial na tubulação térmica dos alojamentos 02 e 03',
-        valor: 7850.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      },
-      {
-        id: 'nf-202',
-        numeroNf: 'NF-e 031.400',
-        dataEmissao: '11/10/2026',
-        fornecedor: 'MedSul Equipamentos de Saúde Ltda',
-        cnpj: '21.840.220/0001-91',
-        rubrica: 'Suprimento Emergencial Saúde (33.90.30)',
-        descricao: 'Curativos, oxímetros de pulso e insumos para enfermaria da unidade',
-        valor: 4320.0,
-        status: 'pendente',
-        tresOrcamentos: true
-      }
-    ]
-  },
-  {
-    id: 'cense-joana-richa',
-    nome: 'CENSE Joana Richa',
-    cidade: 'Curitiba',
-    regional: 'Curitiba & RMC',
-    diretorSuprido: 'Luciana Ferreira Machado',
-    matricula: 'SEJU-45890',
-    contaBancoBrasil: 'Ag. 3793-1 · CC 44.508-2',
-    cotaTrimestral: 32000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'regular',
-    ultimaPrestacao: '14/10/2026',
-    diasRestantesPrestacao: 51,
-    notas: [
-      {
-        id: 'nf-251',
-        numeroNf: 'NF-e 011.209',
-        dataEmissao: '06/10/2026',
-        fornecedor: 'Atelier & Artes Paraná Suprimentos',
-        cnpj: '18.209.441/0001-60',
-        rubrica: 'Insumos Pedagógicos & Oficinas (33.90.30)',
-        descricao: 'Insumos para oficinas de corte e costura, serigrafia e culinária socioeducativa',
-        valor: 4920.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      },
-      {
-        id: 'nf-252',
-        numeroNf: 'NF-e 014.880',
-        dataEmissao: '12/10/2026',
-        fornecedor: 'Curitiba Clima & Manutenção Predial',
-        cnpj: '27.881.004/0001-12',
-        rubrica: 'Manutenção Predial (33.90.39)',
-        descricao: 'Manutenção de exaustores da cozinha pedagógica e revisão de portões automatizados',
-        valor: 3680.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      }
-    ]
-  },
-  {
-    id: 'cense-fazenda-rio-grande',
-    nome: 'CENSE Fazenda Rio Grande',
-    cidade: 'Fazenda Rio Grande',
-    regional: 'Curitiba & RMC',
-    diretorSuprido: 'Carlos Eduardo Polanski',
-    matricula: 'SEJU-52190',
-    contaBancoBrasil: 'Ag. 3793-1 · CC 44.890-1',
-    cotaTrimestral: 36000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'regular',
-    ultimaPrestacao: '11/10/2026',
-    diasRestantesPrestacao: 37,
-    notas: [
-      {
-        id: 'nf-281',
-        numeroNf: 'NF-e 006.310',
-        dataEmissao: '05/10/2026',
-        fornecedor: 'Metropolitana Ferragens & Elétrica Ltda',
-        cnpj: '31.409.221/0001-09',
-        rubrica: 'Reparos Elétricos & Hidráulicos (33.90.39)',
-        descricao: 'Substituição de bombas de recalque d’água e quadros de distribuição secundários',
-        valor: 6490.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      },
-      {
-        id: 'nf-282',
-        numeroNf: 'NF-e 009.115',
-        dataEmissao: '10/10/2026',
-        fornecedor: 'SulClean Higiene Profissional Ltda',
-        cnpj: '08.912.440/0001-55',
-        rubrica: 'Material de Consumo & Higiene (33.90.30)',
-        descricao: 'Material de limpeza hospitalar e kits de higiene pessoal para internos',
-        valor: 3840.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      }
-    ]
-  },
-
-  // ==================== CAMPOS GERAIS & LITORAL (2 UNIDADES) ====================
-  {
-    id: 'cense-ponta-grossa',
-    nome: 'CENSE Ponta Grossa',
-    cidade: 'Ponta Grossa',
-    regional: 'Campos Gerais & Litoral',
-    diretorSuprido: 'Cláudia Regina Bastos',
-    matricula: 'SEJU-28490',
-    contaBancoBrasil: 'Ag. 0411-1 · CC 31.880-5',
-    cotaTrimestral: 32000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'regular',
-    ultimaPrestacao: '15/10/2026',
-    diasRestantesPrestacao: 49,
-    notas: [
-      {
-        id: 'nf-401',
-        numeroNf: 'NF-e 012.665',
-        dataEmissao: '06/10/2026',
-        fornecedor: 'Campos Gerais Materiais Elétricos',
-        cnpj: '19.440.112/0001-37',
-        rubrica: 'Reparos Elétricos & Hidráulicos (33.90.39)',
-        descricao: 'Revisão do quadro de comando elétrico da lavanderia e cozinha industrial',
-        valor: 6180.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      },
-      {
-        id: 'nf-402',
-        numeroNf: 'NF-e 015.008',
-        dataEmissao: '12/10/2026',
-        fornecedor: 'Princesa dos Campos Suprimentos Ltda',
-        cnpj: '22.118.904/0001-81',
-        rubrica: 'Material de Consumo & Higiene (33.90.30)',
-        descricao: 'Reposição de utensílios de refeitório em policarbonato de alta resistência',
-        valor: 4150.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      }
-    ]
-  },
-  {
-    id: 'cense-paranagua',
-    nome: 'CENSE Paranaguá',
-    cidade: 'Paranaguá',
-    regional: 'Campos Gerais & Litoral',
-    diretorSuprido: 'Patrícia Leal Albuquerque',
-    matricula: 'SEJU-33819',
-    contaBancoBrasil: 'Ag. 0250-X · CC 19.840-7',
-    cotaTrimestral: 28000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'regular',
-    ultimaPrestacao: '15/10/2026',
-    diasRestantesPrestacao: 54,
-    notas: [
-      {
-        id: 'nf-801',
-        numeroNf: 'NF-e 003.512',
-        dataEmissao: '09/10/2026',
-        fornecedor: 'Litoral Pinturas & Impermeabilização',
-        cnpj: '11.670.390/0001-22',
-        rubrica: 'Manutenção Predial (33.90.39)',
-        descricao: 'Tratamento anticorrosivo contra maresia e pintura acrílica das salas de aula',
-        valor: 6400.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      }
-    ]
-  },
-
-  // ==================== NORTE & NOROESTE (7 UNIDADES) ====================
-  {
-    id: 'cense-londrina-1',
-    nome: 'CENSE Londrina I',
-    cidade: 'Londrina',
-    regional: 'Norte & Noroeste',
-    diretorSuprido: 'Ricardo Almeida Prado',
-    matricula: 'SEJU-51028',
-    contaBancoBrasil: 'Ag. 0142-2 · CC 89.401-3',
-    cotaTrimestral: 38000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'alerta_glosa',
-    ultimaPrestacao: '08/10/2026',
-    diasRestantesPrestacao: 7,
-    notas: [
-      {
-        id: 'nf-301',
-        numeroNf: 'NF-e 001.982',
-        dataEmissao: '03/10/2026',
-        fornecedor: 'Norte Telas & Serralheria Ltda',
-        cnpj: '33.109.448/0001-62',
-        rubrica: 'Manutenção Predial (33.90.39)',
-        descricao: 'Manutenção preventiva das grades de proteção da quadra poliesportiva',
-        valor: 7400.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      },
-      {
-        id: 'nf-302',
-        numeroNf: 'NF-e 005.412',
-        dataEmissao: '07/10/2026',
-        fornecedor: 'Atacadão Suprimentos Londrina',
-        cnpj: '41.220.891/0001-11',
-        rubrica: 'Material de Consumo & Higiene (33.90.30)',
-        descricao: 'Aquisição de materiais de limpeza sem atesto de dois servidores no verso da nota',
-        valor: 6750.0,
-        status: 'glosada',
-        tresOrcamentos: false,
-        motivoGlosa: 'Ausência de certidão negativa estadual e de 3 cotações prévias anexadas ao processo.'
-      }
-    ]
-  },
-  {
-    id: 'cense-londrina-2',
-    nome: 'CENSE Londrina II',
-    cidade: 'Londrina',
-    regional: 'Norte & Noroeste',
-    diretorSuprido: 'Sérgio Murilo Fontes',
-    matricula: 'SEJU-54810',
-    contaBancoBrasil: 'Ag. 0142-2 · CC 89.712-8',
-    cotaTrimestral: 36000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'regular',
-    ultimaPrestacao: '13/10/2026',
-    diasRestantesPrestacao: 39,
-    notas: [
-      {
-        id: 'nf-351',
-        numeroNf: 'NF-e 018.220',
-        dataEmissao: '05/10/2026',
-        fornecedor: 'EletroNorte Instalações Técnicas Ltda',
-        cnpj: '15.901.332/0001-40',
-        rubrica: 'Reparos Elétricos & Hidráulicos (33.90.39)',
-        descricao: 'Adequação do sistema de iluminação de emergência dos blocos de internação',
-        valor: 5480.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      },
-      {
-        id: 'nf-352',
-        numeroNf: 'NF-e 021.004',
-        dataEmissao: '11/10/2026',
-        fornecedor: 'LondriPedagógica Materiais Didáticos',
-        cnpj: '24.510.889/0001-02',
-        rubrica: 'Insumos Pedagógicos & Oficinas (33.90.30)',
-        descricao: 'Instrumentos para oficina de percussão e kits de robótica educacional',
-        valor: 4690.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      }
-    ]
-  },
-  {
-    id: 'cense-maringa',
-    nome: 'CENSE Maringá',
-    cidade: 'Maringá',
-    regional: 'Norte & Noroeste',
-    diretorSuprido: 'Fernanda Lúcia Tavares',
-    matricula: 'SEJU-44108',
-    contaBancoBrasil: 'Ag. 0352-2 · CC 71.004-2',
-    cotaTrimestral: 32000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'em_analise',
-    ultimaPrestacao: '11/10/2026',
-    diasRestantesPrestacao: 24,
-    notas: [
-      {
-        id: 'nf-601',
-        numeroNf: 'NF-e 022.890',
-        dataEmissao: '10/10/2026',
-        fornecedor: 'ClimaNorte Refrigeração Técnica',
-        cnpj: '17.302.911/0001-08',
-        rubrica: 'Manutenção Predial (33.90.39)',
-        descricao: 'Higienização e recarga de gás das câmaras frias do refeitório da unidade',
-        valor: 5890.0,
-        status: 'pendente',
-        tresOrcamentos: true
-      }
-    ]
-  },
-  {
-    id: 'cense-paranavai',
-    nome: 'CENSE Paranavaí',
-    cidade: 'Paranavaí',
-    regional: 'Norte & Noroeste',
-    diretorSuprido: 'Roberto Carlos Silveira',
-    matricula: 'SEJU-37920',
-    contaBancoBrasil: 'Ag. 0394-8 · CC 28.410-9',
-    cotaTrimestral: 28000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'regular',
-    ultimaPrestacao: '14/10/2026',
-    diasRestantesPrestacao: 46,
-    notas: [
-      {
-        id: 'nf-621',
-        numeroNf: 'NF-e 004.119',
-        dataEmissao: '07/10/2026',
-        fornecedor: 'Noroeste Hidráulica & Poços Ltda',
-        cnpj: '13.449.820/0001-74',
-        rubrica: 'Reparos Elétricos & Hidráulicos (33.90.39)',
-        descricao: 'Manutenção corretiva nos registros de pressão e válvulas antivandalismo',
-        valor: 4720.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      }
-    ]
-  },
-  {
-    id: 'cense-umuarama',
-    nome: 'CENSE Umuarama',
-    cidade: 'Umuarama',
-    regional: 'Norte & Noroeste',
-    diretorSuprido: 'Daniela Moreira Franco',
-    matricula: 'SEJU-49201',
-    contaBancoBrasil: 'Ag. 0610-6 · CC 41.209-4',
-    cotaTrimestral: 30000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'regular',
-    ultimaPrestacao: '12/10/2026',
-    diasRestantesPrestacao: 33,
-    notas: [
-      {
-        id: 'nf-641',
-        numeroNf: 'NF-e 009.840',
-        dataEmissao: '04/10/2026',
-        fornecedor: 'Umuarama Médica & Odonto Suprimentos',
-        cnpj: '26.701.390/0001-18',
-        rubrica: 'Suprimento Emergencial Saúde (33.90.30)',
-        descricao: 'Insumos odontológicos e materiais de pronto-atendimento para ala de saúde',
-        valor: 5190.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      }
-    ]
-  },
-  {
-    id: 'cense-campo-mourao',
-    nome: 'CENSE Campo Mourão',
-    cidade: 'Campo Mourão',
-    regional: 'Norte & Noroeste',
-    diretorSuprido: 'Alexandre Vieira Camargo',
-    matricula: 'SEJU-41882',
-    contaBancoBrasil: 'Ag. 0406-5 · CC 52.901-7',
-    cotaTrimestral: 28000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'regular',
-    ultimaPrestacao: '15/10/2026',
-    diasRestantesPrestacao: 56,
-    notas: [
-      {
-        id: 'nf-661',
-        numeroNf: 'NF-e 007.302',
-        dataEmissao: '08/10/2026',
-        fornecedor: 'Comercial Mourãoense de Limpeza Ltda',
-        cnpj: '07.882.190/0001-31',
-        rubrica: 'Material de Consumo & Higiene (33.90.30)',
-        descricao: 'Aquisição trimestral de sanitizantes, sabonete líquido e papel toalha institucional',
-        valor: 4480.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      }
-    ]
-  },
-  {
-    id: 'cense-santo-antonio-platina',
-    nome: 'CENSE Santo Antônio da Platina',
-    cidade: 'Santo Antônio da Platina',
-    regional: 'Norte & Noroeste',
-    diretorSuprido: 'Beatriz Helena Vasconcelos',
-    matricula: 'SEJU-58310',
-    contaBancoBrasil: 'Ag. 0305-0 · CC 18.774-2',
-    cotaTrimestral: 28000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'em_analise',
-    ultimaPrestacao: '09/10/2026',
-    diasRestantesPrestacao: 14,
-    notas: [
-      {
-        id: 'nf-681',
-        numeroNf: 'NF-e 003.918',
-        dataEmissao: '06/10/2026',
-        fornecedor: 'Pioneiro Manutenção & Coberturas Ltda',
-        cnpj: '19.004.512/0001-90',
-        rubrica: 'Manutenção Predial (33.90.39)',
-        descricao: 'Substituição de calhas pluviais e rufos metálicos do ginásio coberto',
-        valor: 6890.0,
-        status: 'pendente',
-        tresOrcamentos: true
-      }
-    ]
-  },
-
-  // ==================== OESTE & SUDOESTE (6 UNIDADES) ====================
-  {
-    id: 'cense-cascavel-1',
-    nome: 'CENSE Cascavel I',
-    cidade: 'Cascavel',
-    regional: 'Oeste & Sudoeste',
-    diretorSuprido: 'Valdir Antônio Zanon',
-    matricula: 'SEJU-36904',
-    contaBancoBrasil: 'Ag. 0812-5 · CC 55.410-8',
-    cotaTrimestral: 34000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'regular',
-    ultimaPrestacao: '12/10/2026',
-    diasRestantesPrestacao: 35,
-    notas: [
-      {
-        id: 'nf-511',
-        numeroNf: 'NF-e 016.402',
-        dataEmissao: '04/10/2026',
-        fornecedor: 'Cascavel Soluções Elétricas e Solar',
-        cnpj: '10.449.812/0001-64',
-        rubrica: 'Reparos Elétricos & Hidráulicos (33.90.39)',
-        descricao: 'Manutenção dos aquecedores solares de água dos alojamentos masculinos',
-        valor: 6120.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      }
-    ]
-  },
-  {
-    id: 'cense-cascavel-2',
-    nome: 'CENSE Cascavel II',
-    cidade: 'Cascavel',
-    regional: 'Oeste & Sudoeste',
-    diretorSuprido: 'Eduardo Henrique Sartori',
-    matricula: 'SEJU-60912',
-    contaBancoBrasil: 'Ag. 0812-5 · CC 55.901-0',
-    cotaTrimestral: 36000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'regular',
-    ultimaPrestacao: '13/10/2026',
-    diasRestantesPrestacao: 41,
-    notas: [
-      {
-        id: 'nf-501',
-        numeroNf: 'NF-e 009.104',
-        dataEmissao: '05/10/2026',
-        fornecedor: 'Oeste Ferragens & Manutenção Ltda',
-        cnpj: '04.889.120/0001-73',
-        rubrica: 'Insumos Pedagógicos & Oficinas (33.90.30)',
-        descricao: 'Bancadas e ferramentas manuais para oficina de marcenaria e panificação',
-        valor: 7450.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      }
-    ]
-  },
-  {
-    id: 'cense-foz',
-    nome: 'CENSE Foz do Iguaçu',
-    cidade: 'Foz do Iguaçu',
-    regional: 'Oeste & Sudoeste',
-    diretorSuprido: 'Gustavo Nogueira Brito',
-    matricula: 'SEJU-57320',
-    contaBancoBrasil: 'Ag. 0140-6 · CC 63.210-1',
-    cotaTrimestral: 36000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'regular',
-    ultimaPrestacao: '14/10/2026',
-    diasRestantesPrestacao: 44,
-    notas: [
-      {
-        id: 'nf-701',
-        numeroNf: 'NF-e 007.419',
-        dataEmissao: '08/10/2026',
-        fornecedor: 'Fronteira Suprimentos Corporativos',
-        cnpj: '29.118.400/0001-55',
-        rubrica: 'Material de Consumo & Higiene (33.90.30)',
-        descricao: 'Colchões ignífugos padrão socioeducativo e enxoval de alojamento',
-        valor: 7800.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      },
-      {
-        id: 'nf-702',
-        numeroNf: 'NF-e 010.215',
-        dataEmissao: '12/10/2026',
-        fornecedor: 'Iguaçu Climatização & Refrigeração Ltda',
-        cnpj: '35.990.112/0001-04',
-        rubrica: 'Manutenção Predial (33.90.39)',
-        descricao: 'Revisão dos aparelhos climatizadores da escola e setor técnico',
-        valor: 4950.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      }
-    ]
-  },
-  {
-    id: 'cense-toledo',
-    nome: 'CENSE Toledo',
-    cidade: 'Toledo',
-    regional: 'Oeste & Sudoeste',
-    diretorSuprido: 'Maurício Schneider Hoss',
-    matricula: 'SEJU-46711',
-    contaBancoBrasil: 'Ag. 0591-6 · CC 39.104-5',
-    cotaTrimestral: 28000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'regular',
-    ultimaPrestacao: '14/10/2026',
-    diasRestantesPrestacao: 48,
-    notas: [
-      {
-        id: 'nf-731',
-        numeroNf: 'NF-e 005.890',
-        dataEmissao: '07/10/2026',
-        fornecedor: 'Toledo Agro & Hortifruti Insumos Ltda',
-        cnpj: '16.401.882/0001-29',
-        rubrica: 'Insumos Pedagógicos & Oficinas (33.90.30)',
-        descricao: 'Sementes, substratos e ferramentas para oficina de horta orgânica e jardinagem',
-        valor: 3890.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      }
-    ]
-  },
-  {
-    id: 'cense-pato-branco',
-    nome: 'CENSE Pato Branco',
-    cidade: 'Pato Branco',
-    regional: 'Oeste & Sudoeste',
-    diretorSuprido: 'Renata Dalla Vecchia',
-    matricula: 'SEJU-53094',
-    contaBancoBrasil: 'Ag. 0495-2 · CC 24.880-3',
-    cotaTrimestral: 30000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'regular',
-    ultimaPrestacao: '15/10/2026',
-    diasRestantesPrestacao: 58,
-    notas: [
-      {
-        id: 'nf-751',
-        numeroNf: 'NF-e 013.410',
-        dataEmissao: '09/10/2026',
-        fornecedor: 'Sudoeste Suprimentos de Informática & Pedagógicos',
-        cnpj: '28.310.994/0001-47',
-        rubrica: 'Insumos Pedagógicos & Oficinas (33.90.30)',
-        descricao: 'Materiais didáticos e insumos para laboratório de inclusão digital',
-        valor: 5240.0,
-        status: 'aprovada',
-        tresOrcamentos: true
-      }
-    ]
-  },
-  {
-    id: 'cense-laranjeiras-do-sul',
-    nome: 'CENSE Laranjeiras do Sul',
-    cidade: 'Laranjeiras do Sul',
-    regional: 'Oeste & Sudoeste',
-    diretorSuprido: 'Juliano Kovalski',
-    matricula: 'SEJU-59102',
-    contaBancoBrasil: 'Ag. 0921-0 · CC 15.309-6',
-    cotaTrimestral: 28000,
-    competencia: '4º Trimestre / 2026',
-    statusFiscal: 'em_analise',
-    ultimaPrestacao: '10/10/2026',
-    diasRestantesPrestacao: 11,
-    notas: [
-      {
-        id: 'nf-781',
-        numeroNf: 'NF-e 002.774',
-        dataEmissao: '06/10/2026',
-        fornecedor: 'Iguaçu Sul Construções & Reparos Ltda',
-        cnpj: '37.119.008/0001-83',
-        rubrica: 'Manutenção Predial (33.90.39)',
-        descricao: 'Impermeabilização de lajes técnicas e reparo de fechaduras de segurança',
-        valor: 6320.0,
-        status: 'pendente',
-        tresOrcamentos: true
-      }
-    ]
-  }
+const STATUS_UNIDADE: Record<StatusFiscalCense, { texto: string; cls: string }> = {
+  regular: { texto: 'Em dia', cls: 'bg-[var(--verde-soft)] text-[var(--verde)]' },
+  em_analise: { texto: 'Notas para analisar', cls: 'bg-[var(--warning-soft)] text-[var(--warning)]' },
+  alerta_glosa: { texto: 'Nota recusada', cls: 'bg-[var(--danger-soft)] text-[var(--danger)]' },
+};
+const STATUS_NOTA: Record<NotaFiscalFundo['status'], { texto: string; cls: string }> = {
+  pendente: { texto: 'Aguardando análise', cls: 'bg-[var(--warning-soft)] text-[var(--warning)]' },
+  aprovada: { texto: 'Aprovada', cls: 'bg-[var(--verde-soft)] text-[var(--verde)]' },
+  glosada: { texto: 'Recusada', cls: 'bg-[var(--danger-soft)] text-[var(--danger)]' },
+};
+const REGIONAIS: Array<UnidadeCenseFundo['regional']> = ['Curitiba & RMC', 'Campos Gerais & Litoral', 'Norte & Noroeste', 'Oeste & Sudoeste'];
+const RUBRICAS: RubricaFundo[] = [
+  'Material de Consumo & Higiene (33.90.30)',
+  'Insumos Pedagógicos & Oficinas (33.90.30)',
+  'Suprimento Emergencial Saúde (33.90.30)',
+  'Manutenção Predial (33.90.39)',
+  'Reparos Elétricos & Hidráulicos (33.90.39)',
 ];
 
-const AMOSTRAS_DANFE_SEFAZ: Array<{
-  chave: string;
-  numeroNf: string;
-  fornecedor: string;
-  cnpj: string;
-  rubrica: RubricaFundo;
-  valor: string;
-  descricao: string;
-}> = [
-  {
-    chave: '41261082391044000192550010000284101092837461',
-    numeroNf: 'NF-e 028.410',
-    fornecedor: 'Paraná Equipamentos & Manutenção Predial S/A',
-    cnpj: '82.391.044/0001-92',
-    rubrica: 'Manutenção Predial (33.90.39)',
-    valor: '4680.00',
-    descricao: 'Substituição de fechaduras eletromagnéticas e revisão dos portões de eclusa de segurança.'
-  },
-  {
-    chave: '41261014889201000137550010000159201038472910',
-    numeroNf: 'NF-e 015.920',
-    fornecedor: 'BioSul Suprimentos Hospitalares e Higiene Ltda',
-    cnpj: '14.889.201/0001-37',
-    rubrica: 'Suprimento Emergencial Saúde (33.90.30)',
-    valor: '2890.50',
-    descricao: 'Aquisição de kits de primeiros socorros, ataduras, luvas nitrílicas e termômetros clínicos infravermelhos.'
-  },
-  {
-    chave: '41261039102847000155550010000093121074829103',
-    numeroNf: 'NF-e 009.312',
-    fornecedor: 'EducaMais Insumos Profissionalizantes Paraná Ltda',
-    cnpj: '39.102.847/0001-55',
-    rubrica: 'Insumos Pedagógicos & Oficinas (33.90.30)',
-    valor: '5420.00',
-    descricao: 'Insumos para oficina de panificação, confeitaria e serigrafia aplicada aos adolescentes internados.'
-  }
-];
+const ehConsumo = (r: RubricaFundo) => r.includes('33.90.30');
+const nomeRubrica = (r: RubricaFundo) => r.replace(/\s*\(.*\)/, '').replace('&', 'e');
+const moeda = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const gasto = (u: UnidadeCenseFundo) => u.notas.filter(n => n.status !== 'glosada').reduce((s, n) => s + n.valor, 0);
+const statusPelasNotas = (notas: NotaFiscalFundo[]): StatusFiscalCense =>
+  notas.some(n => n.status === 'glosada') ? 'alerta_glosa' : notas.some(n => n.status === 'pendente') ? 'em_analise' : 'regular';
+const formatarCnpj = (v: string) =>
+  v.replace(/\D/g, '').slice(0, 14)
+    .replace(/^(\d{2})(\d)/, '$1.$2')
+    .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d)/, '.$1/$2')
+    .replace(/(\d{4})(\d)/, '$1-$2');
 
-const isRubricaConsumo30 = (r: RubricaFundo) => r.includes('33.90.30');
-
-export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
-  onVoltarHub
-}) => {
+export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({ currentUser, onVoltarHub }) => {
+  const fiscaliza = temPermissao(currentUser, 'cense:fiscalizar');
+  const lanca = temPermissao(currentUser, 'cense:lancar_nfe') || fiscaliza;
   const [unidades, setUnidades] = useState<UnidadeCenseFundo[]>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY_FUNDO_CENSE);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length >= 19) {
-          return parsed;
-        }
-      }
+      const salvo = JSON.parse(localStorage.getItem(STORAGE) ?? 'null');
+      if (Array.isArray(salvo) && salvo.length >= 19) return salvo;
     } catch {
-      // Fallback para lista oficial de 19 CENSEs
+      /* usa os dados de demonstração */
     }
-    return CENSES_INICIAIS;
+    // A situação da unidade sempre segue as notas dela.
+    return CENSES_INICIAIS.map(u => ({ ...u, statusFiscal: statusPelasNotas(u.notas) }));
   });
-
-  const [censeSelecionadoId, setCenseSelecionadoId] = useState<string>(CENSES_INICIAIS[0].id);
+  const [selecionadaId, setSelecionadaId] = useState(CENSES_INICIAIS[0].id);
   const [busca, setBusca] = useState('');
-  const [filtroRegional, setFiltroRegional] = useState<string>('todas');
-  const [filtroStatus, setFiltroStatus] = useState<string>('todos');
-  const [abaDetalhe, setAbaDetalhe] = useState<'notas' | 'nova-despesa' | 'relatorio'>('notas');
-
-  // Estado do formulário de nova Nota Fiscal + Scanner DANFE
-  const [chaveDanfe, setChaveDanfe] = useState('');
-  const [numeroNf, setNumeroNf] = useState('');
-  const [fornecedor, setFornecedor] = useState('');
-  const [cnpj, setCnpj] = useState('');
-  const [rubrica, setRubrica] = useState<RubricaFundo>('Manutenção Predial (33.90.39)');
-  const [valorNf, setValorNf] = useState('');
-  const [descricaoNf, setDescricaoNf] = useState('');
-  const [tresOrcamentos, setTresOrcamentos] = useState(true);
-  const [comprovanteNome, setComprovanteNome] = useState<string>('');
-  const [indiceSimulacaoDanfe, setIndiceSimulacaoDanfe] = useState(0);
-  const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [regional, setRegional] = useState<'todas' | UnidadeCenseFundo['regional']>('todas');
+  const [soPendencias, setSoPendencias] = useState(false);
+  const [lancando, setLancando] = useState(false);
+  const [recusando, setRecusando] = useState<NotaFiscalFundo | null>(null);
+  const [relatorio, setRelatorio] = useState(false);
+  const [aviso, setAviso] = useState<string | null>(null);
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY_FUNDO_CENSE, JSON.stringify(unidades));
+      localStorage.setItem(STORAGE, JSON.stringify(unidades));
     } catch {
-      // Ignora erro de quota de storage
+      /* sem espaço: segue só em memória */
     }
   }, [unidades]);
 
-  const censeAtual = unidades.find(u => u.id === censeSelecionadoId) || unidades[0];
+  useEffect(() => {
+    if (!aviso) return;
+    const t = setTimeout(() => setAviso(null), 4000);
+    return () => clearTimeout(t);
+  }, [aviso]);
 
-  // Cálculos consolidados de todas as 19 unidades CENSE
-  const dotacaoTotal = unidades.reduce((acc, u) => acc + u.cotaTrimestral, 0);
-  const executadoTotal = unidades.reduce(
-    (acc, u) => acc + u.notas.filter(n => n.status !== 'glosada').reduce((s, n) => s + n.valor, 0),
-    0
+  const unidade = unidades.find(u => u.id === selecionadaId) ?? unidades[0];
+  const totalCota = unidades.reduce((s, u) => s + u.cotaTrimestral, 0);
+  const totalGasto = unidades.reduce((s, u) => s + gasto(u), 0);
+  const comPendencia = unidades.filter(u => u.statusFiscal !== 'regular').length;
+  const notasParaAnalisar = unidades.reduce((s, u) => s + u.notas.filter(n => n.status === 'pendente').length, 0);
+
+  const termo = busca.trim().toLowerCase();
+  const lista = useMemo(
+    () =>
+      unidades.filter(
+        u =>
+          (regional === 'todas' || u.regional === regional) &&
+          (!soPendencias || u.statusFiscal !== 'regular') &&
+          (!termo || [u.nome, u.cidade, u.diretorSuprido].some(x => x.toLowerCase().includes(termo))),
+      ),
+    [unidades, regional, soPendencias, termo],
   );
-  const saldoTotalDisponivel = dotacaoTotal - executadoTotal;
-  const unidadesComPendencia = unidades.filter(u => u.statusFiscal !== 'regular').length;
 
-  // Totais analíticos da rede por Natureza de Despesa (33.90.30 vs 33.90.39)
-  const totalRede30 = unidades.reduce(
-    (acc, u) =>
-      acc +
-      u.notas
-        .filter(n => n.status !== 'glosada' && isRubricaConsumo30(n.rubrica))
-        .reduce((s, n) => s + n.valor, 0),
-    0
-  );
-  const totalRede39 = Math.max(0, executadoTotal - totalRede30);
+  const gastoUnidade = gasto(unidade);
+  const saldoUnidade = Math.max(0, unidade.cotaTrimestral - gastoUnidade);
+  const pctUnidade = unidade.cotaTrimestral ? Math.min(100, (gastoUnidade / unidade.cotaTrimestral) * 100) : 0;
+  const consumo = unidade.notas.filter(n => n.status !== 'glosada' && ehConsumo(n.rubrica)).reduce((s, n) => s + n.valor, 0);
+  const servicos = gastoUnidade - consumo;
+  const pendentesUnidade = unidade.notas.filter(n => n.status === 'pendente').length;
 
-  // Cálculos da unidade selecionada
-  const notasValidasUnidade = censeAtual.notas.filter(n => n.status !== 'glosada');
-  const executadoUnidade = notasValidasUnidade.reduce((acc, n) => acc + n.valor, 0);
-  const saldoUnidade = Math.max(0, censeAtual.cotaTrimestral - executadoUnidade);
-  const percentualExecutado = Math.min(100, Math.round((executadoUnidade / censeAtual.cotaTrimestral) * 100));
+  const mudarUnidade = (mudar: (u: UnidadeCenseFundo) => UnidadeCenseFundo) =>
+    setUnidades(prev => prev.map(u => (u.id === unidade.id ? mudar(u) : u)));
 
-  const unidadeConsumo30 = notasValidasUnidade
-    .filter(n => isRubricaConsumo30(n.rubrica))
-    .reduce((acc, n) => acc + n.valor, 0);
-  const unidadeServicos39 = notasValidasUnidade
-    .filter(n => !isRubricaConsumo30(n.rubrica))
-    .reduce((acc, n) => acc + n.valor, 0);
-  const percConsumo30 = executadoUnidade > 0 ? Math.round((unidadeConsumo30 / executadoUnidade) * 100) : 50;
-  const percServicos39 = executadoUnidade > 0 ? 100 - percConsumo30 : 50;
-
-  const unidadesFiltradas = unidades.filter(u => {
-    const matchBusca =
-      u.nome.toLowerCase().includes(busca.toLowerCase()) ||
-      u.cidade.toLowerCase().includes(busca.toLowerCase()) ||
-      u.diretorSuprido.toLowerCase().includes(busca.toLowerCase());
-    const matchRegional = filtroRegional === 'todas' || u.regional === filtroRegional;
-    const matchStatus = filtroStatus === 'todos' || u.statusFiscal === filtroStatus;
-    return matchBusca && matchRegional && matchStatus;
-  });
-
-  const handleAprovarNota = (notaId: string) => {
-    soundFX.playSuccess();
-    setUnidades(prev =>
-      prev.map(u => {
-        if (u.id !== censeAtual.id) return u;
-        const novasNotas = u.notas.map(n =>
-          n.id === notaId ? { ...n, status: 'aprovada' as const, motivoGlosa: undefined } : n
-        );
-        const temGlosa = novasNotas.some(n => n.status === 'glosada');
-        const temPendente = novasNotas.some(n => n.status === 'pendente');
-        return {
-          ...u,
-          notas: novasNotas,
-          statusFiscal: temGlosa ? 'alerta_glosa' : temPendente ? 'em_analise' : 'regular'
-        };
-      })
-    );
-  };
-
-  const handleGlosarNota = (notaId: string) => {
-    soundFX.playClick();
-    setUnidades(prev =>
-      prev.map(u => {
-        if (u.id !== censeAtual.id) return u;
-        const novasNotas = u.notas.map(n =>
-          n.id === notaId
-            ? {
-                ...n,
-                status: 'glosada' as const,
-                motivoGlosa: 'Item retido pela Inspetoria Fiscal SEJU para complementação de atesto.'
-              }
-            : n
-        );
-        return {
-          ...u,
-          notas: novasNotas,
-          statusFiscal: 'alerta_glosa'
-        };
-      })
-    );
-  };
-
-  const handleSimularLeituraDanfe = () => {
-    soundFX.playSuccess();
-    const amostra = AMOSTRAS_DANFE_SEFAZ[indiceSimulacaoDanfe % AMOSTRAS_DANFE_SEFAZ.length];
-    setIndiceSimulacaoDanfe(prev => prev + 1);
-    setChaveDanfe(amostra.chave);
-    setNumeroNf(amostra.numeroNf);
-    setFornecedor(amostra.fornecedor);
-    setCnpj(amostra.cnpj);
-    setRubrica(amostra.rubrica);
-    setValorNf(amostra.valor);
-    setDescricaoNf(amostra.descricao);
-    setTresOrcamentos(true);
-    setComprovanteNome(`DANFE_${amostra.numeroNf.replace(/\D/g, '')}_SEFAZ_PR.xml`);
-    setFeedbackMsg(`Chave de Acesso SEFAZ-PR importada automaticamente (${amostra.numeroNf}).`);
-    setTimeout(() => setFeedbackMsg(null), 4000);
-  };
-
-  const handleUploadComprovante = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    soundFX.playSuccess();
-    setComprovanteNome(file.name);
-    if (!numeroNf) {
-      const amostra = AMOSTRAS_DANFE_SEFAZ[indiceSimulacaoDanfe % AMOSTRAS_DANFE_SEFAZ.length];
-      setIndiceSimulacaoDanfe(prev => prev + 1);
-      setChaveDanfe(amostra.chave);
-      setNumeroNf(amostra.numeroNf);
-      setFornecedor(amostra.fornecedor);
-      setCnpj(amostra.cnpj);
-      setRubrica(amostra.rubrica);
-      setValorNf(amostra.valor);
-      setDescricaoNf(amostra.descricao);
-    }
-    setFeedbackMsg(`Comprovante "${file.name}" anexado e validado via OCR Fiscal.`);
-    setTimeout(() => setFeedbackMsg(null), 4000);
-  };
-
-  const handleLancarNota = (e: React.FormEvent) => {
-    e.preventDefault();
-    const valorNum = parseFloat(valorNf.replace(',', '.'));
-    if (!numeroNf.trim() || !fornecedor.trim() || isNaN(valorNum) || valorNum <= 0) return;
-
-    const novaNota: NotaFiscalFundo = {
-      id: `nf-${Date.now()}`,
-      numeroNf: numeroNf.startsWith('NF') ? numeroNf : `NF-e ${numeroNf}`,
-      chaveAcesso: chaveDanfe.replace(/\D/g, '').slice(0, 44) || undefined,
-      dataEmissao: new Date().toLocaleDateString('pt-BR'),
-      fornecedor,
-      cnpj: cnpj || '00.000.000/0001-00',
-      rubrica,
-      descricao: descricaoNf || 'Despesa operacional em regime de Fundo Rotativo',
-      valor: valorNum,
-      status: valorNum > LIMITE_INDIVIDUAL_NOTA || !tresOrcamentos ? 'glosada' : 'pendente',
-      tresOrcamentos,
-      comprovanteNome: comprovanteNome || undefined,
-      motivoGlosa:
-        valorNum > LIMITE_INDIVIDUAL_NOTA
-          ? `Valor da nota (R$ ${valorNum.toLocaleString('pt-BR')}) excede o limite individual de dispensa do Fundo Rotativo (R$ 8.000,00).`
-          : !tresOrcamentos
-          ? 'Despesa lançada sem comprovação das 3 cotações prévias de preço exigidas pela Lei Estadual nº 14.268/PR.'
-          : undefined
-    };
-
-    soundFX.playSuccess();
-    setUnidades(prev =>
-      prev.map(u =>
-        u.id === censeAtual.id
-          ? {
-              ...u,
-              notas: [novaNota, ...u.notas],
-              statusFiscal:
-                novaNota.status === 'glosada' || u.statusFiscal === 'alerta_glosa'
-                  ? 'alerta_glosa'
-                  : 'em_analise',
-              ultimaPrestacao: new Date().toLocaleDateString('pt-BR')
-            }
-          : u
-      )
-    );
-
-    setChaveDanfe('');
-    setNumeroNf('');
-    setFornecedor('');
-    setCnpj('');
-    setValorNf('');
-    setDescricaoNf('');
-    setComprovanteNome('');
-    setTresOrcamentos(true);
-    setAbaDetalhe('notas');
-    setFeedbackMsg(`Nota Fiscal ${novaNota.numeroNf} registrada no ${censeAtual.nome}.`);
-    setTimeout(() => setFeedbackMsg(null), 4000);
-
-    eventBus.emit('cense.nfe_lancada', {
-      chaveAcesso: novaNota.chaveAcesso || '41261000000000000000550010000000001000000000',
-      unidade: censeAtual.nome,
-      valor: novaNota.valor,
-      rubrica: novaNota.rubrica,
-      gestor: censeAtual.diretorSuprido
+  const analisar = (nota: NotaFiscalFundo, aprovar: boolean, motivo?: string) => {
+    mudarUnidade(u => {
+      const notas = u.notas.map(n =>
+        n.id === nota.id ? { ...n, status: aprovar ? ('aprovada' as const) : ('glosada' as const), motivoGlosa: aprovar ? undefined : motivo } : n,
+      );
+      return { ...u, notas, statusFiscal: statusPelasNotas(notas) };
     });
+    soundFX.playClick();
+    setAviso(aprovar ? `Nota ${nota.numeroNf} aprovada.` : `Nota ${nota.numeroNf} recusada. O responsável foi avisado.`);
   };
 
-  const handleHomologarPrestacao = () => {
+  const fecharPrestacao = () => {
+    mudarUnidade(u => ({ ...u, statusFiscal: statusPelasNotas(u.notas), ultimaPrestacao: new Date().toLocaleDateString('pt-BR'), diasRestantesPrestacao: 60 }));
     soundFX.playSuccess();
-    setUnidades(prev =>
-      prev.map(u =>
-        u.id === censeAtual.id
-          ? {
-              ...u,
-              statusFiscal: 'regular',
-              ultimaPrestacao: new Date().toLocaleDateString('pt-BR'),
-              diasRestantesPrestacao: 60,
-              notas: u.notas.map(n => (n.status === 'pendente' ? { ...n, status: 'aprovada' } : n))
-            }
-          : u
-      )
-    );
-    setFeedbackMsg(`Prestação de Contas do ${censeAtual.nome} homologada e prazo renovado para 60 dias!`);
-    setTimeout(() => setFeedbackMsg(null), 4000);
+    setAviso(`Prestação de contas do ${unidade.nome} registrada. Próximo prazo em 60 dias.`);
   };
 
-  const handleLiberarNovaCota = () => {
+  const lancar = (nota: NotaFiscalFundo) => {
+    mudarUnidade(u => {
+      const notas = [nota, ...u.notas];
+      return { ...u, notas, statusFiscal: statusPelasNotas(notas) };
+    });
+    eventBus.emit('cense.nfe_lancada', {
+      chaveAcesso: nota.chaveAcesso ?? '',
+      unidade: unidade.nome,
+      valor: nota.valor,
+      rubrica: nota.rubrica,
+      gestor: unidade.diretorSuprido,
+    });
     soundFX.playSuccess();
-    const valorRepasseExtra = 12000;
-    setUnidades(prev =>
-      prev.map(u =>
-        u.id === censeAtual.id
-          ? {
-              ...u,
-              cotaTrimestral: u.cotaTrimestral + valorRepasseExtra,
-              ultimaPrestacao: new Date().toLocaleDateString('pt-BR')
-            }
-          : u
-      )
-    );
-    setFeedbackMsg(
-      `Repasse suplementar de R$ ${valorRepasseExtra.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} creditado na Conta BB do ${censeAtual.nome}.`
-    );
-    setTimeout(() => setFeedbackMsg(null), 4000);
+    setLancando(false);
+    setAviso(`Nota ${nota.numeroNf} lançada no ${unidade.nome}. Agora aguarda análise.`);
   };
 
-  const handleExportarCsv = () => {
-    soundFX.playSuccess();
-    const cabecalho = [
-      'Unidade CENSE',
-      'Cidade',
-      'Regional',
-      'Gestor Suprido',
-      'Matricula',
-      'Conta Banco do Brasil',
-      'Cota Trimestral (R$)',
-      'Total Executado (R$)',
-      'Saldo Disponivel (R$)',
-      'Status Fiscal',
-      'Prazo Prestacao (Dias)',
-      'Ultima Prestacao',
-      'Numero NF-e',
-      'Fornecedor',
-      'CNPJ',
-      'Rubrica Orcamentaria',
-      'Valor NF (R$)',
-      'Status NF'
-    ];
-
+  const exportar = () => {
+    const cab = ['Unidade', 'Cidade', 'Regional', 'Responsável', 'Cota', 'Gasto', 'Saldo', 'Situação', 'Nota', 'Emissão', 'Fornecedor', 'CNPJ', 'Natureza', 'Valor', 'Situação da nota'];
     const linhas: string[][] = [];
     unidades.forEach(u => {
-      const execU = u.notas.filter(n => n.status !== 'glosada').reduce((s, n) => s + n.valor, 0);
-      const saldoU = Math.max(0, u.cotaTrimestral - execU);
-      if (u.notas.length === 0) {
-        linhas.push([
-          u.nome,
-          u.cidade,
-          u.regional,
-          u.diretorSuprido,
-          u.matricula,
-          u.contaBancoBrasil,
-          u.cotaTrimestral.toFixed(2),
-          execU.toFixed(2),
-          saldoU.toFixed(2),
-          u.statusFiscal,
-          String(u.diasRestantesPrestacao),
-          u.ultimaPrestacao,
-          '-',
-          '-',
-          '-',
-          '-',
-          '0.00',
-          '-'
-        ]);
-      } else {
-        u.notas.forEach(nf => {
-          linhas.push([
-            u.nome,
-            u.cidade,
-            u.regional,
-            u.diretorSuprido,
-            u.matricula,
-            u.contaBancoBrasil,
-            u.cotaTrimestral.toFixed(2),
-            execU.toFixed(2),
-            saldoU.toFixed(2),
-            u.statusFiscal,
-            String(u.diasRestantesPrestacao),
-            u.ultimaPrestacao,
-            nf.numeroNf,
-            nf.fornecedor,
-            nf.cnpj,
-            nf.rubrica,
-            nf.valor.toFixed(2),
-            nf.status
-          ]);
-        });
-      }
+      const g = gasto(u);
+      const base = [u.nome, u.cidade, u.regional, u.diretorSuprido, u.cotaTrimestral.toFixed(2), g.toFixed(2), Math.max(0, u.cotaTrimestral - g).toFixed(2), STATUS_UNIDADE[u.statusFiscal].texto];
+      if (!u.notas.length) linhas.push([...base, '', '', '', '', '', '', '']);
+      u.notas.forEach(n => linhas.push([...base, n.numeroNf, n.dataEmissao, n.fornecedor, n.cnpj, n.rubrica, n.valor.toFixed(2), STATUS_NOTA[n.status].texto]));
     });
-
-    const csvContent =
-      '\uFEFF' +
-      [cabecalho, ...linhas]
-        .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';'))
-        .join('\r\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `fundo_rotativo_19_censes_seju_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const csv = '﻿' + [cab, ...linhas].map(l => l.map(c => `"${String(c).replace(/"/g, '""')}"`).join(';')).join('\r\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `fundo-rotativo-cense-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
     URL.revokeObjectURL(url);
-
-    setFeedbackMsg('Planilha oficial (.CSV) com as 19 unidades CENSE exportada com sucesso!');
-    setTimeout(() => setFeedbackMsg(null), 4000);
+    setAviso('Planilha baixada.');
   };
 
-  const valorDigitadoNum = parseFloat(valorNf.replace(',', '.')) || 0;
-  const excedeLimiteLegal = valorDigitadoNum > LIMITE_INDIVIDUAL_NOTA;
-  const excedeSaldoUnidade = valorDigitadoNum > saldoUnidade;
-
-  const percGlobalExec = dotacaoTotal > 0 ? Math.min(100, Math.round((executadoTotal / dotacaoTotal) * 100)) : 0;
-  const percGlobalSaldo = Math.max(0, 100 - percGlobalExec);
-  const percRede30 = executadoTotal > 0 ? Math.round((totalRede30 / executadoTotal) * 100) : 50;
-  const percRede39 = executadoTotal > 0 ? 100 - percRede30 : 50;
-  const totalGlosasRede = unidades.reduce(
-    (acc, u) => acc + u.notas.filter(n => n.status === 'glosada').length,
-    0
-  );
-  const digitosChave = chaveDanfe.replace(/\D/g, '');
-
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-5 font-sans">
       <ModuloCabecalho
         cor="tinta"
         rotulo="DEASE · Fundo rotativo das unidades"
         titulo="CENSE"
-        descricao="Acompanhe a verba de cada unidade, lance as notas fiscais de compra e gere o relatório de prestação de contas."
-        onVoltar={() => {
-          soundFX.playClick();
-          onVoltarHub();
-        }}
+        descricao="Acompanhe a verba de cada unidade, lance as notas fiscais de compra e prepare a prestação de contas."
+        onVoltar={onVoltarHub}
         acoes={
           <>
-            <AcaoModulo
-              destaque
-              icone={<ScanLine size={15} />}
-              onClick={() => {
-                soundFX.playClick();
-                setAbaDetalhe('nova-despesa');
-              }}
-            >
-              Lançar nota
-            </AcaoModulo>
-            <AcaoModulo icone={<Download size={15} />} onClick={handleExportarCsv}>
+            {lanca && (
+              <AcaoModulo destaque icone={<Plus size={15} />} onClick={() => setLancando(true)}>
+                Lançar nota
+              </AcaoModulo>
+            )}
+            <AcaoModulo icone={<Download size={15} />} onClick={exportar}>
               Planilha
-            </AcaoModulo>
-            <AcaoModulo
-              icone={<FileText size={15} />}
-              onClick={() => {
-                soundFX.playClick();
-                setAbaDetalhe('relatorio');
-              }}
-            >
-              Relatório
             </AcaoModulo>
           </>
         }
-      />
-
-      <div className="relative overflow-hidden bg-[var(--surface)] rounded-[28px] p-5 sm:p-7 border border-[var(--border)] space-y-6">
-        {/* =================================================================
-            FAIXA CONSOLIDADA DE 4 INDICADORES FISCAIS (CANTONEIRAS TÉCNICAS + BRILHO ESPECULAR + TABULAR-NUMS)
-           ================================================================= */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {/* KPI 1: ORÇAMENTO GLOBAL / DOTAÇÃO TOTAL */}
-          <div className="relative overflow-hidden p-4 sm:p-5 rounded-[18px] bg-[var(--surface)] border border-[var(--border)]/90 shadow-2xs group hover:border-[var(--border-strong)] transition-all">    
-
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                Orçamento Global · Dotação
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-[#0B1B2E]/5 border border-[var(--border)]/80 flex items-center justify-center">
-                <Wallet size={13} className="text-[var(--text)]" />
-              </div>
-            </div>
-
-            <div className="text-xl sm:text-2xl font-extrabold text-[var(--text)] mt-2 tabular-nums tabular-nums tracking-tight">
-              R$ {dotacaoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </div>
-
-            <div className="mt-2.5 pt-2 border-t border-[var(--border)]/60 flex items-center justify-between text-[10px] tabular-nums tabular-nums">
-              <span className="text-[var(--text-muted)] font-semibold">
-                {unidades.length} CENSEs · 4º Trim/26
-              </span>
-              <span className="px-1.5 py-0.5 rounded bg-[var(--surface-3)]/70 text-[var(--text)] font-bold">
-                TETO R$ 8k/NF
-              </span>
-            </div>
-          </div>
-
-          {/* KPI 2: TOTAL EXECUTADO (NF-e) */}
-          <div className="relative overflow-hidden p-4 sm:p-5 rounded-[18px] bg-[var(--surface)] border border-[var(--brand-border)]/80 shadow-2xs group hover:border-[var(--brand-border)] transition-all">    
-
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--brand)]">
-                Total Executado (NF-e)
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-[#0072BB]/10 border border-[var(--brand-border)]/80 flex items-center justify-center">
-                <Receipt size={13} className="text-[var(--brand)]" />
-              </div>
-            </div>
-
-            <div className="flex items-baseline gap-2 mt-2">
-              <div className="text-xl sm:text-2xl font-extrabold text-[var(--brand)] tabular-nums tabular-nums tracking-tight">
-                R$ {executadoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </div>
-              <span className="text-[10px] tabular-nums font-bold tabular-nums px-1.5 py-0.5 rounded bg-[var(--brand-soft)]/80 text-[var(--brand)]">
-                {percGlobalExec}%
-              </span>
-            </div>
-
-            <div className="mt-2.5 pt-2 border-t border-[var(--brand-border)]/50 flex items-center justify-between text-[10px] tabular-nums tabular-nums text-[var(--text-muted)]">
-              <span>
-                <strong className="text-[var(--brand)]">30:</strong> R$ {totalRede30.toLocaleString('pt-BR')}
-              </span>
-              <span className="text-[var(--ink-muted)]">|</span>
-              <span>
-                <strong className="text-[var(--verde)]">39:</strong> R$ {totalRede39.toLocaleString('pt-BR')}
-              </span>
-            </div>
-          </div>
-
-          {/* KPI 3: SALDO EM CONTA BB */}
-          <div className="relative overflow-hidden p-4 sm:p-5 rounded-[18px] bg-[var(--surface)] border border-[var(--verde-border)]/80 shadow-2xs group hover:border-[var(--verde-border)] transition-all">    
-
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--verde)]">
-                Saldo em Conta BB
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-[#00A859]/10 border border-[var(--verde-border)]/80 flex items-center justify-center">
-                <TrendingUp size={13} className="text-[var(--verde)]" />
-              </div>
-            </div>
-
-            <div className="flex items-baseline gap-2 mt-2">
-              <div className="text-xl sm:text-2xl font-extrabold text-[var(--verde)] tabular-nums tabular-nums tracking-tight">
-                R$ {saldoTotalDisponivel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </div>
-              <span className="text-[10px] tabular-nums font-bold tabular-nums px-1.5 py-0.5 rounded bg-[var(--verde-soft)]/80 text-[var(--verde)]">
-                {percGlobalSaldo}% livre
-              </span>
-            </div>
-
-            <div className="mt-2.5 pt-2 border-t border-[var(--verde-border)]/50 flex items-center justify-between text-[10px] tabular-nums tabular-nums text-[var(--text-muted)]">
-              <span className="inline-flex items-center gap-1 text-[var(--verde)] font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00A859]" /> Liquidez Imediata BB
-              </span>
-              <span className="text-[var(--text-subtle)]">19 Contas Ativas</span>
-            </div>
-          </div>
-
-          {/* KPI 4: ALERTAS DE GLOSA TCE-PR & AUDITORIA */}
-          <div className="relative overflow-hidden p-4 sm:p-5 rounded-[18px] bg-[var(--surface)] border border-[var(--warning-border)]/85 shadow-2xs group hover:border-[var(--warning-border)] transition-all">    
-
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--warning)]">
-                Alertas & Glosa TCE-PR
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-[#D98A00]/10 border border-[var(--warning-border)]/80 flex items-center justify-center">
-                <ShieldCheck size={13} className="text-[var(--warning)]" />
-              </div>
-            </div>
-
-            <div className="flex items-baseline gap-2 mt-2">
-              <div className="text-xl sm:text-2xl font-extrabold text-[var(--text)] tabular-nums tabular-nums tracking-tight">
-                {unidades.length - unidadesComPendencia}/{unidades.length} Regulares
-              </div>
-            </div>
-
-            <div className="mt-2.5 pt-2 border-t border-[var(--warning-border)]/60 flex items-center justify-between text-[10px] tabular-nums tabular-nums">
-              <span className="text-[var(--warning)] font-bold flex items-center gap-1">
-                <AlertTriangle size={11} className="text-[var(--warning)]" />
-                {unidadesComPendencia} em revisão
-              </span>
-              <span className="px-1.5 py-0.5 rounded bg-[var(--danger-soft)]/80 text-[var(--danger)] font-bold">
-                {totalGlosasRede} {totalGlosasRede === 1 ? 'Glosa' : 'Glosas'}
-              </span>
-            </div>
-          </div>
+      >
+        <div className="flex flex-wrap gap-2">
+          <NumeroModulo rotulo="Verba do trimestre" valor={moeda(totalCota)} detalhe={`${unidades.length} unidades`} />
+          <NumeroModulo rotulo="Gasto" valor={moeda(totalGasto)} detalhe={`${Math.round((totalGasto / (totalCota || 1)) * 100)}% da verba`} />
+          <NumeroModulo rotulo="Notas para analisar" valor={notasParaAnalisar} detalhe={`${comPendencia} unidades com pendência`} />
         </div>
+      </ModuloCabecalho>
 
-        {/* Barra de Telemetria Contábil da Rede: 33.90.30 (Consumo) vs 33.90.39 (Serviços PJ) */}
-        <div className="p-3.5 rounded-[18px] bg-[#0B1B2E] text-white border border-[#22324C] flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2.5 text-[11px]">
-            <span className="px-2 py-0.5 rounded bg-[#00A859]/20 text-[#C6E86B] border border-[var(--verde)]/30 tabular-nums font-bold text-[10px] uppercase tracking-wider">
-              TELEMETRIA ORÇAMENTÁRIA REDE CENSE
-            </span>
-            <span className="text-[var(--ink-muted)] tabular-nums tabular-nums">
-              Rubrica <strong className="text-[var(--brand)]">33.90.30 (Material de Consumo)</strong>: R$ {totalRede30.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ({percRede30}%)
-            </span>
-            <span className="text-[var(--text-muted)] hidden sm:inline">•</span>
-            <span className="text-[var(--ink-muted)] tabular-nums tabular-nums">
-              Rubrica <strong className="text-[var(--verde)]">33.90.39 (Serviços Terceiros PJ)</strong>: R$ {totalRede39.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ({percRede39}%)
-            </span>
-          </div>
-
-          <div className="w-full lg:w-64 h-2 bg-[#0B1B2E] rounded-full overflow-hidden flex p-0.5 gap-0.5 shrink-0">
-            <div
-              className="h-full rounded-l-full bg-[#0072BB] transition-all duration-500"
-              style={{ width: `${percRede30}%` }}
-            />
-            <div
-              className="h-full rounded-r-full bg-[#00A859] transition-all duration-500"
-              style={{ width: `${percRede39}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Barra de Busca e Filtros por Regional / Situação Fiscal */}
-        <div className="pt-2 border-t border-[var(--border-subtle)] flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div className="relative flex-1 max-w-md">
-            <Search size={15} className="absolute left-3.5 top-2.5 text-[var(--text-subtle)]" />
-            <input
-              type="text"
-              value={busca}
-              onChange={e => setBusca(e.target.value)}
-              placeholder="Buscar entre os 19 CENSEs por cidade, conta BB ou gestor suprido..."
-              className="w-full text-xs pl-9 pr-16 py-2.5 bg-[var(--surface-2)]/90 focus:bg-[var(--surface)] border border-[var(--border)]/90 rounded-xl focus:outline-hidden focus:border-[#22324C] focus:ring-2 focus:ring-[#22324C]/5 text-[var(--text)] transition-all"
-            />
-            {busca ? (
-              <button
-                onClick={() => setBusca('')}
-                className="absolute right-2.5 top-2 text-[var(--text-subtle)] hover:text-[var(--text)] p-0.5 cursor-pointer"
-              >
-                <X size={14} />
-              </button>
-            ) : (
-              <span className="pointer-events-none absolute right-2.5 top-2 text-[10px] tabular-nums font-bold text-[var(--text-subtle)] bg-[var(--surface-3)]/60 px-1.5 py-0.5 rounded">
-                19 UNID
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
-            {[
-              { id: 'todas', label: 'Todas Regionais (19)' },
-              { id: 'Curitiba & RMC', label: 'Curitiba & RMC (4)' },
-              { id: 'Campos Gerais & Litoral', label: 'Campos Gerais & Litoral (2)' },
-              { id: 'Norte & Noroeste', label: 'Norte & Noroeste (7)' },
-              { id: 'Oeste & Sudoeste', label: 'Oeste & Sudoeste (6)' }
-            ].map(reg => (
-              <button
-                key={reg.id}
-                type="button"
-                onClick={() => {
-                  soundFX.playClick();
-                  setFiltroRegional(reg.id);
-                }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer border ${
-                  filtroRegional === reg.id
-                    ? 'bg-[#0B1B2E] text-white border-[#22324C] shadow-2xs'
-                    : 'bg-[var(--surface-2)]/90 text-[var(--text-muted)] border-[var(--border)]/80 hover:bg-[var(--surface-2)] hover:border-[var(--border-strong)]'
-                }`}
-              >
-                {reg.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Feedback Toast */}
-      {feedbackMsg && (
-        <div className="relative overflow-hidden bg-[#0B1B2E] text-white px-4 py-3.5 rounded-[18px] border border-[var(--verde)]/40 flex items-center justify-between text-xs font-semibold animate-in fade-in">
-          <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-lg bg-[#00A859]/20 border border-[var(--verde)]/40 flex items-center justify-center shrink-0">
-              <CheckCircle2 size={14} className="text-[var(--verde)]" />
-            </div>
-            <span className="tabular-nums">{feedbackMsg}</span>
-          </div>
-          <button onClick={() => setFeedbackMsg(null)} className="text-[var(--text-subtle)] hover:text-white cursor-pointer p-1">
-            <X size={14} />
-          </button>
+      {aviso && (
+        <div role="status" className="flex items-center gap-2 rounded-full bg-[#00385E] px-5 py-3 text-sm font-medium text-white">
+          <Check size={16} className="shrink-0 text-[#C6E86B]" strokeWidth={3} /> {aviso}
         </div>
       )}
 
-      {/* =====================================================================
-          SEÇÃO 2: ESTRUTURA DIVIDIDA (LISTA DE CENSES À ESQUERDA + AUDITORIA DA UNIDADE À DIREITA)
-         ===================================================================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
-        {/* COLUNA ESQUERDA (5 COLUNAS): UNIDADES CENSE E SALDO DE COTAS */}
-        <div className="lg:col-span-5 bg-[var(--surface)] rounded-[28px] border border-[var(--border)]/90 overflow-hidden">
-          <div className="px-5 py-4 border-b border-[var(--border)]/70 flex flex-wrap items-center justify-between gap-2 bg-[var(--surface-2)]/90 ">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-[#0B1B2E] text-white flex items-center justify-center">
-                <Building2 size={14} />
-              </div>
-              <div>
-                <span className="text-xs font-extrabold text-[var(--text)] block leading-tight">
-                  Unidades Socioeducativas ({unidadesFiltradas.length})
-                </span>
-                <span className="text-[10px] tabular-nums text-[var(--text-subtle)] tabular-nums">
-                  Monitoramento de Cotas Trimestrais TCE-PR
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-0.5 p-1 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]/70">
-              {[
-                { id: 'todos', label: 'Todos' },
-                { id: 'regular', label: 'Regulares' },
-                { id: 'em_analise', label: 'Análise' },
-                { id: 'alerta_glosa', label: 'Glosas' }
-              ].map(st => (
-                <button
-                  key={st.id}
-                  onClick={() => {
-                    soundFX.playClick();
-                    setFiltroStatus(st.id);
-                  }}
-                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all ${
-                    filtroStatus === st.id
-                      ? 'bg-[#0B1B2E] text-white shadow-2xs'
-                      : 'text-[var(--text-muted)] hover:text-[var(--text)]'
-                  }`}
-                >
-                  {st.label}
-                </button>
-              ))}
-            </div>
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 items-start">
+        {/* Unidades */}
+        <section className="lg:col-span-4 rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-5">
+          <label className="relative block">
+            <span className="sr-only">Buscar unidade</span>
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-subtle)]" />
+            <input
+              value={busca}
+              onChange={e => setBusca(e.target.value)}
+              placeholder="Unidade, cidade ou responsável"
+              className="h-11 w-full rounded-full border border-[var(--border)] bg-[var(--surface-2)] pl-11 pr-4 text-sm text-[var(--text)] placeholder:text-[var(--text-subtle)] outline-none focus:border-[var(--brand)]"
+            />
+          </label>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {(['todas', ...REGIONAIS] as const).map(r => (
+              <button
+                key={r}
+                type="button"
+                aria-pressed={regional === r}
+                onClick={() => setRegional(r)}
+                className={`h-8 rounded-full px-3 text-xs font-semibold cursor-pointer ${
+                  regional === r ? 'bg-[#00385E] text-white' : 'bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--surface-3)]'
+                }`}
+              >
+                {r === 'todas' ? 'Todas' : r.replace(' & ', ' e ')}
+              </button>
+            ))}
           </div>
+          <label className="mt-3 flex cursor-pointer items-center gap-2 text-[13px] text-[var(--text)]">
+            <input type="checkbox" checked={soPendencias} onChange={e => setSoPendencias(e.target.checked)} className="h-4 w-4 accent-[#00385E]" />
+            Só unidades com pendência
+          </label>
 
-          <div className="divide-y divide-[var(--border-subtle)] max-h-[760px] overflow-y-auto">
-            {unidadesFiltradas.map((u, idx) => {
-              const isSelected = u.id === censeAtual.id;
-              const execU = u.notas.filter(n => n.status !== 'glosada').reduce((s, n) => s + n.valor, 0);
-              const saldoU = Math.max(0, u.cotaTrimestral - execU);
-              const percU = Math.min(100, Math.round((execU / u.cotaTrimestral) * 100));
-
+          <ul className="mt-3 max-h-[640px] space-y-1.5 overflow-y-auto pr-1">
+            {lista.length === 0 && <li className="px-2 py-6 text-center text-sm text-[var(--text-muted)]">Nenhuma unidade encontrada.</li>}
+            {lista.map(u => {
+              const g = gasto(u);
+              const pct = u.cotaTrimestral ? Math.min(100, (g / u.cotaTrimestral) * 100) : 0;
+              const ativo = u.id === unidade.id;
               return (
-                <div
-                  key={u.id}
-                  onClick={() => {
-                    soundFX.playClick();
-                    setCenseSelecionadoId(u.id);
-                  }}
-                  className={`group relative p-4 sm:p-5 transition-all duration-150 cursor-pointer ${
-                    isSelected
-                      ? ' bg-[var(--brand-soft)]/75   border-l-4 border-l-[var(--brand)]'
-                      : 'hover:bg-[var(--surface-2)]/90 border-l-4 border-l-transparent'
-                  }`}
-                >
-                  {isSelected && (
-                    <>  
-                    </>
-                  )}
-
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] tabular-nums font-bold text-[var(--text-subtle)] tabular-nums">
-                          #{String(idx + 1).padStart(2, '0')}
-                        </span>
-                        <h3 className="text-sm font-extrabold text-[var(--text)] group-hover:text-[var(--brand)] transition-colors truncate">
-                          {u.nome}
-                        </h3>
-                        <span className="text-[10px] text-[var(--text-subtle)] font-semibold shrink-0">· {u.cidade}</span>
-                      </div>
-
-                      <div className="text-[11px] text-[var(--text-muted)] mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                        <span>
-                          Suprido: <strong className="font-semibold text-[var(--text)]">{u.diretorSuprido}</strong>
-                        </span>
-                        <span className="text-[10px] tabular-nums text-[var(--text-subtle)] tabular-nums bg-[var(--surface-2)] px-1.5 py-0.2 rounded border border-[var(--border)]/70">
-                          {u.contaBancoBrasil}
-                        </span>
-                      </div>
+                <li key={u.id}>
+                  <button
+                    type="button"
+                    aria-pressed={ativo}
+                    onClick={() => setSelecionadaId(u.id)}
+                    className={`w-full rounded-[18px] p-3.5 text-left transition-colors cursor-pointer ${
+                      ativo ? 'bg-[var(--brand-soft)] ring-2 ring-[var(--brand)]' : 'hover:bg-[var(--surface-2)]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate text-sm font-semibold text-[var(--text)]">{u.nome}</span>
+                      <span className={`h-2 w-2 shrink-0 rounded-full ${u.statusFiscal === 'regular' ? 'bg-[#00A859]' : u.statusFiscal === 'em_analise' ? 'bg-[#D98A00]' : 'bg-[#C8372D]'}`} aria-label={STATUS_UNIDADE[u.statusFiscal].texto} />
                     </div>
-
-                    <div className="flex flex-col items-end gap-1 shrink-0">
-                      {u.statusFiscal === 'regular' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--verde-soft)] text-[var(--verde)] border border-[var(--verde-border)]/80 shadow-2xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#00A859]" />
-                          Regular TCE
-                        </span>
-                      )}
-                      {u.statusFiscal === 'em_analise' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--warning-soft)] text-[var(--warning)] border border-[var(--warning-border)]/80 shadow-2xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#D98A00] " />
-                          Em Análise
-                        </span>
-                      )}
-                      {u.statusFiscal === 'alerta_glosa' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--danger-soft)] text-[var(--danger)] border border-[var(--danger-border)]/80 shadow-2xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#C8372D] " />
-                          Glosa Fiscal
-                        </span>
-                      )}
-                      <span
-                        className={`text-[10px] tabular-nums tabular-nums font-bold flex items-center gap-1 ${
-                          u.diasRestantesPrestacao <= 15 ? 'text-[var(--warning)]' : 'text-[var(--text-subtle)]'
-                        }`}
-                      >
-                        <Clock size={10} /> {u.diasRestantesPrestacao}d prazo
-                      </span>
+                    <div className="truncate text-xs text-[var(--text-muted)]">{u.cidade} · {u.diretorSuprido}</div>
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--surface-3)]">
+                      <div className="h-full rounded-full bg-[#0072BB]" style={{ width: `${pct}%` }} />
                     </div>
-                  </div>
-
-                  {/* Barra de Execução da Cota com Gradiente Suave & Tabular-Nums */}
-                  <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle)]/90 space-y-1.5">
-                    <div className="flex items-center justify-between text-[11px] tabular-nums tabular-nums">
-                      <span className="text-[var(--text-muted)]">
-                        Exec.: <strong className="text-[var(--text)]">R$ {execU.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>{' '}
-                        <span className="text-[10px] text-[var(--text-subtle)]">({percU}%)</span>
-                      </span>
-                      <span className="text-[var(--verde)] font-bold">
-                        Saldo: R$ {saldoU.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </span>
+                    <div className="mt-1 flex justify-between text-[11px] tabular-nums text-[var(--text-muted)]">
+                      <span>Gasto {moeda(g)}</span>
+                      <span>Saldo {moeda(Math.max(0, u.cotaTrimestral - g))}</span>
                     </div>
-                    <div className="w-full h-2 bg-[var(--surface-2)] rounded-full overflow-hidden p-0.5 border border-[var(--border)]/60">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          u.statusFiscal === 'alerta_glosa'
-                            ? ' bg-[#B42318]  '
-                            : percU > 85
-                            ? ' bg-[#D98A00] '
-                            : ' bg-[#0072BB]  '
-                        }`}
-                        style={{ width: `${percU}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
+                  </button>
+                </li>
               );
             })}
-          </div>
-        </div>
+          </ul>
+        </section>
 
-        {/* COLUNA DIREITA (7 COLUNAS): PAINEL FISCAL DETALHADO DO CENSE SELECIONADO */}
-        <div className="relative lg:col-span-7 bg-[var(--surface)] rounded-[28px] border border-[var(--border)]/90 overflow-hidden">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-[#0072BB]  " />
-          
-          {/* Cabeçalho da Unidade Selecionada */}
-          <div className="p-5 sm:p-6 border-b border-[var(--border)]/80 bg-[var(--surface-2)]/70 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Unidade selecionada */}
+        <section className="lg:col-span-8 space-y-5">
+          <div className="rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-7">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <div className="flex flex-wrap items-center gap-2 text-[11px] text-[var(--text-muted)] font-medium">
-                  <span className="px-2 py-0.5 rounded-md bg-[var(--surface-2)] text-[var(--text)] font-bold border border-[var(--border)]/80">
-                    {censeAtual.regional}
-                  </span>
-                  <span className="inline-flex items-center gap-1 tabular-nums tabular-nums text-[11px] font-bold text-[var(--brand)] bg-[var(--brand-soft)]/80 px-2.5 py-0.5 rounded-md border border-[var(--brand-border)]/70">
-                    <Landmark size={11} /> {censeAtual.contaBancoBrasil}
-                  </span>
-                  <span
-                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] tabular-nums tabular-nums font-bold border ${
-                      censeAtual.diasRestantesPrestacao <= 15
-                        ? 'bg-[var(--warning-soft)] text-[var(--warning)] border-[var(--warning-border)]/80'
-                        : 'bg-[var(--surface-2)] text-[var(--text)] border-[var(--border)]/80'
-                    }`}
-                  >
-                    <Clock size={11} /> Prazo Legal 60d: {censeAtual.diasRestantesPrestacao}d restantes
-                  </span>
-                </div>
-                <h3 className="text-lg sm:text-xl font-extrabold text-[var(--text)] mt-1.5 tracking-tight">
-                  {censeAtual.nome} <span className="text-sm font-semibold text-[var(--text-subtle)]">· {censeAtual.cidade}/PR</span>
-                </h3>
-                <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                  Servidor Suprido: <strong className="text-[var(--text)] font-bold">{censeAtual.diretorSuprido}</strong>{' '}
-                  <span className="tabular-nums text-[11px] text-[var(--text-subtle)] tabular-nums">({censeAtual.matricula})</span>
+                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_UNIDADE[unidade.statusFiscal].cls}`}>{STATUS_UNIDADE[unidade.statusFiscal].texto}</span>
+                <h3 className="font-display mt-2 text-3xl font-bold leading-tight text-[var(--text)]">{unidade.nome}</h3>
+                <p className="text-sm text-[var(--text-muted)]">
+                  {unidade.cidade} · {unidade.regional.replace(' & ', ' e ')} · Responsável: <strong className="text-[var(--text)]">{unidade.diretorSuprido}</strong>
                 </p>
+                <p className="mt-0.5 text-xs text-[var(--text-subtle)]">{unidade.contaBancoBrasil} · {unidade.competencia}</p>
               </div>
-
-              <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-                <button
-                  type="button"
-                  onClick={handleLiberarNovaCota}
-                  className="group px-3.5 py-2 rounded-xl bg-[var(--surface)] hover:bg-[var(--brand-soft)]/60 text-[var(--text)] hover:text-[var(--brand)] border border-[var(--border)]/90 hover:border-[var(--brand-border)] text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-2xs"
-                  title="Liberar Cota Extraordinária / Repasse Suplementar SEJU"
-                >
-                  <RefreshCw size={13} className="text-[var(--brand)] group-hover:rotate-180 transition-transform duration-500" />
-                  <span>Liberar Nova Cota</span>
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <button type="button" onClick={() => setRelatorio(true)} className="inline-flex h-10 items-center gap-2 rounded-full bg-[var(--surface-2)] px-4 text-[13px] font-semibold text-[var(--text)] hover:bg-[var(--surface-3)] cursor-pointer">
+                  <FileText size={15} /> Relatório
                 </button>
-
-                <button
-                  type="button"
-                  onClick={handleHomologarPrestacao}
-                  className="group relative overflow-hidden px-3.5 py-2 rounded-xl bg-[#00703C] hover:bg-[#00A859] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm ring-1 ring-[var(--verde)]/60 transition-all duration-200 cursor-pointer"
-                >
-                  <CheckCircle2 size={14} className="text-[#C6E86B]" />
-                  <span>Homologar Prestação</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Mini Resumo Orçamentário da Unidade */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)]/85 shadow-2xs">
-                <div className="text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--text-subtle)]">
-                  Cota Trimestral
-                </div>
-                <div className="text-sm sm:text-base font-extrabold text-[var(--text)] tabular-nums tabular-nums mt-1">
-                  R$ {censeAtual.cotaTrimestral.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </div>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--brand-border)]/80 shadow-2xs">
-                <div className="flex items-center justify-between text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--text-subtle)]">
-                  <span>Executado NF-e</span>
-                  <span className="text-[var(--brand)] tabular-nums">{percentualExecutado}%</span>
-                </div>
-                <div className="text-sm sm:text-base font-extrabold text-[var(--brand)] tabular-nums tabular-nums mt-1">
-                  R$ {executadoUnidade.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </div>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--verde-border)]/80 shadow-2xs">
-                <div className="flex items-center justify-between text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--text-subtle)]">
-                  <span>Saldo Conta BB</span>
-                  <span className="text-[var(--verde)] tabular-nums">{100 - percentualExecutado}%</span>
-                </div>
-                <div className="text-sm sm:text-base font-extrabold text-[var(--verde)] tabular-nums tabular-nums mt-1">
-                  R$ {saldoUnidade.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </div>
-              </div>
-            </div>
-
-            {/* DECOMPOSIÇÃO VISUAL IMPECÁVEL DAS RUBRICAS: 33.90.30 (CONSUMO) VS 33.90.39 (SERVIÇOS PJ) */}
-            <div className="p-4 rounded-[18px] bg-[var(--surface-2)]/90 border border-[var(--border)]/85 space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
-                <span className="font-extrabold text-[var(--text)] flex items-center gap-1.5 uppercase tracking-wide text-[10px]">
-                  <PieChart size={13} className="text-[var(--brand)]" />
-                  <span>Decomposição Contábil por Natureza de Despesa · TCE-PR</span>
-                </span>
-                <span className="text-[10px] tabular-nums text-[var(--text-subtle)] tabular-nums">
-                  {notasValidasUnidade.length} {notasValidasUnidade.length === 1 ? 'documento válido' : 'documentos válidos'}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div className="p-3 rounded-xl bg-[var(--surface)] border border-[var(--brand-border)]/70 flex items-center justify-between gap-2 shadow-2xs">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] border border-[var(--brand-border)]/80 text-[var(--brand)] flex items-center justify-center tabular-nums text-[10px] font-extrabold shrink-0">
-                      .30
-                    </div>
-                    <div>
-                      <div className="text-[10px] tabular-nums font-bold uppercase text-[var(--brand)]">
-                        Rubrica 33.90.30 · Consumo
-                      </div>
-                      <div className="text-[11px] text-[var(--text-muted)]">
-                        Higiene, Oficinas & Saúde
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right tabular-nums tabular-nums">
-                    <div className="text-xs sm:text-sm font-extrabold text-[var(--text)]">
-                      R$ {unidadeConsumo30.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </div>
-                    <div className="text-[10px] font-bold text-[var(--brand)]">{percConsumo30}% do gasto</div>
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-[var(--surface)] border border-[var(--verde-border)]/70 flex items-center justify-between gap-2 shadow-2xs">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-[var(--verde-soft)] border border-[var(--verde-border)]/80 text-[var(--verde)] flex items-center justify-center tabular-nums text-[10px] font-extrabold shrink-0">
-                      .39
-                    </div>
-                    <div>
-                      <div className="text-[10px] tabular-nums font-bold uppercase text-[var(--verde)]">
-                        Rubrica 33.90.39 · Serviços PJ
-                      </div>
-                      <div className="text-[11px] text-[var(--text-muted)]">
-                        Manutenção Predial & Reparos
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right tabular-nums tabular-nums">
-                    <div className="text-xs sm:text-sm font-extrabold text-[var(--text)]">
-                      R$ {unidadeServicos39.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </div>
-                    <div className="text-[10px] font-bold text-[var(--verde)]">{percServicos39}% do gasto</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="w-full h-2.5 bg-[var(--surface-3)]/80 rounded-full overflow-hidden flex p-0.5 gap-0.5">
-                <div
-                  className="h-full rounded-l-full bg-[#0072BB] transition-all duration-500"
-                  style={{ width: `${percConsumo30}%` }}
-                  title="Material de Consumo (33.90.30)"
-                />
-                <div
-                  className="h-full rounded-r-full bg-[#00703C] transition-all duration-500"
-                  style={{ width: `${percServicos39}%` }}
-                  title="Outros Serviços de Terceiros - Pessoa Jurídica (33.90.39)"
-                />
-              </div>
-            </div>
-
-            {/* Sub-abas da Unidade */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-1">
-              {[
-                { id: 'notas', label: `Notas Fiscais (${censeAtual.notas.length})`, icon: Receipt },
-                { id: 'nova-despesa', label: 'Scanner NF-e / Lançar Despesa', icon: ScanLine },
-                { id: 'relatorio', label: 'Espelho Oficial TCE-PR', icon: SlidersHorizontal }
-              ].map(t => {
-                const Icon = t.icon;
-                const ativa = abaDetalhe === t.id;
-                return (
+                {fiscaliza && (
                   <button
-                    key={t.id}
                     type="button"
-                    onClick={() => {
-                      soundFX.playClick();
-                      setAbaDetalhe(t.id as 'notas' | 'nova-despesa' | 'relatorio');
-                    }}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                      ativa
-                        ? 'bg-[#0B1B2E] text-white shadow-sm'
-                        : 'bg-[var(--surface)] text-[var(--text-muted)] hover:bg-[var(--surface-2)] border border-[var(--border)]/80'
-                    }`}
+                    disabled={pendentesUnidade > 0}
+                    title={pendentesUnidade > 0 ? 'Analise as notas pendentes antes' : undefined}
+                    onClick={fecharPrestacao}
+                    className="h-10 rounded-full bg-[#00703C] px-4 text-[13px] font-semibold text-white hover:bg-[#005C31] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   >
-                    <Icon size={13} className={ativa ? 'text-[var(--verde)]' : 'text-[var(--text-muted)]'} />
-                    <span>{t.label}</span>
+                    Registrar prestação de contas
                   </button>
-                );
-              })}
+                )}
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-3 gap-2">
+              <Dado rotulo="Verba" valor={moeda(unidade.cotaTrimestral)} />
+              <Dado rotulo="Gasto" valor={moeda(gastoUnidade)} />
+              <Dado rotulo="Saldo" valor={moeda(saldoUnidade)} destaque />
+            </div>
+            <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-[var(--surface-3)]" role="img" aria-label={`${Math.round(pctUnidade)}% da verba gasta`}>
+              <div className="h-full rounded-full bg-[#0072BB]" style={{ width: `${pctUnidade}%` }} />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-[var(--text-muted)]">
+              <span>Material de consumo (33.90.30): <strong className="tabular-nums text-[var(--text)]">{moeda(consumo)}</strong></span>
+              <span>Serviços (33.90.39): <strong className="tabular-nums text-[var(--text)]">{moeda(servicos)}</strong></span>
+              <span>Prazo da prestação: <strong className={`tabular-nums ${unidade.diasRestantesPrestacao <= 10 ? 'text-[var(--danger)]' : 'text-[var(--text)]'}`}>{unidade.diasRestantesPrestacao} dias</strong></span>
             </div>
           </div>
 
-          {/* =================================================================
-              CONTEÚDO DA ABA 1: LISTA DE NOTAS FISCAIS E AUDITORIA DE GLOSA
-             ================================================================= */}
-          {abaDetalhe === 'notas' && (
-            <div className="p-5 sm:p-6 space-y-3.5">
-              {censeAtual.notas.map(nf => {
-                const ehConsumo30 = isRubricaConsumo30(nf.rubrica);
-                return (
-                  <div
-                    key={nf.id}
-                    className={`relative overflow-hidden p-4 sm:p-5 rounded-[18px] border bg-[var(--surface)] space-y-3 transition-all shadow-2xs ${
-                      nf.status === 'glosada'
-                        ? 'border-[var(--danger-border)]/90 border-l-4 border-l-[var(--danger)]'
-                        : nf.status === 'pendente'
-                        ? 'border-[var(--warning-border)]/90 border-l-4 border-l-[var(--warning)]'
-                        : 'border-[var(--border)]/90 hover:border-[var(--border-strong)] border-l-4 border-l-[var(--verde)]'
-                    }`}
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5">
-                      <div className="space-y-1.5">
+          <div className="rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-7">
+            <div className="flex items-center justify-between gap-3">
+              <h4 className="font-display text-xl font-bold text-[var(--text)]">Notas fiscais</h4>
+              {lanca && (
+                <button type="button" onClick={() => setLancando(true)} className="inline-flex h-10 items-center gap-2 rounded-full bg-[#00385E] px-4 text-[13px] font-semibold text-white cursor-pointer">
+                  <Plus size={15} /> Lançar nota
+                </button>
+              )}
+            </div>
+            {unidade.notas.length === 0 ? (
+              <p className="mt-4 text-sm text-[var(--text-muted)]">Nenhuma nota lançada neste trimestre.</p>
+            ) : (
+              <ul className="mt-4 space-y-3">
+                {unidade.notas.map(n => (
+                  <li key={n.id} className="rounded-[18px] border border-[var(--border)] p-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="tabular-nums tabular-nums text-xs font-extrabold text-[var(--text)] bg-[var(--surface-2)] px-2.5 py-0.5 rounded-lg border border-[var(--border)]/80">
-                            {nf.numeroNf}
-                          </span>
-                          <span className="text-xs sm:text-sm font-extrabold text-[var(--text)]">{nf.fornecedor}</span>
-                          <span className="text-[11px] tabular-nums tabular-nums text-[var(--text-subtle)] bg-[var(--surface-2)] px-2 py-0.5 rounded border border-[var(--border)]/60">
-                            CNPJ {nf.cnpj}
-                          </span>
+                          <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${STATUS_NOTA[n.status].cls}`}>{STATUS_NOTA[n.status].texto}</span>
+                          <span className="text-xs font-semibold tabular-nums text-[var(--text-muted)]">{n.numeroNf} · {n.dataEmissao}</span>
                         </div>
-
-                        <div className="flex flex-wrap items-center gap-2 text-[11px]">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md tabular-nums font-bold text-[10px] border ${
-                              ehConsumo30
-                                ? 'bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--brand-border)]/70'
-                                : 'bg-[var(--verde-soft)] text-[var(--verde)] border-[var(--verde-border)]/70'
-                            }`}
-                          >
-                            {ehConsumo30 ? '33.90.30 · CONSUMO' : '33.90.39 · SERVIÇOS PJ'}
-                          </span>
-                          <span className="font-medium text-[var(--text-muted)]">{nf.rubrica}</span>
-                          <span className="text-[var(--ink-muted)]">·</span>
-                          <span className="tabular-nums tabular-nums text-[var(--text-muted)]">Emissão: {nf.dataEmissao}</span>
-
-                          {nf.tresOrcamentos !== false && (
-                            <span className="text-[10px] font-bold text-[var(--verde)] bg-[var(--verde-soft)] px-2 py-0.5 rounded-md border border-[var(--verde-border)]/80">
-                              ✓ 3 Cotações Anexas
-                            </span>
+                        <div className="mt-1.5 text-[15px] font-semibold text-[var(--text)]">{n.fornecedor}</div>
+                        <div className="text-xs tabular-nums text-[var(--text-muted)]">CNPJ {n.cnpj}</div>
+                        <p className="mt-1.5 text-[13px] text-[var(--text)]">{n.descricao}</p>
+                        <div className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
+                          <span className="rounded-full bg-[var(--surface-2)] px-2.5 py-0.5 font-semibold text-[var(--text)]">{nomeRubrica(n.rubrica)} · {ehConsumo(n.rubrica) ? '33.90.30' : '33.90.39'}</span>
+                          {n.tresOrcamentos ? (
+                            <span className="rounded-full bg-[var(--verde-soft)] px-2.5 py-0.5 font-semibold text-[var(--verde)]">3 orçamentos</span>
+                          ) : (
+                            <span className="rounded-full bg-[var(--warning-soft)] px-2.5 py-0.5 font-semibold text-[var(--warning)]">Sem 3 orçamentos</span>
                           )}
-                          {nf.comprovanteNome && (
-                            <span className="text-[10px] tabular-nums text-[var(--text-muted)] bg-[var(--surface-2)] px-2 py-0.5 rounded-md border border-[var(--border)]/70">
-                              {nf.comprovanteNome}
+                          {n.comprovanteNome && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--surface-2)] px-2.5 py-0.5 text-[var(--text-muted)]">
+                              <Paperclip size={11} /> {n.comprovanteNome}
                             </span>
                           )}
                         </div>
-
-                        {nf.chaveAcesso && (
-                          <div className="inline-flex items-center gap-1.5 text-[10px] tabular-nums tabular-nums text-[var(--text-muted)] bg-[var(--surface-2)] px-2.5 py-1 rounded-lg border border-[var(--border)]/70">
-                            <QrCode size={11} className="text-[var(--brand)] shrink-0" />
-                            <span className="uppercase font-bold text-[var(--text-subtle)]">Chave DANFE:</span>
-                            <span className="tracking-wider text-[var(--text)]">{nf.chaveAcesso}</span>
-                          </div>
-                        )}
                       </div>
-
-                      <div className="text-left sm:text-right shrink-0">
-                        <div className="text-base sm:text-lg font-extrabold tabular-nums tabular-nums text-[var(--text)]">
-                          R$ {nf.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </div>
-                        {nf.status === 'aprovada' && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--verde-soft)] text-[var(--verde)] border border-[var(--verde-border)]/90 mt-1">
-                            <CheckCircle2 size={11} className="text-[var(--verde)]" /> Atestada TCE-PR
-                          </span>
-                        )}
-                        {nf.status === 'pendente' && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--warning-soft)] text-[var(--warning)] border border-[var(--warning-border)]/90 mt-1">
-                            <Clock size={11} className="text-[var(--warning)]" /> Em Conferência Fiscal
-                          </span>
-                        )}
-                        {nf.status === 'glosada' && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--danger-soft)] text-[var(--danger)] border border-[var(--danger-border)]/90 mt-1">
-                            <AlertTriangle size={11} className="text-[var(--danger)]" /> Nota Glosada
-                          </span>
-                        )}
-                      </div>
+                      <div className="font-display shrink-0 text-xl font-bold tabular-nums text-[var(--text)]">{moeda(n.valor)}</div>
                     </div>
-
-                    <p className="text-xs text-[var(--text-muted)] bg-[var(--surface-2)]/90 p-3 rounded-xl border border-[var(--border)]/60 leading-relaxed">
-                      {nf.descricao}
-                    </p>
-
-                    {nf.motivoGlosa && (
-                      <div className="p-3 rounded-xl bg-[var(--danger-soft)]/90 border border-[var(--danger-border)] text-xs text-[var(--danger)] flex items-start gap-2">
-                        <AlertTriangle size={14} className="text-[var(--danger)] shrink-0 mt-0.5" />
-                        <div>
-                          <strong className="font-bold">Motivo da Glosa Fiscal (TCE-PR / Controle Interno): </strong>
-                          {nf.motivoGlosa}
-                        </div>
+                    {n.status === 'glosada' && n.motivoGlosa && (
+                      <p className="mt-3 rounded-[12px] bg-[var(--danger-soft)] px-3 py-2 text-[13px] text-[var(--danger)]">
+                        <strong>Motivo da recusa:</strong> {n.motivoGlosa}
+                      </p>
+                    )}
+                    {fiscaliza && n.status === 'pendente' && (
+                      <div className="mt-3 flex justify-end gap-2">
+                        <button type="button" onClick={() => setRecusando(n)} className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[var(--border)] px-4 text-[13px] font-semibold text-[var(--text)] hover:bg-[var(--surface-2)] cursor-pointer">
+                          <Ban size={14} /> Recusar
+                        </button>
+                        <button type="button" onClick={() => analisar(n, true)} className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[#00703C] px-4 text-[13px] font-semibold text-white hover:bg-[#005C31] cursor-pointer">
+                          <Check size={14} strokeWidth={3} /> Aprovar
+                        </button>
                       </div>
                     )}
-
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-[var(--border-subtle)]">
-                      <span className="inline-flex items-center gap-1.5 text-[10px] tabular-nums text-[var(--text-subtle)] select-none">
-                        <Lock size={10} className="text-[var(--verde)]" />
-                        <span>Hash SEFAZ-PR · ••••••••••••••••</span>
-                      </span>
-
-                      <div className="flex items-center gap-2">
-                        {nf.status !== 'aprovada' && (
-                          <button
-                            type="button"
-                            onClick={() => handleAprovarNota(nf.id)}
-                            className="px-3 py-1.5 rounded-xl bg-[var(--verde-soft)] hover:bg-[#00703C] text-[var(--verde)] hover:text-white border border-[var(--verde-border)]/90 hover:border-[var(--verde)] text-[11px] font-bold flex items-center gap-1 transition-all duration-150 cursor-pointer shadow-2xs active:scale-95"
-                          >
-                            <CheckCircle2 size={12} /> Aprovar NF-e
-                          </button>
-                        )}
-                        {nf.status !== 'glosada' && (
-                          <button
-                            type="button"
-                            onClick={() => handleGlosarNota(nf.id)}
-                            className="px-3 py-1.5 rounded-xl bg-[var(--danger-soft)] hover:bg-[#B42318] text-[var(--danger)] hover:text-white border border-[var(--danger-border)]/90 hover:border-[var(--danger)] text-[11px] font-bold flex items-center gap-1 transition-all duration-150 cursor-pointer shadow-2xs active:scale-95"
-                          >
-                            <Ban size={12} /> Glosar
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* =================================================================
-              CONTEÚDO DA ABA 2: SCANNER LASER FAZENDÁRIO DE DANFE / NF-e (44 DÍGITOS)
-             ================================================================= */}
-          {abaDetalhe === 'nova-despesa' && (
-            <form onSubmit={handleLancarNota} className="p-5 sm:p-6 space-y-5">
-              
-              {/* ZONA DE SCANNER LASER FAZENDÁRIO (CANTONEIRAS LUMINOSAS + BARRA DE VARREDURA + CRACHÁ SEFAZ-PR / RECEITA FEDERAL) */}
-              <div className="relative overflow-hidden p-5 rounded-[18px] bg-[#0B1B2E] text-white border border-[#22324C] space-y-4">
-                {/* Grade Óptica Fazendária de Fundo */}
-                <div
-                  className="pointer-events-none absolute inset-0 opacity-15"
-                  style={{
-                    backgroundImage:
-                      'radial-gradient(circle at 1px 1px, rgba(16, 185, 129, 0.45) 1px, transparent 0)',
-                    backgroundSize: '18px 18px'
-                  }}
-                />
-
-                {/* Barra de Varredura Laser Sutil */}
-                <div className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-[1.5px] bg-transparent   " />
-
-                {/* 4 Cantoneiras Luminosas do Scanner Laser */}    
-
-                <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-start sm:items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#00A859]/15 border border-[var(--verde)]/40 text-[var(--verde)] flex items-center justify-center shrink-0 ">
-                      <ScanLine size={20} />
-                    </div>
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#00A859]/20 text-[#C6E86B] border border-[var(--verde)]/40 tabular-nums text-[10px] font-bold uppercase tracking-wider">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#00A859] " />
-                          SEFAZ-PR · RECEITA FEDERAL · SPED NF-e
-                        </span>
-                        <span className="text-[10px] tabular-nums text-[var(--text-subtle)] tabular-nums">
-                          OCR / XML LASER SCANNER
-                        </span>
-                      </div>
-                      <div className="text-sm font-extrabold text-white mt-1">
-                        Scanner Inteligente de DANFE & Chave de Acesso (44 Dígitos)
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2">
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".pdf,.xml,.png,.jpg,.jpeg"
-                      onChange={handleUploadComprovante}
-                      className="hidden"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="px-3 py-2 rounded-xl bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white/90 border border-[#22324C] hover:border-[var(--border-strong)] text-[11px] font-bold flex items-center gap-1.5 transition cursor-pointer"
-                    >
-                      <Upload size={13} className="text-[var(--brand)]" />
-                      <span>Drop DANFE / XML</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleSimularLeituraDanfe}
-                      className="px-3.5 py-2 rounded-xl bg-[#00A859] hover:bg-[#00A859] text-[var(--text)] text-[11px] font-extrabold flex items-center gap-1.5 transition cursor-pointer active:scale-95"
-                    >
-                      <Sparkles size={13} />
-                      <span>Simular Leitura Laser DANFE (SEFAZ-PR)</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Visor Óptico dos 44 Dígitos da Chave de Acesso */}
-                <div className="relative space-y-2">
-                  <div className="flex items-center justify-between text-[10px] tabular-nums">
-                    <span className="text-[var(--text-subtle)] uppercase tracking-wider flex items-center gap-1.5">
-                      <QrCode size={11} className="text-[var(--verde)]" />
-                      Barramento Óptico de Chave de Acesso NF-e (Modelo 55 / 65)
-                    </span>
-                    <span
-                      className={`px-2 py-0.5 rounded font-bold tabular-nums ${
-                        digitosChave.length === 44
-                          ? 'bg-[#00A859]/20 text-[#C6E86B] border border-[var(--verde)]/40'
-                          : 'bg-[#0B1B2E] text-[var(--text-subtle)] border border-[#22324C]'
-                      }`}
-                    >
-                      {digitosChave.length}/44 DÍGITOS
-                    </span>
-                  </div>
-
-                  <input
-                    type="text"
-                    value={chaveDanfe}
-                    onChange={e => setChaveDanfe(e.target.value)}
-                    placeholder="4126 1082 3910 4400 0192 5500 1000 0284 1010 9283 7461 (Cole ou escaneie os 44 dígitos)"
-                    className="w-full text-xs tabular-nums tabular-nums tracking-wider px-4 py-3 rounded-xl bg-[#0B1B2E]/95 text-[#C6E86B] placeholder:text-[var(--text-muted)] border border-[var(--verde)]/30 focus:outline-hidden focus:border-[var(--verde)] "
-                  />
-
-                  {comprovanteNome && (
-                    <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#00A859]/10 border border-[var(--verde)]/30 text-[11px] text-[#C6E86B] tabular-nums">
-                      <span className="flex items-center gap-1.5 font-semibold">
-                        <CheckCircle2 size={13} className="text-[var(--verde)]" />
-                        Autenticado SEFAZ-PR / Receita Federal: <strong>{comprovanteNome}</strong>
-                      </span>
-                      <span className="text-[10px] uppercase tracking-wider text-[var(--verde)] font-bold">
-                        PROTOCOLO VÁLIDO
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Decomposição Interativa de Rubrica no Lançamento: 33.90.30 vs 33.90.39 */}
-              <div className="p-4 rounded-[18px] bg-[var(--surface-2)]/90 border border-[var(--border)]/85 space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-extrabold text-[var(--text)] flex items-center gap-1.5">
-                    <Layers size={14} className="text-[var(--brand)]" />
-                    <span>Classificação da Rubrica Orçamentária (33.90.30 vs 33.90.39)</span>
-                  </label>
-                  <span className="text-[10px] tabular-nums font-bold px-2 py-0.5 rounded bg-[var(--surface-3)]/70 text-[var(--text)]">
-                    {isRubricaConsumo30(rubrica) ? 'NATUREZA 33.90.30 · CONSUMO' : 'NATUREZA 33.90.39 · SERVIÇOS PJ'}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setRubrica('Material de Consumo & Higiene (33.90.30)')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
-                      isRubricaConsumo30(rubrica)
-                        ? 'bg-[var(--brand-soft)]/90 border-[var(--brand)] ring-1 ring-[var(--brand)]/30'
-                        : 'bg-[var(--surface)] border-[var(--border)]/80 hover:border-[var(--border-strong)]'
-                    }`}
-                  >
-                    <div>
-                      <div className="text-[10px] tabular-nums font-extrabold uppercase text-[var(--brand)]">
-                        Elemento 33.90.30
-                      </div>
-                      <div className="text-xs font-bold text-[var(--text)] mt-0.5">
-                        Material de Consumo, Oficinas & Saúde
-                      </div>
-                    </div>
-                    <Scale size={15} className="text-[var(--brand)] shrink-0" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setRubrica('Manutenção Predial (33.90.39)')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
-                      !isRubricaConsumo30(rubrica)
-                        ? 'bg-[var(--verde-soft)]/90 border-[var(--verde)] ring-1 ring-[var(--verde)]/30'
-                        : 'bg-[var(--surface)] border-[var(--border)]/80 hover:border-[var(--border-strong)]'
-                    }`}
-                  >
-                    <div>
-                      <div className="text-[10px] tabular-nums font-extrabold uppercase text-[var(--verde)]">
-                        Elemento 33.90.39
-                      </div>
-                      <div className="text-xs font-bold text-[var(--text)] mt-0.5">
-                        Serviços de Terceiros PJ & Manutenção
-                      </div>
-                    </div>
-                    <Scale size={15} className="text-[var(--verde)] shrink-0" />
-                  </button>
-                </div>
-
-                <select
-                  value={rubrica}
-                  onChange={e => setRubrica(e.target.value as RubricaFundo)}
-                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] focus:outline-hidden focus:border-[#22324C]"
-                >
-                  <option value="Manutenção Predial (33.90.39)">Manutenção Predial (33.90.39)</option>
-                  <option value="Reparos Elétricos & Hidráulicos (33.90.39)">Reparos Elétricos & Hidráulicos (33.90.39)</option>
-                  <option value="Material de Consumo & Higiene (33.90.30)">Material de Consumo & Higiene (33.90.30)</option>
-                  <option value="Insumos Pedagógicos & Oficinas (33.90.30)">Insumos Pedagógicos & Oficinas (33.90.30)</option>
-                  <option value="Suprimento Emergencial Saúde (33.90.30)">Suprimento Emergencial Saúde (33.90.30)</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text)] mb-1">
-                    Número da NF-e / Cupom Fiscal *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={numeroNf}
-                    onChange={e => setNumeroNf(e.target.value)}
-                    placeholder="Ex: 009.412"
-                    className="w-full text-xs tabular-nums tabular-nums px-3.5 py-2.5 rounded-xl border border-[var(--border)] focus:outline-hidden focus:border-[#22324C]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text)] mb-1">
-                    Valor da Nota Fiscal (R$) *
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    value={valorNf}
-                    onChange={e => setValorNf(e.target.value)}
-                    placeholder="Ex: 1450.00"
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-[var(--border)] focus:outline-hidden focus:border-[#22324C] tabular-nums tabular-nums"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text)] mb-1">
-                    Razão Social do Fornecedor *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={fornecedor}
-                    onChange={e => setFornecedor(e.target.value)}
-                    placeholder="Ex: Comercial Suprimentos Paraná Ltda"
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-[var(--border)] focus:outline-hidden focus:border-[#22324C]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text)] mb-1">
-                    CNPJ do Fornecedor (Receita Federal)
-                  </label>
-                  <input
-                    type="text"
-                    value={cnpj}
-                    onChange={e => setCnpj(e.target.value)}
-                    placeholder="00.000.000/0001-00"
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-[var(--border)] focus:outline-hidden focus:border-[#22324C] tabular-nums tabular-nums"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[var(--text)] mb-1">
-                  Justificativa e Atesto de Aplicação no {censeAtual.nome}
-                </label>
-                <textarea
-                  rows={3}
-                  value={descricaoNf}
-                  onChange={e => setDescricaoNf(e.target.value)}
-                  placeholder="Descreva a finalidade socioeducativa ou emergencial do material/serviço adquirido..."
-                  className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-[var(--border)] focus:outline-hidden focus:border-[#22324C]"
-                />
-              </div>
-
-              {/* Validador de Conformidade Legal (Lei Estadual 14.268/PR) */}
-              <div className="p-4 rounded-[18px] bg-[var(--surface-2)] border border-[var(--border)]/85 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-xs font-extrabold text-[var(--text)] flex items-center gap-1.5">
-                    <ShieldCheck size={14} className="text-[var(--verde)]" />
-                    <span>Validador de Conformidade Legal · Lei Estadual nº 14.268/PR & TCE-PR</span>
-                  </span>
-                  <label className="inline-flex items-center gap-2 text-xs font-bold text-[var(--text)] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={tresOrcamentos}
-                      onChange={e => setTresOrcamentos(e.target.checked)}
-                      className="rounded border-[var(--border-strong)] text-[var(--text)] focus:ring-0"
-                    />
-                    <span>Possui 3 Orçamentos Prévios anexos</span>
-                  </label>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[11px] tabular-nums tabular-nums">
-                  <div
-                    className={`p-2.5 rounded-xl border flex items-center gap-2 ${
-                      excedeLimiteLegal
-                        ? 'bg-[var(--danger-soft)] border-[var(--danger-border)] text-[var(--danger)] font-bold'
-                        : 'bg-[var(--surface)] border-[var(--border)]/80 text-[var(--text)]'
-                    }`}
-                  >
-                    {excedeLimiteLegal ? (
-                      <AlertTriangle size={13} className="text-[var(--danger)] shrink-0" />
-                    ) : (
-                      <CheckCircle2 size={13} className="text-[var(--verde)] shrink-0" />
-                    )}
-                    <span>Teto NF: R$ 8.000,00</span>
-                  </div>
-
-                  <div
-                    className={`p-2.5 rounded-xl border flex items-center gap-2 ${
-                      excedeSaldoUnidade
-                        ? 'bg-[var(--warning-soft)] border-[var(--warning-border)] text-[var(--warning)] font-bold'
-                        : 'bg-[var(--surface)] border-[var(--border)]/80 text-[var(--text)]'
-                    }`}
-                  >
-                    {excedeSaldoUnidade ? (
-                      <AlertTriangle size={13} className="text-[var(--warning)] shrink-0" />
-                    ) : (
-                      <CheckCircle2 size={13} className="text-[var(--verde)] shrink-0" />
-                    )}
-                    <span>Saldo BB: R$ {saldoUnidade.toLocaleString('pt-BR')}</span>
-                  </div>
-
-                  <div
-                    className={`p-2.5 rounded-xl border flex items-center gap-2 ${
-                      !tresOrcamentos
-                        ? 'bg-[var(--danger-soft)] border-[var(--danger-border)] text-[var(--danger)] font-bold'
-                        : 'bg-[var(--surface)] border-[var(--border)]/80 text-[var(--text)]'
-                    }`}
-                  >
-                    {!tresOrcamentos ? (
-                      <AlertTriangle size={13} className="text-[var(--danger)] shrink-0" />
-                    ) : (
-                      <CheckCircle2 size={13} className="text-[var(--verde)] shrink-0" />
-                    )}
-                    <span>3 Cotações Prévias</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setAbaDetalhe('notas')}
-                  className="px-4 py-2.5 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-3)]/80 text-[var(--text)] text-xs font-bold cursor-pointer transition"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 transition"
-                >
-                  <PlusCircle size={14} className="text-[var(--verde)]" />
-                  <span>Registrar Nota Fiscal no CENSE</span>
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* =================================================================
-              CONTEÚDO DA ABA 3: ESPELHO OFICIAL DE PRESTAÇÃO DE CONTAS (TCE-PR / SEJU)
-             ================================================================= */}
-          {abaDetalhe === 'relatorio' && (
-            <div className="p-5 sm:p-6 space-y-5">
-              <div className="relative overflow-hidden p-5 rounded-[18px] bg-[var(--surface-2)]/90 border border-[var(--border)]/90 space-y-5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--border)]/80 pb-4">
-                  <div className="flex items-center gap-3">
-                    <BrasaoParana size="sm" />
-                    <div>
-                      <div className="text-xs font-extrabold text-[var(--text)] uppercase tracking-tight">
-                        Espelho Oficial de Prestação de Contas · Fundo Rotativo (TCE-PR / SEJU)
-                      </div>
-                      <div className="text-[11px] tabular-nums tabular-nums text-[var(--text-muted)] mt-0.5">
-                        {censeAtual.nome} · {censeAtual.competencia} · {censeAtual.contaBancoBrasil}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={handleExportarCsv}
-                      className="px-3 py-2 rounded-xl bg-[var(--surface)] hover:bg-[var(--surface-2)] text-[var(--text)] border border-[var(--border)]/90 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs transition"
-                    >
-                      <Download size={13} className="text-[var(--verde)]" /> Exportar .CSV
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => window.print()}
-                      className="px-3.5 py-2 rounded-xl bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs transition"
-                    >
-                      <Printer size={14} className="text-[var(--verde)]" /> Imprimir Termo TCE-PR
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-[var(--surface)] p-3.5 rounded-xl border border-[var(--border)]/80">
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-[var(--text-subtle)] block">Unidade Socioeducativa</span>
-                    <strong className="text-[var(--text)]">{censeAtual.nome} ({censeAtual.cidade})</strong>
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-[var(--text-subtle)] block">Servidor Suprido</span>
-                    <strong className="text-[var(--text)]">{censeAtual.diretorSuprido} ({censeAtual.matricula})</strong>
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-[var(--text-subtle)] block">Última Conferência / Prazo</span>
-                    <strong className="text-[var(--text)] tabular-nums tabular-nums">
-                      {censeAtual.ultimaPrestacao} ({censeAtual.diasRestantesPrestacao}d restantes)
-                    </strong>
-                  </div>
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-[var(--text-subtle)] block">Blindagem Criptográfica</span>
-                    <strong className="text-[var(--verde)] tabular-nums select-none">••••••••••••••••</strong>
-                  </div>
-                </div>
-
-                {/* Quadro Sintético por Natureza de Despesa */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--brand-border)]/80 shadow-2xs">
-                    <div className="text-[10px] tabular-nums font-bold uppercase text-[var(--brand)]">
-                      Material de Consumo (33.90.30)
-                    </div>
-                    <div className="text-sm sm:text-base font-extrabold tabular-nums tabular-nums text-[var(--text)] mt-1">
-                      R$ {unidadeConsumo30.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </div>
-                  </div>
-                  <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--verde-border)]/80 shadow-2xs">
-                    <div className="text-[10px] tabular-nums font-bold uppercase text-[var(--verde)]">
-                      Serviços de Terceiros PJ (33.90.39)
-                    </div>
-                    <div className="text-sm sm:text-base font-extrabold tabular-nums tabular-nums text-[var(--text)] mt-1">
-                      R$ {unidadeServicos39.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </div>
-                  </div>
-                  <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)]/80 shadow-2xs">
-                    <div className="text-[10px] tabular-nums font-bold uppercase text-[var(--text-muted)]">
-                      Saldo em Conta BB a Reprogramar
-                    </div>
-                    <div className="text-sm sm:text-base font-extrabold tabular-nums tabular-nums text-[var(--verde)] mt-1">
-                      R$ {saldoUnidade.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tabela Discriminada de Documentos Fiscais da Prestação (Bloomberg / Stripe Treasury Table) */}
-                <div className="bg-[var(--surface)] rounded-[18px] border border-[var(--border)]/90 shadow-2xs overflow-hidden">
-                  <div className="px-4 py-3 bg-[#0B1B2E] text-white flex items-center justify-between text-[11px] font-bold uppercase tracking-wider">
-                    <span className="flex items-center gap-2">
-                      <Receipt size={13} className="text-[var(--verde)]" />
-                      <span>Relação de Comprovantes Fiscais Atestados ({censeAtual.notas.length} documentos)</span>
-                    </span>
-                    <span className="tabular-nums text-[10px] text-[var(--text-subtle)] tabular-nums">
-                      AUDITORIA TCE-PR · LEI 14.268/PR
-                    </span>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse text-xs">
-                      <thead>
-                        <tr className="border-b border-[var(--border)]/80 text-[10px] tabular-nums font-bold uppercase text-[var(--text-muted)] bg-[var(--surface-2)]/90">
-                          <th className="py-2.5 px-3.5">Documento</th>
-                          <th className="py-2.5 px-3">Emissão</th>
-                          <th className="py-2.5 px-3">Credor / CNPJ</th>
-                          <th className="py-2.5 px-3">Rubrica Contábil</th>
-                          <th className="py-2.5 px-3.5 text-right">Valor (R$)</th>
-                          <th className="py-2.5 px-3.5 text-center">Conformidade TCE</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[var(--border-subtle)]">
-                        {censeAtual.notas.map(nf => {
-                          const is30 = isRubricaConsumo30(nf.rubrica);
-                          return (
-                            <tr key={nf.id} className="hover:bg-[var(--surface-2)]/90 transition-colors">
-                              <td className="py-3 px-3.5 tabular-nums tabular-nums font-extrabold text-[var(--text)]">
-                                {nf.numeroNf}
-                              </td>
-                              <td className="py-3 px-3 tabular-nums tabular-nums text-[var(--text-muted)]">{nf.dataEmissao}</td>
-                              <td className="py-3 px-3">
-                                <div className="font-bold text-[var(--text)]">{nf.fornecedor}</div>
-                                <div className="text-[10px] tabular-nums tabular-nums text-[var(--text-subtle)]">{nf.cnpj}</div>
-                              </td>
-                              <td className="py-3 px-3">
-                                <span
-                                  className={`inline-block tabular-nums text-[10px] font-bold px-2 py-0.5 rounded border mb-0.5 ${
-                                    is30
-                                      ? 'bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--brand-border)]/70'
-                                      : 'bg-[var(--verde-soft)] text-[var(--verde)] border-[var(--verde-border)]/70'
-                                  }`}
-                                >
-                                  {is30 ? '33.90.30' : '33.90.39'}
-                                </span>
-                                <div className="text-[11px] text-[var(--text-muted)]">{nf.rubrica}</div>
-                              </td>
-                              <td className="py-3 px-3.5 text-right tabular-nums tabular-nums font-extrabold text-[var(--text)]">
-                                R$ {nf.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                              </td>
-                              <td className="py-3 px-3.5 text-center">
-                                <span
-                                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                                    nf.status === 'aprovada'
-                                      ? 'bg-[var(--verde-soft)] text-[var(--verde)] border-[var(--verde-border)]/80'
-                                      : nf.status === 'glosada'
-                                      ? 'bg-[var(--danger-soft)] text-[var(--danger)] border-[var(--danger-border)]/80'
-                                      : 'bg-[var(--warning-soft)] text-[var(--warning)] border-[var(--warning-border)]/80'
-                                  }`}
-                                >
-                                  {nf.status === 'aprovada'
-                                    ? 'Aprovada TCE'
-                                    : nf.status === 'glosada'
-                                    ? 'Glosada'
-                                    : 'Em Análise'}
-                                </span>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                      <tfoot>
-                        <tr className="bg-[var(--surface-2)]/90 border-t-2 border-[var(--border)] tabular-nums tabular-nums text-xs">
-                          <td colSpan={4} className="py-2.5 px-3.5 font-bold text-[var(--text-muted)] uppercase text-[10px]">
-                            Total Executado Válido ({notasValidasUnidade.length} NFs) · Cota R$ {censeAtual.cotaTrimestral.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </td>
-                          <td className="py-2.5 px-3.5 text-right font-extrabold text-[var(--brand)]">
-                            R$ {executadoUnidade.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </td>
-                          <td className="py-2.5 px-3.5 text-center text-[10px] font-bold text-[var(--verde)]">
-                            {percentualExecutado}% EXEC.
-                          </td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
-                </div>
-
-                {/* Chancelas Eletrônicas Seladas */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)]/85 flex items-center justify-between shadow-2xs">
-                    <div>
-                      <div className="text-[10px] uppercase font-bold text-[var(--text-subtle)]">
-                        Assinatura Digital · Gestor Suprido
-                      </div>
-                      <div className="text-xs font-extrabold text-[var(--text)] mt-0.5">
-                        {censeAtual.diretorSuprido} · <span className="tabular-nums">{censeAtual.matricula}</span>
-                      </div>
-                    </div>
-                    <span className="text-[10px] tabular-nums text-[var(--verde)] bg-[var(--verde-soft)] px-2.5 py-1 rounded-lg border border-[var(--verde-border)]/80 select-none">
-                      ••••••••••••••••
-                    </span>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)]/85 flex items-center justify-between shadow-2xs">
-                    <div>
-                      <div className="text-[10px] uppercase font-bold text-[var(--text-subtle)]">
-                        Inspetoria de Controle Interno SEJU / TCE-PR
-                      </div>
-                      <div className="text-xs font-extrabold text-[var(--text)] mt-0.5">
-                        Conformidade Lei Estadual nº 14.268/PR
-                      </div>
-                    </div>
-                    <span className="text-[10px] tabular-nums text-[var(--verde)] bg-[var(--verde-soft)] px-2.5 py-1 rounded-lg border border-[var(--verde-border)]/80 select-none">
-                      ••••••••••••••••
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-        </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
       </div>
 
+      {lancando && <LancarNota unidade={unidade} saldo={saldoUnidade} onFechar={() => setLancando(false)} onLancar={lancar} />}
+
+      {recusando && (
+        <Janela titulo="Recusar nota" onFechar={() => setRecusando(null)}>
+          <RecusarNota
+            nota={recusando}
+            onCancelar={() => setRecusando(null)}
+            onConfirmar={motivo => {
+              analisar(recusando, false, motivo);
+              setRecusando(null);
+            }}
+          />
+        </Janela>
+      )}
+
+      {relatorio && (
+        <Janela titulo={`Relatório · ${unidade.nome}`} onFechar={() => setRelatorio(false)} largo>
+          <p className="text-sm text-[var(--text-muted)]">
+            {unidade.competencia} · Responsável {unidade.diretorSuprido} · {unidade.contaBancoBrasil}
+          </p>
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            <Dado rotulo="Verba" valor={moeda(unidade.cotaTrimestral)} />
+            <Dado rotulo="Gasto aprovado e pendente" valor={moeda(gastoUnidade)} />
+            <Dado rotulo="Saldo" valor={moeda(saldoUnidade)} destaque />
+          </div>
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full text-left text-[13px]">
+              <thead className="text-xs text-[var(--text-muted)]">
+                <tr className="border-b border-[var(--border)]">
+                  <th className="py-2 pr-3 font-semibold">Nota</th>
+                  <th className="py-2 pr-3 font-semibold">Fornecedor</th>
+                  <th className="py-2 pr-3 font-semibold">Natureza</th>
+                  <th className="py-2 pr-3 font-semibold">Situação</th>
+                  <th className="py-2 text-right font-semibold">Valor</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)] text-[var(--text)]">
+                {unidade.notas.map(n => (
+                  <tr key={n.id}>
+                    <td className="py-2 pr-3 tabular-nums whitespace-nowrap">{n.numeroNf}<div className="text-xs text-[var(--text-muted)]">{n.dataEmissao}</div></td>
+                    <td className="py-2 pr-3">{n.fornecedor}</td>
+                    <td className="py-2 pr-3 whitespace-nowrap">{ehConsumo(n.rubrica) ? '33.90.30' : '33.90.39'}</td>
+                    <td className="py-2 pr-3 whitespace-nowrap">{STATUS_NOTA[n.status].texto}</td>
+                    <td className="py-2 text-right tabular-nums whitespace-nowrap">{moeda(n.valor)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-5 flex gap-2">
+            <button type="button" onClick={() => window.print()} className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#00385E] text-sm font-semibold text-white cursor-pointer">
+              <Printer size={15} /> Imprimir
+            </button>
+            <button type="button" onClick={() => setRelatorio(false)} className="h-11 flex-1 rounded-full border border-[var(--border)] text-sm font-semibold text-[var(--text)] hover:bg-[var(--surface-2)] cursor-pointer">
+              Fechar
+            </button>
+          </div>
+        </Janela>
+      )}
     </div>
   );
 };
 
+const Dado: React.FC<{ rotulo: string; valor: string; destaque?: boolean }> = ({ rotulo, valor, destaque }) => (
+  <div className={`rounded-[18px] px-3.5 py-3 ${destaque ? 'bg-[#00385E] text-white' : 'bg-[var(--surface-2)] text-[var(--text)]'}`}>
+    <div className={`text-[11px] ${destaque ? 'text-white/65' : 'text-[var(--text-muted)]'}`}>{rotulo}</div>
+    <div className="font-display text-base font-bold tabular-nums sm:text-xl">{valor}</div>
+  </div>
+);
+
+const Janela: React.FC<{ titulo: string; onFechar: () => void; children: React.ReactNode; largo?: boolean }> = ({ titulo, onFechar, children, largo }) => (
+  <div
+    className="fixed inset-0 z-50 flex items-end justify-center bg-[#0B1B2E]/60 sm:items-center sm:p-4"
+    role="dialog"
+    aria-modal="true"
+    aria-label={titulo}
+    onClick={e => e.target === e.currentTarget && onFechar()}
+  >
+    <div className={`max-h-[92vh] w-full ${largo ? 'max-w-2xl' : 'max-w-lg'} overflow-y-auto rounded-t-[28px] bg-[var(--surface)] p-6 sm:rounded-[28px] sm:p-7`}>
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <h3 className="font-display text-2xl font-bold leading-tight text-[var(--text)]">{titulo}</h3>
+        <button type="button" onClick={onFechar} aria-label="Fechar" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--surface-3)] cursor-pointer">
+          <X size={16} />
+        </button>
+      </div>
+      {children}
+    </div>
+  </div>
+);
+
+const RecusarNota: React.FC<{ nota: NotaFiscalFundo; onCancelar: () => void; onConfirmar: (motivo: string) => void }> = ({ nota, onCancelar, onConfirmar }) => {
+  const [motivo, setMotivo] = useState('');
+  return (
+    <>
+      <p className="text-sm text-[var(--text-muted)]">
+        {nota.numeroNf} · {nota.fornecedor} · {moeda(nota.valor)}. O valor volta para o saldo da unidade e o responsável recebe o motivo.
+      </p>
+      <label htmlFor="motivo-glosa" className="mt-4 block text-[13px] font-semibold text-[var(--text)]">Motivo</label>
+      <textarea
+        id="motivo-glosa"
+        rows={3}
+        autoFocus
+        value={motivo}
+        onChange={e => setMotivo(e.target.value)}
+        placeholder="Ex.: faltam os três orçamentos anexados ao processo."
+        className="mt-1.5 w-full rounded-[12px] border border-[var(--border)] bg-[var(--surface-2)] px-3.5 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--brand)]"
+      />
+      <div className="mt-4 flex gap-2">
+        <button type="button" onClick={onCancelar} className="h-11 flex-1 rounded-full border border-[var(--border)] text-sm font-semibold text-[var(--text)] hover:bg-[var(--surface-2)] cursor-pointer">
+          Voltar
+        </button>
+        <button type="button" disabled={motivo.trim().length < 5} onClick={() => onConfirmar(motivo.trim())} className="h-11 flex-1 rounded-full bg-[#B42318] text-sm font-semibold text-white hover:bg-[#9B1C12] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+          Recusar nota
+        </button>
+      </div>
+    </>
+  );
+};
+
+/** Lê os campos que a própria chave de acesso da NF-e carrega (layout oficial de 44 dígitos). */
+const lerChave = (chave: string) => {
+  const d = chave.replace(/\D/g, '');
+  return {
+    aamm: d.slice(2, 6),
+    cnpj: d.slice(6, 20),
+    modelo: d.slice(20, 22),
+    serie: String(Number(d.slice(22, 25))),
+    numero: String(Number(d.slice(25, 34))).padStart(6, '0').replace(/(\d{3})(\d{3})$/, '$1.$2'),
+  };
+};
+
+const LancarNota: React.FC<{
+  unidade: UnidadeCenseFundo;
+  saldo: number;
+  onFechar: () => void;
+  onLancar: (n: NotaFiscalFundo) => void;
+}> = ({ unidade, saldo, onFechar, onLancar }) => {
+  const hoje = new Date().toISOString().slice(0, 10);
+  const [chave, setChave] = useState('');
+  const [numero, setNumero] = useState('');
+  const [emissao, setEmissao] = useState(hoje);
+  const [fornecedor, setFornecedor] = useState('');
+  const [cnpj, setCnpj] = useState('');
+  const [rubrica, setRubrica] = useState<RubricaFundo>(RUBRICAS[0]);
+  const [descricao, setDescricao] = useState('');
+  const [valor, setValor] = useState('');
+  const [tresOrcamentos, setTresOrcamentos] = useState(false);
+  const [arquivo, setArquivo] = useState('');
+  const [erro, setErro] = useState<string | null>(null);
+
+  const digitosChave = chave.replace(/\D/g, '');
+  const chaveOk = digitosChave.length === 44 && chaveNfeValida(digitosChave);
+  const lida = chaveOk ? lerChave(digitosChave) : null;
+  const valorNum = Number(valor.replace(/\./g, '').replace(',', '.')) || 0;
+  const campo = 'h-11 w-full rounded-[12px] border border-[var(--border)] bg-[var(--surface-2)] px-3.5 text-sm text-[var(--text)] outline-none focus:border-[var(--brand)]';
+  const rotulo = 'mb-1.5 block text-[13px] font-semibold text-[var(--text)]';
+
+  const usarChave = () => {
+    if (!lida) return;
+    setCnpj(formatarCnpj(lida.cnpj));
+    setNumero(lida.numero);
+  };
+
+  const salvar = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErro(null);
+    if (digitosChave && !chaveOk) return setErro('A chave de acesso não confere. Confira os 44 números no topo da nota.');
+    if (!numero.trim()) return setErro('Informe o número da nota.');
+    if (emissao > hoje) return setErro('A data de emissão não pode ser futura.');
+    if (fornecedor.trim().length < 2) return setErro('Informe o fornecedor.');
+    if (!cnpjValido(cnpj)) return setErro('CNPJ inválido. Confira os números.');
+    if (lida && lida.cnpj !== cnpj.replace(/\D/g, '')) return setErro('O CNPJ não é o mesmo que está na chave de acesso.');
+    if (valorNum <= 0) return setErro('Informe o valor da nota.');
+    onLancar({
+      id: 'nf-' + Date.now(),
+      numeroNf: numero.toUpperCase().startsWith('NF') ? numero : `NF-e ${numero}`,
+      chaveAcesso: digitosChave || undefined,
+      dataEmissao: emissao.split('-').reverse().join('/'),
+      fornecedor: fornecedor.trim(),
+      cnpj: formatarCnpj(cnpj),
+      rubrica,
+      descricao: descricao.trim() || nomeRubrica(rubrica),
+      valor: Math.round(valorNum * 100) / 100,
+      status: 'pendente',
+      tresOrcamentos,
+      comprovanteNome: arquivo || undefined,
+    });
+  };
+
+  return (
+    <Janela titulo={`Lançar nota · ${unidade.nome}`} onFechar={onFechar} largo>
+      <form onSubmit={salvar} className="space-y-4">
+        <div>
+          <label htmlFor="nf-chave" className={rotulo}>
+            Chave de acesso <span className="font-normal text-[var(--text-subtle)]">(44 números no topo da nota · opcional)</span>
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="nf-chave"
+              inputMode="numeric"
+              value={chave}
+              onChange={e => setChave(e.target.value.replace(/[^\d ]/g, '').slice(0, 54))}
+              placeholder="0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000"
+              className={`${campo} tabular-nums ${digitosChave.length === 44 ? (chaveOk ? 'border-[var(--verde)]' : 'border-[var(--danger)]') : ''}`}
+            />
+            <button type="button" disabled={!lida} onClick={usarChave} className="h-11 shrink-0 rounded-full bg-[#00385E] px-4 text-[13px] font-semibold text-white disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed">
+              Preencher
+            </button>
+          </div>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">
+            {digitosChave.length === 0
+              ? 'Com a chave, o CNPJ e o número da nota são lidos direto dela.'
+              : digitosChave.length < 44
+                ? `${digitosChave.length} de 44 números.`
+                : chaveOk
+                  ? `Chave válida · nota ${lida?.numero}, série ${lida?.serie}, emitida em ${lida?.aamm.slice(2)}/20${lida?.aamm.slice(0, 2)}.`
+                  : 'Chave inválida: o dígito final não confere.'}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div>
+            <label htmlFor="nf-num" className={rotulo}>Número da nota</label>
+            <input id="nf-num" value={numero} onChange={e => setNumero(e.target.value.slice(0, 20))} placeholder="000.123" className={`${campo} tabular-nums`} />
+          </div>
+          <div>
+            <label htmlFor="nf-data" className={rotulo}>Emissão</label>
+            <input id="nf-data" type="date" max={hoje} value={emissao} onChange={e => setEmissao(e.target.value)} className={`${campo} tabular-nums`} />
+          </div>
+          <div>
+            <label htmlFor="nf-valor" className={rotulo}>Valor (R$)</label>
+            <input id="nf-valor" inputMode="decimal" value={valor} onChange={e => setValor(e.target.value.replace(/[^\d.,]/g, '').slice(0, 12))} placeholder="0,00" className={`${campo} tabular-nums`} />
+          </div>
+        </div>
+        {valorNum > saldo && (
+          <p className="flex items-start gap-2 text-[13px] text-[var(--warning)]">
+            <AlertTriangle size={15} className="mt-px shrink-0" /> O valor passa do saldo da unidade ({moeda(saldo)}). A nota fica registrada, mas a fiscalização vai ver o aviso.
+          </p>
+        )}
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label htmlFor="nf-forn" className={rotulo}>Fornecedor</label>
+            <input id="nf-forn" value={fornecedor} onChange={e => setFornecedor(e.target.value)} placeholder="Razão social" className={campo} />
+          </div>
+          <div>
+            <label htmlFor="nf-cnpj" className={rotulo}>CNPJ</label>
+            <input
+              id="nf-cnpj"
+              inputMode="numeric"
+              value={cnpj}
+              onChange={e => setCnpj(formatarCnpj(e.target.value))}
+              placeholder="00.000.000/0000-00"
+              className={`${campo} tabular-nums ${cnpj.replace(/\D/g, '').length === 14 ? (cnpjValido(cnpj) ? 'border-[var(--verde)]' : 'border-[var(--danger)]') : ''}`}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="nf-rub" className={rotulo}>O que foi comprado</label>
+          <select id="nf-rub" value={rubrica} onChange={e => setRubrica(e.target.value as RubricaFundo)} className={`${campo} cursor-pointer`}>
+            <optgroup label="Material de consumo (33.90.30)">
+              {RUBRICAS.filter(ehConsumo).map(r => <option key={r} value={r}>{nomeRubrica(r)}</option>)}
+            </optgroup>
+            <optgroup label="Serviços de terceiros (33.90.39)">
+              {RUBRICAS.filter(r => !ehConsumo(r)).map(r => <option key={r} value={r}>{nomeRubrica(r)}</option>)}
+            </optgroup>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="nf-desc" className={rotulo}>Descrição</label>
+          <textarea id="nf-desc" rows={2} value={descricao} onChange={e => setDescricao(e.target.value)} placeholder="Ex.: troca das lâmpadas do pátio" className={`${campo} h-auto py-3`} />
+        </div>
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-[var(--text)]">
+            <input type="checkbox" checked={tresOrcamentos} onChange={e => setTresOrcamentos(e.target.checked)} className="h-4 w-4 accent-[#00385E]" />
+            Tenho os três orçamentos
+          </label>
+          <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-[var(--surface-2)] px-4 text-[13px] font-semibold text-[var(--text)] hover:bg-[var(--surface-3)]">
+            <Paperclip size={15} /> {arquivo || 'Anexar a nota (PDF ou foto)'}
+            <input type="file" accept="application/pdf,image/*,.xml" className="sr-only" onChange={e => setArquivo(e.target.files?.[0]?.name ?? '')} />
+          </label>
+        </div>
+        {!tresOrcamentos && (
+          <p className="flex items-start gap-2 text-xs text-[var(--text-muted)]">
+            <Info size={14} className="mt-px shrink-0" /> Sem os três orçamentos a nota pode ser recusada na análise.
+          </p>
+        )}
+
+        {erro && (
+          <p role="alert" className="flex items-start gap-2 rounded-[14px] bg-[var(--danger-soft)] px-3.5 py-2.5 text-[13px] text-[var(--danger)]">
+            <AlertCircle size={16} className="mt-px shrink-0" /> {erro}
+          </p>
+        )}
+        <div className="flex gap-2 pt-1">
+          <button type="button" onClick={onFechar} className="h-11 flex-1 rounded-full border border-[var(--border)] text-sm font-semibold text-[var(--text)] hover:bg-[var(--surface-2)] cursor-pointer">
+            Cancelar
+          </button>
+          <button type="submit" className="h-11 flex-[1.4] rounded-full bg-[#00385E] text-sm font-bold text-white cursor-pointer">
+            Lançar nota
+          </button>
+        </div>
+      </form>
+    </Janela>
+  );
+};
