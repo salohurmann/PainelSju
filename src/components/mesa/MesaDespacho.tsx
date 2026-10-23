@@ -314,7 +314,7 @@ export const MesaDespacho: React.FC<MesaDespachoProps> = ({
   return (
     <div className="space-y-6 pb-10">
       {/* ---------------- Destaque */}
-      <section className="relative overflow-hidden rounded-[var(--radius-2xl)] bg-[var(--brand)] text-white dark:bg-[#0A3A63] lg:min-h-[500px] flex flex-wrap">
+      <section className="relative overflow-hidden rounded-[var(--radius-2xl)] bg-[#0072BB] text-white dark:bg-[#0A3A63] lg:min-h-[500px] flex flex-wrap">
         <div className="relative z-10 flex-1 basis-[520px] px-6 py-10 sm:px-12 sm:py-14 flex flex-col justify-center gap-5">
           <p className="flex items-center gap-2.5 text-[12.5px] font-semibold tracking-[0.12em] uppercase text-[#CFE7FA]">
             <span aria-hidden="true" className="w-2.5 h-2.5 rounded-full bg-[var(--lima)]" />
@@ -378,12 +378,12 @@ export const MesaDespacho: React.FC<MesaDespachoProps> = ({
       <section aria-label="Situação" className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {(indicadores ?? [null, null, null, null]).map((ind, i) => {
           const estilo = [
-            'bg-[var(--verde)] text-white',
+            'bg-[#00703C] text-white',
             'bg-[var(--lima)] text-[var(--noite)]',
             'bg-[var(--surface)] text-[var(--text)] border-[1.5px] border-[var(--border)]',
-            'bg-[var(--ceu)] text-[var(--ink)] dark:text-[var(--text)]',
+            'bg-[#DCEEFB] text-[#00385E]',
           ][i];
-          const suave = ['text-[#D5F2E2]', 'text-[var(--noite)]/80', 'text-[var(--text-muted)]', 'text-[#0B4A75] dark:text-[var(--text-muted)]'][i];
+          const suave = ['text-[#D5F2E2]', 'text-[var(--noite)]/80', 'text-[var(--text-muted)]', 'text-[#0B4A75]'][i];
           if (!ind) return <div key={i} className={`h-[180px] rounded-[var(--radius-xl)] animate-pulse ${estilo}`} />;
           const corpo = (
             <>
@@ -473,7 +473,7 @@ export const MesaDespacho: React.FC<MesaDespachoProps> = ({
                       {item.executar && f !== 'motivo' && (
                         <>
                           <button type="button" disabled={f === 'enviando'} onClick={() => void decidir(item, true)}
-                            className={`${pilula} h-[46px] px-6 text-[14px] font-bold bg-[var(--verde)] hover:bg-[var(--verde-hover)] text-white`}>
+                            className={`${pilula} h-[46px] px-6 text-[14px] font-bold bg-[#00703C] hover:bg-[#005C31] text-white`}>
                             {f === 'enviando' ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />} {item.acaoSim}
                           </button>
                           {item.acaoNao && (

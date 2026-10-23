@@ -1,23 +1,9 @@
 import React, { useState } from 'react';
 import { Agendamento, Veiculo, Vistoria, Usuario, VistoriaFotos } from '../../types';
-import { generateAuditHash, formatShortHash } from '../../services/crypto';
+import { generateAuditHash } from '../../services/crypto';
 import { PlacaMercosul } from '../ui/PlacaMercosul';
-import { PainelOdometroCombustivel } from '../ui/PainelOdometroCombustivel';
-import { CarroBlueprintVistoria } from './CarroBlueprintVistoria';
-import {
-  Car,
-  ArrowRight,
-  History,
-  ShieldCheck,
-  AlertTriangle,
-  CheckCircle2,
-  Gauge,
-  Camera,
-  FileCheck2,
-  Lock,
-  Focus,
-  Sparkles
-} from 'lucide-react';
+import { soundFX } from '../../services/soundFx';
+import { Camera, Check, ImagePlus, X, AlertCircle, KeyRound } from 'lucide-react';
 
 interface CheckinCheckoutVistoriaProps {
   agendamentos: Agendamento[];
@@ -27,702 +13,469 @@ interface CheckinCheckoutVistoriaProps {
   onRegistrarVistoria: (vistoria: Vistoria, veiculoAtualizado: Partial<Veiculo>) => void;
 }
 
-const SLOTS_PERICIAIS: Array<{
-  key: keyof VistoriaFotos;
-  label: string;
-  tag: string;
-  lente: string;
-}> = [
-  { key: 'frente', label: 'Frente', tag: 'CAM-01 · FWD', lente: 'ISO 100 · f/2.8 · GPS PR' },
-  { key: 'traseira', label: 'Traseira', tag: 'CAM-02 · AFT', lente: 'ISO 100 · f/2.8 · GPS PR' },
-  { key: 'lateralDireita', label: 'Lateral Direita', tag: 'CAM-03 · STB', lente: 'ISO 100 · f/2.8 · GPS PR' },
-  { key: 'lateralEsquerda', label: 'Lateral Esquerda', tag: 'CAM-04 · PRT', lente: 'ISO 100 · f/2.8 · GPS PR' }
+type Aba = 'checkin' | 'checkout' | 'historico';
+
+const LADOS: Array<{ key: keyof VistoriaFotos; rotulo: string }> = [
+  { key: 'frente', rotulo: 'Frente' },
+  { key: 'traseira', rotulo: 'Traseira' },
+  { key: 'lateralDireita', rotulo: 'Lado direito' },
+  { key: 'lateralEsquerda', rotulo: 'Lado esquerdo' },
 ];
+
+const TIPOS_FOTO = ['image/jpeg', 'image/png', 'image/webp'];
+const LIMITE_FOTO = 5 * 1024 * 1024;
+const FOTOS_VAZIAS: VistoriaFotos = { frente: '', traseira: '', lateralDireita: '', lateralEsquerda: '' };
+
+const formatarData = (d: string) => d.split('-').reverse().slice(0, 2).join('/');
+const nivelTanque = (n: number) => (n >= 88 ? 'Cheio' : n >= 63 ? '3/4' : n >= 38 ? '1/2' : n >= 13 ? '1/4' : 'Reserva');
 
 export const CheckinCheckoutVistoria: React.FC<CheckinCheckoutVistoriaProps> = ({
   agendamentos,
   veiculos,
   vistorias,
   currentUser,
-  onRegistrarVistoria
+  onRegistrarVistoria,
 }) => {
-  const [abaAtiva, setAbaAtiva] = useState<'checkin' | 'checkout' | 'historico'>('checkin');
+  const [aba, setAba] = useState<Aba>(() =>
+    !agendamentos.some(a => a.status === 'aprovado') && agendamentos.some(a => a.status === 'em_andamento') ? 'checkout' : 'checkin',
+  );
   const [agendamentoId, setAgendamentoId] = useState('');
-  const [km, setKm] = useState<number>(34210);
-  const [combustivel, setCombustivel] = useState<number>(85);
+  const [km, setKm] = useState('');
+  const [combustivel, setCombustivel] = useState(75);
   const [observacoes, setObservacoes] = useState('');
+  const [fotos, setFotos] = useState<VistoriaFotos>(FOTOS_VAZIAS);
+  const [erro, setErro] = useState<string | null>(null);
   const [processando, setProcessando] = useState(false);
-  const [sucessoModal, setSucessoModal] = useState<Vistoria | null>(null);
+  const [feito, setFeito] = useState<Vistoria | null>(null);
 
-  // 4 Fotos Obrigatórias
-  const [fotos, setFotos] = useState<VistoriaFotos>({
-    frente: '',
-    traseira: '',
-    lateralDireita: '',
-    lateralEsquerda: ''
-  });
+  const saidas = agendamentos.filter(a => a.status === 'aprovado');
+  const voltas = agendamentos.filter(a => a.status === 'em_andamento');
+  const lista = aba === 'checkin' ? saidas : voltas;
 
-  const agendamentosParaCheckin = agendamentos.filter(a => a.status === 'aprovado');
-  const agendamentosParaCheckout = agendamentos.filter(a => a.status === 'em_andamento');
+  const ag = agendamentos.find(a => a.id === agendamentoId);
+  const veiculo = veiculos.find(v => v.id === ag?.veiculoId);
+  const kmNumero = Number(km.replace(/\D/g, ''));
+  const kmRodado = veiculo && kmNumero ? kmNumero - veiculo.kmAtual : 0;
+  const totalFotos = Object.values(fotos).filter(Boolean).length;
 
-  const agendamentoSel = agendamentos.find(a => a.id === agendamentoId);
-  const veiculoSel = veiculos.find(v => v.id === agendamentoSel?.veiculoId);
+  const trocarAba = (nova: Aba) => {
+    setAba(nova);
+    setAgendamentoId('');
+    setErro(null);
+  };
 
-  const handleSelectAgendamento = (id: string) => {
+  const escolher = (id: string) => {
+    soundFX.playClick();
     setAgendamentoId(id);
-    const ag = agendamentos.find(a => a.id === id);
-    if (ag) {
-      const v = veiculos.find(x => x.id === ag.veiculoId);
-      if (v) {
-        setKm(v.kmAtual);
-        setCombustivel(v.nivelCombustivel);
-      }
+    setErro(null);
+    const v = veiculos.find(x => x.id === agendamentos.find(a => a.id === id)?.veiculoId);
+    if (v) {
+      setKm(String(v.kmAtual));
+      setCombustivel(v.nivelCombustivel);
     }
+    setFotos(FOTOS_VAZIAS);
+    setObservacoes('');
   };
 
-  const handleCapturarFoto = (posicao: keyof VistoriaFotos, dataUrl: string) => {
-    setFotos(prev => ({ ...prev, [posicao]: dataUrl }));
+  const anexarFoto = (lado: keyof VistoriaFotos, arquivo?: File) => {
+    if (!arquivo) return;
+    if (!TIPOS_FOTO.includes(arquivo.type)) return setErro('Envie a foto em JPG, PNG ou WebP.');
+    if (arquivo.size > LIMITE_FOTO) return setErro('A foto passa de 5 MB. Tire outra com resolução menor.');
+    const leitor = new FileReader();
+    leitor.onloadend = () => {
+      setFotos(f => ({ ...f, [lado]: leitor.result as string }));
+      setErro(null);
+    };
+    leitor.readAsDataURL(arquivo);
   };
 
-  const handleSimularTodasFotos = () => {
-    setFotos({
-      frente: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=400&q=80',
-      traseira: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=400&q=80',
-      lateralDireita: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=400&q=80',
-      lateralEsquerda: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=400&q=80'
-    });
-  };
-
-  const handleSubmitVistoria = async (e: React.FormEvent) => {
+  const registrar = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!agendamentoSel || !veiculoSel) return;
+    if (!ag || !veiculo) return;
+    if (!kmNumero) return setErro('Informe a quilometragem do painel.');
+    if (kmNumero < veiculo.kmAtual) {
+      return setErro(`A quilometragem não pode ser menor que a última registrada (${veiculo.kmAtual.toLocaleString('pt-BR')} km).`);
+    }
+    const tipo = aba === 'checkout' ? 'checkout' : 'checkin';
     setProcessando(true);
-
     try {
-      const tipo = abaAtiva === 'checkin' ? 'checkin' : 'checkout';
-      const timestamp = new Date().toISOString();
-
+      const dataHora = new Date().toISOString();
       const hash = await generateAuditHash({
         action: `VISTORIA_${tipo.toUpperCase()}`,
-        ticket: agendamentoSel.ticket,
+        ticket: ag.ticket,
         cpf: currentUser.cpf,
-        timestamp,
-        ip: '187.115.82.20',
-        details: `Km: ${km} | Tanque: ${combustivel}% | Veículo: ${veiculoSel.placa}`
+        timestamp: dataHora,
+        details: `Km: ${kmNumero} | Tanque: ${combustivel}% | Veículo: ${veiculo.placa}`,
       });
-
-      const novaVistoria: Vistoria = {
+      const vistoria: Vistoria = {
         id: 'vis-' + Date.now(),
-        agendamentoId: agendamentoSel.id,
-        ticket: agendamentoSel.ticket,
-        veiculoId: veiculoSel.id,
+        agendamentoId: ag.id,
+        ticket: ag.ticket,
+        veiculoId: veiculo.id,
         tipo,
-        km,
+        km: kmNumero,
         nivelCombustivel: combustivel,
         fotos,
-        motoristaNome: agendamentoSel.nome,
-        motoristaCpf: agendamentoSel.cpf,
+        motoristaNome: ag.nome,
+        motoristaCpf: ag.cpf,
         observacoesAvarias: observacoes.trim(),
-        dataHora: timestamp,
-        hashAuditoria: hash
+        dataHora,
+        hashAuditoria: hash,
       };
-
-      const veiculoAtualizado: Partial<Veiculo> = {
-        kmAtual: km,
+      onRegistrarVistoria(vistoria, {
+        kmAtual: kmNumero,
         nivelCombustivel: combustivel,
-        status: tipo === 'checkin' ? 'em_missao' : 'disponivel'
-      };
-
-      onRegistrarVistoria(novaVistoria, veiculoAtualizado);
-      setSucessoModal(novaVistoria);
-
+        status: tipo === 'checkin' ? 'em_missao' : 'disponivel',
+      });
+      soundFX.playSuccess();
+      setFeito(vistoria);
       setAgendamentoId('');
-      setObservacoes('');
-      setFotos({ frente: '', traseira: '', lateralDireita: '', lateralEsquerda: '' });
     } finally {
       setProcessando(false);
     }
   };
 
-  const listaAtual = abaAtiva === 'checkin' ? agendamentosParaCheckin : agendamentosParaCheckout;
-  const totalFotosCapturadas = Object.values(fotos).filter(Boolean).length;
+  const abas: Array<{ id: Aba; rotulo: string; n: number }> = [
+    { id: 'checkin', rotulo: 'Saída', n: saidas.length },
+    { id: 'checkout', rotulo: 'Volta', n: voltas.length },
+    { id: 'historico', rotulo: 'Registros', n: vistorias.length },
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Cabeçalho & Segmented Switcher */}
-      <div className="bg-[var(--surface)] rounded-[18px] p-6 border border-[var(--border)]/90 flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative overflow-hidden">
-        <div className="absolute inset-x-0 top-0 h-1 bg-[#0B1B2E]  " />
-
-        <div className="flex items-start gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-[#0B1B2E] text-white flex items-center justify-center shrink-0 shadow-xs ring-2 ring-[#22324C]/10">
-            <ShieldCheck size={21} className="text-[var(--brand)]" />
-          </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] tabular-nums uppercase tracking-wider text-[var(--text-muted)] font-bold">
-                CONTROLE DE PÁTIO & PERÍCIA ÓPTICA
-              </span>
-              <span className="text-[10px] tabular-nums font-semibold bg-[var(--brand-soft)] text-[var(--brand)] px-2.5 py-0.5 rounded-full border border-[var(--brand-border)]/80">
-                Viewfinder 360° · SHA-256
-              </span>
-            </div>
-            <h2 className="text-lg sm:text-xl font-bold text-[var(--text)] tracking-tight mt-0.5">
-              Check-in, Check-out e Vistoria Pericial Cautelar
-            </h2>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5">
-              Inspeção técnica de 4 quadrantes (Frente, Traseira, Lateral Direita e Lateral Esquerda) com telemetria e selo criptográfico.
-            </p>
-          </div>
-        </div>
-
-        {/* Segmented Control */}
-        <div className="flex bg-[var(--surface-2)]/90 rounded-xl p-1 border border-[var(--border)]/90 self-start lg:self-center w-full sm:w-auto">
+    <div className="space-y-5">
+      <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1" role="tablist" aria-label="Tipo de vistoria">
+        {abas.map(a => (
           <button
+            key={a.id}
             type="button"
-            onClick={() => {
-              setAbaAtiva('checkin');
-              setAgendamentoId('');
-            }}
-            className={`flex-1 sm:flex-initial py-2 px-3.5 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5 cursor-pointer ${
-              abaAtiva === 'checkin'
-                ? 'bg-[var(--surface)] text-[var(--text)] shadow-2xs border border-[var(--border)]/80 font-bold'
-                : 'text-[var(--text-muted)] hover:text-[var(--text)]'
+            role="tab"
+            aria-selected={aba === a.id}
+            onClick={() => trocarAba(a.id)}
+            className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-[13px] font-semibold transition-colors cursor-pointer ${
+              aba === a.id
+                ? 'bg-[#00385E] text-white'
+                : 'border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-[var(--surface-2)]'
             }`}
           >
-            <Car size={14} />
-            <span>Check-in (Saída)</span>
-            <span className="text-[10px] tabular-nums bg-[var(--surface-3)]/75 text-[var(--text)] px-1.5 py-0.2 rounded font-bold">
-              {agendamentosParaCheckin.length}
+            {a.rotulo}
+            <span
+              className={`rounded-full px-1.5 text-[11px] font-bold tabular-nums ${
+                aba === a.id ? 'bg-[#C6E86B] text-[#0B1B2E]' : 'bg-[var(--surface-2)] text-[var(--text-muted)]'
+              }`}
+            >
+              {a.n}
             </span>
           </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setAbaAtiva('checkout');
-              setAgendamentoId('');
-            }}
-            className={`flex-1 sm:flex-initial py-2 px-3.5 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5 cursor-pointer ${
-              abaAtiva === 'checkout'
-                ? 'bg-[var(--surface)] text-[var(--text)] shadow-2xs border border-[var(--border)]/80 font-bold'
-                : 'text-[var(--text-muted)] hover:text-[var(--text)]'
-            }`}
-          >
-            <ArrowRight size={14} />
-            <span>Check-out (Retorno)</span>
-            <span className="text-[10px] tabular-nums bg-[var(--surface-3)]/75 text-[var(--text)] px-1.5 py-0.2 rounded font-bold">
-              {agendamentosParaCheckout.length}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setAbaAtiva('historico')}
-            className={`flex-1 sm:flex-initial py-2 px-3.5 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5 cursor-pointer ${
-              abaAtiva === 'historico'
-                ? 'bg-[var(--surface)] text-[var(--text)] shadow-2xs border border-[var(--border)]/80 font-bold'
-                : 'text-[var(--text-muted)] hover:text-[var(--text)]'
-            }`}
-          >
-            <History size={14} />
-            <span>Histórico</span>
-            <span className="text-[10px] tabular-nums bg-[var(--surface-3)]/75 text-[var(--text)] px-1.5 py-0.2 rounded font-bold">
-              {vistorias.length}
-            </span>
-          </button>
-        </div>
+        ))}
       </div>
 
-      {abaAtiva !== 'historico' ? (
-        /* DIVIDED SPLIT VIEW: Coluna Esquerda (Ordem & Telemetria) + Coluna Direita (Vistoria 360° & Parecer) */
-        <form onSubmit={handleSubmitVistoria} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Painel Esquerdo: Seleção da Missão e Telemetria de Bordo */}
-          <div className="lg:col-span-5 space-y-6">
-            {/* Card 1: Seleção da Missão */}
-            <div className="bg-[var(--surface)] rounded-[18px] p-6 border border-[var(--border)]/90 shadow-2xs space-y-4">
-              <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-6 h-6 rounded-lg bg-[#0B1B2E] text-white tabular-nums text-xs font-bold flex items-center justify-center">
-                    01
-                  </span>
-                  <h3 className="font-bold text-[var(--text)] text-sm">
-                    {abaAtiva === 'checkin' ? 'Ordem de Saída Autorizada' : 'Viatura em Retorno de Missão'}
-                  </h3>
-                </div>
-                <span className="text-[10px] tabular-nums uppercase font-semibold text-[var(--text-muted)] bg-[var(--surface-2)] px-2 py-0.5 rounded-md border border-[var(--border)]/70">
-                  {abaAtiva === 'checkin' ? 'Liberação' : 'Devolução'}
-                </span>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-[var(--text)] mb-1.5">
-                  {abaAtiva === 'checkin'
-                    ? 'Selecione a Missão Aprovada *'
-                    : 'Selecione o Veículo em Missão *'}
-                </label>
-                <select
-                  required
-                  value={agendamentoId}
-                  onChange={e => handleSelectAgendamento(e.target.value)}
-                  className="w-full text-xs px-3.5 py-2.5 bg-[var(--surface-2)]/80 border border-[var(--border)]/90 rounded-xl focus:ring-2 focus:ring-[#22324C]/10 focus:border-[#22324C] focus:bg-[var(--surface)] outline-hidden transition font-medium"
-                >
-                  <option value="">
-                    {abaAtiva === 'checkin'
-                      ? 'Selecione uma solicitação autorizada...'
-                      : 'Selecione o veículo retornando...'}
-                  </option>
-                  {listaAtual.map(a => (
-                    <option key={a.id} value={a.id}>
-                      {a.ticket} — {a.nome} · {a.veiculoNome} ({a.veiculoPlaca})
-                    </option>
-                  ))}
-                </select>
-
-                {listaAtual.length === 0 && (
-                  <div className="mt-3 text-xs text-[var(--warning)] bg-[var(--warning-soft)]/70 p-3 rounded-xl border border-[var(--warning-border)]/70 flex items-center gap-2">
-                    <AlertTriangle size={15} className="text-[var(--warning)] shrink-0" />
-                    <span>
-                      {abaAtiva === 'checkin'
-                        ? 'Nenhuma viagem aprovada aguardando saída.'
-                        : 'Nenhum veículo em missão ativa no momento.'}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Atalhos Rápidos de Seleção se houver missões */}
-              {!agendamentoSel && listaAtual.length > 0 && (
-                <div className="space-y-2 pt-1">
-                  <span className="text-[10px] tabular-nums uppercase font-semibold text-[var(--text-subtle)] block">
-                    Seleção Rápida ({listaAtual.length})
-                  </span>
-                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                    {listaAtual.map(a => (
+      {aba === 'historico' ? (
+        <Registros vistorias={vistorias} veiculos={veiculos} />
+      ) : (
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 items-start">
+          <section className="lg:col-span-4 rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6">
+            <h3 className="font-display text-xl font-bold text-[var(--text)]">
+              {aba === 'checkin' ? 'Prontos para sair' : 'Voltando da viagem'}
+            </h3>
+            <p className="mt-1 text-sm text-[var(--text-muted)]">
+              {aba === 'checkin'
+                ? 'Pedidos autorizados pela chefia. Escolha um para entregar a chave.'
+                : 'Veículos na rua. Escolha um para receber a chave de volta.'}
+            </p>
+            {lista.length === 0 ? (
+              <p className="mt-5 rounded-[18px] border border-dashed border-[var(--border-strong)] px-4 py-8 text-center text-sm text-[var(--text-muted)]">
+                {aba === 'checkin' ? 'Nenhuma saída autorizada no momento.' : 'Nenhum veículo fora agora.'}
+              </p>
+            ) : (
+              <ul className="mt-4 space-y-2">
+                {lista.map(a => {
+                  const ativo = a.id === agendamentoId;
+                  return (
+                    <li key={a.id}>
                       <button
-                        key={a.id}
                         type="button"
-                        onClick={() => handleSelectAgendamento(a.id)}
-                        className="w-full p-3 rounded-xl border border-[var(--border)]/90 bg-[var(--surface-2)]/60 hover:bg-[var(--surface)] hover:border-[var(--brand)]/50 hover:shadow-2xs text-left transition flex items-center justify-between gap-2 cursor-pointer group"
+                        aria-pressed={ativo}
+                        onClick={() => escolher(a.id)}
+                        className={`w-full rounded-[18px] border-2 p-3.5 text-left transition-colors cursor-pointer ${
+                          ativo
+                            ? 'border-[var(--brand)] bg-[var(--brand-soft)]'
+                            : 'border-[var(--border)] hover:border-[var(--border-strong)]'
+                        }`}
                       >
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-[var(--text)] truncate">{a.nome}</span>
-                            <span className="text-[10px] tabular-nums text-[var(--brand)] bg-[var(--brand-soft)] px-1.5 py-0.5 rounded border border-[var(--brand-border)]/60">
-                              {a.ticket}
-                            </span>
-                          </div>
-                          <div className="text-[11px] text-[var(--text-muted)] truncate mt-0.5">
-                            {a.veiculoNome} ({a.veiculoPlaca})
-                          </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="truncate text-sm font-semibold text-[var(--text)]">{a.veiculoNome}</span>
+                          <span className="shrink-0 text-xs font-semibold tabular-nums text-[var(--text-muted)]">{a.veiculoPlaca}</span>
                         </div>
-                        <ArrowRight size={14} className="text-[var(--text-subtle)] group-hover:text-[var(--brand)] group-hover:translate-x-0.5 transition shrink-0" />
+                        <div className="mt-0.5 truncate text-xs text-[var(--text-muted)]">
+                          {a.nome} · <span className="tabular-nums">{a.datas.map(formatarData).join(', ')}</span>
+                        </div>
                       </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
 
-              {/* Snapshot do Carro Escolhido */}
-              {agendamentoSel && veiculoSel && (
-                <div className="p-4 bg-[var(--surface-2)]/90 rounded-xl border border-[var(--border)]/90 space-y-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <span className="text-[10px] tabular-nums uppercase text-[var(--text-subtle)] block">Viatura Alocada</span>
-                      <div className="font-bold text-sm text-[var(--text)] mt-0.5">{veiculoSel.modelo}</div>
-                    </div>
-                    <PlacaMercosul placa={veiculoSel.placa} uf="PR" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--border)]/70 text-xs">
-                    <div>
-                      <span className="text-[10px] text-[var(--text-subtle)] block">Condutor Responsável</span>
-                      <span className="font-semibold text-[var(--text)]">{agendamentoSel.nome}</span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-[var(--text-subtle)] block">Protocolo Oficial</span>
-                      <span className="tabular-nums font-bold text-[var(--text)]">{agendamentoSel.ticket}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Card 2: Telemetria de Bordo */}
-            <div className="bg-[var(--surface)] rounded-[18px] p-6 border border-[var(--border)]/90 shadow-2xs space-y-4">
-              <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-6 h-6 rounded-lg bg-[#0B1B2E] text-white tabular-nums text-xs font-bold flex items-center justify-center">
-                    02
-                  </span>
-                  <h3 className="font-bold text-[var(--text)] text-sm">
-                    Telemetria & Instrumentos
-                  </h3>
-                </div>
-                <Gauge size={16} className="text-[var(--text-subtle)]" />
+          <section className="lg:col-span-8 rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-7">
+            {!ag || !veiculo ? (
+              <div className="flex min-h-[320px] flex-col items-center justify-center text-center">
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--text-muted)]">
+                  <KeyRound size={24} />
+                </span>
+                <div className="font-display mt-4 text-xl font-bold text-[var(--text)]">Escolha uma viagem ao lado.</div>
+                <p className="mt-1 max-w-sm text-sm text-[var(--text-muted)]">
+                  Você vai anotar a quilometragem, o combustível e fotografar os quatro lados do carro.
+                </p>
               </div>
-
-              {agendamentoSel ? (
-                <PainelOdometroCombustivel
-                  kmAtual={km}
-                  nivelCombustivel={combustivel}
-                  onChangeKm={setKm}
-                  onChangeCombustivel={setCombustivel}
-                  interativo={true}
-                />
-              ) : (
-                <div className="py-8 px-4 text-center text-xs text-[var(--text-subtle)] bg-[var(--surface-2)]/50 rounded-xl border border-dashed border-[var(--border)]">
-                  Selecione uma ordem de viagem acima para calibrar o odômetro e o nível de combustível.
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Painel Direito: Inspeção Visual 360° & Conclusão */}
-          <div className="lg:col-span-7 space-y-6">
-            {agendamentoSel ? (
-              <>
-                <CarroBlueprintVistoria
-                  fotos={fotos}
-                  onCapturarFoto={handleCapturarFoto}
-                  onSimularTodas={handleSimularTodasFotos}
-                />
-
-                {/* Card 3: Matriz Viewfinder de Conferência Pericial + Parecer Técnico */}
-                <div className="bg-[var(--surface)] rounded-[18px] p-6 border border-[var(--border)]/90 shadow-2xs space-y-5">
-                  <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3.5">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-lg bg-[#0B1B2E] text-white tabular-nums text-xs font-bold flex items-center justify-center">
-                        03
-                      </span>
-                      <div>
-                        <h3 className="font-bold text-[var(--text)] text-sm">
-                          Viewfinder de Câmera Pericial & Homologação
-                        </h3>
-                        <p className="text-[11px] text-[var(--text-muted)]">
-                          Conferência dos 4 ângulos periciais com metadados ópticos e assinatura SHA-256
-                        </p>
-                      </div>
+            ) : (
+              <form onSubmit={registrar} className="space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--text-muted)]">
+                      {aba === 'checkin' ? 'Vistoria de saída' : 'Vistoria de volta'} · {ag.ticket}
                     </div>
-                    <span className="text-[11px] tabular-nums bg-[var(--surface-2)] px-2.5 py-1 rounded-lg border border-[var(--border)]/80 text-[var(--text)]">
-                      Slots: <strong>{totalFotosCapturadas}/4</strong>
-                    </span>
+                    <div className="font-display mt-1 text-2xl font-bold text-[var(--text)]">{veiculo.modelo}</div>
+                    <div className="text-sm text-[var(--text-muted)]">Responsável: {ag.nome}</div>
                   </div>
+                  <PlacaMercosul placa={veiculo.placa} uf="PR" />
+                </div>
 
-                  {/* 4 Slots de Foto Pericial com Moldura Viewfinder (Frente, Traseira, Lateral Direita, Lateral Esquerda) */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {SLOTS_PERICIAIS.map(slot => {
-                      const src = fotos[slot.key];
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="vis-km" className="mb-1.5 block text-[13px] font-semibold text-[var(--text)]">
+                      Quilometragem no painel
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="vis-km"
+                        inputMode="numeric"
+                        value={km}
+                        onChange={e => setKm(e.target.value.replace(/\D/g, '').slice(0, 7))}
+                        className="h-12 w-full rounded-[12px] border border-[var(--border)] bg-[var(--surface-2)] px-3.5 pr-12 text-lg font-bold tabular-nums text-[var(--text)] outline-none focus:border-[var(--brand)]"
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-[var(--text-muted)]">km</span>
+                    </div>
+                    <p className="mt-1 text-xs text-[var(--text-muted)]">
+                      Último registro: {veiculo.kmAtual.toLocaleString('pt-BR')} km
+                      {kmRodado > 0 && <> · <strong className="text-[var(--text)]">+{kmRodado.toLocaleString('pt-BR')} km</strong></>}
+                    </p>
+                  </div>
+                  <div>
+                    <label htmlFor="vis-tanque" className="mb-1.5 flex items-baseline justify-between text-[13px] font-semibold text-[var(--text)]">
+                      Combustível
+                      <span className="font-display text-lg font-bold tabular-nums">
+                        {nivelTanque(combustivel)} <span className="text-sm text-[var(--text-muted)]">· {combustivel}%</span>
+                      </span>
+                    </label>
+                    <input
+                      id="vis-tanque"
+                      type="range"
+                      min={0}
+                      max={100}
+                      step={5}
+                      value={combustivel}
+                      onChange={e => setCombustivel(Number(e.target.value))}
+                      className="mt-2 w-full accent-[#0072BB] cursor-pointer"
+                    />
+                    <div className="mt-1 flex justify-between text-[11px] text-[var(--text-subtle)]">
+                      <span>Reserva</span><span>1/4</span><span>1/2</span><span>3/4</span><span>Cheio</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-2 flex items-baseline justify-between">
+                    <span className="text-[13px] font-semibold text-[var(--text)]">Fotos dos quatro lados</span>
+                    <span className="text-xs tabular-nums text-[var(--text-muted)]">{totalFotos} de 4</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {LADOS.map(l => {
+                      const src = fotos[l.key];
                       return (
-                        <div
-                          key={slot.key}
-                          className={`rounded-xl p-2 border transition relative overflow-hidden ${
-                            src
-                              ? 'bg-[#0B1B2E] border-[var(--verde)]/60 shadow-2xs'
-                              : 'bg-[#0B1B2E] border-[#22324C]'
-                          }`}
-                        >
-                          {/* Viewfinder Frame com Cantoneiras L nos 4 Cantos */}
-                          <div className="relative aspect-4/3 rounded-lg overflow-hidden bg-[#0B1B2E] flex items-center justify-center">    
-
-                            {/* Metadados Técnicos Simulados no Topo */}
-                            <div className="absolute top-1.5 inset-x-3 flex items-center justify-between z-20 pointer-events-none">
-                              <span className="text-[7.5px] tabular-nums text-[#DCEEFB] bg-[#0B1B2E]/80 px-1 py-0.2 rounded">
-                                {slot.lente}
-                              </span>
-                            </div>
-
+                        <div key={l.key} className="relative">
+                          <label
+                            className={`flex aspect-[4/3] cursor-pointer flex-col items-center justify-center gap-1.5 overflow-hidden rounded-[18px] border-2 text-xs font-semibold transition-colors ${
+                              src
+                                ? 'border-transparent'
+                                : 'border-dashed border-[var(--border-strong)] text-[var(--text-muted)] hover:border-[var(--brand)] hover:text-[var(--brand)]'
+                            }`}
+                          >
                             {src ? (
-                              <>
-                                <img
-                                  src={src}
-                                  alt={slot.label}
-                                  className="w-full h-full object-cover"
-                                />
-                                <div className="absolute bottom-1.5 right-2 z-20 bg-[#0B1B2E]/90 border border-[var(--verde)]/50 text-[#C6E86B] text-[8px] tabular-nums font-bold px-1.5 py-0.2 rounded flex items-center gap-0.5">
-                                  <Lock size={8} /> SHA-256
-                                </div>
-                              </>
+                              <img src={src} alt={`Foto: ${l.rotulo}`} className="h-full w-full object-cover" />
                             ) : (
-                              <div className="text-center p-2">
-                                <Focus size={15} className="text-[var(--brand)]/60 mx-auto mb-1" />
-                                <span className="text-[9px] tabular-nums text-[var(--text-subtle)] block">
-                                  {slot.tag}
-                                </span>
-                              </div>
+                              <>
+                                <Camera size={20} />
+                                {l.rotulo}
+                              </>
                             )}
-                          </div>
-
-                          <div className="mt-1.5 flex items-center justify-between px-0.5">
-                            <span className="text-[10px] font-bold text-white truncate">
-                              {slot.label}
-                            </span>
-                            <span
-                              className={`text-[8px] tabular-nums uppercase px-1.5 py-0.2 rounded ${
-                                src
-                                  ? 'bg-[#00A859]/20 text-[#C6E86B] border border-[var(--verde)]/30'
-                                  : 'bg-[#0B1B2E] text-[var(--text-subtle)]'
-                              }`}
-                            >
-                              {src ? 'SHA-256' : 'STANDBY'}
-                            </span>
-                          </div>
+                            <input
+                              type="file"
+                              accept="image/jpeg,image/png,image/webp"
+                              capture="environment"
+                              className="sr-only"
+                              aria-label={`Fotografar ${l.rotulo.toLowerCase()}`}
+                              onChange={e => anexarFoto(l.key, e.target.files?.[0])}
+                            />
+                          </label>
+                          {src && (
+                            <>
+                              <span className="pointer-events-none absolute bottom-2 left-2 rounded-full bg-[#0B1B2E]/75 px-2 py-0.5 text-[11px] font-semibold text-white">
+                                {l.rotulo}
+                              </span>
+                              <button
+                                type="button"
+                                aria-label={`Remover foto: ${l.rotulo}`}
+                                onClick={() => setFotos(f => ({ ...f, [l.key]: '' }))}
+                                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-[#0B1B2E]/75 text-white cursor-pointer"
+                              >
+                                <X size={14} />
+                              </button>
+                            </>
+                          )}
                         </div>
                       );
                     })}
                   </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-[var(--text)] mb-1.5">
-                      Observações de Avarias Pré-Existentes / Pneus / Acessórios
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={observacoes}
-                      onChange={e => setObservacoes(e.target.value)}
-                      placeholder="Ex: Sem avarias aparentes. Estepe, macaco e chave de roda conferidos..."
-                      className="w-full text-xs px-3.5 py-2.5 bg-[var(--surface-2)]/70 border border-[var(--border)]/90 rounded-xl focus:ring-2 focus:ring-[#22324C]/10 focus:border-[#22324C] focus:bg-[var(--surface)] outline-hidden transition"
-                    />
-                  </div>
-
-                  <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-[var(--border-subtle)]">
-                    <span className="text-[11px] text-[var(--text-muted)] flex items-center gap-1.5 tabular-nums">
-                      <Lock size={12} className="text-[var(--verde)]" />
-                      Gera hash criptográfico SHA-256 vinculado ao CPF do agente
-                    </span>
-                    <button
-                      type="submit"
-                      disabled={processando}
-                      className="bg-[#0B1B2E] hover:bg-[#005A9C] text-white font-bold text-xs px-6 py-3 rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <CheckCircle2 size={16} />
-                      {processando
-                        ? 'Autenticando Vistoria...'
-                        : abaAtiva === 'checkin'
-                        ? 'Concluir Vistoria e Liberar Chave'
-                        : 'Concluir Devolução e Finalizar Missão'}
-                    </button>
-                  </div>
-                </div>
-              </>
-            ) : (
-              /* Estado Inicial com Preview dos 4 Viewfinders de Câmera Pericial */
-              <div className="bg-[var(--surface)] rounded-[18px] p-8 border border-[var(--border)]/90 shadow-2xs space-y-6">
-                <div className="text-center space-y-2 max-w-lg mx-auto">
-                  <div className="w-12 h-12 rounded-[18px] bg-[#0B1B2E] text-[var(--brand)] flex items-center justify-center mx-auto shadow-xs">
-                    <Camera size={22} />
-                  </div>
-                  <h3 className="text-base font-bold text-[var(--text)]">
-                    Estúdio de Câmera Pericial 360° em Standby
-                  </h3>
-                  <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                    Selecione uma missão na coluna à esquerda para ativar os 4 Viewfinders ópticos (Frente, Traseira, Lateral Direita e Lateral Esquerda) com telemetria CAD.
+                  <p className="mt-2 flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
+                    <ImagePlus size={14} /> No celular, abre a câmera direto. As fotos ficam guardadas junto com o registro.
                   </p>
                 </div>
 
-                {/* Preview dos 4 Slots Viewfinder em Standby */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {SLOTS_PERICIAIS.map(slot => (
-                    <div
-                      key={slot.key}
-                      className="rounded-xl p-2.5 bg-[#0B1B2E] border border-[#22324C] text-white space-y-2"
-                    >
-                      <div className="aspect-4/3 rounded-lg bg-[#0B1B2E]/90 relative flex flex-col items-center justify-center p-2 overflow-hidden">    
-
-                        <span className="text-[7.5px] tabular-nums text-[#DCEEFB]/80 mb-1">
-                          {slot.lente}
-                        </span>
-                        <Focus size={16} className="text-[var(--text-muted)] my-1" />
-                        <span className="text-[8px] tabular-nums text-[var(--verde)]/80">
-                          SHA-256 READY
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-[10px]">
-                        <span className="font-bold text-white/90 truncate">{slot.label}</span>
-                        <span className="tabular-nums text-[8px] text-[var(--brand)]">{slot.tag.split(' · ')[0]}</span>
-                      </div>
-                    </div>
-                  ))}
+                <div>
+                  <label htmlFor="vis-obs" className="mb-1.5 block text-[13px] font-semibold text-[var(--text)]">
+                    Riscos, amassados ou problemas <span className="font-normal text-[var(--text-subtle)]">(se houver)</span>
+                  </label>
+                  <textarea
+                    id="vis-obs"
+                    rows={2}
+                    value={observacoes}
+                    onChange={e => setObservacoes(e.target.value)}
+                    placeholder="Ex.: risco pequeno na porta traseira esquerda."
+                    className="w-full rounded-[12px] border border-[var(--border)] bg-[var(--surface-2)] px-3.5 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--brand)]"
+                  />
                 </div>
 
-                {listaAtual.length > 0 && (
-                  <div className="text-center pt-1">
-                    <button
-                      type="button"
-                      onClick={() => handleSelectAgendamento(listaAtual[0].id)}
-                      className="inline-flex items-center gap-2 text-xs font-bold text-white bg-[#0B1B2E] hover:bg-[#005A9C] px-4 py-2.5 rounded-xl transition cursor-pointer shadow-2xs"
-                    >
-                      <Sparkles size={14} className="text-[#FFE2A8]" />
-                      Carregar Primeira Missão da Fila ({listaAtual[0].ticket})
-                    </button>
-                  </div>
+                {erro && (
+                  <p role="alert" className="flex items-start gap-2 rounded-[14px] bg-[var(--danger-soft)] px-3.5 py-2.5 text-[13px] text-[var(--danger)]">
+                    <AlertCircle size={16} className="mt-px shrink-0" /> {erro}
+                  </p>
                 )}
-              </div>
+
+                <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setAgendamentoId('')}
+                    className="h-11 rounded-full px-5 text-sm font-semibold text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={processando}
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#0072BB] px-6 text-sm font-bold text-white hover:bg-[#005A9C] disabled:opacity-50 cursor-pointer"
+                  >
+                    <KeyRound size={16} />
+                    {processando ? 'Registrando…' : aba === 'checkin' ? 'Registrar saída e entregar chave' : 'Registrar volta e receber chave'}
+                  </button>
+                </div>
+              </form>
             )}
-          </div>
-        </form>
-      ) : (
-        /* Histórico de Vistorias Auditadas com Viewfinders Periciais */
-        <div className="bg-[var(--surface)] rounded-[18px] p-6 border border-[var(--border)]/90 shadow-2xs space-y-5">
-          <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
-            <div className="flex items-center gap-2.5">
-              <FileCheck2 size={18} className="text-[var(--brand)]" />
-              <div>
-                <h3 className="text-sm font-bold text-[var(--text)]">
-                  Registros Periciais de Vistoria Fotográfica
-                </h3>
-                <p className="text-[11px] text-[var(--text-muted)]">
-                  Arquivo imutável de evidências de 4 ângulos com metadados de câmera e assinatura SHA-256
-                </p>
-              </div>
-            </div>
-            <span className="text-xs text-[var(--text)] tabular-nums font-bold bg-[var(--surface-2)] px-3 py-1 rounded-lg border border-[var(--border)]/80">
-              {vistorias.length} {vistorias.length === 1 ? 'laudo' : 'laudos'}
-            </span>
-          </div>
-
-          <div className="space-y-4">
-            {vistorias.map(v => (
-              <div
-                key={v.id}
-                className="p-5 bg-[var(--surface-2)]/70 rounded-[18px] border border-[var(--border)]/90 hover:border-[var(--border-strong)] transition space-y-4"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <span
-                      className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full border ${
-                        v.tipo === 'checkin'
-                          ? 'bg-[#0B1B2E] text-white border-[#22324C]'
-                          : 'bg-[var(--verde-soft)] text-[var(--verde)] border-[var(--verde-border)]/90'
-                      }`}
-                    >
-                      {v.tipo === 'checkin' ? 'Check-in · Saída' : 'Check-out · Retorno'}
-                    </span>
-                    <span className="tabular-nums text-xs font-bold text-[var(--text)] bg-[var(--surface)] px-2.5 py-0.5 rounded-md border border-[var(--border)]/80">
-                      {v.ticket}
-                    </span>
-                  </div>
-                  <span className="text-xs text-[var(--text-muted)] tabular-nums">
-                    {new Date(v.dataHora).toLocaleString('pt-BR')}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-[var(--text-muted)] bg-[var(--surface)] p-3.5 rounded-xl border border-[var(--border)]/80">
-                  <div>
-                    <span className="text-[10px] text-[var(--text-subtle)] block">Motorista</span>
-                    <strong className="text-[var(--text)]">{v.motoristaNome}</strong>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-[var(--text-subtle)] block">Odômetro</span>
-                    <strong className="text-[var(--text)] tabular-nums">{v.km.toLocaleString('pt-BR')} km</strong>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-[var(--text-subtle)] block">Combustível</span>
-                    <strong className="text-[var(--text)] tabular-nums">{v.nivelCombustivel}%</strong>
-                  </div>
-                  <div className="truncate">
-                    <span className="text-[10px] text-[var(--text-subtle)] block">Observações</span>
-                    <span className="text-[var(--text)] font-medium">{v.observacoesAvarias || 'Sem avarias'}</span>
-                  </div>
-                </div>
-
-                {/* Os 4 Slots de Foto Pericial Registrados com Viewfinder L */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {SLOTS_PERICIAIS.map(slot => {
-                    const src = v.fotos[slot.key];
-                    if (!src) return null;
-                    return (
-                      <div
-                        key={slot.key}
-                        className="bg-[#0B1B2E] p-2 rounded-xl border border-[#22324C] shadow-2xs space-y-1.5 group"
-                      >
-                        <div className="relative h-28 rounded-lg overflow-hidden bg-[#0B1B2E]">    
-
-                          {/* Metadados Técnicos Simulados */}
-                          <div className="absolute top-1.5 inset-x-3 flex items-center justify-between z-20 pointer-events-none">
-                            <span className="text-[8px] tabular-nums text-[#DCEEFB] bg-[#0B1B2E]/75 px-1.5 py-0.5 rounded border border-white/10">
-                              {slot.lente}
-                            </span>
-                          </div>
-
-                          <img
-                            src={src}
-                            alt={slot.label}
-                            className="w-full h-full object-cover transition duration-500"
-                          />
-
-                          {/* Selo SHA-256 */}
-                          <div className="absolute bottom-1.5 right-2 z-20 bg-[#0B1B2E]/90 border border-[var(--verde)]/40 text-[#C6E86B] text-[8.5px] tabular-nums font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-                            <Lock size={8} /> SHA-256
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between px-1">
-                          <span className="text-[11px] font-bold text-white truncate">
-                            {slot.label}
-                          </span>
-                          <span className="text-[9px] tabular-nums text-[var(--brand)]">
-                            {slot.tag}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <div className="pt-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[var(--text-muted)] border-t border-[var(--border)]/70">
-                  <span className="flex items-center gap-1.5 font-medium text-[var(--text)]">
-                    <ShieldCheck size={14} className="text-[var(--verde)]" /> Assinatura Criptográfica Selada no Cofre SEJU
-                  </span>
-                  <span className="tabular-nums text-[10px] font-semibold text-[var(--verde)] bg-[var(--verde-soft)] px-2.5 py-0.5 rounded-md border border-[var(--verde-border)]/80 select-none">
-                    SHA-256: {formatShortHash(v.hashAuditoria)}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+          </section>
         </div>
       )}
 
-      {/* Modal Sucesso */}
-      {sucessoModal && (
-        <div className="fixed inset-0 bg-[#0B1B2E]/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-[var(--surface)] rounded-[18px] max-w-md w-full p-6 text-center border border-[var(--border)]/80 animate-in zoom-in-95">
-            <div className="w-12 h-12 rounded-xl bg-[var(--verde-soft)] text-[var(--verde)] border border-[var(--verde-border)]/80 flex items-center justify-center mx-auto mb-3">
-              <CheckCircle2 size={24} />
-            </div>
-            <h3 className="text-base font-bold text-[var(--text)]">
-              Vistoria Pericial Registrada & Protegida
+      {feito && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B1B2E]/60 p-4" role="dialog" aria-modal="true" aria-labelledby="vis-ok">
+          <div className="w-full max-w-md rounded-[28px] bg-[var(--surface)] p-6 sm:p-7">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#C6E86B] text-[#0B1B2E]">
+              <Check size={24} strokeWidth={3} />
+            </span>
+            <h3 id="vis-ok" className="font-display mt-4 text-2xl font-bold text-[var(--text)]">
+              {feito.tipo === 'checkin' ? 'Saída registrada.' : 'Volta registrada.'}
             </h3>
-            <p className="text-xs text-[var(--text-muted)] mt-1 mb-4">
-              Odômetro em <strong>{sucessoModal.km.toLocaleString('pt-BR')} km</strong> e registros fotográficos selados no cofre de segurança.
+            <p className="mt-1 text-sm text-[var(--text-muted)]">
+              {feito.tipo === 'checkin'
+                ? 'Pode entregar a chave. O veículo aparece como "em missão" no catálogo.'
+                : 'Chave recebida. O veículo voltou a ficar disponível.'}
             </p>
-
-            <div className="p-3.5 bg-[var(--surface-2)]/80 rounded-xl border border-[var(--border)]/80 text-left text-xs tabular-nums space-y-1.5 text-[var(--text-muted)] mb-5">
-              <div className="flex justify-between">
-                <span className="text-[var(--text-subtle)]">Protocolo:</span>
-                <strong className="text-[var(--text)]">{sucessoModal.ticket}</strong>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[var(--text-subtle)]">Operação:</span>
-                <strong className="text-[var(--text)]">{sucessoModal.tipo === 'checkin' ? 'CHAVE LIBERADA' : 'CHAVE DEVOLVIDA'}</strong>
-              </div>
-              <div className="text-[10px] text-[var(--text)] bg-[var(--surface)] p-2 rounded-lg border border-[var(--border)]/80 mt-2 flex items-center justify-between">
-                <span className="text-[var(--text-subtle)]">Selo SHA-256:</span>
-                <span className="tracking-wider text-[var(--verde)] font-bold select-none">
-                  {formatShortHash(sucessoModal.hashAuditoria)}
-                </span>
-              </div>
-            </div>
-
+            <dl className="mt-5 space-y-2 rounded-[18px] bg-[var(--surface-2)] p-4 text-sm">
+              <div className="flex justify-between"><dt className="text-[var(--text-muted)]">Protocolo</dt><dd className="font-semibold tabular-nums text-[var(--text)]">{feito.ticket}</dd></div>
+              <div className="flex justify-between"><dt className="text-[var(--text-muted)]">Quilometragem</dt><dd className="font-semibold tabular-nums text-[var(--text)]">{feito.km.toLocaleString('pt-BR')} km</dd></div>
+              <div className="flex justify-between"><dt className="text-[var(--text-muted)]">Combustível</dt><dd className="font-semibold text-[var(--text)]">{nivelTanque(feito.nivelCombustivel)}</dd></div>
+              <div className="flex justify-between"><dt className="text-[var(--text-muted)]">Fotos</dt><dd className="font-semibold text-[var(--text)]">{Object.values(feito.fotos).filter(Boolean).length} de 4</dd></div>
+            </dl>
             <button
               type="button"
-              onClick={() => setSucessoModal(null)}
-              className="w-full py-2.5 bg-[#0B1B2E] text-white text-xs font-semibold rounded-xl hover:bg-[#0B1B2E] transition cursor-pointer"
+              onClick={() => setFeito(null)}
+              className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-full bg-[#0072BB] text-sm font-semibold text-white hover:bg-[#005A9C] cursor-pointer"
             >
-              Concluir
+              Pronto
             </button>
           </div>
         </div>
       )}
     </div>
+  );
+};
+
+const Registros: React.FC<{ vistorias: Vistoria[]; veiculos: Veiculo[] }> = ({ vistorias, veiculos }) => {
+  if (vistorias.length === 0) {
+    return (
+      <div className="rounded-[28px] border border-dashed border-[var(--border-strong)] bg-[var(--surface)] px-6 py-14 text-center">
+        <div className="font-display text-xl font-bold text-[var(--text)]">Nenhuma vistoria ainda.</div>
+        <p className="mt-1 text-sm text-[var(--text-muted)]">Cada saída e volta registrada aparece aqui, com as fotos.</p>
+      </div>
+    );
+  }
+  const ordenadas = [...vistorias].sort((a, b) => b.dataHora.localeCompare(a.dataHora));
+  return (
+    <ul className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+      {ordenadas.map(v => {
+        const veiculo = veiculos.find(x => x.id === v.veiculoId);
+        const fotos = LADOS.map(l => ({ ...l, src: v.fotos[l.key] })).filter(f => f.src);
+        return (
+          <li key={v.id} className="rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    v.tipo === 'checkin' ? 'bg-[var(--brand-soft)] text-[var(--brand)]' : 'bg-[var(--verde-soft)] text-[var(--verde)]'
+                  }`}
+                >
+                  {v.tipo === 'checkin' ? 'Saída' : 'Volta'}
+                </span>
+                <div className="mt-2 text-[15px] font-semibold text-[var(--text)]">{veiculo?.modelo ?? 'Veículo'}</div>
+                <div className="text-xs text-[var(--text-muted)]">
+                  {v.motoristaNome} · {new Date(v.dataHora).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                </div>
+              </div>
+              <span className="text-xs font-semibold tabular-nums text-[var(--text-muted)]">{v.ticket}</span>
+            </div>
+            <dl className="mt-4 grid grid-cols-2 gap-2 text-sm">
+              <div className="rounded-[14px] bg-[var(--surface-2)] px-3 py-2">
+                <dt className="text-[11px] text-[var(--text-muted)]">Quilometragem</dt>
+                <dd className="font-bold tabular-nums text-[var(--text)]">{v.km.toLocaleString('pt-BR')} km</dd>
+              </div>
+              <div className="rounded-[14px] bg-[var(--surface-2)] px-3 py-2">
+                <dt className="text-[11px] text-[var(--text-muted)]">Combustível</dt>
+                <dd className="font-bold text-[var(--text)]">{nivelTanque(v.nivelCombustivel)}</dd>
+              </div>
+            </dl>
+            <p className="mt-3 text-[13px] text-[var(--text)]">
+              <span className="text-[var(--text-muted)]">Observações: </span>
+              {v.observacoesAvarias || 'Nada a registrar.'}
+            </p>
+            {fotos.length > 0 && (
+              <div className="mt-3 grid grid-cols-4 gap-2">
+                {fotos.map(f => (
+                  <img key={f.key} src={f.src} alt={`${f.rotulo} — ${v.ticket}`} className="aspect-[4/3] w-full rounded-[12px] object-cover" />
+                ))}
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 };

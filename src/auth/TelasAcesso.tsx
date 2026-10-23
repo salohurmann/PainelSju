@@ -9,7 +9,7 @@ import { useSessao } from './contexto';
 /** Moldura institucional comum às telas de acesso. */
 const Moldura: React.FC<{ titulo: string; subtitulo?: string; children: React.ReactNode }> = ({ titulo, subtitulo, children }) => (
   <div className="min-h-screen grid lg:grid-cols-[minmax(420px,46%)_1fr] bg-[var(--bg)]">
-    <aside className="relative overflow-hidden hidden lg:flex flex-col bg-[var(--brand)] text-white m-4 rounded-[36px] px-12 py-12">
+    <aside className="relative overflow-hidden hidden lg:flex flex-col bg-[#0072BB] text-white m-4 rounded-[36px] px-12 py-12">
       <MarcaSeju clara tamanho="lg" />
       <div className="relative z-10 mt-16">
         <p className="flex items-center gap-2.5 text-[12.5px] font-semibold tracking-[0.12em] uppercase text-[#CFE7FA]">

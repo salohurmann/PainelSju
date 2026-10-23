@@ -1,25 +1,8 @@
 import React, { useState } from 'react';
-import { Veiculo, Agendamento } from '../../types';
+import { Veiculo, Agendamento, StatusVeiculo } from '../../types';
 import { PlacaMercosul } from '../ui/PlacaMercosul';
-import { PainelOdometroCombustivel } from '../ui/PainelOdometroCombustivel';
 import { soundFX } from '../../services/soundFx';
-import { 
-  Car, 
-  Fuel, 
-  Gauge, 
-  Plus, 
-  CheckCircle2, 
-  Clock, 
-  Search, 
-  Wrench,
-  FileText,
-  X,
-  ChevronRight,
-  Users,
-  ShieldCheck,
-  Activity,
-  Sparkles
-} from 'lucide-react';
+import { Plus, Search, Users, Fuel, Gauge, X, CalendarDays, AlertCircle } from 'lucide-react';
 
 interface PainelFrotaProps {
   veiculos: Veiculo[];
@@ -28,751 +11,391 @@ interface PainelFrotaProps {
   onAtualizarVeiculo?: (vId: string, dados: Partial<Veiculo>) => void;
 }
 
-export const PainelFrota: React.FC<PainelFrotaProps> = ({
-  veiculos,
-  agendamentos,
-  onAdicionarVeiculo,
-  onAtualizarVeiculo
-}) => {
-  const [modalNovo, setModalNovo] = useState(false);
-  const [veiculoInspecionado, setVeiculoInspecionado] = useState<Veiculo | null>(null);
-  const [modelo, setModelo] = useState('');
-  const [placa, setPlaca] = useState('');
-  const [cor, setCor] = useState('');
-  const [capacidade, setCapacidade] = useState(5);
-  const [kmAtual, setKmAtual] = useState(15000);
+type Filtro = 'todos' | StatusVeiculo;
+
+const STATUS: Record<StatusVeiculo, { texto: string; cls: string; ponto: string }> = {
+  disponivel: { texto: 'No pátio', cls: 'bg-[var(--verde-soft)] text-[var(--verde)]', ponto: 'bg-[#00A859]' },
+  em_missao: { texto: 'Em viagem', cls: 'bg-[var(--brand-soft)] text-[var(--brand)]', ponto: 'bg-[#0072BB]' },
+  manutencao: { texto: 'Manutenção', cls: 'bg-[var(--warning-soft)] text-[var(--warning)]', ponto: 'bg-[#D98A00]' },
+};
+
+const ATIVOS = ['pendente', 'aprovado', 'em_andamento'];
+// Placa Mercosul (ABC1D23) ou antiga (ABC1234)
+const PLACA_VALIDA = /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/;
+
+const hojeIso = () => new Date().toISOString().slice(0, 10);
+const formatarData = (d: string) => d.split('-').reverse().slice(0, 2).join('/');
+
+const BarraTanque: React.FC<{ nivel: number }> = ({ nivel }) => (
+  <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--surface-3)]" role="img" aria-label={`Tanque com ${nivel}%`}>
+    <div
+      className={`h-full rounded-full ${nivel < 25 ? 'bg-[#C8372D]' : nivel < 50 ? 'bg-[#D98A00]' : 'bg-[#00A859]'}`}
+      style={{ width: `${Math.max(0, Math.min(100, nivel))}%` }}
+    />
+  </div>
+);
+
+export const PainelFrota: React.FC<PainelFrotaProps> = ({ veiculos, agendamentos, onAdicionarVeiculo, onAtualizarVeiculo }) => {
+  const [filtro, setFiltro] = useState<Filtro>('todos');
   const [busca, setBusca] = useState('');
-  const [filtroStatus, setFiltroStatus] = useState<string>('todos');
+  const [fichaId, setFichaId] = useState<string | null>(null);
+  const [novoAberto, setNovoAberto] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!modelo || !placa) return;
+  const termo = busca.trim().toLowerCase();
+  const lista = veiculos.filter(
+    v =>
+      (filtro === 'todos' || v.status === filtro) &&
+      (!termo || v.modelo.toLowerCase().includes(termo) || v.placa.toLowerCase().includes(termo)),
+  );
+  const contagem = (f: Filtro) => (f === 'todos' ? veiculos.length : veiculos.filter(v => v.status === f).length);
+  const proximas = (vId: string) =>
+    agendamentos
+      .filter(a => a.veiculoId === vId && ATIVOS.includes(a.status) && a.datas.some(d => d >= hojeIso()))
+      .sort((a, b) => (a.datas[0] ?? '').localeCompare(b.datas[0] ?? ''));
 
-    const novo: Veiculo = {
-      id: 'v-' + Date.now(),
-      modelo: modelo.trim(),
-      placa: placa.trim().toUpperCase(),
-      cor: cor.trim() || 'Prata Metálico',
-      capacidade: Number(capacidade) || 5,
-      status: 'disponivel',
-      kmAtual: Number(kmAtual) || 0,
-      nivelCombustivel: 100,
-      ano: 2025
-    };
+  const ficha = veiculos.find(v => v.id === fichaId) ?? null;
 
-    soundFX.playSuccess();
-    onAdicionarVeiculo(novo);
-    setModalNovo(false);
-    setModelo('');
-    setPlaca('');
-    setCor('');
-  };
-
-  const veiculosFiltrados = veiculos.filter(v => {
-    const matchStatus = filtroStatus === 'todos' || v.status === filtroStatus;
-    const matchBusca = v.modelo.toLowerCase().includes(busca.toLowerCase()) || v.placa.toLowerCase().includes(busca.toLowerCase());
-    return matchStatus && matchBusca;
-  });
-
-  const totalDisponiveis = veiculos.filter(v => v.status === 'disponivel').length;
-  const totalEmMissao = veiculos.filter(v => v.status === 'em_missao').length;
-  const totalManutencao = veiculos.filter(v => v.status === 'manutencao').length;
+  const filtros: Array<{ id: Filtro; rotulo: string }> = [
+    { id: 'todos', rotulo: 'Todos' },
+    { id: 'disponivel', rotulo: 'No pátio' },
+    { id: 'em_missao', rotulo: 'Em viagem' },
+    { id: 'manutencao', rotulo: 'Manutenção' },
+  ];
 
   return (
-    <div className="space-y-6 font-sans">
-      {/* Seção 1: Header Showroom Executivo & KPI Strip */}
-      <div className="bg-[var(--surface)] rounded-[var(--radius-lg)] p-5 sm:p-6 border border-[var(--border)] space-y-6">
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[var(--border-subtle)]">
-          <div className="flex items-start gap-4">
-            <div className="w-11 h-11 rounded-[18px] bg-[#0B1B2E] text-white flex items-center justify-center shrink-0 border border-[#22324C]/80">
-              <Car size={20} className="text-[var(--brand)]" />
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] tabular-nums uppercase tracking-[0.18em] text-[var(--text-muted)] font-bold">
-                  SHOWROOM PATRIMONIAL SEJU · GOVERNO DO PARANÁ
-                </span>
-                <span className="text-[10px] tabular-nums font-semibold bg-[var(--verde-soft)] text-[var(--verde)] px-2.5 py-0.5 rounded-full border border-[var(--verde-border)]/80 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00A859]  " />
-                  CAN-BUS Telemetria Ativa
-                </span>
-              </div>
-              <h2 className="text-lg font-bold text-[var(--text)] tracking-tight mt-0.5">
-                Catálogo Executivo de Viaturas Oficiais
-              </h2>
-              <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                Inspecione o cluster digital de odômetro, sonda graduada de combustível e prontuário preventivo Detran/PR.
-              </p>
-            </div>
-          </div>
-
+    <div className="space-y-5">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1" role="tablist" aria-label="Filtrar veículos">
+          {filtros.map(f => (
+            <button
+              key={f.id}
+              type="button"
+              role="tab"
+              aria-selected={filtro === f.id}
+              onClick={() => setFiltro(f.id)}
+              className={`inline-flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-[13px] font-semibold transition-colors cursor-pointer ${
+                filtro === f.id
+                  ? 'bg-[#00385E] text-white'
+                  : 'border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-[var(--surface-2)]'
+              }`}
+            >
+              {f.rotulo}
+              <span
+                className={`rounded-full px-1.5 text-[11px] font-bold tabular-nums ${
+                  filtro === f.id ? 'bg-[#C6E86B] text-[#0B1B2E]' : 'bg-[var(--surface-2)] text-[var(--text-muted)]'
+                }`}
+              >
+                {contagem(f.id)}
+              </span>
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <label className="relative block flex-1 lg:w-72">
+            <span className="sr-only">Buscar veículo</span>
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-subtle)]" />
+            <input
+              value={busca}
+              onChange={e => setBusca(e.target.value)}
+              placeholder="Modelo ou placa"
+              className="h-11 w-full rounded-full border border-[var(--border)] bg-[var(--surface)] pl-11 pr-4 text-sm text-[var(--text)] placeholder:text-[var(--text-subtle)] outline-none focus:border-[var(--brand)]"
+            />
+          </label>
           <button
             type="button"
-            onClick={() => {
-              soundFX.playClick();
-              setModalNovo(true);
-            }}
-            className="relative overflow-hidden bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white text-xs font-bold px-4.5 py-2.5 rounded-xl flex items-center gap-2 border border-[#22324C]/80 transition cursor-pointer self-start sm:self-center shrink-0 active:scale-[0.99]"
+            onClick={() => setNovoAberto(true)}
+            className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-[#0072BB] px-5 text-sm font-semibold text-white hover:bg-[#005A9C] cursor-pointer"
           >
-            <Plus size={15} className="text-[var(--brand)]" /> Incorporar Viatura à Frota
+            <Plus size={16} /> <span className="hidden sm:inline">Cadastrar</span>
           </button>
         </div>
-
-        {/* Summary KPI Strip */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-          <div className="p-4 rounded-[var(--radius-md)] bg-[var(--surface-2)]/60 border border-[var(--border)] flex items-center justify-between">
-            <div>
-              <span className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] font-semibold block">
-                Frota Patrimonial
-              </span>
-              <div className="flex items-baseline gap-1.5 mt-1">
-                <span className="text-xl font-bold text-[var(--text)] tabular-nums">
-                  {String(veiculos.length).padStart(2, '0')}
-                </span>
-                <span className="text-[10px] text-[var(--text-muted)]">UNIDADES</span>
-              </div>
-            </div>
-            <div className="w-9 h-9 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center text-[var(--text)]">
-              <Car size={17} />
-            </div>
-          </div>
-
-          <div className="p-4 rounded-[var(--radius-md)] bg-[var(--surface-2)]/60 border border-[var(--border)] flex items-center justify-between">
-            <div>
-              <span className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" />
-                No Pátio (Prontas)
-              </span>
-              <div className="flex items-baseline gap-1.5 mt-1">
-                <span className="text-xl font-bold text-[var(--text)] tabular-nums">
-                  {String(totalDisponiveis).padStart(2, '0')}
-                </span>
-                <span className="text-[10px] text-[var(--success)] font-medium">LIVRES</span>
-              </div>
-            </div>
-            <div className="w-9 h-9 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center text-[var(--success)]">
-              <CheckCircle2 size={17} />
-            </div>
-          </div>
-
-          <div className="p-4 rounded-[var(--radius-md)] bg-[var(--surface-2)]/60 border border-[var(--border)] flex items-center justify-between">
-            <div>
-              <span className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand)]" />
-                Em Missão Oficial
-              </span>
-              <div className="flex items-baseline gap-1.5 mt-1">
-                <span className="text-xl font-bold text-[var(--text)] tabular-nums">
-                  {String(totalEmMissao).padStart(2, '0')}
-                </span>
-                <span className="text-[10px] text-[var(--brand)] font-medium">EM TRÁFEGO</span>
-              </div>
-            </div>
-            <div className="w-9 h-9 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center text-[var(--brand)]">
-              <Clock size={17} />
-            </div>
-          </div>
-
-          <div className="p-4 rounded-[var(--radius-md)] bg-[var(--surface-2)]/60 border border-[var(--border)] flex items-center justify-between">
-            <div>
-              <span className="text-[11px] uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--warning)]" />
-                Box de Manutenção
-              </span>
-              <div className="flex items-baseline gap-1.5 mt-1">
-                <span className="text-xl font-bold text-[var(--text)] tabular-nums">
-                  {String(totalManutencao).padStart(2, '0')}
-                </span>
-                <span className="text-[10px] text-[var(--warning)] font-medium">OFICINA</span>
-              </div>
-            </div>
-            <div className="w-9 h-9 rounded-[var(--radius-md)] bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center text-[var(--warning)]">
-              <Wrench size={17} />
-            </div>
-          </div>
-        </div>
       </div>
 
-      {/* Seção 2: Barra de Filtro Elegante e Busca Rápida */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[var(--surface)] p-3.5 rounded-[18px] border border-[var(--border)]/90 text-xs">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0 bg-[var(--surface-2)]/80 p-1 rounded-xl border border-[var(--border)]/70">
-          {[
-            { id: 'todos', label: 'Catálogo Completo', count: veiculos.length, dot: 'bg-[var(--text-subtle)]' },
-            { id: 'disponivel', label: 'Disponíveis', count: totalDisponiveis, dot: 'bg-[#00A859] ' },
-            { id: 'em_missao', label: 'Em Missão', count: totalEmMissao, dot: 'bg-[#0072BB] ' },
-            { id: 'manutencao', label: 'Manutenção', count: totalManutencao, dot: 'bg-[#D98A00] ' }
-          ].map(f => {
-            const active = filtroStatus === f.id;
+      {lista.length === 0 ? (
+        <div className="rounded-[28px] border border-dashed border-[var(--border-strong)] bg-[var(--surface)] px-6 py-14 text-center">
+          <div className="font-display text-xl font-bold text-[var(--text)]">Nenhum veículo encontrado.</div>
+          <p className="mt-1 text-sm text-[var(--text-muted)]">Tente outro filtro ou cadastre um veículo novo.</p>
+        </div>
+      ) : (
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {lista.map(v => {
+            const st = STATUS[v.status];
+            const reservas = proximas(v.id);
             return (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => {
-                  soundFX.playClick();
-                  setFiltroStatus(f.id);
-                }}
-                className={`px-3.5 py-2 rounded-lg font-semibold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
-                  active
-                    ? 'bg-[#0B1B2E] text-white shadow-xs'
-                    : 'text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface)]/60'
-                }`}
-              >
-                <span className={`w-1.5 h-1.5 rounded-full ${f.dot}`} />
-                <span>{f.label}</span>
-                <span className={`text-[10px] tabular-nums font-bold px-1.5 py-0.5 rounded-md ${
-                  active ? 'bg-white/15 text-[#DCEEFB]' : 'bg-[var(--surface-3)]/80 text-[var(--text)]'
-                }`}>
-                  {f.count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="relative w-full sm:w-80">
-          <Search size={14} className="absolute left-3.5 top-2.5 text-[var(--text-subtle)]" />
-          <input
-            type="text"
-            value={busca}
-            onChange={e => setBusca(e.target.value)}
-            placeholder="Filtrar por modelo, prefixo ou placa Mercosul..."
-            className="w-full pl-9 pr-14 py-2 bg-[var(--surface-2)]/90 border border-[var(--border)]/90 rounded-xl outline-hidden focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[#22324C] focus:bg-[var(--surface)] transition font-medium text-[var(--text)]"
-          />
-          {busca ? (
-            <button
-              type="button"
-              onClick={() => setBusca('')}
-              className="absolute right-2.5 top-2 text-[var(--text-subtle)] hover:text-[var(--text)] cursor-pointer p-0.5"
-            >
-              <X size={14} />
-            </button>
-          ) : (
-            <span className="absolute right-3 top-2 text-[10px] tabular-nums text-[var(--text-subtle)] bg-[var(--surface)] px-1.5 py-0.5 rounded border border-[var(--border)]">
-              PR
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Seção 3: Grid Showroom de Veículos com Cantoneiras Técnicas e Barras Graduadas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {veiculosFiltrados.map(v => {
-          const pendentes = agendamentos.filter(a => a.veiculoId === v.id && a.status === 'pendente').length;
-          const autorizados = agendamentos.filter(a => a.veiculoId === v.id && a.status === 'aprovado').length;
-          const autonomiaKm = Math.round((v.nivelCombustivel / 100) * 580);
-          const totalSegs = 12;
-          const segsAtivos = Math.round((v.nivelCombustivel / 100) * totalSegs);
-
-          return (
-            <div
-              key={v.id}
-              onClick={() => {
-                soundFX.playClick();
-                setVeiculoInspecionado(v);
-              }}
-              className="relative bg-[var(--surface)] rounded-[18px] p-6 border border-[var(--border)]/90 hover:border-[var(--border-strong)] transition-all duration-300 flex flex-col justify-between cursor-pointer group overflow-hidden"
-            >
-              {/* Faixa Superior de Status Luminoso */}
-              <div
-                className={`absolute inset-x-0 top-0 h-1 transition-all ${
-                  v.status === 'disponivel'
-                    ? ' bg-[#00A859]  '
-                    : v.status === 'em_missao'
-                    ? ' bg-[#0B1B2E]  '
-                    : ' bg-[#D98A00]  '
-                }`}
-              />
-
-              <div>
-                {/* Topo do Card: Placa Mercosul e Status */}
-                <div className="flex items-center justify-between gap-3 pb-4 border-b border-[var(--border-subtle)]">
-                  <PlacaMercosul placa={v.placa} uf="PR" />
-
-                  <span className={`text-[11px] font-semibold px-3 py-1 rounded-full border flex items-center gap-2 shadow-2xs ${
-                    v.status === 'disponivel'
-                      ? 'bg-[var(--verde-soft)]/90 text-[var(--verde)] border-[var(--verde-border)]'
-                      : v.status === 'em_missao'
-                      ? 'bg-[#0B1B2E] text-white border-[#22324C]'
-                      : 'bg-[var(--warning-soft)]/90 text-[var(--warning)] border-[var(--warning-border)]'
-                  }`}>
-                    <span className={`w-2 h-2 rounded-full ${
-                      v.status === 'disponivel'
-                        ? 'bg-[#00A859]  '
-                        : v.status === 'em_missao'
-                        ? 'bg-[#0072BB]  '
-                        : 'bg-[#D98A00] '
-                    }`} />
-                    {v.status === 'disponivel' && 'Disponível no Pátio'}
-                    {v.status === 'em_missao' && 'Em Missão Oficial'}
-                    {v.status === 'manutencao' && 'Box de Manutenção'}
-                  </span>
-                </div>
-
-                {/* Identificação Patrimonial do Modelo */}
-                <div className="mt-4 flex items-start justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] tabular-nums uppercase tracking-widest text-[var(--text-subtle)] font-semibold">
-                        PATRIMÔNIO SEJU #{v.id.toUpperCase()}
-                      </span>
-                    </div>
-                    <h3 className="font-bold text-[var(--text)] text-base sm:text-lg tracking-tight group-hover:text-[var(--brand)] transition-colors mt-0.5">
-                      {v.modelo}
-                    </h3>
-                    <div className="flex flex-wrap items-center gap-2 mt-2">
-                      <span className="text-[11px] font-medium text-[var(--text-muted)] bg-[var(--surface-2)] px-2.5 py-0.5 rounded-md border border-[var(--border)]/80">
-                        Cor: <strong className="text-[var(--text)]">{v.cor}</strong>
-                      </span>
-                      <span className="text-[11px] font-medium text-[var(--text-muted)] bg-[var(--surface-2)] px-2.5 py-0.5 rounded-md border border-[var(--border)]/80 flex items-center gap-1">
-                        <Users size={11} className="text-[var(--text-muted)]" /> {v.capacidade} assentos
-                      </span>
-                      <span className="text-[11px] tabular-nums font-semibold text-[var(--text-muted)] bg-[var(--surface-2)] px-2.5 py-0.5 rounded-md border border-[var(--border)]/80">
-                        MOD {v.ano || 2024}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Cluster Compacto de Telemetria (Odômetro + Barra de Combustível Graduada) */}
-              <div className="mt-5 pt-4 border-t border-[var(--border-subtle)] space-y-3.5">
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 p-3.5 bg-[#0B1B2E] text-white rounded-xl border border-[#22324C] ">
-                  {/* Odômetro Digital */}
-                  <div className="sm:col-span-5 flex flex-col justify-between sm:border-r border-[#22324C] sm:pr-3">
-                    <span className="text-[9px] tabular-nums uppercase tracking-wider text-[var(--text-subtle)] flex items-center gap-1.5">
-                      <Gauge size={11} className="text-[var(--brand)]" /> Hodômetro Oficial
-                    </span>
-                    <div className="tabular-nums font-black text-base text-white tracking-wider mt-1 flex items-baseline gap-1">
-                      {String(v.kmAtual).padStart(6, '0').replace(/(\d{3})(\d{3})/, '$1.$2')}
-                      <span className="text-[10px] text-[var(--brand)] font-bold">KM</span>
-                    </div>
-                  </div>
-
-                  {/* Barra de Combustível Graduada em 12 Segmentos Luminosos */}
-                  <div className="sm:col-span-7 flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-[9px] tabular-nums uppercase tracking-wider">
-                      <span className="text-[var(--text-subtle)] flex items-center gap-1">
-                        <Fuel size={11} className="text-[var(--verde)]" /> Sonda Tanque
-                      </span>
-                      <span className="font-bold text-white/90">
-                        {v.nivelCombustivel}% <span className="text-[var(--text-muted)]">·</span> ~{autonomiaKm} km
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-1 mt-2 p-1 bg-[#0B1B2E] rounded-md border border-[#22324C]/90">
-                      {Array.from({ length: totalSegs }).map((_, idx) => {
-                        const ativo = idx < segsAtivos;
-                        const cor =
-                          v.nivelCombustivel <= 20
-                            ? '#EF4444'
-                            : v.nivelCombustivel <= 45
-                            ? '#F59E0B'
-                            : '#10B981';
-                        return (
-                          <div
-                            key={idx}
-                            className="flex-1 h-2 rounded-[1.5px] transition-all duration-300"
-                            style={{
-                              backgroundColor: ativo ? cor : '#1E293B',
-                              opacity: ativo ? 1 : 0.35,
-                              boxShadow: ativo ? `0 0 6px ${cor}80` : 'none'
-                            }}
-                          />
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Rodapé do Card */}
-                <div className="flex items-center justify-between text-xs pt-0.5">
-                  <div className="flex items-center gap-2.5 text-[11px] text-[var(--text-muted)]">
-                    <span className="bg-[var(--surface-2)] px-2 py-0.5 rounded-md border border-[var(--border)]/80">
-                      Fila: <strong className="text-[var(--text)] tabular-nums">{pendentes}</strong>
-                    </span>
-                    <span className="bg-[var(--surface-2)] px-2 py-0.5 rounded-md border border-[var(--border)]/80">
-                      Ativas: <strong className="text-[var(--verde)] tabular-nums">{autorizados}</strong>
-                    </span>
-                  </div>
-
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text)] group-hover:text-[var(--brand)] transition-colors">
-                    <Activity size={13} className="text-[var(--brand)]" />
-                    Abrir Cockpit & Ficha
-                    <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Modal Impecável: Incorporar Novo Veículo com Preview Ao Vivo da Placa Mercosul */}
-      {modalNovo && (
-        <div
-          className="fixed inset-0 bg-[#0B1B2E]/60 z-50 flex items-center justify-center p-4 animate-in fade-in"
-          onClick={() => setModalNovo(false)}
-        >
-          <div
-            className="relative bg-[var(--surface)] rounded-[18px] max-w-lg w-full p-6 sm:p-7 border border-[var(--border)]/90 animate-in zoom-in-95 overflow-hidden"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4 mb-5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#0B1B2E] text-[var(--brand)] flex items-center justify-center shadow-2xs">
-                  <Car size={18} />
-                </div>
-                <div>
-                  <span className="text-[10px] tabular-nums uppercase tracking-widest text-[var(--text-subtle)] font-bold block">
-                    REGISTRO PATRIMONIAL DETRAN/PR
-                  </span>
-                  <h3 className="text-base font-bold text-[var(--text)]">
-                    Incorporar Viatura Oficial à Frota
-                  </h3>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setModalNovo(false)}
-                className="w-8 h-8 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-muted)] hover:text-[var(--text)] flex items-center justify-center cursor-pointer transition"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            {/* Preview Ao Vivo da Placa Estampada */}
-            <div className="mb-5 p-4 rounded-[18px] bg-[#0B1B2E] text-white border border-[#22324C] flex items-center justify-between gap-4 ">
-              <div>
-                <span className="text-[10px] tabular-nums uppercase tracking-wider text-[var(--brand)] font-semibold flex items-center gap-1">
-                  <Sparkles size={11} /> Estamparia Digital Ao Vivo
-                </span>
-                <div className="text-xs font-bold text-white mt-1 truncate max-w-[200px]">
-                  {modelo.trim() || 'Nova Viatura Oficial SEJU'}
-                </div>
-                <div className="text-[10px] tabular-nums text-[var(--text-subtle)] mt-0.5">
-                  {cor.trim() || 'Prata Metálico'} · {capacidade} Lugares · {kmAtual.toLocaleString('pt-BR')} km
-                </div>
-              </div>
-              <PlacaMercosul placa={placa || 'SEJ2A26'} uf="PR" />
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
-                  Marca, Modelo e Versão Oficial *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={modelo}
-                  onChange={e => setModelo(e.target.value)}
-                  placeholder="Ex: Toyota Corolla Altis Hybrid 1.8"
-                  className="w-full text-xs px-3.5 py-2.5 bg-[var(--surface-2)]/80 border border-[var(--border)]/90 rounded-xl focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[#22324C] focus:bg-[var(--surface)] outline-hidden font-medium text-[var(--text)]"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
-                    Placa Mercosul *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={8}
-                    value={placa}
-                    onChange={e => setPlaca(e.target.value.toUpperCase())}
-                    placeholder="BCB-4A12"
-                    className="w-full text-xs tabular-nums font-bold px-3.5 py-2.5 bg-[var(--surface-2)]/80 border border-[var(--border)]/90 rounded-xl focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[#22324C] focus:bg-[var(--surface)] outline-hidden text-center uppercase tracking-widest text-[var(--text)]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
-                    Pintura / Cor Oficial
-                  </label>
-                  <input
-                    type="text"
-                    value={cor}
-                    onChange={e => setCor(e.target.value)}
-                    placeholder="Prata Metálico"
-                    className="w-full text-xs px-3.5 py-2.5 bg-[var(--surface-2)]/80 border border-[var(--border)]/90 rounded-xl focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[#22324C] focus:bg-[var(--surface)] outline-hidden font-medium text-[var(--text)]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
-                    Lotação (Assentos)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="50"
-                    value={capacidade}
-                    onChange={e => setCapacidade(Number(e.target.value))}
-                    className="w-full text-xs tabular-nums font-semibold px-3.5 py-2.5 bg-[var(--surface-2)]/80 border border-[var(--border)]/90 rounded-xl focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[#22324C] focus:bg-[var(--surface)] outline-hidden text-[var(--text)]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
-                    Hodômetro Inicial (KM)
-                  </label>
-                  <input
-                    type="number"
-                    value={kmAtual}
-                    onChange={e => setKmAtual(Number(e.target.value))}
-                    className="w-full text-xs tabular-nums font-semibold px-3.5 py-2.5 bg-[var(--surface-2)]/80 border border-[var(--border)]/90 rounded-xl focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[#22324C] focus:bg-[var(--surface)] outline-hidden text-[var(--text)]"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-[var(--border-subtle)] flex items-center justify-end gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setModalNovo(false)}
-                  className="px-4 py-2.5 text-xs font-semibold text-[var(--text-muted)] hover:bg-[var(--surface-2)] rounded-xl cursor-pointer transition"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 text-xs font-bold text-white bg-[#0B1B2E] hover:bg-[#0B1B2E] rounded-xl cursor-pointer transition flex items-center gap-1.5"
-                >
-                  <CheckCircle2 size={14} className="text-[var(--brand)]" />
-                  Confirmar Incorporação
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de Inspeção: Cockpit Digital & Ficha Patrimonial */}
-      {veiculoInspecionado && (
-        <div 
-          className="fixed inset-0 bg-[#0B1B2E]/60 z-50 flex items-center justify-center p-4 animate-in fade-in"
-          onClick={() => setVeiculoInspecionado(null)}
-        >
-          <div 
-            className="relative bg-[var(--surface)] rounded-[28px] max-w-3xl w-full p-6 sm:p-7 border border-[var(--border)]/90 animate-in zoom-in-95 max-h-[92vh] overflow-y-auto space-y-6"
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Header com Placa Mercosul */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[var(--border-subtle)]">
-              <div className="flex items-center gap-4">
-                <PlacaMercosul placa={veiculoInspecionado.placa} uf="PR" />
-                <div>
-                  <span className="text-[10px] tabular-nums uppercase tracking-widest text-[var(--text-subtle)] font-bold block">
-                    FICHA PATRIMONIAL & COCKPIT DE TELEMETRIA
-                  </span>
-                  <h3 className="text-lg font-bold text-[var(--text)] leading-tight mt-0.5">
-                    {veiculoInspecionado.modelo}
-                  </h3>
-                  <div className="text-xs text-[var(--text-muted)] mt-0.5 font-medium">
-                    Ano {veiculoInspecionado.ano || 2024} · Cor {veiculoInspecionado.cor} · {veiculoInspecionado.capacidade} lugares
-                  </div>
-                </div>
-              </div>
-
-              <button 
-                type="button"
-                onClick={() => setVeiculoInspecionado(null)}
-                className="w-8 h-8 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-muted)] flex items-center justify-center cursor-pointer self-start sm:self-auto transition"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            {/* Cluster Digital Automotivo de Luxo Integrado */}
-            <PainelOdometroCombustivel
-              kmAtual={veiculoInspecionado.kmAtual}
-              nivelCombustivel={veiculoInspecionado.nivelCombustivel}
-              interativo={true}
-              onChangeKm={novoKm => {
-                setVeiculoInspecionado({ ...veiculoInspecionado, kmAtual: novoKm });
-                if (onAtualizarVeiculo) {
-                  onAtualizarVeiculo(veiculoInspecionado.id, { kmAtual: novoKm });
-                }
-              }}
-              onChangeCombustivel={novoNivel => {
-                setVeiculoInspecionado({ ...veiculoInspecionado, nivelCombustivel: novoNivel });
-                if (onAtualizarVeiculo) {
-                  onAtualizarVeiculo(veiculoInspecionado.id, { nivelCombustivel: novoNivel });
-                }
-              }}
-            />
-
-            {/* Divisão 1: Controle de Status Operacional e Abastecimento Rápido */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Status */}
-              <div className="p-4 bg-[var(--surface-2)]/90 rounded-[18px] border border-[var(--border)]/80 space-y-2.5">
-                <div className="text-[10px] tabular-nums uppercase tracking-wider text-[var(--text-muted)] font-bold">
-                  Status Operacional no Pátio SEJU
-                </div>
-                <div className="flex gap-1.5">
-                  {[
-                    { id: 'disponivel', label: 'Disponível' },
-                    { id: 'em_missao', label: 'Em Missão' },
-                    { id: 'manutencao', label: 'Manutenção' }
-                  ].map(st => {
-                    const ativo = veiculoInspecionado.status === st.id;
-                    return (
-                      <button
-                        key={st.id}
-                        type="button"
-                        onClick={() => {
-                          soundFX.playClick();
-                          const novoStatus = st.id as Veiculo['status'];
-                          setVeiculoInspecionado({ ...veiculoInspecionado, status: novoStatus });
-                          if (onAtualizarVeiculo) {
-                            onAtualizarVeiculo(veiculoInspecionado.id, { status: novoStatus });
-                          }
-                        }}
-                        className={`flex-1 py-2 px-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
-                          ativo 
-                            ? 'bg-[#0B1B2E] text-white shadow-xs' 
-                            : 'bg-[var(--surface)] text-[var(--text-muted)] hover:bg-[var(--surface-2)] border border-[var(--border)]/80'
-                        }`}
-                      >
-                        {st.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Ação Rápida de Abastecimento Oficial */}
-              <div className="p-4 bg-[var(--surface-2)]/90 rounded-[18px] border border-[var(--border)]/80 flex flex-col justify-between space-y-2.5">
-                <div className="flex items-center justify-between text-[10px] tabular-nums uppercase tracking-wider text-[var(--text-muted)] font-bold">
-                  <span>Ordem de Abastecimento (Cartão Frota PR)</span>
-                  <span className="text-xs text-[var(--verde)] font-bold">{veiculoInspecionado.nivelCombustivel}%</span>
-                </div>
+              <li key={v.id}>
                 <button
                   type="button"
                   onClick={() => {
-                    soundFX.playSuccess();
-                    setVeiculoInspecionado({ ...veiculoInspecionado, nivelCombustivel: 100 });
-                    if (onAtualizarVeiculo) {
-                      onAtualizarVeiculo(veiculoInspecionado.id, { nivelCombustivel: 100 });
-                    }
+                    soundFX.playClick();
+                    setFichaId(v.id);
                   }}
-                  className="w-full py-2.5 bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer shadow-xs"
+                  className="flex h-full w-full flex-col rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-5 text-left transition-colors hover:border-[var(--border-strong)] cursor-pointer"
                 >
-                  <Fuel size={14} className="text-[var(--verde)]" /> Atestar Tanque Cheio (100% · 55L)
+                  <div className="flex items-start justify-between gap-2">
+                    <PlacaMercosul placa={v.placa} uf="PR" className="scale-90 origin-top-left" />
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${st.cls}`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${st.ponto}`} /> {st.texto}
+                    </span>
+                  </div>
+                  <div className="font-display mt-3 text-lg font-bold leading-tight text-[var(--text)]">{v.modelo}</div>
+                  <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-[var(--text-muted)]">
+                    <span className="inline-flex items-center gap-1"><Users size={13} /> {v.capacidade} lugares</span>
+                    <span>{v.cor}</span>
+                    {v.ano && <span>{v.ano}</span>}
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <div className="flex items-center gap-1 text-[11px] text-[var(--text-muted)]"><Gauge size={12} /> Quilometragem</div>
+                      <div className="font-bold tabular-nums text-[var(--text)]">{v.kmAtual.toLocaleString('pt-BR')} km</div>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1 text-[11px] text-[var(--text-muted)]"><Fuel size={12} /> Tanque {v.nivelCombustivel}%</div>
+                      <div className="mt-1.5"><BarraTanque nivel={v.nivelCombustivel} /></div>
+                    </div>
+                  </div>
+                  <div className="mt-auto pt-4 text-xs text-[var(--text-muted)]">
+                    {reservas.length > 0 ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        <CalendarDays size={13} /> Próxima reserva:{' '}
+                        <strong className="tabular-nums text-[var(--text)]">{formatarData(reservas[0].datas[0])}</strong>
+                        {reservas.length > 1 && ` e mais ${reservas.length - 1}`}
+                      </span>
+                    ) : (
+                      'Sem reservas marcadas'
+                    )}
+                  </div>
                 </button>
-              </div>
-            </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
 
-            {/* Divisão 2: Diagnóstico Preventivo */}
-            <div className="p-4.5 bg-[var(--surface-2)]/80 rounded-[18px] border border-[var(--border)]/80 space-y-3">
-              <div className="text-xs font-bold text-[var(--text)] flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <Wrench size={15} className="text-[var(--text)]" />
-                  Diagnóstico de Manutenção Preventiva (Detran/PR & SEJU)
-                </span>
-                <span className="text-[10px] tabular-nums text-[var(--verde)] bg-[var(--verde-soft)] border border-[var(--verde-border)] px-2 py-0.5 rounded-md">
-                  LAUDO TÉCNICO OK
-                </span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                <div className="p-3 bg-[var(--surface)] rounded-xl border border-[var(--border)]/80 flex items-center justify-between">
-                  <div>
-                    <span className="font-bold text-[var(--text)] block">Lubrificante & Filtros Sintéticos</span>
-                    <span className="text-[10px] tabular-nums text-[var(--text-subtle)]">Próxima revisão: {(veiculoInspecionado.kmAtual + 8200).toLocaleString('pt-BR')} km</span>
-                  </div>
-                  <span className="text-[10px] font-semibold text-[var(--verde)] bg-[var(--verde-soft)] border border-[var(--verde-border)] px-2.5 py-0.5 rounded-full">
-                    Em Dia
-                  </span>
-                </div>
-
-                <div className="p-3 bg-[var(--surface)] rounded-xl border border-[var(--border)]/80 flex items-center justify-between">
-                  <div>
-                    <span className="font-bold text-[var(--text)] block">Sistema de Freios ABS/EBD</span>
-                    <span className="text-[10px] tabular-nums text-[var(--text-subtle)]">Pastilhas e discos inspecionados</span>
-                  </div>
-                  <span className="text-[10px] font-semibold text-[var(--verde)] bg-[var(--verde-soft)] border border-[var(--verde-border)] px-2.5 py-0.5 rounded-full">
-                    Conforme
-                  </span>
-                </div>
-
-                <div className="p-3 bg-[var(--surface)] rounded-xl border border-[var(--border)]/80 flex items-center justify-between">
-                  <div>
-                    <span className="font-bold text-[var(--text)] block">Pneumáticos & Geometria</span>
-                    <span className="text-[10px] tabular-nums text-[var(--text-subtle)]">Pressão nominal telemetria</span>
-                  </div>
-                  <span className="text-[10px] tabular-nums font-bold text-[var(--text)] bg-[var(--surface-2)] border border-[var(--border)] px-2.5 py-0.5 rounded-full">
-                    32 PSI
-                  </span>
-                </div>
-
-                <div className="p-3 bg-[var(--surface)] rounded-xl border border-[var(--border)]/80 flex items-center justify-between">
-                  <div>
-                    <span className="font-bold text-[var(--text)] block">Licenciamento Oficial CRLV-e</span>
-                    <span className="text-[10px] tabular-nums text-[var(--text-subtle)]">Frota Patrimonial Estado do Paraná</span>
-                  </div>
-                  <span className="text-[10px] font-semibold text-[var(--brand)] bg-[var(--brand-soft)] border border-[var(--brand-border)] px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                    <ShieldCheck size={11} /> Regular 2026
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Divisão 3: Histórico de Missões */}
-            <div className="space-y-2.5">
-              <div className="text-xs font-bold text-[var(--text)] flex items-center justify-between">
-                <span className="flex items-center gap-1.5">
-                  <FileText size={14} className="text-[var(--text-muted)]" />
-                  Diário de Bordo Recente da Viatura
-                </span>
-                <span className="text-[11px] text-[var(--text-muted)] tabular-nums">
-                  Hodômetro: {veiculoInspecionado.kmAtual.toLocaleString('pt-BR')} km
-                </span>
-              </div>
-
-              {agendamentos.filter(a => a.veiculoId === veiculoInspecionado.id).length === 0 ? (
-                <div className="p-4 bg-[var(--surface-2)]/70 rounded-xl text-center text-xs text-[var(--text-subtle)] border border-[var(--border)]/70">
-                  Nenhuma missão registrada no diário de bordo recente para esta viatura.
-                </div>
-              ) : (
-                <div className="space-y-2 max-h-40 overflow-y-auto">
-                  {agendamentos
-                    .filter(a => a.veiculoId === veiculoInspecionado.id)
-                    .slice(0, 3)
-                    .map(ag => (
-                      <div key={ag.id} className="p-3 bg-[var(--surface-2)]/80 rounded-xl border border-[var(--border)]/80 text-xs flex items-center justify-between gap-2">
-                        <div className="min-w-0">
-                          <div className="font-semibold text-[var(--text)] truncate">{ag.destino}</div>
-                          <div className="text-[11px] text-[var(--text-muted)] mt-0.5">
-                            Condutor: <strong className="text-[var(--text)]">{ag.nome}</strong> · {ag.datas.join(', ')}
-                          </div>
-                        </div>
-                        <span className="text-[10px] tabular-nums font-bold bg-[var(--surface)] text-[var(--text)] px-2.5 py-1 rounded-lg border border-[var(--border)]/90 shrink-0 shadow-2xs">
-                          {ag.ticket}
-                        </span>
-                      </div>
-                    ))}
-                </div>
-              )}
-            </div>
-
-            {/* Rodapé */}
-            <div className="pt-4 border-t border-[var(--border-subtle)] flex justify-end">
-              <button
-                type="button"
-                onClick={() => setVeiculoInspecionado(null)}
-                className="px-6 py-2.5 bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white rounded-xl text-xs font-bold transition cursor-pointer shadow-xs"
-              >
-                Encerrar Inspeção de Telemetria
-              </button>
-            </div>
-          </div>
-        </div>
+      {ficha && (
+        <FichaVeiculo
+          veiculo={ficha}
+          agendamentos={agendamentos.filter(a => a.veiculoId === ficha.id)}
+          onFechar={() => setFichaId(null)}
+          onAtualizar={dados => onAtualizarVeiculo?.(ficha.id, dados)}
+        />
+      )}
+      {novoAberto && (
+        <NovoVeiculo
+          placasExistentes={veiculos.map(v => v.placa.replace(/\W/g, ''))}
+          onFechar={() => setNovoAberto(false)}
+          onSalvar={v => {
+            soundFX.playSuccess();
+            onAdicionarVeiculo(v);
+            setNovoAberto(false);
+          }}
+        />
       )}
     </div>
   );
 };
 
+const Janela: React.FC<{ titulo: string; onFechar: () => void; children: React.ReactNode; largura?: string }> = ({
+  titulo,
+  onFechar,
+  children,
+  largura = 'max-w-lg',
+}) => (
+  <div
+    className="fixed inset-0 z-50 flex items-end justify-center bg-[#0B1B2E]/60 p-0 sm:items-center sm:p-4"
+    role="dialog"
+    aria-modal="true"
+    aria-label={titulo}
+    onClick={e => e.target === e.currentTarget && onFechar()}
+  >
+    <div className={`max-h-[92vh] w-full ${largura} overflow-y-auto rounded-t-[28px] bg-[var(--surface)] p-6 sm:rounded-[28px] sm:p-7`}>
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <h3 className="font-display text-2xl font-bold text-[var(--text)]">{titulo}</h3>
+        <button
+          type="button"
+          onClick={onFechar}
+          aria-label="Fechar"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--surface-3)] cursor-pointer"
+        >
+          <X size={16} />
+        </button>
+      </div>
+      {children}
+    </div>
+  </div>
+);
+
+const FichaVeiculo: React.FC<{
+  veiculo: Veiculo;
+  agendamentos: Agendamento[];
+  onFechar: () => void;
+  onAtualizar: (dados: Partial<Veiculo>) => void;
+}> = ({ veiculo: v, agendamentos, onFechar, onAtualizar }) => {
+  const historico = [...agendamentos].sort((a, b) => (b.datas[0] ?? '').localeCompare(a.datas[0] ?? ''));
+  return (
+    <Janela titulo={v.modelo} onFechar={onFechar} largura="max-w-2xl">
+      <div className="flex flex-wrap items-center gap-3">
+        <PlacaMercosul placa={v.placa} uf="PR" />
+        <span className="text-sm text-[var(--text-muted)]">
+          {v.cor} · {v.capacidade} lugares{v.ano ? ` · ${v.ano}` : ''}
+        </span>
+      </div>
+
+      <div className="mt-5">
+        <span className="mb-2 block text-[13px] font-semibold text-[var(--text)]">Situação</span>
+        <div className="grid grid-cols-3 gap-2">
+          {(Object.keys(STATUS) as StatusVeiculo[]).map(s => (
+            <button
+              key={s}
+              type="button"
+              aria-pressed={v.status === s}
+              onClick={() => {
+                soundFX.playClick();
+                onAtualizar({ status: s });
+              }}
+              className={`h-11 rounded-full text-[13px] font-semibold transition-colors cursor-pointer ${
+                v.status === s ? 'bg-[#00385E] text-white' : 'bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--surface-3)]'
+              }`}
+            >
+              {STATUS[s].texto}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="rounded-[18px] bg-[var(--surface-2)] p-4">
+          <div className="text-[11px] text-[var(--text-muted)]">Quilometragem</div>
+          <div className="font-display text-2xl font-bold tabular-nums text-[var(--text)]">{v.kmAtual.toLocaleString('pt-BR')} km</div>
+          <div className="mt-1 text-xs text-[var(--text-muted)]">Atualizada a cada vistoria.</div>
+        </div>
+        <div className="rounded-[18px] bg-[var(--surface-2)] p-4">
+          <div className="flex items-baseline justify-between">
+            <span className="text-[11px] text-[var(--text-muted)]">Tanque</span>
+            <button
+              type="button"
+              onClick={() => onAtualizar({ nivelCombustivel: 100 })}
+              className="text-xs font-semibold text-[var(--brand)] hover:underline cursor-pointer"
+            >
+              Marcar como cheio
+            </button>
+          </div>
+          <div className="font-display text-2xl font-bold tabular-nums text-[var(--text)]">{v.nivelCombustivel}%</div>
+          <div className="mt-2"><BarraTanque nivel={v.nivelCombustivel} /></div>
+        </div>
+      </div>
+
+      <div className="mt-6">
+        <h4 className="font-display text-lg font-bold text-[var(--text)]">Viagens deste veículo</h4>
+        {historico.length === 0 ? (
+          <p className="mt-2 text-sm text-[var(--text-muted)]">Nenhuma viagem registrada ainda.</p>
+        ) : (
+          <ul className="mt-3 divide-y divide-[var(--border)]">
+            {historico.map(a => (
+              <li key={a.id} className="flex items-center justify-between gap-3 py-3 text-sm">
+                <div className="min-w-0">
+                  <div className="truncate font-semibold text-[var(--text)]">{a.destino}</div>
+                  <div className="text-xs text-[var(--text-muted)]">
+                    {a.nome} · <span className="tabular-nums">{a.datas.map(formatarData).join(', ')}</span>
+                  </div>
+                </div>
+                <span className="shrink-0 text-xs tabular-nums text-[var(--text-subtle)]">{a.ticket}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </Janela>
+  );
+};
+
+const NovoVeiculo: React.FC<{
+  placasExistentes: string[];
+  onFechar: () => void;
+  onSalvar: (v: Veiculo) => void;
+}> = ({ placasExistentes, onFechar, onSalvar }) => {
+  const [modelo, setModelo] = useState('');
+  const [placa, setPlaca] = useState('');
+  const [cor, setCor] = useState('');
+  const [capacidade, setCapacidade] = useState('5');
+  const [km, setKm] = useState('');
+  const [ano, setAno] = useState(String(new Date().getFullYear()));
+  const [erro, setErro] = useState<string | null>(null);
+
+  const placaLimpa = placa.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const campo =
+    'h-11 w-full rounded-[12px] border border-[var(--border)] bg-[var(--surface-2)] px-3.5 text-sm text-[var(--text)] outline-none focus:border-[var(--brand)]';
+  const rotulo = 'mb-1.5 block text-[13px] font-semibold text-[var(--text)]';
+
+  const salvar = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (modelo.trim().length < 3) return setErro('Informe o modelo do veículo.');
+    if (!PLACA_VALIDA.test(placaLimpa)) return setErro('Placa inválida. Use o formato ABC1D23 ou ABC1234.');
+    if (placasExistentes.includes(placaLimpa)) return setErro('Já existe um veículo com essa placa.');
+    onSalvar({
+      id: 'v-' + Date.now(),
+      modelo: modelo.trim(),
+      placa: placaLimpa.replace(/^([A-Z]{3})/, '$1-'),
+      cor: cor.trim() || 'Não informada',
+      capacidade: Math.max(1, Number(capacidade) || 5),
+      status: 'disponivel',
+      kmAtual: Number(km) || 0,
+      nivelCombustivel: 100,
+      ano: Number(ano) || undefined,
+    });
+  };
+
+  return (
+    <Janela titulo="Cadastrar veículo" onFechar={onFechar}>
+      <form onSubmit={salvar} className="space-y-4">
+        <div className="flex justify-center rounded-[18px] bg-[var(--surface-2)] py-5">
+          <PlacaMercosul placa={placaLimpa ? placaLimpa.replace(/^([A-Z]{3})/, '$1-') : 'ABC-1D23'} uf="PR" />
+        </div>
+        <div>
+          <label htmlFor="nv-modelo" className={rotulo}>Modelo</label>
+          <input id="nv-modelo" value={modelo} onChange={e => setModelo(e.target.value)} placeholder="Ex.: Fiat Cronos 1.3" className={campo} />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label htmlFor="nv-placa" className={rotulo}>Placa</label>
+            <input
+              id="nv-placa"
+              value={placa}
+              onChange={e => setPlaca(e.target.value.toUpperCase().slice(0, 8))}
+              placeholder="ABC1D23"
+              className={`${campo} uppercase tabular-nums`}
+            />
+          </div>
+          <div>
+            <label htmlFor="nv-cor" className={rotulo}>Cor</label>
+            <input id="nv-cor" value={cor} onChange={e => setCor(e.target.value)} placeholder="Ex.: Prata" className={campo} />
+          </div>
+          <div>
+            <label htmlFor="nv-lugares" className={rotulo}>Lugares</label>
+            <input id="nv-lugares" inputMode="numeric" value={capacidade} onChange={e => setCapacidade(e.target.value.replace(/\D/g, '').slice(0, 2))} className={campo} />
+          </div>
+          <div>
+            <label htmlFor="nv-ano" className={rotulo}>Ano</label>
+            <input id="nv-ano" inputMode="numeric" value={ano} onChange={e => setAno(e.target.value.replace(/\D/g, '').slice(0, 4))} className={campo} />
+          </div>
+        </div>
+        <div>
+          <label htmlFor="nv-km" className={rotulo}>Quilometragem atual</label>
+          <input id="nv-km" inputMode="numeric" value={km} onChange={e => setKm(e.target.value.replace(/\D/g, '').slice(0, 7))} placeholder="0" className={`${campo} tabular-nums`} />
+        </div>
+        {erro && (
+          <p role="alert" className="flex items-start gap-2 rounded-[14px] bg-[var(--danger-soft)] px-3.5 py-2.5 text-[13px] text-[var(--danger)]">
+            <AlertCircle size={16} className="mt-px shrink-0" /> {erro}
+          </p>
+        )}
+        <div className="flex gap-2 pt-1">
+          <button type="button" onClick={onFechar} className="h-11 flex-1 rounded-full border border-[var(--border)] text-sm font-semibold text-[var(--text)] hover:bg-[var(--surface-2)] cursor-pointer">
+            Cancelar
+          </button>
+          <button type="submit" className="h-11 flex-1 rounded-full bg-[#0072BB] text-sm font-semibold text-white hover:bg-[#005A9C] cursor-pointer">
+            Cadastrar
+          </button>
+        </div>
+      </form>
+    </Janela>
+  );
+};

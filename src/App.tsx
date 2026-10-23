@@ -38,13 +38,12 @@ import { HotkeysHelpModal } from './components/navigation/HotkeysHelpModal';
 import { PainelDiagnosticoModal } from './components/navigation/PainelDiagnosticoModal';
 import { useSmartPolling } from './hooks/useSmartPolling';
 import { Toast, ToastItem } from './components/ui/Toast';
-import {  } from './components/ui/Tabs';
 import { Button } from './components/ui/Button';
 import { 
   Car, 
   CheckSquare, 
   ClipboardCheck, 
-  Search, 
+  History,
   ArrowLeft,
   PlusCircle,
   
@@ -446,7 +445,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
               >
                 <div className="flex flex-wrap gap-2">
                   <NumeroModulo rotulo="Disponíveis" valor={state.veiculos.filter(v => v.status === 'disponivel').length} detalhe={`de ${state.veiculos.length} veículos`} />
-                  <NumeroModulo rotulo="Em missão" valor={state.veiculos.filter(v => v.status === 'em_missao').length} />
+                  <NumeroModulo rotulo="Em viagem" valor={state.veiculos.filter(v => v.status === 'em_missao').length} />
                   <NumeroModulo rotulo="Aguardando chefia" valor={pendentesChefia} />
                 </div>
                 <AbasModulo<FrotaSubTab>
@@ -457,7 +456,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
                     { id: 'aprovacoes', rotulo: 'Aprovações', icone: <CheckSquare size={14} />, contagem: pendentesChefia },
                     { id: 'checkin-checkout', rotulo: 'Vistoria', icone: <ClipboardCheck size={14} /> },
                     { id: 'frota', rotulo: 'Catálogo', icone: <Car size={14} /> },
-                    { id: 'consultar', rotulo: 'Histórico', icone: <Search size={14} /> },
+                    { id: 'consultar', rotulo: 'Meus pedidos', icone: <History size={14} /> },
                   ]}
                 />
               </ModuloCabecalho>
