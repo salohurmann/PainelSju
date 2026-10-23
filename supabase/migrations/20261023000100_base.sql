@@ -226,18 +226,30 @@ create trigger perfis_proteger_campos before update on public.perfis
 
 -- ---------------------------------------------------------------------
 -- Criação automática do perfil quando um usuário é criado no Auth.
--- Metadados aceitos: nome, cargo, setor_sigla, papel_id, cpf, telefone.
--- Papel padrão: servidor. Só o service_role (Edge Function admin) cria
--- usuários, porque o cadastro público deve ficar desligado no Supabase.
+-- Metadados aceitos: nome, cargo, cpf, telefone (user_metadata).
+-- Papel e setor só valem quando vêm de quem pode decidir:
+--   * app_metadata (gravado apenas com a service role), ou
+--   * convite feito pelo admin (invited_at preenchido pela Edge Function).
+-- Quem se cadastra sozinho entra como "servidor", sem setor: assim ninguém
+-- vira admin nem ganha acesso a CENSE/Votação mandando metadados no cadastro.
 -- ---------------------------------------------------------------------
 create or replace function public.tg_novo_usuario()
 returns trigger language plpgsql security definer set search_path = public as $$
 declare
   v_meta  jsonb := coalesce(new.raw_user_meta_data, '{}'::jsonb);
+  v_app   jsonb := coalesce(new.raw_app_meta_data, '{}'::jsonb);
+  v_conf  jsonb;
   v_setor uuid;
-  v_papel text := coalesce(nullif(v_meta->>'papel_id', ''), 'servidor');
+  v_papel text;
 begin
-  select id into v_setor from public.setores where sigla = upper(v_meta->>'setor_sigla');
+  -- Fonte confiável para papel/setor.
+  v_conf := case
+    when v_app ? 'papel_id' or v_app ? 'setor_sigla' then v_app
+    when new.invited_at is not null then v_meta
+    else '{}'::jsonb
+  end;
+  v_papel := coalesce(nullif(v_conf->>'papel_id', ''), 'servidor');
+  select id into v_setor from public.setores where sigla = upper(v_conf->>'setor_sigla');
   if not exists (select 1 from public.papeis where id = v_papel) then
     v_papel := 'servidor';
   end if;

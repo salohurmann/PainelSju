@@ -19,6 +19,10 @@ create table if not exists auth.users (
   id uuid primary key default gen_random_uuid(),
   email text unique,
   raw_user_meta_data jsonb default '{}'::jsonb,
+  raw_app_meta_data jsonb default '{}'::jsonb,
+  -- Nos testes as contas nascem como "convidadas pelo admin"; o cadastro
+  -- público é simulado com invited_at = null (ver 20_acesso.sql).
+  invited_at timestamptz default now(),
   created_at timestamptz default now()
 );
 

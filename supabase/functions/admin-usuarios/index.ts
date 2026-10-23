@@ -17,7 +17,8 @@ import { corsHeaders, json } from "../_shared/cors.ts";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const SITE_URL = Deno.env.get("SITE_URL") ?? "";
+// Endereço do Painel publicado (para onde o link do convite leva). Pode ser trocado pelo secret SITE_URL.
+const SITE_URL = Deno.env.get("SITE_URL") ?? "https://salohurmann.github.io/PainelSju/";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

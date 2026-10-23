@@ -81,7 +81,9 @@ async function main() {
       email,
       password: senha,
       email_confirm: true,
-      user_metadata: { nome: p.nome, setor_sigla: p.setor, papel_id: p.papel, cargo: p.cargo },
+      user_metadata: { nome: p.nome, cargo: p.cargo },
+      // Papel e setor só são aceitos via app_metadata (gravado com a service role).
+      app_metadata: { setor_sigla: p.setor, papel_id: p.papel },
     });
     if (error) throw new Error(`Falha ao criar ${email}: ${error.message}`);
     ids[p.login] = data.user.id;

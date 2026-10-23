@@ -85,7 +85,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
       palavras: `${r.departamento} ${r.cargo} ${r.email}`,
     }));
     if (!t) return base;
-    const casa = (i: Item) => normalizar(`${i.titulo} ${i.detalhe} ${i.palavras ?? ''}`).includes(t);
+    // Todas as palavras precisam aparecer, em qualquer ordem ("reservar sala" acha "Reservar uma sala").
+    const termos = t.split(/\s+/).filter(Boolean);
+    const casa = (i: Item) => {
+      const texto = normalizar(`${i.titulo} ${i.detalhe} ${i.palavras ?? ''}`);
+      return termos.every(p => texto.includes(p));
+    };
     return [...base.filter(casa), ...(permitido(ramais[0] ?? MODULOS[0]) ? ramais.filter(casa).slice(0, 5) : [])];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [busca, modulosPermitidos]);

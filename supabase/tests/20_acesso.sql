@@ -69,3 +69,14 @@ select teste.ok((select count(*) from public.salas) = 4, 'módulo religado volta
 select teste.ok((select count(*) from public.auditoria where acao = 'PERFIL_ALTERADO') >= 2, 'troca de papel gera registro de auditoria');
 select teste.ok((select count(*) from public.auditoria where acao = 'MODULO_ALTERADO') = 2, 'ligar/desligar módulo gera auditoria');
 select teste.ok(not exists (select 1 from public.auditoria where detalhes::text like '%11144477735%'), 'CPF nunca vai para a auditoria');
+
+-- Cadastro por conta própria não escolhe papel nem setor
+:como_sistema
+insert into auth.users (id, email, raw_user_meta_data, invited_at) values
+  ('b2222222-0000-0000-0000-000000000001', 'espertinho@exemplo.com', '{"nome":"Espertinho","papel_id":"admin","setor_sigla":"NFS"}', null);
+select teste.ok((select papel_id from public.perfis where id = 'b2222222-0000-0000-0000-000000000001') = 'servidor', 'cadastro público ignora papel_id dos metadados');
+select teste.ok((select setor_id from public.perfis where id = 'b2222222-0000-0000-0000-000000000001') is null, 'cadastro público ignora setor dos metadados');
+select teste.ok((select nome from public.perfis where id = 'b2222222-0000-0000-0000-000000000001') = 'Espertinho', 'nome do cadastro é aproveitado');
+insert into auth.users (id, email, raw_user_meta_data, raw_app_meta_data, invited_at) values
+  ('b2222222-0000-0000-0000-000000000002', 'criado@exemplo.com', '{"nome":"Criado pelo script"}', '{"papel_id":"gestor_frota","setor_sigla":"TRANSP"}', null);
+select teste.ok((select papel_id from public.perfis where id = 'b2222222-0000-0000-0000-000000000002') = 'gestor_frota', 'app_metadata (service role) define o papel');

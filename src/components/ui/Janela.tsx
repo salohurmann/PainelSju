@@ -5,6 +5,18 @@ import { X } from 'lucide-react';
  * Fecha com Esc, trava a rolagem da página, leva o foco para dentro da janela
  * e devolve o foco a quem a abriu ao fechar.
  */
+let ultimoFocoFora: HTMLElement | null = null;
+if (typeof document !== 'undefined') {
+  document.addEventListener(
+    'focusin',
+    e => {
+      const alvo = e.target as HTMLElement | null;
+      if (alvo && !alvo.closest('[aria-modal="true"]')) ultimoFocoFora = alvo;
+    },
+    true,
+  );
+}
+
 export function useJanela(aberta: boolean, onFechar: () => void) {
   const ref = useRef<HTMLDivElement>(null);
   const fecharRef = useRef(onFechar);
@@ -14,7 +26,10 @@ export function useJanela(aberta: boolean, onFechar: () => void) {
 
   useEffect(() => {
     if (!aberta) return;
-    const anterior = document.activeElement as HTMLElement | null;
+    // Um campo com autoFocus já puxa o foco para dentro antes deste efeito:
+    // nesse caso, volta para o último elemento focado fora da janela.
+    const ativo = document.activeElement as HTMLElement | null;
+    const anterior = ativo && ref.current?.contains(ativo) ? ultimoFocoFora : ativo;
     const overflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const alvo = ref.current?.querySelector<HTMLElement>('[autofocus], input, textarea, select, button:not([aria-label="Fechar"])');

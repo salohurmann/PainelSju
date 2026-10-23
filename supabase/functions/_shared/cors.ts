@@ -1,6 +1,7 @@
 // Cabeçalhos CORS. Defina ALLOWED_ORIGINS (separadas por vírgula) nos
 // secrets da função, ex.: "https://salohurmann.github.io,http://localhost:5173".
-const permitidas = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
+// Padrão: o Painel publicado e o ambiente local. Pode ser trocado pelo secret ALLOWED_ORIGINS.
+const permitidas = (Deno.env.get("ALLOWED_ORIGINS") ?? "https://salohurmann.github.io,http://localhost:5173")
   .split(",")
   .map((o) => o.trim())
   .filter(Boolean);
