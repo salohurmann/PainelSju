@@ -123,22 +123,35 @@ insert into public.modulos (id, nome, descricao, ordem) values
 on conflict (id) do update set nome = excluded.nome, descricao = excluded.descricao, ordem = excluded.ordem;
 
 -- ---------------------------------------------------------------------
--- Setores (fictícios para apresentação)
+-- Setores reais da SEJU (organograma / Decreto nº 8.807/2025)
 -- ---------------------------------------------------------------------
-insert into public.setores (sigla, nome) values
-  ('GAB',    'Chefia de Gabinete'),
-  ('UTEC',   'Unidade Técnica de Tecnologia da Informação'),
-  ('NAS',    'Núcleo Administrativo Setorial'),
-  ('DAG',    'Departamento de Administração Geral'),
-  ('TRANSP', 'Setor de Transporte e Frotas'),
-  ('CDH',    'Coordenação de Direitos Humanos'),
-  ('DEASE',  'Departamento de Atendimento Socioeducativo'),
-  ('JUR',    'Assessoria Jurídica'),
-  ('OUV',    'Ouvidoria e Protocolo'),
-  ('RH',     'Recursos Humanos'),
-  ('NFS',    'Núcleo Financeiro'),
-  ('UTSC',   'Unidade Técnica (UTSC)')
-on conflict (sigla) do update set nome = excluded.nome;
+insert into public.setores (sigla, nome, grupo, ordem) values
+  ('GS', 'Gabinete do Secretário', 'Assessoramento', 10),
+  ('AT', 'Assessoria Técnica', 'Assessoramento', 20),
+  ('DG', 'Diretoria-Geral', 'Direção-Geral', 30),
+  ('UTEC', 'Unidade Técnica de Sistemas de Informação e Tecnologia', 'Gerência Geral', 40),
+  ('UTCL', 'Unidade Técnica de Contratos e Licitações', 'Gerência Geral', 50),
+  ('UTEA', 'Unidade Técnica de Engenharia e Arquitetura', 'Gerência Geral', 60),
+  ('UTSC', 'Unidade Técnica de Suporte aos Colegiados', 'Gerência Geral', 70),
+  ('UTPA', 'Unidade Técnica do Projeto Paraná em Ação', 'Gerência Geral', 80),
+  ('UTCG', 'Unidade Técnica de Corregedoria', 'Gerência Geral', 90),
+  ('DJUS', 'Diretoria de Justiça', 'Gerência Técnica', 100),
+  ('DCDH', 'Diretoria de Cidadania e Direitos Humanos', 'Gerência Técnica', 110),
+  ('CGS', 'Coordenação de Gestão do Sistema Socioeducativo', 'Diretoria de Justiça', 120),
+  ('PROCON', 'PROCON/PR · Coordenação Estadual de Proteção e Defesa do Consumidor', 'Diretoria de Justiça', 130),
+  ('CPJ', 'Coordenação de Proteção e Justiça', 'Diretoria de Justiça', 140),
+  ('NETP', 'Núcleo de Enfrentamento ao Tráfico de Pessoas', 'Diretoria de Justiça', 150),
+  ('CAIC', 'CAIC', 'Diretoria de Justiça', 160),
+  ('ESEDH', 'Escola de Educação em Direitos Humanos', 'Diretoria de Cidadania e Direitos Humanos', 170),
+  ('CODH', 'Coordenação de Direitos Humanos', 'Diretoria de Cidadania e Direitos Humanos', 180),
+  ('COCID', 'Coordenação de Cidadania', 'Diretoria de Cidadania e Direitos Humanos', 190),
+  ('NPS', 'Núcleo de Planejamento Setorial', 'Atuação sistêmica', 200),
+  ('NICS', 'Núcleo de Integridade e Compliance Setorial', 'Atuação sistêmica', 210),
+  ('NCS', 'Núcleo de Comunicação Setorial', 'Atuação sistêmica', 220),
+  ('NFS', 'Núcleo Fazendário Setorial', 'Atuação sistêmica', 230),
+  ('NRHS', 'Núcleo de Recursos Humanos Setorial', 'Atuação sistêmica', 240),
+  ('NAS', 'Núcleo Administrativo Setorial', 'Atuação sistêmica', 250)
+on conflict (sigla) do update set nome = excluded.nome, grupo = excluded.grupo, ordem = excluded.ordem;
 
 -- Módulos restritos por setor (o admin muda isso no painel de administração):
 -- CENSE só para o financeiro (NFS); Votação só para a UTSC.
@@ -191,14 +204,14 @@ on conflict (codigo) do nothing;
 insert into public.ramais (setor_id, setor_nome, departamento, responsavel, cargo, ramal, telefone_direto, email, andar)
 select s.id, r.setor_nome, r.departamento, r.responsavel, r.cargo, r.ramal, r.tel, r.email, r.andar
 from (values
-  ('GAB',    'Chefia de Gabinete',              'Gabinete do Secretário',        'Gabinete',                          'Chefia de Gabinete',          '8201', '(41) 3310-8201', 'gabinete@exemplo.pr.gov.br',      '3º Andar · Sala 301'),
-  ('GAB',    'Gabinete · Assessoria Técnica',   'Gabinete do Secretário',        'Recepção e Despachos',              'Assessoria de Expediente',    '8202', '(41) 3310-8202', 'expediente@exemplo.pr.gov.br',    '3º Andar · Sala 302'),
-  ('TRANSP', 'Setor de Transporte e Frotas',    'Administração Geral',           'Central de Transporte',             'Gestão de Frotas',            '8245', '(41) 3310-8245', 'transporte@exemplo.pr.gov.br',    'Térreo · Pátio'),
-  ('CDH',    'Coordenação de Direitos Humanos', 'Políticas de Garantia',         'Atendimento da Coordenação',        'Coordenação',                 '8230', '(41) 3310-8230', 'cdh@exemplo.pr.gov.br',           '1º Andar · Bloco B'),
-  ('UTEC',   'Suporte Técnico de TI',           'Tecnologia da Informação',      'Central de Suporte',                'Atendimento aos usuários',    '8299', '(41) 3310-8299', 'suporte.ti@exemplo.pr.gov.br',    '2º Andar · Sala 201'),
-  ('RH',     'Recursos Humanos',                'Administração Geral',           'Atendimento Funcional',             'Coordenação de RH',           '8215', '(41) 3310-8215', 'rh@exemplo.pr.gov.br',            '1º Andar · Sala 102'),
-  ('OUV',    'Ouvidoria e Protocolo',           'Ouvidoria Setorial',            'Atendimento ao Cidadão',            'Recepção Geral',              '8200', '(41) 3310-8200', 'ouvidoria@exemplo.pr.gov.br',     'Térreo · Entrada'),
-  ('JUR',    'Assessoria Jurídica',             'Procuradoria Setorial',         'Assessoria Jurídica',               'Assessoria',                  '8220', '(41) 3310-8220', 'juridico@exemplo.pr.gov.br',      '3º Andar · Sala 305')
+  ('GS',     'Gabinete do Secretário',          'Assessoramento',                'Gabinete',                          'Chefia de Gabinete',          '8201', '(41) 3310-8201', 'gabinete@exemplo.pr.gov.br',      '3º Andar · Sala 301'),
+  ('AT',     'Assessoria Técnica',              'Assessoramento',                'Recepção e Despachos',              'Assessoria de Expediente',    '8202', '(41) 3310-8202', 'expediente@exemplo.pr.gov.br',    '3º Andar · Sala 302'),
+  ('NAS',    'Núcleo Administrativo Setorial',  'Atuação sistêmica',             'Central de Transporte',             'Gestão de Frotas',            '8245', '(41) 3310-8245', 'transporte@exemplo.pr.gov.br',    'Térreo · Pátio'),
+  ('CODH',   'Coordenação de Direitos Humanos', 'DCDH',                          'Atendimento da Coordenação',        'Coordenação',                 '8230', '(41) 3310-8230', 'cdh@exemplo.pr.gov.br',           '1º Andar · Bloco B'),
+  ('UTEC',   'Suporte Técnico de TI',           'Gerência Geral',               'Central de Suporte',                'Atendimento aos usuários',    '8299', '(41) 3310-8299', 'suporte.ti@exemplo.pr.gov.br',    '2º Andar · Sala 201'),
+  ('NRHS',   'Núcleo de Recursos Humanos Setorial', 'Atuação sistêmica',         'Atendimento Funcional',             'Coordenação de RH',           '8215', '(41) 3310-8215', 'rh@exemplo.pr.gov.br',            '1º Andar · Sala 102'),
+  ('NAS',    'Protocolo Geral',                 'Atuação sistêmica',             'Atendimento ao Cidadão',            'Recepção Geral',              '8200', '(41) 3310-8200', 'ouvidoria@exemplo.pr.gov.br',     'Térreo · Entrada'),
+  ('NICS',   'Integridade e Compliance',        'Atuação sistêmica',             'Assessoria Jurídica',               'Assessoria',                  '8220', '(41) 3310-8220', 'juridico@exemplo.pr.gov.br',      '3º Andar · Sala 305')
 ) as r(sigla, setor_nome, departamento, responsavel, cargo, ramal, tel, email, andar)
 left join public.setores s on s.sigla = r.sigla
 where not exists (select 1 from public.ramais x where x.ramal = r.ramal);

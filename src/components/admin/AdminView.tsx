@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { agruparSetores, GRUPOS_SETOR } from '../../data/setoresSeju';
 import { useSessao } from '../../auth/contexto';
 import { ModuloCabecalho, AcaoModulo, NumeroModulo, AbasModulo } from '../modulo/ModuloCabecalho';
 import { Janela } from '../ui/Janela';
@@ -187,7 +188,7 @@ const Pessoas: React.FC<{
         <label className="sr-only" htmlFor="fl-setor">Filtrar por setor</label>
         <select id="fl-setor" value={setor} onChange={e => setSetor(e.target.value)} className={`${sel} h-11 sm:w-64`}>
           <option value="todos">Todos os setores</option>
-          {dados.setores.map(s => <option key={s.sigla} value={s.sigla}>{s.sigla} · {s.nome}</option>)}
+          <OpcoesSetor setores={dados.setores} rotulo={s => `${s.sigla} · ${s.nome}`} />
         </select>
       </div>
 
@@ -225,7 +226,7 @@ const Pessoas: React.FC<{
                   className={`${sel} w-[140px]`}
                 >
                   <option value="">Sem setor</option>
-                  {dados.setores.map(s => <option key={s.sigla} value={s.sigla}>{s.sigla}</option>)}
+                  <OpcoesSetor setores={dados.setores} rotulo={s => s.sigla} />
                 </select>
                 <label className="sr-only" htmlFor={`papel-${p.id}`}>Papel de {p.nome}</label>
                 <select
@@ -301,8 +302,12 @@ const Modulos: React.FC<{
             </button>
           </div>
           {restrito && (
-            <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label={`Setores que veem ${m.nome}`}>
-              {dados.setores.map(s => {
+            <div className="mt-3 space-y-2.5" role="group" aria-label={`Setores que veem ${m.nome}`}>
+              {agruparSetores(dados.setores).map(g => (
+              <div key={g.grupo}>
+              <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--text-muted)]">{g.grupo}</div>
+              <div className="flex flex-wrap gap-1.5">
+              {g.itens.map(s => {
                 const marcado = m.setores.includes(s.sigla);
                 return (
                   <button
@@ -322,6 +327,9 @@ const Modulos: React.FC<{
                   </button>
                 );
               })}
+              </div>
+              </div>
+              ))}
             </div>
           )}
           <p className="mt-3 text-xs text-[var(--text-subtle)]">A Administração sempre vê todas as abas. Para alguém ver, o papel dele também precisa ter permissão nesta aba.</p>
@@ -388,17 +396,29 @@ const Papeis: React.FC<{ dados: DadosAdmin; onDefinir: (papel: string, perm: str
   );
 };
 
+/** Opções de setor agrupadas pelos blocos do organograma. */
+const OpcoesSetor: React.FC<{ setores: SetorAdm[]; rotulo: (s: SetorAdm) => string }> = ({ setores, rotulo }) => (
+  <>
+    {agruparSetores(setores).map(g => (
+      <optgroup key={g.grupo} label={g.grupo}>
+        {g.itens.map(s => <option key={s.sigla} value={s.sigla}>{rotulo(s)}</option>)}
+      </optgroup>
+    ))}
+  </>
+);
+
 // ------------------------------------------------------------------ setores
 const Setores: React.FC<{ dados: DadosAdmin; onSalvar: (s: SetorAdm) => void }> = ({ dados, onSalvar }) => {
   const [sigla, setSigla] = useState('');
   const [nome, setNome] = useState('');
+  const [grupo, setGrupo] = useState<string>(GRUPOS_SETOR[0]);
   return (
     <section className="rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6">
       <form
         className="flex flex-col gap-2 sm:flex-row"
         onSubmit={e => {
           e.preventDefault();
-          onSalvar({ sigla, nome });
+          onSalvar({ sigla, nome, grupo });
           setSigla('');
           setNome('');
         }}
@@ -407,12 +427,19 @@ const Setores: React.FC<{ dados: DadosAdmin; onSalvar: (s: SetorAdm) => void }> 
         <input id="st-sigla" value={sigla} onChange={e => setSigla(e.target.value.toUpperCase().slice(0, 12))} placeholder="Sigla" className="h-11 rounded-[12px] border border-[var(--border)] bg-[var(--surface-2)] px-3.5 text-sm uppercase text-[var(--text)] outline-none focus:border-[var(--brand)] sm:w-36" />
         <label className="sr-only" htmlFor="st-nome">Nome</label>
         <input id="st-nome" value={nome} onChange={e => setNome(e.target.value)} placeholder="Nome do setor" className="h-11 flex-1 rounded-[12px] border border-[var(--border)] bg-[var(--surface-2)] px-3.5 text-sm text-[var(--text)] outline-none focus:border-[var(--brand)]" />
+        <label className="sr-only" htmlFor="st-grupo">Bloco do organograma</label>
+        <select id="st-grupo" value={grupo} onChange={e => setGrupo(e.target.value)} className="h-11 rounded-[12px] border border-[var(--border)] bg-[var(--surface-2)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--brand)] cursor-pointer sm:w-56">
+          {GRUPOS_SETOR.map(g => <option key={g} value={g}>{g}</option>)}
+        </select>
         <button type="submit" className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#00385E] px-5 text-sm font-semibold text-white cursor-pointer">
           <Plus size={16} /> Adicionar ou renomear
         </button>
       </form>
-      <ul className="mt-4 divide-y divide-[var(--border)]">
-        {dados.setores.map(s => {
+      {agruparSetores(dados.setores).map(g => (
+      <section key={g.grupo} className="mt-5">
+      <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">{g.grupo}</h3>
+      <ul className="mt-1 divide-y divide-[var(--border)]">
+        {g.itens.map(s => {
           const n = dados.pessoas.filter(p => p.setorSigla === s.sigla).length;
           const abas = dados.modulos.filter(m => m.setores.includes(s.sigla)).map(m => ROTULO_MODULO[m.id] ?? m.nome);
           return (
@@ -427,6 +454,8 @@ const Setores: React.FC<{ dados: DadosAdmin; onSalvar: (s: SetorAdm) => void }> 
           );
         })}
       </ul>
+      </section>
+      ))}
     </section>
   );
 };
@@ -470,7 +499,7 @@ const Convidar: React.FC<{
         <input aria-label="Cargo" value={cargo} onChange={e => setCargo(e.target.value)} placeholder="Cargo (opcional)" className={campo} />
         <div className="grid grid-cols-2 gap-2">
           <select aria-label="Setor" value={setor} onChange={e => setSetor(e.target.value)} className={`${campo} cursor-pointer`}>
-            {dados?.setores.map(s => <option key={s.sigla} value={s.sigla}>{s.sigla} · {s.nome}</option>)}
+            <OpcoesSetor setores={dados?.setores ?? []} rotulo={s => `${s.sigla} · ${s.nome}`} />
           </select>
           <select aria-label="Papel" value={papel} onChange={e => setPapel(e.target.value)} className={`${campo} cursor-pointer`}>
             {dados?.papeis.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}

@@ -78,5 +78,11 @@ select teste.ok((select papel_id from public.perfis where id = 'b2222222-0000-00
 select teste.ok((select setor_id from public.perfis where id = 'b2222222-0000-0000-0000-000000000001') is null, 'cadastro público ignora setor dos metadados');
 select teste.ok((select nome from public.perfis where id = 'b2222222-0000-0000-0000-000000000001') = 'Espertinho', 'nome do cadastro é aproveitado');
 insert into auth.users (id, email, raw_user_meta_data, raw_app_meta_data, invited_at) values
-  ('b2222222-0000-0000-0000-000000000002', 'criado@exemplo.com', '{"nome":"Criado pelo script"}', '{"papel_id":"gestor_frota","setor_sigla":"TRANSP"}', null);
+  ('b2222222-0000-0000-0000-000000000002', 'criado@exemplo.com', '{"nome":"Criado pelo script"}', '{"papel_id":"gestor_frota","setor_sigla":"NAS"}', null);
 select teste.ok((select papel_id from public.perfis where id = 'b2222222-0000-0000-0000-000000000002') = 'gestor_frota', 'app_metadata (service role) define o papel');
+
+-- Setores reais do organograma
+:como_sistema
+select teste.ok((select count(*) from public.setores) = 25, 'os 25 setores do organograma existem');
+select teste.ok(not exists (select 1 from public.setores where sigla in ('GAB','DAG','TRANSP','CDH','DEASE','JUR','OUV','RH')), 'setores fictícios foram removidos');
+select teste.ok(not exists (select 1 from public.setores where grupo = ''), 'todo setor tem bloco do organograma');

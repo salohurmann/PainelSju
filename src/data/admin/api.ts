@@ -21,6 +21,8 @@ export interface SetorAdm {
   id?: string;
   sigla: string;
   nome: string;
+  /** Bloco do organograma. */
+  grupo?: string;
 }
 export interface ModuloAdm {
   id: string;
@@ -121,7 +123,7 @@ export const apiAdminDemo: ApiAdmin = {
     if (s.nome.trim().length < 3) throw new Error('Informe o nome do setor.');
     mudarAcesso(c => {
       const existe = c.setores.some(x => x.sigla === sigla);
-      return { ...c, setores: existe ? c.setores.map(x => (x.sigla === sigla ? { sigla, nome: s.nome.trim() } : x)) : [...c.setores, { sigla, nome: s.nome.trim() }] };
+      return { ...c, setores: existe ? c.setores.map(x => (x.sigla === sigla ? { ...x, nome: s.nome.trim(), grupo: s.grupo ?? x.grupo } : x)) : [...c.setores, { sigla, nome: s.nome.trim(), grupo: s.grupo }] };
     });
   },
 };
@@ -144,7 +146,7 @@ export const apiAdminSupabase: ApiAdmin = {
     matriz.forEach(l => (mat[l.papel_id] = [...(mat[l.papel_id] ?? []), l.permissao_id]));
     return {
       pessoas: pessoas.map(p => ({ id: p.id, nome: p.nome, email: p.email, cargo: p.cargo, setorSigla: p.setor_id ? siglaDe.get(p.setor_id) ?? null : null, papel: p.papel_id, ativo: p.ativo })),
-      setores: setores.map(s => ({ id: s.id, sigla: s.sigla, nome: s.nome })),
+      setores: setores.map(s => ({ id: s.id, sigla: s.sigla, nome: s.nome, grupo: s.grupo })),
       modulos: modulos.filter(m => m.id !== 'admin').map((m, i) => ({ id: m.id, nome: m.nome, ativo: m.ativo, setores: setoresPorModulo[i].map(id => siglaDe.get(id) ?? '').filter(Boolean) })),
       papeis,
       permissoes,
@@ -171,7 +173,7 @@ export const apiAdminSupabase: ApiAdmin = {
   ativarModulo: (id, ativo) => adminDb.ativarModulo(id, ativo),
   definirPermissao: (papel, perm, sim) => adminDb.definirPermissao(papel, perm as never, sim),
   async salvarSetor(s) {
-    await adminDb.salvarSetor({ id: s.id, sigla: s.sigla, nome: s.nome });
+    await adminDb.salvarSetor({ id: s.id, sigla: s.sigla, nome: s.nome, ...(s.grupo !== undefined ? { grupo: s.grupo } : {}) });
   },
 };
 

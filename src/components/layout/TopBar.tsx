@@ -112,8 +112,14 @@ export const TopBar: React.FC<TopBarProps> = ({
           <MarcaSeju />
         </button>
 
-        <nav aria-label="Módulos" className="order-3 lg:order-2 w-full lg:w-auto lg:flex-1 overflow-x-auto no-scrollbar -mx-4 px-4 lg:mx-0 lg:px-0">
-          <ul className="flex items-center gap-1.5 lg:justify-center min-w-max">
+        <nav
+          aria-label="Módulos"
+          className={`order-3 w-full overflow-x-auto no-scrollbar -mx-4 px-4 ${
+            // Muitas abas (ex.: admin): só ficam na mesma linha da marca a partir de 1280 px.
+            pilulas.length > 8 ? 'xl:order-2 xl:w-auto xl:flex-1 xl:mx-0 xl:px-0' : 'lg:order-2 lg:w-auto lg:flex-1 lg:mx-0 lg:px-0'
+          }`}
+        >
+          <ul className={`flex items-center min-w-max ${pilulas.length > 8 ? 'gap-1 xl:gap-1.5 xl:justify-center' : 'gap-1.5 lg:justify-center'}`}>
             {pilulas.map((p) => {
               const ativa = activeApp === p.id;
               return (
@@ -122,7 +128,9 @@ export const TopBar: React.FC<TopBarProps> = ({
                     type="button"
                     onClick={() => onNavigateApp(p.id)}
                     aria-current={ativa ? 'page' : undefined}
-                    className={`inline-flex items-center gap-2 h-10 px-4 rounded-full text-[14px] transition-colors cursor-pointer whitespace-nowrap ${
+                    className={`inline-flex items-center gap-2 h-10 rounded-full transition-colors cursor-pointer whitespace-nowrap ${
+                      pilulas.length > 8 ? 'px-3 text-[13.5px] 2xl:px-4 2xl:text-[14px]' : 'px-4 text-[14px]'
+                    } ${
                       ativa
                         ? 'bg-[var(--noite)] text-white font-semibold dark:bg-white dark:text-[var(--noite)]'
                         : 'border-[1.5px] border-[var(--border-strong)] text-[var(--text)] font-medium hover:border-[var(--text)]'
@@ -146,7 +154,7 @@ export const TopBar: React.FC<TopBarProps> = ({
           </ul>
         </nav>
 
-        <div className="order-2 lg:order-3 ml-auto flex items-center gap-2">
+        <div className={`order-2 ml-auto flex items-center gap-2 ${pilulas.length > 8 ? "xl:order-3" : "lg:order-3"}`}>
           <button type="button" onClick={onOpenCommandPalette} className={botaoRedondo} aria-label="Buscar (Ctrl+K)" title="Buscar (Ctrl+K)">
             <Search size={18} />
           </button>

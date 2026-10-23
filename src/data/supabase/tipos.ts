@@ -16,7 +16,7 @@ export type Permissao =
   | 'votacao:ver' | 'votacao:votar' | 'votacao:gerenciar'
   | 'seguranca:auditar' | 'usuarios:gerenciar' | 'admin:configurar';
 
-export interface Setor { id: string; sigla: string; nome: string; ativo: boolean; criado_em: string }
+export interface Setor { id: string; sigla: string; nome: string; grupo: string; ordem: number; ativo: boolean; criado_em: string }
 
 export interface Papel { id: PapelId; nome: string; descricao: string; sistema: boolean }
 

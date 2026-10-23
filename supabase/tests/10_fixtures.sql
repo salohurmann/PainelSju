@@ -35,8 +35,8 @@ insert into auth.users (id, email, raw_user_meta_data) values
   (:lucia,   'lucia@teste.gov',   '{"nome":"Lúcia Teste","setor_sigla":"NAS","cpf":"111.444.777-35"}'),
   (:otavio,  'otavio@teste.gov',  '{"nome":"Otávio Teste","setor_sigla":"UTEC"}'),
   (:tecnico, 'tecnico@teste.gov', '{"nome":"Técnico Teste","setor_sigla":"UTEC","papel_id":"tecnico_ti"}'),
-  (:chefe,   'chefe@teste.gov',   '{"nome":"Chefe Teste","setor_sigla":"GAB","papel_id":"chefe_gabinete"}'),
-  (:frota,   'frota@teste.gov',   '{"nome":"Frota Teste","setor_sigla":"TRANSP","papel_id":"gestor_frota"}'),
+  (:chefe,   'chefe@teste.gov',   '{"nome":"Chefe Teste","setor_sigla":"GS","papel_id":"chefe_gabinete"}'),
+  (:frota,   'frota@teste.gov',   '{"nome":"Frota Teste","setor_sigla":"NAS","papel_id":"gestor_frota"}'),
   (:diretor, 'diretor@teste.gov', '{"nome":"Diretor Teste","setor_sigla":"NFS","papel_id":"diretor_cense"}'),
   (:admin,   'admin@teste.gov',   '{"nome":"Admin Teste","setor_sigla":"UTEC","papel_id":"admin"}'),
   (:inativo, 'inativo@teste.gov', '{"nome":"Inativo Teste","setor_sigla":"NAS","papel_id":"chefe_gabinete"}');

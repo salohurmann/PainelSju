@@ -62,7 +62,7 @@ export async function salvarPapel(p: Pick<Papel, 'id' | 'nome' | 'descricao'>): 
 
 // --------------------------------------------------------- Setores
 export async function listarSetores(): Promise<Setor[]> {
-  return exigir(await supabase().from('setores').select('*').order('nome'));
+  return exigir(await supabase().from('setores').select('*').order('ordem').order('sigla'));
 }
 
 export async function salvarSetor(s: Partial<Setor> & Pick<Setor, 'sigla' | 'nome'>): Promise<Setor> {

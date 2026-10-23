@@ -33,10 +33,10 @@ const db = createClient(url, serviceKey, { auth: { persistSession: false, autoRe
 // Pessoas fictícias (mesmos nomes usados na apresentação)
 const PESSOAS = [
   { login: 'lucia.viana',     nome: 'Lúcia Andrade Viana',  setor: 'NAS',    papel: 'servidor',       cargo: 'Técnica Administrativa' },
-  { login: 'carlos.silveira', nome: 'Carlos Silveira',      setor: 'CDH',    papel: 'servidor',       cargo: 'Agente Profissional' },
+  { login: 'carlos.silveira', nome: 'Carlos Silveira',      setor: 'CODH',   papel: 'servidor',       cargo: 'Agente Profissional' },
   { login: 'otavio.carvalho', nome: 'Otávio Lins Carvalho', setor: 'UTEC',   papel: 'tecnico_ti',     cargo: 'Analista de Sistemas' },
-  { login: 'marcos.viana',    nome: 'Marcos Viana',         setor: 'TRANSP', papel: 'gestor_frota',   cargo: 'Gestor de Transporte' },
-  { login: 'maria.helena',    nome: 'Dra. Maria Helena',    setor: 'GAB',    papel: 'chefe_gabinete', cargo: 'Chefe de Gabinete' },
+  { login: 'marcos.viana',    nome: 'Marcos Viana',         setor: 'NAS',    papel: 'gestor_frota',   cargo: 'Gestor de Transporte' },
+  { login: 'maria.helena',    nome: 'Dra. Maria Helena',    setor: 'GS',     papel: 'chefe_gabinete', cargo: 'Chefe de Gabinete' },
   { login: 'direcao.cense',   nome: 'Direção CENSE Curitiba', setor: 'NFS', papel: 'diretor_cense', cargo: 'Diretor de Unidade' },
   { login: 'admin',           nome: 'Administração do Painel', setor: 'UTEC', papel: 'admin',         cargo: 'Administrador do Sistema' },
   { login: 'utsc.gestao',     nome: 'Fernanda Rocha',       setor: 'UTSC',   papel: 'gestor_votacao', cargo: 'Coordenadora da UTSC' },

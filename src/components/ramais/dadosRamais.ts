@@ -15,7 +15,7 @@ export interface RamalItem {
 export const RAMAIS_DATA: RamalItem[] = [
   {
     id: 'r1',
-    setor: 'Chefia de Gabinete',
+    setor: 'Gabinete do Secretário',
     departamento: 'Gabinete do Secretário',
     responsavel: 'Dra. Maria Helena',
     cargo: 'Chefe de Gabinete',
@@ -27,7 +27,7 @@ export const RAMAIS_DATA: RamalItem[] = [
   },
   {
     id: 'r2',
-    setor: 'Gabinete · Assessoria Técnica',
+    setor: 'Assessoria Técnica',
     departamento: 'Gabinete do Secretário',
     responsavel: 'Recepção e Despachos Oficiais',
     cargo: 'Assessoria de Expediente',
@@ -38,8 +38,8 @@ export const RAMAIS_DATA: RamalItem[] = [
   },
   {
     id: 'r3',
-    setor: 'Setor de Transporte e Frotas',
-    departamento: 'Departamento de Administração Geral (DAG)',
+    setor: 'Núcleo Administrativo Setorial · Transporte',
+    departamento: 'Diretoria-Geral',
     responsavel: 'Marcos Viana',
     cargo: 'Gestor de Transporte e Frotas',
     ramal: '8245',
@@ -51,7 +51,7 @@ export const RAMAIS_DATA: RamalItem[] = [
   {
     id: 'r4',
     setor: 'Coordenação de Direitos Humanos',
-    departamento: 'Superintendência de Políticas de Garantia',
+    departamento: 'Diretoria de Cidadania e Direitos Humanos',
     responsavel: 'Carlos Silveira',
     cargo: 'Agente Profissional',
     ramal: '8230',
@@ -61,8 +61,8 @@ export const RAMAIS_DATA: RamalItem[] = [
   },
   {
     id: 'r5',
-    setor: 'Departamento de TI & Suporte Técnico',
-    departamento: 'Tecnologia da Informação',
+    setor: 'UTEC · Suporte Técnico de TI',
+    departamento: 'Gerência Geral',
     responsavel: 'Helpdesk & Redes',
     cargo: 'Central de Suporte aos Usuários',
     ramal: '8299',
@@ -73,8 +73,8 @@ export const RAMAIS_DATA: RamalItem[] = [
   },
   {
     id: 'r6',
-    setor: 'Recursos Humanos / Gestão de Pessoas',
-    departamento: 'Departamento de Administração Geral (DAG)',
+    setor: 'Núcleo de Recursos Humanos Setorial',
+    departamento: 'Diretoria-Geral',
     responsavel: 'Atendimento Funcional e Folha',
     cargo: 'Coordenação de Recursos Humanos',
     ramal: '8215',
@@ -84,8 +84,8 @@ export const RAMAIS_DATA: RamalItem[] = [
   },
   {
     id: 'r7',
-    setor: 'Ouvidoria Geral e Protocolo',
-    departamento: 'Ouvidoria Setorial',
+    setor: 'Núcleo Administrativo Setorial · Protocolo',
+    departamento: 'Diretoria-Geral',
     responsavel: 'Atendimento ao Cidadão e Protocolo',
     cargo: 'Recepção Geral',
     ramal: '8200',
@@ -95,13 +95,13 @@ export const RAMAIS_DATA: RamalItem[] = [
   },
   {
     id: 'r8',
-    setor: 'Assessoria Jurídica',
-    departamento: 'Procuradoria Setorial',
+    setor: 'Núcleo de Integridade e Compliance Setorial',
+    departamento: 'Diretoria-Geral',
     responsavel: 'Dra. Patrícia Lima',
-    cargo: 'Assessora Jurídica Chefe',
+    cargo: 'Agente de Compliance',
     ramal: '8220',
     telefoneDireto: '(41) 3310-8220',
-    email: 'juridico@seju.pr.gov.br',
+    email: 'compliance@seju.pr.gov.br',
     andar: '3º Andar · Sala 305',
   }
 ];

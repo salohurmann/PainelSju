@@ -91,7 +91,7 @@ describe('Matriz RBAC · Controle de Acesso SEJU/PR', () => {
       expect(temPermissao(pessoa('servidor', 'NAS'), 'cense:ver')).toBe(false);
       expect(temPermissao(pessoa('servidor', 'NFS'), 'cense:ver')).toBe(true);
       expect(temPermissao(pessoa('diretor_cense', 'NFS'), 'cense:lancar_nfe')).toBe(true);
-      expect(temPermissao(pessoa('diretor_cense', 'DEASE'), 'cense:lancar_nfe')).toBe(false);
+      expect(temPermissao(pessoa('diretor_cense', 'CGS'), 'cense:lancar_nfe')).toBe(false);
     });
 
     it('Votação aparece só para a UTSC', () => {
@@ -108,9 +108,9 @@ describe('Matriz RBAC · Controle de Acesso SEJU/PR', () => {
     });
 
     it('o admin libera um setor e muda o papel de alguém', () => {
-      mudarAcesso(c => ({ ...c, moduloSetores: { ...c.moduloSetores, cense: ['NFS', 'GAB'] } }));
+      mudarAcesso(c => ({ ...c, moduloSetores: { ...c.moduloSetores, cense: ['NFS', 'GS'] } }));
       expect(temPermissao(usuarioChefe, 'cense:fiscalizar')).toBe(false); // sem sigla ainda
-      const chefe = { ...usuarioChefe, setorSigla: 'GAB' };
+      const chefe = { ...usuarioChefe, setorSigla: 'GS' };
       expect(temPermissao(chefe, 'cense:fiscalizar')).toBe(true);
       mudarAcesso(c => ({ ...c, pessoas: { ...c.pessoas, [chefe.id]: { role: 'servidor' } } }));
       expect(temPermissao(chefe, 'frotas:aprovar')).toBe(false);

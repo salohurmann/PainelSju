@@ -1,3 +1,4 @@
+import { SETORES_SEJU } from '../data/setoresSeju';
 /**
  * Controle de acesso do MODO DEMONSTRAÇÃO, com o mesmo desenho do banco:
  *   pessoa → papel + setor
@@ -22,6 +23,8 @@ export type PermissaoDemo =
 export interface SetorDemo {
   sigla: string;
   nome: string;
+  /** Bloco do organograma (Assessoramento, Gerência Geral...). */
+  grupo?: string;
 }
 
 export interface ConfigAcesso {
@@ -79,20 +82,7 @@ const BASE_SERVIDOR: PermissaoDemo[] = [
 ];
 
 export const CONFIG_PADRAO: ConfigAcesso = {
-  setores: [
-    { sigla: 'GAB', nome: 'Chefia de Gabinete' },
-    { sigla: 'UTEC', nome: 'Unidade Técnica de TI' },
-    { sigla: 'NAS', nome: 'Núcleo Administrativo Setorial' },
-    { sigla: 'DAG', nome: 'Departamento de Administração Geral' },
-    { sigla: 'TRANSP', nome: 'Setor de Transporte e Frotas' },
-    { sigla: 'CDH', nome: 'Coordenação de Direitos Humanos' },
-    { sigla: 'DEASE', nome: 'Departamento de Atendimento Socioeducativo' },
-    { sigla: 'JUR', nome: 'Assessoria Jurídica' },
-    { sigla: 'OUV', nome: 'Ouvidoria e Protocolo' },
-    { sigla: 'RH', nome: 'Recursos Humanos' },
-    { sigla: 'NFS', nome: 'Núcleo Financeiro' },
-    { sigla: 'UTSC', nome: 'Unidade Técnica (UTSC)' },
-  ],
+  setores: SETORES_SEJU,
   papelPermissoes: {
     servidor: BASE_SERVIDOR,
     tecnico_ti: [...BASE_SERVIDOR, 'chamados:atender', 'ramais:editar'],
@@ -111,7 +101,8 @@ export const CONFIG_PADRAO: ConfigAcesso = {
   pessoas: {},
 };
 
-const CHAVE = 'seju_acesso_demo_v1';
+// v2: setores reais do organograma (os fictícios da v1 são descartados).
+const CHAVE = 'seju_acesso_demo_v2';
 const ouvintes = new Set<() => void>();
 
 function carregar(): ConfigAcesso {

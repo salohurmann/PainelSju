@@ -34,7 +34,7 @@ export const USUARIOS_MOCK: Usuario[] = [
     role: 'servidor',
     email: 'otavio.carvalho@seju.pr.gov.br',
     cpf: '582.109.348-13',
-    setor: 'Unidade Técnica de TI',
+    setor: 'Unidade Técnica de Sistemas de Informação e Tecnologia',
     setorSigla: 'UTEC',
     cargo: 'Analista de Sistemas · Unidade Técnica de TI'
   },
@@ -46,7 +46,7 @@ export const USUARIOS_MOCK: Usuario[] = [
     email: 'carlos.silveira@seju.pr.gov.br',
     cpf: '123.456.789-09',
     setor: 'Coordenação de Direitos Humanos',
-    setorSigla: 'CDH',
+    setorSigla: 'CODH',
     cargo: 'Agente Profissional'
   },
   {
@@ -56,8 +56,8 @@ export const USUARIOS_MOCK: Usuario[] = [
     role: 'chefe_gabinete',
     email: 'chefia.gabinete@seju.pr.gov.br',
     cpf: '987.654.321-00',
-    setor: 'Chefia de Gabinete',
-    setorSigla: 'GAB',
+    setor: 'Gabinete do Secretário',
+    setorSigla: 'GS',
     cargo: 'Chefe de Gabinete'
   },
   {
@@ -67,8 +67,8 @@ export const USUARIOS_MOCK: Usuario[] = [
     role: 'gestor_frota',
     email: 'transporte.seju@pr.gov.br',
     cpf: '456.789.123-64',
-    setor: 'Setor de Transporte e Frotas',
-    setorSigla: 'TRANSP',
+    setor: 'Núcleo Administrativo Setorial',
+    setorSigla: 'NAS',
     cargo: 'Gestor de Transporte'
   },
   {
@@ -78,7 +78,7 @@ export const USUARIOS_MOCK: Usuario[] = [
     role: 'admin',
     email: 'admin.sistema@seju.pr.gov.br',
     cpf: '000.000.000-00',
-    setor: 'Unidade Técnica de TI',
+    setor: 'Unidade Técnica de Sistemas de Informação e Tecnologia',
     setorSigla: 'UTEC',
     cargo: 'Administrador Geral'
   },
@@ -89,7 +89,7 @@ export const USUARIOS_MOCK: Usuario[] = [
     role: 'diretor_cense',
     email: 'renata.coelho@seju.pr.gov.br',
     cpf: '219.554.870-30',
-    setor: 'Núcleo Financeiro',
+    setor: 'Núcleo Fazendário Setorial',
     setorSigla: 'NFS',
     cargo: 'Analista Financeira'
   },
@@ -100,7 +100,7 @@ export const USUARIOS_MOCK: Usuario[] = [
     role: 'gestor_votacao',
     email: 'fernanda.rocha@seju.pr.gov.br',
     cpf: '604.338.112-50',
-    setor: 'Unidade Técnica (UTSC)',
+    setor: 'Unidade Técnica de Suporte aos Colegiados',
     setorSigla: 'UTSC',
     cargo: 'Coordenadora da UTSC'
   },
@@ -111,7 +111,7 @@ export const USUARIOS_MOCK: Usuario[] = [
     role: 'entidade_votante',
     email: 'contato@apai.org.br',
     cpf: '',
-    setor: 'Unidade Técnica (UTSC)',
+    setor: 'Unidade Técnica de Suporte aos Colegiados',
     setorSigla: 'UTSC',
     cargo: 'Associação Paranaense de Apoio à Infância'
   }

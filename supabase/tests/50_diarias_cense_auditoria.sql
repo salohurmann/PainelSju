@@ -40,7 +40,7 @@ select teste.ok((select status from public.solicitacoes_diaria where servidor_id
 :como_admin
 -- O seed libera o CENSE só para o financeiro (NFS); aqui o admin libera também a
 -- Chefia de Gabinete, que fiscaliza as notas no teste.
-insert into public.modulo_setores (modulo_id, setor_id) select 'cense', id from public.setores where sigla = 'GAB';
+insert into public.modulo_setores (modulo_id, setor_id) select 'cense', id from public.setores where sigla = 'GS';
 update public.cense_unidades set responsavel_id = '66666666-6666-6666-6666-666666666666' where slug = 'cense-curitiba';
 update public.cense_unidades set responsavel_id = '77777777-7777-7777-7777-777777777777' where slug = 'cense-maringa';
 
