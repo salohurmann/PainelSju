@@ -202,7 +202,8 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
     new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
 
   const opcoesHora = (de: number, ate: number) => Array.from({ length: ate - de + 1 }, (_, i) => de + i);
-  const campo = 'h-11 w-full rounded-[12px] border border-[var(--border)] bg-[var(--surface-2)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--brand)]';
+  // Campos sobre a faixa verde: fundo branco fixo e texto escuro nos dois temas.
+  const campo = 'h-11 w-full rounded-[12px] border border-transparent bg-white px-3 text-sm text-[#0B1B2E] outline-none focus:ring-2 focus:ring-[#C6E86B]';
 
   return (
     <div className="space-y-5 font-sans">
@@ -386,7 +387,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
           <div className="mt-4 space-y-3">
             <div>
               <label htmlFor="rs-sala" className="mb-1.5 block text-[13px] font-semibold">Sala</label>
-              <select id="rs-sala" value={salaId} onChange={e => setSalaId(e.target.value)} className={`${campo} cursor-pointer border-transparent bg-white text-[#0B1B2E]`}>
+              <select id="rs-sala" value={salaId} onChange={e => setSalaId(e.target.value)} className={`${campo} cursor-pointer`}>
                 {SALAS.map(s => (
                   <option key={s.id} value={s.id}>{s.nome} · até {s.capacidade}</option>
                 ))}
@@ -403,14 +404,14 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                     setInicio(v);
                     if (fim <= v) setFim(v + 1);
                   }}
-                  className={`${campo} cursor-pointer border-transparent bg-white tabular-nums text-[#0B1B2E]`}
+                  className={`${campo} cursor-pointer tabular-nums`}
                 >
                   {opcoesHora(HORA_ABRE, HORA_FECHA - 1).map(h => <option key={h} value={h}>{hh(h)}</option>)}
                 </select>
               </div>
               <div>
                 <label htmlFor="rs-fim" className="mb-1.5 block text-[13px] font-semibold">Termina</label>
-                <select id="rs-fim" value={fim} onChange={e => setFim(Number(e.target.value))} className={`${campo} cursor-pointer border-transparent bg-white tabular-nums text-[#0B1B2E]`}>
+                <select id="rs-fim" value={fim} onChange={e => setFim(Number(e.target.value))} className={`${campo} cursor-pointer tabular-nums`}>
                   {opcoesHora(inicio + 1, HORA_FECHA).map(h => <option key={h} value={h}>{hh(h)}</option>)}
                 </select>
               </div>
@@ -431,7 +432,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                 onChange={e => setMotivo(e.target.value)}
                 maxLength={300}
                 placeholder="Ex.: reunião com a equipe do CENSE"
-                className={`${campo} border-transparent bg-white text-[#0B1B2E] placeholder:text-[#6B7A8C]`}
+                className={`${campo} placeholder:text-[#6B7A8C]`}
               />
             </div>
             <div>
@@ -445,7 +446,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                 onChange={e => setParticipantes(e.target.value.replace(/\D/g, '').slice(0, 4))}
                 placeholder={`até ${sala.capacidade}`}
                 aria-invalid={lotado}
-                className={`${campo} border-transparent bg-white tabular-nums text-[#0B1B2E] placeholder:text-[#6B7A8C] ${lotado ? 'ring-2 ring-[#FFD3CC]' : ''}`}
+                className={`${campo} tabular-nums placeholder:text-[#6B7A8C] ${lotado ? 'ring-2 ring-[#FFD3CC]' : ''}`}
               />
             </div>
             <fieldset>
