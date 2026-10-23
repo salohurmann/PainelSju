@@ -1,10 +1,13 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App'
+import { SessaoProvider } from './auth/SessaoProvider'
+import { PortaoAcesso } from './auth/PortaoAcesso'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <SessaoProvider>
+      <PortaoAcesso />
+    </SessaoProvider>
   </StrictMode>,
 )

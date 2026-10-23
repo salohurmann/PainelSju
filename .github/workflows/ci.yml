@@ -37,3 +37,30 @@ jobs:
         run: |
           test -f dist/index.html || exit 1
           echo "Artefato de produção compilado com sucesso."
+
+  banco-de-dados:
+    name: Testes do banco (migrations, RLS e regras)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar cliente psql
+        run: sudo apt-get update -q && sudo apt-get install -y -q postgresql-client
+
+      - name: Aplicar migrations e rodar os testes SQL
+        run: bash supabase/tests/run.sh

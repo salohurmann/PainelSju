@@ -24,7 +24,10 @@ import { AppModuleId } from '../hub/AppLauncherHub';
 
 export interface TopBarProps {
   currentUser: Usuario;
-  onSwitchUser: (user: Usuario) => void;
+  /** Só no modo demonstração: troca de perfil fictício. */
+  onSwitchUser?: (user: Usuario) => void;
+  /** Só com login real. */
+  onSair?: () => void;
   notificacoes: Notificacao[];
   onMarkNotificationRead: (id: string) => void;
   activeApp: 'hub' | AppModuleId | 'auditoria';
@@ -37,6 +40,7 @@ export interface TopBarProps {
 export const TopBar: React.FC<TopBarProps> = ({
   currentUser,
   onSwitchUser,
+  onSair,
   notificacoes,
   onMarkNotificationRead,
   activeApp,
@@ -232,9 +236,12 @@ export const TopBar: React.FC<TopBarProps> = ({
               <div className="p-3.5 border-b border-[var(--border)] bg-[var(--surface-2)]/40">
                 <p className="text-xs font-bold text-[var(--text)]">{currentUser.nome}</p>
                 <p className="text-[11px] text-[var(--text-muted)]">{currentUser.cargo}</p>
-                <p className="text-[10px] font-mono text-[var(--text-muted)] mt-1">CPF: {currentUser.cpf}</p>
+                {currentUser.setor && (
+                  <p className="text-[10px] text-[var(--text-muted)] mt-1">{currentUser.setor}</p>
+                )}
               </div>
 
+              {onSwitchUser && (
               <div className="p-2 space-y-1">
                 <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
                   Alternar Perfil de Teste
@@ -263,6 +270,7 @@ export const TopBar: React.FC<TopBarProps> = ({
                   );
                 })}
               </div>
+              )}
 
               <div className="p-2 border-t border-[var(--border)] space-y-0.5">
                 <button
@@ -286,6 +294,19 @@ export const TopBar: React.FC<TopBarProps> = ({
                   >
                     <Activity size={14} className="text-[var(--brand)]" />
                     <span>Diagnóstico de Suporte N1/N2</span>
+                  </button>
+                )}
+
+                {onSair && (
+                  <button
+                    onClick={() => {
+                      setUserDropdownOpen(false);
+                      onSair();
+                    }}
+                    className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-[var(--radius-sm)] text-xs text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer"
+                  >
+                    <LogOut size={14} className="text-[var(--text-muted)]" />
+                    <span>Sair</span>
                   </button>
                 )}
               </div>

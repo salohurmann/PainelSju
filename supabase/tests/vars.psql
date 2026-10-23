@@ -1,0 +1,21 @@
+-- IDs fixos das pessoas de teste (incluído por cada arquivo de teste)
+\set lucia   '''11111111-1111-1111-1111-111111111111'''
+\set otavio  '''22222222-2222-2222-2222-222222222222'''
+\set tecnico '''33333333-3333-3333-3333-333333333333'''
+\set chefe   '''44444444-4444-4444-4444-444444444444'''
+\set frota   '''55555555-5555-5555-5555-555555555555'''
+\set diretor '''66666666-6666-6666-6666-666666666666'''
+\set admin   '''77777777-7777-7777-7777-777777777777'''
+\set inativo '''88888888-8888-8888-8888-888888888888'''
+
+-- Trocar de pessoa: :como_lucia, :como_chefe ... :como_anon e :como_sistema (superusuário)
+\set como_lucia 'reset role; select set_config(''request.jwt.claims'', ''{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}'', false); set role authenticated;'
+\set como_otavio 'reset role; select set_config(''request.jwt.claims'', ''{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}'', false); set role authenticated;'
+\set como_tecnico 'reset role; select set_config(''request.jwt.claims'', ''{"sub":"33333333-3333-3333-3333-333333333333","role":"authenticated"}'', false); set role authenticated;'
+\set como_chefe 'reset role; select set_config(''request.jwt.claims'', ''{"sub":"44444444-4444-4444-4444-444444444444","role":"authenticated"}'', false); set role authenticated;'
+\set como_frota 'reset role; select set_config(''request.jwt.claims'', ''{"sub":"55555555-5555-5555-5555-555555555555","role":"authenticated"}'', false); set role authenticated;'
+\set como_diretor 'reset role; select set_config(''request.jwt.claims'', ''{"sub":"66666666-6666-6666-6666-666666666666","role":"authenticated"}'', false); set role authenticated;'
+\set como_admin 'reset role; select set_config(''request.jwt.claims'', ''{"sub":"77777777-7777-7777-7777-777777777777","role":"authenticated"}'', false); set role authenticated;'
+\set como_inativo 'reset role; select set_config(''request.jwt.claims'', ''{"sub":"88888888-8888-8888-8888-888888888888","role":"authenticated"}'', false); set role authenticated;'
+\set como_anon 'reset role; select set_config(''request.jwt.claims'', '''', false); set role anon;'
+\set como_sistema 'reset role; select set_config(''request.jwt.claims'', '''', false);'

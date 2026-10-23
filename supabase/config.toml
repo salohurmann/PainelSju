@@ -1,0 +1,35 @@
+# Configuração do projeto Supabase do Painel SJU.
+# Vale para o ambiente local (supabase start) e pode ser enviada ao projeto
+# remoto com `supabase config push`. Confira também no painel do Supabase:
+# Authentication → Sign In / Providers → "Allow new users to sign up" DESLIGADO.
+project_id = "painel-sju"
+
+[api]
+schemas = ["public"]
+max_rows = 1000
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[auth]
+site_url = "http://localhost:5173/"
+additional_redirect_urls = ["https://salohurmann.github.io/PainelSju/"]
+# Contas são criadas apenas pela administração (Edge Function admin-usuarios).
+enable_signup = false
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+minimum_password_length = 10
+password_requirements = "lower_upper_letters_digits"
+
+[auth.email]
+enable_signup = false
+double_confirm_changes = true
+enable_confirmations = true
+
+[functions.admin-usuarios]
+verify_jwt = true
+
+[functions.enviar-emails]
+# Chamada pelo agendador com cabeçalho x-cron-secret (sem sessão de usuário).
+verify_jwt = false

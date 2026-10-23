@@ -29,6 +29,19 @@ O **Portal de Gestão Integrada SEJU** reúne em um ambiente único e seguro os 
 
 ---
 
+## 🔐 Backend, Login e Permissões (Supabase)
+
+O painel agora tem backend real em `supabase/`: banco Postgres com regras de acesso (RLS),
+login por convite, papéis e permissões editáveis pelo admin, módulos restritos por setor,
+auditoria encadeada e notificações em tempo real. As regras de negócio (segregação de funções,
+anti-colisão, SLA, cálculo de diárias, validação de NF-e) rodam no banco e têm 137 testes.
+
+- Guia de configuração passo a passo: [`supabase/README.md`](supabase/README.md)
+- Sem as variáveis `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`, o painel roda no modo
+  demonstração local (dados fictícios, sem login), como antes.
+
+* * *
+
 ## 🛡️ Arquitetura & Governança (Prompts 2, 3, 4 e 5)
 
 A aplicação foi estruturada seguindo rigorosos padrões de engenharia institucional:

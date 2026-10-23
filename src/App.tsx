@@ -59,8 +59,15 @@ export type FrotaSubTab =
   | 'frota'
   | 'consultar';
 
-export function App() {
+export interface SessaoReal {
+  usuario: Usuario;
+  sair: () => Promise<void>;
+}
+
+export function App({ sessao }: { sessao?: SessaoReal } = {}) {
   const [state, setState] = useState(() => loadInitialState());
+  // Com login real, o perfil vem do banco e não pode ser trocado pela interface.
+  const currentUser = sessao?.usuario ?? state.currentUser;
   const [activeApp, setActiveApp] = useState<'hub' | AppModuleId | 'auditoria'>(() => {
     if (typeof window !== 'undefined') {
       const urlApp = new URLSearchParams(window.location.search).get('app') as any;
@@ -256,8 +263,8 @@ export function App() {
     eventBus.emit('viatura.solicitada', {
       agendamentoId: novoAg.id,
       veiculoPlaca: novoAg.veiculoPlaca,
-      solicitante: state.currentUser.nome,
-      cpfSolicitante: state.currentUser.cpf,
+      solicitante: currentUser.nome,
+      cpfSolicitante: currentUser.cpf,
       destino: novoAg.destino,
       ticket: novoAg.ticket
     });
@@ -389,7 +396,7 @@ export function App() {
         mobileOpen={mobileSidebarOpen}
         onCloseMobile={() => setMobileSidebarOpen(false)}
         pendentesFrotaCount={pendentesChefia}
-        currentUser={state.currentUser}
+        currentUser={currentUser}
       />
 
       {/* Container Principal com Margem Dinâmica da Sidebar */}
@@ -400,8 +407,9 @@ export function App() {
       >
         {/* TopBar Horizontal de 56px */}
         <TopBar
-          currentUser={state.currentUser}
-          onSwitchUser={handleSwitchUser}
+          currentUser={currentUser}
+          onSwitchUser={sessao ? undefined : handleSwitchUser}
+          onSair={sessao ? () => void sessao.sair() : undefined}
           notificacoes={state.notificacoes}
           onMarkNotificationRead={handleMarkNotificationRead}
           activeApp={activeApp}
@@ -423,14 +431,14 @@ export function App() {
           {/* TELA INICIAL: O HUB */}
           {activeApp === 'hub' && (
             <AppLauncherHub
-              currentUser={state.currentUser}
+              currentUser={currentUser}
               veiculos={state.veiculos}
               agendamentos={state.agendamentos}
               onOpenApp={handleOpenApp}
               onOpenAuditoria={() => setActiveApp('auditoria')}
               onOpenCommandPalette={() => setCommandPaletteOpen(true)}
-              onSwitchUser={handleSwitchUser}
-              usuariosDisponiveis={USUARIOS_MOCK}
+              onSwitchUser={sessao ? undefined : handleSwitchUser}
+              usuariosDisponiveis={sessao ? undefined : USUARIOS_MOCK}
             />
           )}
 
@@ -478,16 +486,16 @@ export function App() {
                   veiculos={state.veiculos}
                   agendamentos={state.agendamentos}
                   onSubmit={handleNovaSolicitacao}
-                  defaultNome={state.currentUser.nome}
-                  defaultEmail={state.currentUser.email}
-                  defaultCpf={state.currentUser.cpf}
+                  defaultNome={currentUser.nome}
+                  defaultEmail={currentUser.email}
+                  defaultCpf={currentUser.cpf}
                 />
               )}
 
               {frotaTab === 'aprovacoes' && (
                 <FilaAprovacao
                   agendamentos={state.agendamentos}
-                  currentUser={state.currentUser}
+                  currentUser={currentUser}
                   onAprovar={handleAprovar}
                   onReprovar={handleReprovar}
                 />
@@ -498,7 +506,7 @@ export function App() {
                   agendamentos={state.agendamentos}
                   veiculos={state.veiculos}
                   vistorias={state.vistorias}
-                  currentUser={state.currentUser}
+                  currentUser={currentUser}
                   onRegistrarVistoria={handleRegistrarVistoria}
                 />
               )}
@@ -524,7 +532,7 @@ export function App() {
               {frotaTab === 'consultar' && (
                 <ConsultaCpf
                   agendamentos={state.agendamentos}
-                  currentUser={state.currentUser}
+                  currentUser={currentUser}
                 />
               )}
             </div>
@@ -533,7 +541,7 @@ export function App() {
           {/* MÓDULO 2: CHAMADOS DE TI */}
           {activeApp === 'chamados' && (
             <ChamadosKanban
-              currentUser={state.currentUser}
+              currentUser={currentUser}
               onVoltarHub={() => setActiveApp('hub')}
             />
           )}
@@ -541,7 +549,7 @@ export function App() {
           {/* MÓDULO 3: RESERVA DE SALAS */}
           {activeApp === 'salas' && (
             <ReservaSalasView
-              currentUser={state.currentUser}
+              currentUser={currentUser}
               onVoltarHub={() => setActiveApp('hub')}
             />
           )}
@@ -549,7 +557,7 @@ export function App() {
           {/* MÓDULO 4: DIÁRIAS & VIAGENS */}
           {activeApp === 'diarias' && (
             <CalculadoraDiariasView
-              currentUser={state.currentUser}
+              currentUser={currentUser}
               onVoltarHub={() => setActiveApp('hub')}
             />
           )}
@@ -557,7 +565,7 @@ export function App() {
           {/* MÓDULO 5: TELEFONIA & RAMAIS */}
           {activeApp === 'ramais' && (
             <GuiaRamaisView
-              currentUser={state.currentUser}
+              currentUser={currentUser}
               onVoltarHub={() => setActiveApp('hub')}
             />
           )}
@@ -565,7 +573,7 @@ export function App() {
           {/* MÓDULO 6: FUNDO ROTATIVO CENSE */}
           {activeApp === 'cense' && (
             <FundoRotativoCenseView
-              currentUser={state.currentUser}
+              currentUser={currentUser}
               onVoltarHub={() => setActiveApp('hub')}
             />
           )}
@@ -644,7 +652,7 @@ export function App() {
       <PainelDiagnosticoModal
         isOpen={diagnosticoOpen}
         onClose={() => setDiagnosticoOpen(false)}
-        currentUser={state.currentUser}
+        currentUser={currentUser}
       />
     </div>
   );

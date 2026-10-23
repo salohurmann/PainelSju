@@ -31,10 +31,20 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
+      - name: Type check and tests
+        run: |
+          npx tsc -b
+          npm test
+
+      # Sem as variáveis (Settings → Secrets and variables → Actions → Variables)
+      # o site é publicado no modo demonstração, sem login.
       - name: Build
         run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
