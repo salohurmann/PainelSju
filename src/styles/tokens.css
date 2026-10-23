@@ -46,7 +46,7 @@
   /* Ação */
   --brand: #0072BB;
   --brand-hover: #005E9B;
-  --brand-soft: #E8F1F9;
+  --brand-soft: #EEF5FB; /* 4,6:1 com --brand: selos de texto pequeno */
   --brand-border: #B6D3EC;
 
   /* Estados */

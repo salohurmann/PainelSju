@@ -318,7 +318,7 @@ export const MesaDespacho: React.FC<MesaDespachoProps> = ({
       {/* ---------------- Destaque */}
       <section className="relative overflow-hidden rounded-[var(--radius-2xl)] bg-[#0072BB] text-white dark:bg-[#0A3A63] lg:min-h-[500px] flex flex-wrap">
         <div className="relative z-10 flex-1 basis-[520px] px-6 py-10 sm:px-12 sm:py-14 flex flex-col justify-center gap-5">
-          <p className="flex items-center gap-2.5 text-[12.5px] font-semibold tracking-[0.12em] uppercase text-[#CFE7FA]">
+          <p className="flex items-center gap-2.5 text-[12.5px] font-semibold tracking-[0.12em] uppercase text-[#EEF6FD]">
             <span aria-hidden="true" className="w-2.5 h-2.5 rounded-full bg-[var(--lima)]" />
             <span className="first-letter:uppercase">{dataHoje}</span>
           </p>

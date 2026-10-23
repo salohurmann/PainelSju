@@ -16,6 +16,15 @@
     <meta name="description" content="Frotas, chamados, salas, diárias e ramais da Secretaria da Justiça e Cidadania do Paraná num só lugar." />
   </head>
   <body class="bg-[var(--bg)] text-[var(--text)] antialiased ">
+    <script>
+      // Aplica o tema escolhido antes de desenhar a página (sem piscar claro).
+      try {
+        if (localStorage.getItem('seju_tema') === 'escuro') {
+          document.documentElement.classList.add('dark');
+          document.body.classList.add('theme-midnight');
+        }
+      } catch (e) {}
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

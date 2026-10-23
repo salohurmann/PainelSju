@@ -252,13 +252,13 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                 onClick={() => setData(chave)}
                 className={`flex min-w-[76px] shrink-0 flex-col items-center rounded-[18px] px-3 py-2 transition-colors cursor-pointer ${
                   ativo ? 'bg-[#00703C] text-white' : 'border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-[var(--surface-2)]'
-                } ${fds && !ativo ? 'opacity-60' : ''}`}
+                } ${fds && !ativo ? 'border-dashed' : ''}`}
               >
-                <span className={`text-[11px] font-semibold uppercase ${ativo ? 'text-white/75' : 'text-[var(--text-muted)]'}`}>
+                <span className={`text-[11px] font-semibold uppercase ${ativo ? 'text-white/85' : 'text-[var(--text-muted)]'}`}>
                   {chave === hoje ? 'Hoje' : d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}
                 </span>
                 <span className="font-display text-xl font-bold tabular-nums leading-tight">{d.getDate()}</span>
-                <span className={`text-[11px] tabular-nums ${ativo ? 'text-white/75' : 'text-[var(--text-subtle)]'}`}>
+                <span className={`text-[11px] tabular-nums ${ativo ? 'text-white/85' : 'text-[var(--text-muted)]'}`}>
                   {n ? `${n} reserva${n > 1 ? 's' : ''}` : 'livre'}
                 </span>
               </button>
@@ -352,7 +352,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                               title={`${r.motivo} · ${hh(r.horaInicio)}–${hh(r.horaFim)}`}
                             >
                               <span className="truncate text-xs font-semibold">{r.motivo}</span>
-                              <span className="truncate text-[11px] tabular-nums text-white/70">
+                              <span className="truncate text-[11px] tabular-nums text-white/85">
                                 {hh(r.horaInicio)}–{hh(r.horaFim)} · {r.responsavel}
                               </span>
                             </button>
@@ -382,7 +382,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
 
         {/* Reserva */}
         <form ref={formRef} onSubmit={reservar} className="xl:col-span-4 xl:sticky xl:top-24 rounded-[28px] bg-[#00703C] p-6 text-white">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/65">Nova reserva</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/85">Nova reserva</div>
           <div className="font-display mt-1 text-xl font-bold first-letter:uppercase">{dataLonga(data)}</div>
 
           <div className="mt-4 space-y-3">
@@ -438,7 +438,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
             </div>
             <div>
               <label htmlFor="rs-pessoas" className="mb-1.5 block text-[13px] font-semibold">
-                Quantas pessoas <span className="font-normal text-white/65">(opcional)</span>
+                Quantas pessoas <span className="font-normal text-white/85">(opcional)</span>
               </label>
               <input
                 id="rs-pessoas"
@@ -472,7 +472,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                 })}
               </div>
               {(recursos.includes('suporte_ti') || recursos.includes('transmissao_hibrida')) && (
-                <p className="mt-2 text-xs text-white/70">A TI recebe um aviso com a data e o horário.</p>
+                <p className="mt-2 text-xs text-white/85">A TI recebe um aviso com a data e o horário.</p>
               )}
             </fieldset>
           </div>

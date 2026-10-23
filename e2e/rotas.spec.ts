@@ -27,3 +27,11 @@ test('busca (Ctrl+K) leva para a tela escolhida', async ({ page }) => {
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/#\/salas$/);
 });
+
+test('tema escuro continua escolhido depois de recarregar', async ({ page }) => {
+  await abrirComo(page, 'Lúcia Andrade Viana');
+  await page.getByRole('button', { name: 'Usar tema escuro' }).click();
+  await page.reload();
+  await expect(page.locator('html')).toHaveClass(/dark/);
+  await expect(page.getByRole('button', { name: 'Usar tema claro' })).toBeVisible();
+});

@@ -184,11 +184,11 @@ export const VotacaoView: React.FC<VotacaoViewProps> = ({ currentUser, onVoltarH
                     {e.ja_votou && <span className="rounded-full bg-[#C6E86B] px-3 py-1 text-xs font-bold text-[#0B1B2E]">Sua entidade já votou</span>}
                   </div>
                   <h3 className="font-display mt-3 text-xl font-bold leading-tight text-[var(--text)]">{e.titulo}</h3>
-                  <dl className="mt-3 grid grid-cols-1 gap-1.5 text-[13px] text-[var(--text-muted)] sm:grid-cols-2">
-                    <div className="flex items-center gap-1.5"><CalendarClock size={14} /> <span className="tabular-nums">{dataHora(e.abre_em)} → {dataHora(e.fecha_em)}</span></div>
-                    <div className="flex items-center gap-1.5"><Vote size={14} /> {e.votos_por_entidade} voto{e.votos_por_entidade > 1 ? 's' : ''} por entidade</div>
-                    <div className="flex items-center gap-1.5"><Users size={14} /> {e.total_candidatas} entidades candidatas</div>
-                  </dl>
+                  <ul className="mt-3 grid grid-cols-1 gap-1.5 text-[13px] text-[var(--text-muted)] sm:grid-cols-2">
+                    <li className="flex items-center gap-1.5"><CalendarClock size={14} aria-hidden="true" /> <span className="sr-only">Período:</span> <span className="tabular-nums">{dataHora(e.abre_em)} → {dataHora(e.fecha_em)}</span></li>
+                    <li className="flex items-center gap-1.5"><Vote size={14} aria-hidden="true" /> {e.votos_por_entidade} voto{e.votos_por_entidade > 1 ? 's' : ''} por entidade</li>
+                    <li className="flex items-center gap-1.5"><Users size={14} aria-hidden="true" /> {e.total_candidatas} entidades candidatas</li>
+                  </ul>
                   <div className="mt-4">
                     <div className="flex justify-between text-xs text-[var(--text-muted)]">
                       <span>Participação</span>

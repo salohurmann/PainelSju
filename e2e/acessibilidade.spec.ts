@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { abrirComo } from './ajuda';
 
 /** Telas varridas pelo axe (WCAG 2.1 A e AA), no tema claro e no escuro. */
@@ -11,7 +12,7 @@ async function varrer(page: Page) {
     regra: v.id,
     impacto: v.impact,
     quantos: v.nodes.length,
-    exemplo: v.nodes[0]?.target.join(' ') + ' :: ' + (v.nodes[0]?.failureSummary ?? '').split('\n')[1]?.trim(),
+    alvos: v.nodes.map(n => n.target.join(' ') + ' :: ' + (n.failureSummary ?? '').split('\n')[1]?.trim() + ' :: ' + n.html.slice(0, 140)),
   }));
 }
 
@@ -28,6 +29,8 @@ for (const tema of ['claro', 'escuro'] as const) {
       const v = await varrer(page);
       if (v.length) problemas[tela || 'mesa'] = v;
     }
+    mkdirSync('test-results', { recursive: true });
+    writeFileSync(`test-results/axe-${tema}.json`, JSON.stringify(problemas, null, 2));
     expect(problemas, JSON.stringify(problemas, null, 2)).toEqual({});
   });
 }

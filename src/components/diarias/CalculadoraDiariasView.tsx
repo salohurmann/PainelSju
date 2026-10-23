@@ -288,9 +288,9 @@ export const CalculadoraDiariasView: React.FC<CalculadoraDiariasViewProps> = ({ 
         </div>
 
         <aside ref={resumoRef} className="lg:col-span-4 lg:sticky lg:top-24 rounded-[28px] bg-[#00385E] p-6 text-white">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/60">Você vai receber</div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/85">Você vai receber</div>
           <div className="font-display mt-1 text-[44px] font-bold leading-none tabular-nums text-[#C6E86B]">{moeda(conta.total)}</div>
-          <div className="mt-2 text-sm text-white/70">
+          <div className="mt-2 text-sm text-white/85">
             {String(dias).replace('.', ',')} × {moeda(TABELA[nivel].valor)}{!pernoite && ' × ½ (sem pernoite)'}
           </div>
           <dl className="mt-5 space-y-2.5 text-sm">
@@ -300,7 +300,7 @@ export const CalculadoraDiariasView: React.FC<CalculadoraDiariasViewProps> = ({ 
               { r: 'Transporte local', v: conta.locomocao, p: pernoite ? '15%' : '30%' },
             ].map(l => (
               <div key={l.r} className="flex items-center justify-between gap-3">
-                <dt className="text-white/70">{l.r} <span className="text-white/40">{l.p}</span></dt>
+                <dt className="text-white/85">{l.r} <span className="text-white/85">{l.p}</span></dt>
                 <dd className="font-semibold tabular-nums">{moeda(l.v)}</dd>
               </div>
             ))}
@@ -311,8 +311,8 @@ export const CalculadoraDiariasView: React.FC<CalculadoraDiariasViewProps> = ({ 
             <span className="bg-[#7CC0F0]" style={{ width: `${(conta.locomocao / (conta.total || 1)) * 100}%` }} />
           </div>
           <dl className="mt-5 space-y-1.5 border-t border-white/15 pt-4 text-sm">
-            <div className="flex justify-between gap-3"><dt className="text-white/60">Destino</dt><dd className="font-semibold">{cidade.nome}</dd></div>
-            <div className="flex justify-between gap-3"><dt className="text-white/60">Período</dt><dd className="font-semibold tabular-nums">{br(ida)}{volta !== ida && ` a ${br(volta)}`}</dd></div>
+            <div className="flex justify-between gap-3"><dt className="text-white/85">Destino</dt><dd className="font-semibold">{cidade.nome}</dd></div>
+            <div className="flex justify-between gap-3"><dt className="text-white/85">Período</dt><dd className="font-semibold tabular-nums">{br(ida)}{volta !== ida && ` a ${br(volta)}`}</dd></div>
           </dl>
           {erro && (
             <p role="alert" className="mt-4 flex items-start gap-2 rounded-[14px] bg-[#FFD3CC] p-3 text-[13px] font-medium text-[#7A160E]">

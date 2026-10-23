@@ -72,10 +72,11 @@ export const MapaParanaInterativo: React.FC<MapaParanaInterativoProps> = ({ cida
         return (
           <g
             key={c.id}
-            role="button"
-            tabIndex={ehOrigem ? -1 : 0}
-            aria-label={ehOrigem ? 'Curitiba, origem' : `${c.nome}, ${c.distanciaKm} km`}
-            aria-pressed={ativo}
+            // A origem (Curitiba) só marca o mapa: não é botão.
+            role={ehOrigem ? undefined : 'button'}
+            tabIndex={ehOrigem ? undefined : 0}
+            aria-label={ehOrigem ? undefined : `${c.nome}, ${c.distanciaKm} km`}
+            aria-pressed={ehOrigem ? undefined : ativo}
             onClick={() => !ehOrigem && onSelectCidade(c)}
             onKeyDown={e => {
               if (!ehOrigem && (e.key === 'Enter' || e.key === ' ')) {

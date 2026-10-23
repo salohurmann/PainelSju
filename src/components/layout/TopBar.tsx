@@ -84,6 +84,7 @@ export const TopBar: React.FC<TopBarProps> = ({
     const proximo = !document.documentElement.classList.contains('dark');
     document.documentElement.classList.toggle('dark', proximo);
     document.body.classList.toggle('theme-midnight', proximo);
+    try { localStorage.setItem('seju_tema', proximo ? 'escuro' : 'claro'); } catch { /* sem armazenamento */ }
     setEscuro(proximo);
   };
 
@@ -206,10 +207,11 @@ export const TopBar: React.FC<TopBarProps> = ({
               type="button"
               onClick={() => setMenuAberto((v) => !v)}
               aria-expanded={menuAberto}
-              aria-label={`${semTitulo(currentUser.nome)}, ${currentUser.cargo}. Abrir menu da conta`}
+
               className="w-11 h-11 rounded-full bg-[var(--lima)] text-[var(--noite)] font-bold text-[14px] flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-[var(--noite)] hover:ring-offset-2 hover:ring-offset-[var(--bg)]"
             >
-              {iniciais(currentUser.nome)}
+              <span aria-hidden="true">{iniciais(currentUser.nome)}</span>
+              <span className="sr-only">{`${semTitulo(currentUser.nome)}, ${currentUser.cargo}. Abrir menu da conta`}</span>
             </button>
             {menuAberto && (
               <div className="absolute right-0 mt-2 w-72 bg-[var(--surface)] border border-[var(--border)] rounded-[22px] shadow-[var(--shadow-md)] z-50 overflow-hidden">

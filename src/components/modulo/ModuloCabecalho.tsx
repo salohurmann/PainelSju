@@ -11,17 +11,21 @@ import { Araucaria, PALETAS } from '../marca/Araucaria';
  */
 export type CorModulo = 'azul' | 'noite' | 'verde' | 'lima' | 'tinta' | 'ceu' | 'mata';
 
+// Contraste conferido (WCAG AA, 4,5:1 para texto pequeno): "suave" sobre o
+// fundo e sobre "botao"; "sobreAcento" sobre "acento". Em fundos médios
+// (azul, verde) os cartões escurecem em vez de clarear, para o texto branco
+// continuar legível.
 const TEMAS: Record<
   CorModulo,
-  { fundo: string; texto: string; suave: string; acento: string; botao: string; arvore: keyof typeof PALETAS }
+  { fundo: string; texto: string; suave: string; acento: string; sobreAcento: string; botao: string; arvore: keyof typeof PALETAS }
 > = {
-  azul: { fundo: '#0072BB', texto: '#FFFFFF', suave: 'rgba(255,255,255,0.78)', acento: '#C6E86B', botao: 'rgba(255,255,255,0.14)', arvore: 'mata' },
-  noite: { fundo: '#0B1B2E', texto: '#FFFFFF', suave: 'rgba(255,255,255,0.7)', acento: '#C6E86B', botao: 'rgba(255,255,255,0.1)', arvore: 'mata' },
-  verde: { fundo: '#00703C', texto: '#FFFFFF', suave: 'rgba(255,255,255,0.78)', acento: '#C6E86B', botao: 'rgba(255,255,255,0.14)', arvore: 'clara' },
-  lima: { fundo: '#C6E86B', texto: '#0B1B2E', suave: 'rgba(11,27,46,0.72)', acento: '#00703C', botao: 'rgba(11,27,46,0.08)', arvore: 'marca' },
-  tinta: { fundo: '#00385E', texto: '#FFFFFF', suave: 'rgba(255,255,255,0.72)', acento: '#3CC27F', botao: 'rgba(255,255,255,0.12)', arvore: 'mata' },
-  mata: { fundo: '#0E4D32', texto: '#FFFFFF', suave: 'rgba(255,255,255,0.75)', acento: '#C6E86B', botao: 'rgba(255,255,255,0.12)', arvore: 'clara' },
-  ceu: { fundo: '#DCEEFB', texto: '#00385E', suave: 'rgba(0,56,94,0.72)', acento: '#0072BB', botao: 'rgba(0,56,94,0.08)', arvore: 'marca' },
+  azul: { fundo: '#0072BB', texto: '#FFFFFF', suave: 'rgba(255,255,255,0.94)', acento: '#C6E86B', sobreAcento: '#0B1B2E', botao: 'rgba(0,0,0,0.18)', arvore: 'mata' },
+  noite: { fundo: '#0B1B2E', texto: '#FFFFFF', suave: 'rgba(255,255,255,0.78)', acento: '#C6E86B', sobreAcento: '#0B1B2E', botao: 'rgba(255,255,255,0.1)', arvore: 'mata' },
+  verde: { fundo: '#00703C', texto: '#FFFFFF', suave: 'rgba(255,255,255,0.88)', acento: '#C6E86B', sobreAcento: '#0B1B2E', botao: 'rgba(0,0,0,0.18)', arvore: 'clara' },
+  lima: { fundo: '#C6E86B', texto: '#0B1B2E', suave: 'rgba(11,27,46,0.8)', acento: '#00703C', sobreAcento: '#FFFFFF', botao: 'rgba(11,27,46,0.08)', arvore: 'marca' },
+  tinta: { fundo: '#00385E', texto: '#FFFFFF', suave: 'rgba(255,255,255,0.8)', acento: '#3CC27F', sobreAcento: '#0B1B2E', botao: 'rgba(255,255,255,0.12)', arvore: 'mata' },
+  mata: { fundo: '#0E4D32', texto: '#FFFFFF', suave: 'rgba(255,255,255,0.8)', acento: '#C6E86B', sobreAcento: '#0B1B2E', botao: 'rgba(255,255,255,0.12)', arvore: 'clara' },
+  ceu: { fundo: '#DCEEFB', texto: '#00385E', suave: 'rgba(0,56,94,0.86)', acento: '#0072BB', sobreAcento: '#FFFFFF', botao: 'rgba(0,56,94,0.08)', arvore: 'marca' },
 };
 
 export interface ModuloCabecalhoProps {
@@ -54,6 +58,7 @@ export const ModuloCabecalho: React.FC<ModuloCabecalhoProps> = ({
     '--mc-texto': t.texto,
     '--mc-suave': t.suave,
     '--mc-acento': t.acento,
+    '--mc-sobre-acento': t.sobreAcento,
     '--mc-botao': t.botao,
     backgroundColor: t.fundo,
     color: t.texto,
@@ -116,10 +121,10 @@ export const AcaoModulo: React.FC<
 > = ({ destaque = false, icone, children, className = '', style, ...props }) => (
   <button
     type="button"
-    className={`inline-flex h-10 items-center gap-2 rounded-full px-5 text-[13px] font-semibold transition-opacity hover:opacity-85 cursor-pointer disabled:opacity-50 ${className}`}
+    className={`inline-flex h-10 items-center gap-2 rounded-full px-5 text-[13px] font-semibold transition-[filter] hover:brightness-95 cursor-pointer disabled:opacity-50 ${className}`}
     style={
       destaque
-        ? { backgroundColor: 'var(--mc-acento)', color: 'var(--mc-fundo)', ...style }
+        ? { backgroundColor: 'var(--mc-acento)', color: 'var(--mc-sobre-acento)', ...style }
         : { backgroundColor: 'var(--mc-botao)', color: 'var(--mc-texto)', ...style }
     }
     {...props}
@@ -162,7 +167,7 @@ export function AbasModulo<T extends string>({
             {it.contagem !== undefined && it.contagem > 0 && (
               <span
                 className="rounded-full px-1.5 text-[11px] font-bold tabular-nums"
-                style={{ backgroundColor: 'var(--mc-acento)', color: 'var(--mc-fundo)' }}
+                style={{ backgroundColor: 'var(--mc-acento)', color: 'var(--mc-sobre-acento)' }}
               >
                 {it.contagem}
               </span>
