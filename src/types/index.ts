@@ -107,3 +107,6 @@ export interface Notificacao {
   data: string;
   ticket?: string;
 }
+
+/** Módulos que abrem dentro do Painel (a Mesa é 'hub'). */
+export type AppModuleId = 'frota' | 'chamados' | 'salas' | 'diarias' | 'cense' | 'ramais';

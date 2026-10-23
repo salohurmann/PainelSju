@@ -7,8 +7,8 @@ import {
   PhoneCall, 
   ShieldCheck,
   PlusCircle,
-  Search,
-  CheckSquare
+  
+  
 } from 'lucide-react';
 import { ModuleManifest, GrupoModulo, PendenciaItem } from './types';
 

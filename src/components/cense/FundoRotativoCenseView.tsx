@@ -8,7 +8,7 @@ import { temPermissao } from '../../services/rbac';
 import { chaveNfeValida, cnpjValido } from '../../data/supabase/cense';
 import { ModuloCabecalho, AcaoModulo, NumeroModulo } from '../modulo/ModuloCabecalho';
 import { CENSES_INICIAIS, NotaFiscalFundo, RubricaFundo, StatusFiscalCense, UnidadeCenseFundo } from './dadosCense';
-import { Plus, Download, FileText, Search, X, Check, AlertCircle, AlertTriangle, Paperclip, Printer, Ban, Info } from 'lucide-react';
+import { Plus, Download, FileText, Search, Check, AlertCircle, AlertTriangle, Paperclip, Printer, Ban, Info } from 'lucide-react';
 
 export type { StatusFiscalCense, RubricaFundo, NotaFiscalFundo, UnidadeCenseFundo } from './dadosCense';
 

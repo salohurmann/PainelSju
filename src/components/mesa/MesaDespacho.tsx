@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useModulosPermitidos } from '../../modules/useModulosPermitidos';
 import {
   ArrowRight, Car, Check, ClipboardCheck, ExternalLink, Headphones, Landmark, Loader2, Plus, Receipt, X,
 } from 'lucide-react';
 import type { Agendamento, Usuario, Veiculo } from '../../types';
-import type { AppModuleId } from '../hub/AppLauncherHub';
+import type { AppModuleId } from '../../types';
 import { temPermissao } from '../../services/rbac';
 import { generateAuditHash } from '../../services/crypto';
 import { useSessao } from '../../auth/contexto';
@@ -107,6 +108,7 @@ export const MesaDespacho: React.FC<MesaDespachoProps> = ({
 
   const real = estado.fase === 'autenticado';
   const [catalogo, setCatalogo] = useState(false);
+  const modulosPermitidos = useModulosPermitidos(currentUser).map(m => m.id);
 
   // ---- modo real (Supabase)
   const [itensReais, setItensReais] = useState<ItemMesa[] | null>(null);
@@ -570,7 +572,7 @@ export const MesaDespacho: React.FC<MesaDespachoProps> = ({
         </aside>
       </div>
 
-      <CatalogoSistemasModal isOpen={catalogo} onClose={() => setCatalogo(false)} onOpenApp={(id) => onOpenApp(id as Destino)} setor={currentUser.setor} />
+      <CatalogoSistemasModal isOpen={catalogo} onClose={() => setCatalogo(false)} onOpenApp={(id) => onOpenApp(id as Destino)} setor={currentUser.setor} modulosPermitidos={modulosPermitidos} />
     </div>
   );
 };

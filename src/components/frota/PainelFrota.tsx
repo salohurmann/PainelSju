@@ -3,7 +3,7 @@ import { Janela } from '../ui/Janela';
 import { Veiculo, Agendamento, StatusVeiculo } from '../../types';
 import { PlacaMercosul } from '../ui/PlacaMercosul';
 import { soundFX } from '../../services/soundFx';
-import { Plus, Search, Users, Fuel, Gauge, X, CalendarDays, AlertCircle } from 'lucide-react';
+import { Plus, Search, Users, Fuel, Gauge, CalendarDays, AlertCircle } from 'lucide-react';
 
 interface PainelFrotaProps {
   veiculos: Veiculo[];

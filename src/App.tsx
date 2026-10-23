@@ -1,5 +1,6 @@
 import { ModuloCabecalho, AcaoModulo, AbasModulo, NumeroModulo } from './components/modulo/ModuloCabecalho';
 import React, { useState, useEffect, useRef } from 'react';
+import { useModulosPermitidos } from './modules/useModulosPermitidos';
 import { 
   Agendamento, 
   Veiculo, 
@@ -20,7 +21,7 @@ import {
 import { eventBus } from './services/eventBus';
 import { crossCuttingService } from './services/crossCuttingService';
 import { TopBar } from './components/layout/TopBar';
-import type { AppModuleId } from './components/hub/AppLauncherHub';
+import type { AppModuleId } from './types';
 import { MesaDespacho } from './components/mesa/MesaDespacho';
 import { NovaSolicitacaoForm } from './components/frota/NovaSolicitacaoForm';
 import { FilaAprovacao } from './components/frota/FilaAprovacao';
@@ -38,13 +39,12 @@ import { HotkeysHelpModal } from './components/navigation/HotkeysHelpModal';
 import { PainelDiagnosticoModal } from './components/navigation/PainelDiagnosticoModal';
 import { useSmartPolling } from './hooks/useSmartPolling';
 import { Toast, ToastItem } from './components/ui/Toast';
-import { Button } from './components/ui/Button';
 import { 
   Car, 
   CheckSquare, 
   ClipboardCheck, 
   History,
-  ArrowLeft,
+  
   PlusCircle,
   
   
@@ -68,6 +68,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
   const [state, setState] = useState(() => loadInitialState());
   // Com login real, o perfil vem do banco e não pode ser trocado pela interface.
   const currentUser = sessao?.usuario ?? state.currentUser;
+  const modulosPermitidos = useModulosPermitidos(currentUser).map(m => m.id);
   const [activeApp, setActiveApp] = useState<'hub' | AppModuleId | 'auditoria'>(() => {
     if (typeof window !== 'undefined') {
       const urlApp = new URLSearchParams(window.location.search).get('app') as any;
@@ -561,17 +562,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
 
           {/* MÓDULO 7: TRILHA DE AUDITORIA SHA-256 */}
           {activeApp === 'auditoria' && (
-            <div className="space-y-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setActiveApp('hub')}
-                icon={<ArrowLeft size={14} />}
-              >
-                Voltar ao Painel Geral
-              </Button>
-              <TrilhaAuditoria logs={state.logs} />
-            </div>
+            <TrilhaAuditoria logs={state.logs} onVoltar={() => setActiveApp('hub')} />
           )}
         </main>
 
@@ -601,6 +592,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
       <CommandPalette
         isOpen={commandPaletteOpen}
         onClose={() => setCommandPaletteOpen(false)}
+        modulosPermitidos={modulosPermitidos}
         onNavigate={(appId, subTab) => {
           setActiveApp(appId as any);
           if (appId === 'frota' && subTab) {

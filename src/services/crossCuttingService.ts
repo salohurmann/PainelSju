@@ -1,4 +1,4 @@
-import { eventBus, EventoEnvelope } from './eventBus';
+import { eventBus } from './eventBus';
 import { AuditoriaLog, Notificacao } from '../types';
 import { generateAuditHash } from './crypto';
 

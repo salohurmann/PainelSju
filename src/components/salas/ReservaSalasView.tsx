@@ -5,7 +5,7 @@ import { soundFX } from '../../services/soundFx';
 import { eventBus } from '../../services/eventBus';
 import { temPermissao } from '../../services/rbac';
 import { ModuloCabecalho, AcaoModulo, NumeroModulo } from '../modulo/ModuloCabecalho';
-import { Plus, Users, MapPin, Video, Projector, X, Check, AlertCircle, Coffee, Laptop, Radio, Mic, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Users, MapPin, Video, Projector, Check, AlertCircle, Coffee, Laptop, Radio, Mic, ChevronLeft, ChevronRight } from 'lucide-react';
 
 /** Recursos extras: mesmos valores aceitos pelo banco (reservas.recursos_extras). */
 type Recurso = 'copa' | 'suporte_ti' | 'transmissao_hibrida' | 'gravacao';

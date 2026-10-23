@@ -1,87 +1,60 @@
 import React from 'react';
-import { Modal } from '../ui/Modal';
-import { Keyboard, X } from 'lucide-react';
+import { Janela } from '../ui/Janela';
 
 interface HotkeysHelpModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-interface ShortcutItem {
-  keys: string[];
-  descricao: string;
-  categoria: 'Navegação Rápida' | 'Ações Globais' | 'Controles de Interface';
-}
-
-const SHORTCUTS: ShortcutItem[] = [
-  { keys: ['Ctrl', 'K'], descricao: 'Abrir Paleta de Comandos e Busca Global', categoria: 'Ações Globais' },
-  { keys: ['?'], descricao: 'Abrir esta ajuda de atalhos de teclado', categoria: 'Ações Globais' },
-  { keys: ['Esc'], descricao: 'Fechar qualquer modal, gaveta ou overlay ativo', categoria: 'Controles de Interface' },
-  { keys: ['G', 'H'], descricao: 'Ir para o Painel Geral (Home Hub)', categoria: 'Navegação Rápida' },
-  { keys: ['G', 'F'], descricao: 'Ir para Gestão de Frotas & Viaturas', categoria: 'Navegação Rápida' },
-  { keys: ['G', 'C'], descricao: 'Ir para Chamados & Suporte TI (Kanban)', categoria: 'Navegação Rápida' },
-  { keys: ['G', 'S'], descricao: 'Ir para Reserva de Salas & Auditórios', categoria: 'Navegação Rápida' },
-  { keys: ['G', 'D'], descricao: 'Ir para Diárias & Deslocamentos (Decreto 1.428)', categoria: 'Navegação Rápida' },
-  { keys: ['G', 'R'], descricao: 'Ir para Fundo Rotativo CENSE (19 Unidades)', categoria: 'Navegação Rápida' },
-  { keys: ['G', 'T'], descricao: 'Ir para Telefonia & Guia de Ramais', categoria: 'Navegação Rápida' },
-  { keys: ['G', 'A'], descricao: 'Ir para Trilha de Auditoria Criptográfica SHA-256', categoria: 'Navegação Rápida' }
+const GRUPOS: Array<{ titulo: string; itens: Array<{ teclas: string[]; texto: string }> }> = [
+  {
+    titulo: 'Em qualquer tela',
+    itens: [
+      { teclas: ['Ctrl', 'K'], texto: 'Buscar no Painel' },
+      { teclas: ['?'], texto: 'Mostrar estes atalhos' },
+      { teclas: ['Esc'], texto: 'Fechar janela aberta' },
+    ],
+  },
+  {
+    titulo: 'Ir para (aperte G e depois a letra)',
+    itens: [
+      { teclas: ['G', 'H'], texto: 'Mesa' },
+      { teclas: ['G', 'F'], texto: 'Frotas' },
+      { teclas: ['G', 'C'], texto: 'Chamados' },
+      { teclas: ['G', 'S'], texto: 'Salas' },
+      { teclas: ['G', 'D'], texto: 'Diárias' },
+      { teclas: ['G', 'R'], texto: 'CENSE' },
+      { teclas: ['G', 'T'], texto: 'Ramais' },
+      { teclas: ['G', 'A'], texto: 'Auditoria' },
+    ],
+  },
 ];
 
 export const HotkeysHelpModal: React.FC<HotkeysHelpModalProps> = ({ isOpen, onClose }) => {
-  const categorias: Array<'Ações Globais' | 'Navegação Rápida' | 'Controles de Interface'> = [
-    'Ações Globais',
-    'Navegação Rápida',
-    'Controles de Interface'
-  ];
-
+  if (!isOpen) return null;
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Atalhos de Teclado · SEJU Gov.PR"
-      description="Navegue rapidamente pelo sistema institucional utilizando teclas de atalho."
-      size="md"
-    >
-      <div className="space-y-5 py-2">
-        {categorias.map((cat) => {
-          const itens = SHORTCUTS.filter(s => s.categoria === cat);
-          return (
-            <div key={cat} className="space-y-2">
-              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                {cat}
-              </h4>
-              <div className="divide-y divide-[var(--border-subtle)] border border-[var(--border)] rounded-[var(--radius-md)] bg-[var(--surface-2)]/30 overflow-hidden">
-                {itens.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between px-3.5 py-2.5 text-xs hover:bg-[var(--surface-2)] transition-colors"
-                  >
-                    <span className="text-[var(--text)] font-medium">
-                      {item.descricao}
-                    </span>
-                    <div className="flex items-center gap-1 shrink-0 ml-3">
-                      {item.keys.map((k, kIdx) => (
-                        <React.Fragment key={kIdx}>
-                          <kbd className="px-2 py-0.5 min-w-[22px] text-center text-[10px] font-mono font-semibold bg-[var(--surface)] text-[var(--text)] border border-[var(--border-strong)] rounded shadow-xs">
-                            {k}
-                          </kbd>
-                          {kIdx < item.keys.length - 1 && (
-                            <span className="text-[10px] text-[var(--text-muted)]">+</span>
-                          )}
-                        </React.Fragment>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-
-        <div className="pt-2 text-center text-[11px] text-[var(--text-muted)]">
-          Pressione <kbd className="px-1.5 py-0.5 font-mono text-[10px] bg-[var(--surface-2)] border border-[var(--border)] rounded">Esc</kbd> a qualquer momento para fechar.
-        </div>
+    <Janela titulo="Atalhos de teclado" onFechar={onClose} largura="md">
+      <div className="space-y-5">
+        {GRUPOS.map(g => (
+          <section key={g.titulo}>
+            <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--text-subtle)]">{g.titulo}</h4>
+            <ul className="divide-y divide-[var(--border)] rounded-[18px] bg-[var(--surface-2)] px-4">
+              {g.itens.map(i => (
+                <li key={i.texto} className="flex items-center justify-between gap-3 py-2.5 text-sm text-[var(--text)]">
+                  {i.texto}
+                  <span className="flex gap-1">
+                    {i.teclas.map(t => (
+                      <kbd key={t} className="min-w-[28px] rounded-md border border-[var(--border-strong)] bg-[var(--surface)] px-2 py-0.5 text-center text-xs font-semibold text-[var(--text)]">
+                        {t}
+                      </kbd>
+                    ))}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
       </div>
-    </Modal>
+    </Janela>
   );
 };

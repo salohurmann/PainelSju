@@ -15,4 +15,3 @@ export * from './EmptyState';
 export * from './Avatar';
 export * from './Switch';
 export * from './PlacaMercosul';
-export * from './PainelOdometroCombustivel';

@@ -1,11 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useModulosPermitidos } from '../../modules/useModulosPermitidos';
 import { Activity, Bell, LogOut, Moon, Search, Shield, Sun, UserCheck } from 'lucide-react';
 import { Usuario, Notificacao } from '../../types';
 import { USUARIOS_MOCK } from '../../services/store';
-import { AppModuleId } from '../hub/AppLauncherHub';
-import { MODULOS_REGISTRY } from '../../modules/moduleRegistry';
-import { temPermissao } from '../../services/rbac';
-import { useSessao } from '../../auth/contexto';
+import type { AppModuleId } from '../../types';
 import { MarcaSeju } from '../marca/Araucaria';
 
 type Destino = 'hub' | AppModuleId | 'auditoria';
@@ -56,7 +54,6 @@ export const TopBar: React.FC<TopBarProps> = ({
   pendentesMesa = 0,
   pendentesFrota = 0,
 }) => {
-  const { estado } = useSessao();
   const [notifAberta, setNotifAberta] = useState(false);
   const [menuAberto, setMenuAberto] = useState(false);
   const [escuro, setEscuro] = useState(() => document.documentElement.classList.contains('dark'));
@@ -79,9 +76,7 @@ export const TopBar: React.FC<TopBarProps> = ({
     setEscuro(proximo);
   };
 
-  const modulos = estado.fase === 'autenticado'
-    ? MODULOS_REGISTRY.filter((m) => estado.contexto.modulos.some((x) => x.id === m.id))
-    : MODULOS_REGISTRY.filter((m) => temPermissao(currentUser, m.permissaoMinima));
+  const modulos = useModulosPermitidos(currentUser);
 
   const pilulas: Array<{ id: Destino; rotulo: string; selo?: number }> = [
     { id: 'hub', rotulo: 'Mesa', selo: pendentesMesa || undefined },

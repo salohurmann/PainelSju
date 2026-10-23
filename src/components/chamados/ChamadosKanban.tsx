@@ -5,7 +5,7 @@ import { soundFX } from '../../services/soundFx';
 import { eventBus } from '../../services/eventBus';
 import { temPermissao } from '../../services/rbac';
 import { ModuloCabecalho, AcaoModulo, NumeroModulo, AbasModulo } from '../modulo/ModuloCabecalho';
-import { Plus, Search, X, Check, RotateCcw, Send, Clock, UserRound, Monitor, Wrench, Package, AlertCircle } from 'lucide-react';
+import { Plus, Search, Check, RotateCcw, Send, Clock, UserRound, Monitor, Wrench, Package, AlertCircle } from 'lucide-react';
 
 export interface NotaChamado {
   id: string;
