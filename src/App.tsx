@@ -14,7 +14,7 @@ import {
 import { eventBus } from './services/eventBus';
 import { crossCuttingService } from './services/crossCuttingService';
 import { TopBar } from './components/layout/TopBar';
-import type { AppModuleId } from './types';
+import { useRota, type DestinoApp } from './services/rota';
 import { MesaDespacho } from './components/mesa/MesaDespacho';
 import { NovaSolicitacaoForm } from './components/frota/NovaSolicitacaoForm';
 import { FilaAprovacao } from './components/frota/FilaAprovacao';
@@ -52,6 +52,11 @@ export type FrotaSubTab =
   | 'frota'
   | 'consultar';
 
+const TITULO_TELA: Record<Exclude<DestinoApp, 'hub'>, string> = {
+  frota: 'Frotas', chamados: 'Chamados', salas: 'Salas', diarias: 'Diárias', cense: 'CENSE', ramais: 'Ramais', votacao: 'Votação', admin: 'Admin', auditoria: 'Auditoria',
+};
+const ABAS_FROTA: FrotaSubTab[] = ['visao-geral', 'nova-solicitacao', 'aprovacoes', 'checkin-checkout', 'frota', 'consultar'];
+
 export interface SessaoReal {
   usuario: Usuario;
   sair: () => Promise<void>;
@@ -70,16 +75,12 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
   const acessoDemo = useAcessoDemo();
   const currentUser = sessao?.usuario ?? aplicarAcesso(completarSigla(state.currentUser), acessoDemo);
   const modulosPermitidos = useModulosPermitidos(currentUser).map(m => m.id);
-  const [activeApp, setActiveApp] = useState<'hub' | AppModuleId | 'auditoria'>(() => {
-    if (typeof window !== 'undefined') {
-      const urlApp = new URLSearchParams(window.location.search).get('app') as any;
-      if (urlApp && ['hub', 'frota', 'chamados', 'salas', 'diarias', 'cense', 'ramais', 'votacao', 'admin', 'auditoria'].includes(urlApp)) {
-        return urlApp;
-      }
-    }
-    return 'hub';
-  });
-  const [frotaTab, setFrotaTab] = useState<FrotaSubTab>('nova-solicitacao');
+  // Tela e subaba vêm do endereço (#/frota/aprovacoes): voltar do navegador e links funcionam.
+  const [rota, navegar] = useRota();
+  const activeApp = rota.app;
+  const setActiveApp = (app: DestinoApp) => navegar(app);
+  const frotaTab: FrotaSubTab = activeApp === 'frota' && ABAS_FROTA.includes(rota.aba as FrotaSubTab) ? (rota.aba as FrotaSubTab) : 'nova-solicitacao';
+  const setFrotaTab = (aba: FrotaSubTab) => navegar('frota', aba);
   const [toast, setToast] = useState<ToastItem | null>(null);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [hotkeysHelpOpen, setHotkeysHelpOpen] = useState(false);
@@ -245,12 +246,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
   };
 
   // Abrir Aplicativo do Hub
-  const handleOpenApp = (appId: 'hub' | AppModuleId | 'auditoria', subTab?: string) => {
-    setActiveApp(appId);
-    if (appId === 'frota' && subTab) {
-      setFrotaTab(subTab as FrotaSubTab);
-    }
-  };
+  const handleOpenApp = (appId: DestinoApp, subTab?: string) => navegar(appId, subTab);
 
   // Enviar Nova Solicitação de Veículo
   const handleNovaSolicitacao = async (novoAg: Agendamento) => {
@@ -388,6 +384,10 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
   const semAcesso = destino !== 'hub' && !modulosPermitidos.includes(destino);
   const abaVisivel = semAcesso ? null : destino;
 
+  useEffect(() => {
+    document.title = abaVisivel && abaVisivel !== 'hub' ? `${TITULO_TELA[abaVisivel]} · Seju.` : 'Painel de Gestão Integrada · SEJU-PR';
+  }, [abaVisivel]);
+
   const pendentesChefia = state.agendamentos.filter(a => a.status === 'pendente').length;
   // Selo da Mesa: pendências que esta pessoa pode decidir (nunca as próprias)
   const pendentesMesa = currentUser.role === 'chefe_gabinete' || currentUser.role === 'admin'
@@ -439,11 +439,13 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
             <VotacaoView
               currentUser={currentUser}
               onVoltarHub={soVotacao ? undefined : () => setActiveApp('hub')}
+              aba={rota.app === 'votacao' ? rota.aba : undefined}
+              onAba={a => navegar('votacao', a)}
               pessoasLogin={USUARIOS_MOCK.map(u => aplicarAcesso(u, acessoDemo)).filter(u => u.role === 'entidade_votante').map(u => ({ id: u.id, nome: u.nome, email: u.email }))}
             />
           )}
 
-          {abaVisivel === 'admin' && <AdminView usuarioId={currentUser.id} onVoltar={() => setActiveApp('hub')} />}
+          {abaVisivel === 'admin' && <AdminView usuarioId={currentUser.id} onVoltar={() => setActiveApp('hub')} aba={rota.aba} onAba={a => navegar('admin', a)} />}
 
           {/* TELA INICIAL: O HUB */}
           {abaVisivel === 'hub' && (
@@ -622,12 +624,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
         isOpen={commandPaletteOpen}
         onClose={() => setCommandPaletteOpen(false)}
         modulosPermitidos={modulosPermitidos}
-        onNavigate={(appId, subTab) => {
-          setActiveApp(appId as any);
-          if (appId === 'frota' && subTab) {
-            setFrotaTab(subTab as FrotaSubTab);
-          }
-        }}
+        onNavigate={(appId, subTab) => navegar(appId, subTab)}
       />
 
       {/* Modal Institucional de Atalhos de Teclado (?) */}

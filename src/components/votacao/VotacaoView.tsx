@@ -17,9 +17,13 @@ interface VotacaoViewProps {
   onVoltarHub?: () => void;
   /** Pessoas que podem virar login de entidade (papel "entidade votante"). */
   pessoasLogin?: Array<{ id: string; nome: string; email: string }>;
+  /** Subaba vinda do endereço (#/modulo/subaba). */
+  aba?: string;
+  onAba?: (aba: string) => void;
 }
 
 type Aba = 'eleicoes' | 'entidades';
+const ABAS: Aba[] = ['eleicoes', 'entidades'];
 
 const SITUACAO: Record<SituacaoEleicao, { texto: string; cls: string }> = {
   aberta: { texto: 'Aberta', cls: 'bg-[var(--verde-soft)] text-[var(--verde)]' },
@@ -37,7 +41,7 @@ const paraInput = (iso: string) => {
 const deInput = (v: string) => new Date(v).toISOString();
 const mensagem = (e: unknown) => (e instanceof Error ? e.message : 'Não foi possível concluir. Tente de novo.');
 
-export const VotacaoView: React.FC<VotacaoViewProps> = ({ currentUser, onVoltarHub, pessoasLogin = [] }) => {
+export const VotacaoView: React.FC<VotacaoViewProps> = ({ currentUser, onVoltarHub, pessoasLogin = [], aba: abaRota, onAba }) => {
   const { estado } = useSessao();
   const api: ApiVotacao = useMemo(
     () => (estado.fase === 'autenticado' ? apiVotacaoSupabase : apiVotacaoDemo(currentUser)),
@@ -46,7 +50,9 @@ export const VotacaoView: React.FC<VotacaoViewProps> = ({ currentUser, onVoltarH
   const gerencia = temPermissao(currentUser, 'votacao:gerenciar');
   const vota = temPermissao(currentUser, 'votacao:votar');
 
-  const [aba, setAba] = useState<Aba>('eleicoes');
+  const [abaLocal, setAbaLocal] = useState<Aba>('eleicoes');
+  const aba: Aba = ABAS.includes(abaRota as Aba) ? (abaRota as Aba) : onAba ? 'eleicoes' : abaLocal;
+  const setAba = (a: Aba) => (onAba ? onAba(a) : setAbaLocal(a));
   const [eleicoes, setEleicoes] = useState<Eleicao[] | null>(null);
   const [entidades, setEntidades] = useState<Entidade[]>([]);
   const [minha, setMinha] = useState<Entidade | null>(null);

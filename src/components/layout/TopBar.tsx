@@ -26,6 +26,15 @@ export interface TopBarProps {
   pendentesFrota?: number;
 }
 
+/** Para onde cada notificação leva ao ser clicada. */
+const DESTINO_NOTIFICACAO: Partial<Record<Notificacao['tipo'], [Destino, string?]>> = {
+  nova_solicitacao: ['frota', 'aprovacoes'],
+  aprovado: ['frota', 'consultar'],
+  reprovado: ['frota', 'consultar'],
+  checkin: ['frota', 'checkin-checkout'],
+  checkout: ['frota', 'checkin-checkout'],
+};
+
 /** Nomes curtos para as pílulas da navegação. */
 const ROTULO_CURTO: Record<string, string> = {
   frota: 'Frotas',
@@ -171,7 +180,14 @@ export const TopBar: React.FC<TopBarProps> = ({
                       <li key={n.id}>
                         <button
                           type="button"
-                          onClick={() => onMarkNotificationRead(n.id)}
+                          onClick={() => {
+                            onMarkNotificationRead(n.id);
+                            const [app, aba] = DESTINO_NOTIFICACAO[n.tipo] ?? [];
+                            if (app) {
+                              setNotifAberta(false);
+                              onNavigateApp(app, aba);
+                            }
+                          }}
                           className={`w-full text-left px-5 py-3.5 hover:bg-[var(--surface-2)] cursor-pointer ${!n.lida ? 'bg-[var(--lima-soft)]' : ''}`}
                         >
                           <span className="block text-[13.5px] font-semibold">{n.titulo}</span>

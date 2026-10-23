@@ -10,20 +10,26 @@ interface AdminViewProps {
   onVoltar?: () => void;
   /** id da pessoa logada (não pode tirar o próprio acesso de admin). */
   usuarioId: string;
+  /** Subaba vinda do endereço (#/modulo/subaba). */
+  aba?: string;
+  onAba?: (aba: string) => void;
 }
 
 type Aba = 'pessoas' | 'modulos' | 'papeis' | 'setores';
+const ABAS: Aba[] = ['pessoas', 'modulos', 'papeis', 'setores'];
 
 const ROTULO_MODULO: Record<string, string> = {
   frota: 'Frotas', chamados: 'Chamados', salas: 'Salas', diarias: 'Diárias', cense: 'CENSE', ramais: 'Ramais', votacao: 'Votação', auditoria: 'Auditoria', admin: 'Administração',
 };
 const mensagem = (e: unknown) => (e instanceof Error ? e.message : 'Não foi possível salvar. Tente de novo.');
 
-export const AdminView: React.FC<AdminViewProps> = ({ onVoltar, usuarioId }) => {
+export const AdminView: React.FC<AdminViewProps> = ({ onVoltar, usuarioId, aba: abaRota, onAba }) => {
   const { estado } = useSessao();
   const real = estado.fase === 'autenticado';
   const api = real ? apiAdminSupabase : apiAdminDemo;
-  const [aba, setAba] = useState<Aba>('pessoas');
+  const [abaLocal, setAbaLocal] = useState<Aba>('pessoas');
+  const aba: Aba = ABAS.includes(abaRota as Aba) ? (abaRota as Aba) : onAba ? 'pessoas' : abaLocal;
+  const setAba = (a: Aba) => (onAba ? onAba(a) : setAbaLocal(a));
   const [dados, setDados] = useState<DadosAdmin | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
