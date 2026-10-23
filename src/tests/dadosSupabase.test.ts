@@ -78,9 +78,11 @@ describe('sessão', () => {
       permissoes: ['chamados:atender'], modulos: [], notificacoes_nao_lidas: 0,
     };
     const u = paraUsuarioLegado(contexto);
-    expect(u.role).toBe('servidor');
+    expect(u.role).toBe('tecnico_ti');
     expect(u.cpf).toBe('');
     expect(u.setor).toBe('Tecnologia');
+    expect(u.setorSigla).toBe('UTEC');
+    expect(paraUsuarioLegado({ ...contexto, perfil: { ...contexto.perfil, papel_id: 'papel_novo' } }).role).toBe('servidor');
     expect(paraUsuarioLegado({ ...contexto, perfil: { ...contexto.perfil, papel_id: 'chefe_gabinete' } }).role).toBe('chefe_gabinete');
   });
 });

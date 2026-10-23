@@ -37,7 +37,7 @@ insert into auth.users (id, email, raw_user_meta_data) values
   (:tecnico, 'tecnico@teste.gov', '{"nome":"Técnico Teste","setor_sigla":"UTEC","papel_id":"tecnico_ti"}'),
   (:chefe,   'chefe@teste.gov',   '{"nome":"Chefe Teste","setor_sigla":"GAB","papel_id":"chefe_gabinete"}'),
   (:frota,   'frota@teste.gov',   '{"nome":"Frota Teste","setor_sigla":"TRANSP","papel_id":"gestor_frota"}'),
-  (:diretor, 'diretor@teste.gov', '{"nome":"Diretor Teste","setor_sigla":"DEASE","papel_id":"diretor_cense"}'),
+  (:diretor, 'diretor@teste.gov', '{"nome":"Diretor Teste","setor_sigla":"NFS","papel_id":"diretor_cense"}'),
   (:admin,   'admin@teste.gov',   '{"nome":"Admin Teste","setor_sigla":"UTEC","papel_id":"admin"}'),
   (:inativo, 'inativo@teste.gov', '{"nome":"Inativo Teste","setor_sigla":"NAS","papel_id":"chefe_gabinete"}');
 
@@ -46,4 +46,4 @@ update public.perfis set ativo = false where id = :inativo;
 select teste.ok((select count(*) from public.perfis) = 8, 'trigger cria perfil para cada usuário do Auth');
 select teste.ok((select papel_id from public.perfis where id = :chefe) = 'chefe_gabinete', 'papel vem dos metadados');
 select teste.ok((select cpf from public.perfis where id = :lucia) = '11144477735', 'CPF é normalizado para dígitos');
-select teste.ok((select s.sigla from public.perfis p join public.setores s on s.id = p.setor_id where p.id = :diretor) = 'DEASE', 'setor vem da sigla');
+select teste.ok((select s.sigla from public.perfis p join public.setores s on s.id = p.setor_id where p.id = :diretor) = 'NFS', 'setor vem da sigla');

@@ -6,6 +6,8 @@ import {
   Coins, 
   PhoneCall, 
   ShieldCheck,
+  Vote,
+  Settings,
   PlusCircle,
   
   
@@ -218,6 +220,15 @@ export const MODULOS_REGISTRY: ModuleManifest[] = [
     }
   },
   {
+    id: 'votacao',
+    nome: 'Votação',
+    descricao: 'Eleições das entidades (setor UTSC).',
+    icone: Vote,
+    grupo: 'operacao',
+    permissaoMinima: 'votacao:ver',
+    resumoHome: () => ({ valor: '', rotulo: 'eleições', badge: 'UTSC', badgeVariant: 'brand' }),
+  },
+  {
     id: 'auditoria',
     nome: 'Auditoria',
     descricao: 'Registro de quem fez o quê no sistema.',
@@ -227,7 +238,7 @@ export const MODULOS_REGISTRY: ModuleManifest[] = [
     resumoHome: (ctx) => ({
       valor: `${(ctx?.logs || []).length} blocos`,
       rotulo: 'auditados com SHA-256',
-      badge: 'ICP-PR Ativo',
+      badge: 'SHA-256',
       badgeVariant: 'success'
     }),
     ajudaContextual: {
@@ -238,6 +249,15 @@ export const MODULOS_REGISTRY: ModuleManifest[] = [
         { titulo: '3. Filtros Forenses', descricao: 'Filtre registros por tipo de ação, período ou servidor responsável.' }
       ]
     }
+  },
+  {
+    id: 'admin',
+    nome: 'Administração',
+    descricao: 'Pessoas, setores, papéis e quem vê cada aba.',
+    icone: Settings,
+    grupo: 'seguranca',
+    permissaoMinima: 'seguranca:administrar',
+    resumoHome: () => ({ valor: '', rotulo: 'acessos', badge: 'Admin', badgeVariant: 'neutral' }),
   }
 ];
 

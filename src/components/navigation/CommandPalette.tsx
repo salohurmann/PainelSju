@@ -3,7 +3,7 @@ import { Search, CornerDownLeft, Car, CheckSquare, ClipboardCheck, Wrench, Calen
 import { useJanela } from '../ui/Janela';
 import { RAMAIS_DATA } from '../ramais/dadosRamais';
 
-type Destino = 'hub' | 'frota' | 'chamados' | 'salas' | 'diarias' | 'cense' | 'ramais' | 'auditoria';
+type Destino = 'hub' | 'frota' | 'chamados' | 'salas' | 'diarias' | 'cense' | 'ramais' | 'votacao' | 'admin' | 'auditoria';
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -42,11 +42,13 @@ const MODULOS: Item[] = [
   { id: 'm-diarias', grupo: 'Ir para', titulo: 'Diárias', detalhe: 'Viagens a serviço', icone: <Plane size={18} />, modulo: 'diarias' },
   { id: 'm-cense', grupo: 'Ir para', titulo: 'CENSE', detalhe: 'Fundo rotativo das unidades', icone: <Building2 size={18} />, modulo: 'cense' },
   { id: 'm-ramais', grupo: 'Ir para', titulo: 'Ramais', detalhe: 'Contatos da sede', icone: <Phone size={18} />, modulo: 'ramais' },
+  { id: 'm-votacao', grupo: 'Ir para', titulo: 'Votação', detalhe: 'Eleições das entidades', icone: <CheckSquare size={18} />, modulo: 'votacao', palavras: 'eleição votar entidades utsc' },
+  { id: 'm-admin', grupo: 'Ir para', titulo: 'Administração', detalhe: 'Pessoas e acessos', icone: <ShieldCheck size={18} />, modulo: 'admin', palavras: 'permissões setores papéis usuários' },
   { id: 'm-auditoria', grupo: 'Ir para', titulo: 'Auditoria', detalhe: 'Registro de ações', icone: <ShieldCheck size={18} />, modulo: 'auditoria' },
 ];
 
 const MODULO_DO_DESTINO: Record<Destino, string | null> = {
-  hub: null, frota: 'frota', chamados: 'chamados', salas: 'salas', diarias: 'diarias', cense: 'cense', ramais: 'ramais', auditoria: 'auditoria',
+  hub: null, frota: 'frota', chamados: 'chamados', salas: 'salas', diarias: 'diarias', cense: 'cense', ramais: 'ramais', votacao: 'votacao', admin: 'admin', auditoria: 'auditoria',
 };
 
 const normalizar = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -66,7 +68,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
 
   const permitido = (i: Item) => {
     const m = MODULO_DO_DESTINO[i.modulo];
-    return !m || !modulosPermitidos || modulosPermitidos.includes(m);
+    if (!m) return !(modulosPermitidos && modulosPermitidos.length === 1 && modulosPermitidos[0] === 'votacao');
+    return !modulosPermitidos || modulosPermitidos.includes(m);
   };
 
   const itens = useMemo(() => {

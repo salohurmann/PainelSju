@@ -23,7 +23,8 @@ export const USUARIOS_MOCK: Usuario[] = [
     role: 'servidor',
     email: 'lucia.viana@seju.pr.gov.br',
     cpf: '341.892.519-72',
-    setor: 'NAS',
+    setor: 'Núcleo Administrativo Setorial',
+    setorSigla: 'NAS',
     cargo: 'Técnica Administrativa · Núcleo Administrativo Setorial'
   },
   {
@@ -33,7 +34,8 @@ export const USUARIOS_MOCK: Usuario[] = [
     role: 'servidor',
     email: 'otavio.carvalho@seju.pr.gov.br',
     cpf: '582.109.348-15',
-    setor: 'UTEC',
+    setor: 'Unidade Técnica de TI',
+    setorSigla: 'UTEC',
     cargo: 'Analista de Sistemas · Unidade Técnica de TI'
   },
   {
@@ -44,6 +46,7 @@ export const USUARIOS_MOCK: Usuario[] = [
     email: 'carlos.silveira@seju.pr.gov.br',
     cpf: '123.456.789-00',
     setor: 'Coordenação de Direitos Humanos',
+    setorSigla: 'CDH',
     cargo: 'Agente Profissional'
   },
   {
@@ -54,6 +57,7 @@ export const USUARIOS_MOCK: Usuario[] = [
     email: 'chefia.gabinete@seju.pr.gov.br',
     cpf: '987.654.321-99',
     setor: 'Chefia de Gabinete',
+    setorSigla: 'GAB',
     cargo: 'Chefe de Gabinete'
   },
   {
@@ -64,6 +68,7 @@ export const USUARIOS_MOCK: Usuario[] = [
     email: 'transporte.seju@pr.gov.br',
     cpf: '456.789.123-55',
     setor: 'Setor de Transporte e Frotas',
+    setorSigla: 'TRANSP',
     cargo: 'Gestor de Transporte'
   },
   {
@@ -73,8 +78,42 @@ export const USUARIOS_MOCK: Usuario[] = [
     role: 'admin',
     email: 'admin.sistema@seju.pr.gov.br',
     cpf: '000.000.000-00',
-    setor: 'Tecnologia da Informação',
+    setor: 'Unidade Técnica de TI',
+    setorSigla: 'UTEC',
     cargo: 'Administrador Geral'
+  },
+  {
+    id: 'u-financeiro',
+    nome: 'Renata Coelho',
+    username: 'renata.coelho',
+    role: 'diretor_cense',
+    email: 'renata.coelho@seju.pr.gov.br',
+    cpf: '219.554.870-31',
+    setor: 'Núcleo Financeiro',
+    setorSigla: 'NFS',
+    cargo: 'Analista Financeira'
+  },
+  {
+    id: 'u-utsc',
+    nome: 'Fernanda Rocha',
+    username: 'fernanda.rocha',
+    role: 'gestor_votacao',
+    email: 'fernanda.rocha@seju.pr.gov.br',
+    cpf: '604.338.112-07',
+    setor: 'Unidade Técnica (UTSC)',
+    setorSigla: 'UTSC',
+    cargo: 'Coordenadora da UTSC'
+  },
+  {
+    id: 'u-entidade',
+    nome: 'Rosana Telles',
+    username: 'apai',
+    role: 'entidade_votante',
+    email: 'contato@apai.org.br',
+    cpf: '',
+    setor: 'Unidade Técnica (UTSC)',
+    setorSigla: 'UTSC',
+    cargo: 'Associação Paranaense de Apoio à Infância'
   }
 ];
 

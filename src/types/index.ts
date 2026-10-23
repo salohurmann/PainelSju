@@ -1,4 +1,12 @@
-export type UserRole = 'servidor' | 'chefe_gabinete' | 'gestor_frota' | 'admin';
+export type UserRole =
+  | 'servidor'
+  | 'tecnico_ti'
+  | 'gestor_frota'
+  | 'diretor_cense'
+  | 'chefe_gabinete'
+  | 'gestor_votacao'
+  | 'entidade_votante'
+  | 'admin';
 
 export interface Usuario {
   id: string;
@@ -8,6 +16,8 @@ export interface Usuario {
   email: string;
   cpf: string;
   setor: string;
+  /** Sigla do setor (NAS, GAB, UTSC...). Decide quais módulos a pessoa vê. */
+  setorSigla?: string;
   cargo: string;
 }
 
@@ -109,4 +119,4 @@ export interface Notificacao {
 }
 
 /** Módulos que abrem dentro do Painel (a Mesa é 'hub'). */
-export type AppModuleId = 'frota' | 'chamados' | 'salas' | 'diarias' | 'cense' | 'ramais';
+export type AppModuleId = 'frota' | 'chamados' | 'salas' | 'diarias' | 'cense' | 'ramais' | 'votacao' | 'admin';

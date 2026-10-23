@@ -33,7 +33,7 @@ select teste.falha($$select public.registrar_auditoria('X_Y_Z', 'teste', null, '
 select teste.falha($$select public.notificar('22222222-2222-2222-2222-222222222222', 'spam', 'spam')$$,
   'permission denied', 'cliente não dispara notificações arbitrárias');
 
--- Módulo restrito por setor (CENSE só para DEASE e GAB no seed)
+-- Módulo restrito por setor (CENSE só para o financeiro, NFS, no seed)
 select teste.ok(not public.tem_permissao('cense:ver'), 'servidor de outro setor não tem permissão do módulo restrito');
 select teste.ok((select count(*) from public.cense_unidades) = 0, 'servidor de outro setor não lê dados do módulo restrito');
 select teste.ok(not (public.contexto_sessao()->'modulos' @> '[{"id":"cense"}]'), 'módulo restrito não aparece no menu');

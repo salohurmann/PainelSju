@@ -8,7 +8,7 @@ interface TrilhaAuditoriaProps {
   onVoltar?: () => void;
 }
 
-type Categoria = 'todos' | 'frota' | 'chamados' | 'salas' | 'cense' | 'lgpd';
+type Categoria = 'todos' | 'frota' | 'chamados' | 'salas' | 'cense' | 'votacao' | 'lgpd';
 
 /** Tradução das ações gravadas para linguagem de gente. */
 const ACOES: Array<{ teste: RegExp; texto: string; categoria: Exclude<Categoria, 'todos'> }> = [
@@ -20,6 +20,7 @@ const ACOES: Array<{ teste: RegExp; texto: string; categoria: Exclude<Categoria,
   { teste: /^CHAMADO/, texto: 'Abriu um chamado', categoria: 'chamados' },
   { teste: /^RESERVA_SALA/, texto: 'Reservou uma sala', categoria: 'salas' },
   { teste: /^NFE_CENSE/, texto: 'Lançou uma nota no CENSE', categoria: 'cense' },
+  { teste: /^VOTO_REGISTRADO/, texto: 'Registrou o voto da entidade', categoria: 'votacao' },
   { teste: /^LGPD_CPF_REVELADO/, texto: 'Viu um CPF completo', categoria: 'lgpd' },
 ];
 const traduzir = (acao: string) => ACOES.find(a => a.teste.test(acao)) ?? { texto: acao.replace(/_/g, ' ').toLowerCase(), categoria: 'frota' as const };
@@ -144,6 +145,7 @@ export const TrilhaAuditoria: React.FC<TrilhaAuditoriaProps> = ({ logs, onVoltar
             { id: 'chamados', rotulo: 'Chamados', contagem: contar('chamados') },
             { id: 'salas', rotulo: 'Salas', contagem: contar('salas') },
             { id: 'cense', rotulo: 'CENSE', contagem: contar('cense') },
+            { id: 'votacao', rotulo: 'Votação', contagem: contar('votacao') },
             { id: 'lgpd', rotulo: 'Dados pessoais', contagem: contar('lgpd') },
           ]}
         />

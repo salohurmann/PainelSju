@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { definirFontePermissoes } from '../services/rbac';
 import { supabase, supabaseConfigurado, tipoLinkDeAcesso } from '../lib/supabase';
 import * as sessaoApi from '../data/supabase/sessao';
 import { ContextoSessaoReact, paraUsuarioLegado, type EstadoSessao, type ValorSessao } from './contexto';
@@ -59,10 +60,13 @@ export const SessaoProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const valor = useMemo<ValorSessao>(() => {
     const contexto = estado.fase === 'autenticado' ? estado.contexto : null;
     const permissoes = new Set(contexto?.permissoes ?? []);
+    const pode = (p: string) => contexto?.perfil.papel_id === 'admin' || permissoes.has(p as never);
+    // As telas consultam rbac.temPermissao(): com login real, ele passa a responder pelo banco.
+    definirFontePermissoes(contexto ? { usuarioId: contexto.perfil.id, pode } : null);
     return {
       estado,
       usuario: contexto ? paraUsuarioLegado(contexto) : null,
-      pode: (p) => contexto?.perfil.papel_id === 'admin' || permissoes.has(p),
+      pode,
       entrar: async (email, senha) => {
         await sessaoApi.entrar(email, senha);
         await carregar();

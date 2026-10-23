@@ -64,6 +64,11 @@ export interface EventosDominio {
     rubrica: string;
     gestor: string;
   };
+  'votacao.voto_registrado': {
+    eleicaoId: string;
+    titulo: string;
+    entidade: string;
+  };
   'seguranca.cpf_revelado': {
     servidorConsultor: string;
     cpfConsultado: string;

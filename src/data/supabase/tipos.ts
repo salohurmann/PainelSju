@@ -4,7 +4,7 @@
  * `npx supabase gen types typescript --linked`.
  */
 
-export type PapelId = 'servidor' | 'tecnico_ti' | 'gestor_frota' | 'diretor_cense' | 'chefe_gabinete' | 'admin' | (string & {});
+export type PapelId = 'servidor' | 'tecnico_ti' | 'gestor_frota' | 'diretor_cense' | 'chefe_gabinete' | 'gestor_votacao' | 'entidade_votante' | 'admin' | (string & {});
 
 export type Permissao =
   | 'frotas:ver' | 'frotas:solicitar' | 'frotas:aprovar' | 'frotas:vistoria' | 'frotas:gerenciar'
@@ -13,6 +13,7 @@ export type Permissao =
   | 'diarias:ver' | 'diarias:solicitar' | 'diarias:aprovar' | 'diarias:gerenciar'
   | 'cense:ver' | 'cense:lancar_nfe' | 'cense:fiscalizar'
   | 'ramais:ver' | 'ramais:editar'
+  | 'votacao:ver' | 'votacao:votar' | 'votacao:gerenciar'
   | 'seguranca:auditar' | 'usuarios:gerenciar' | 'admin:configurar';
 
 export interface Setor { id: string; sigla: string; nome: string; ativo: boolean; criado_em: string }

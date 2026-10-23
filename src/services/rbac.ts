@@ -1,120 +1,36 @@
-import { Usuario, UserRole } from '../types';
+import type { Usuario } from '../types';
 
-export type Permissao =
-  // Frotas
-  | 'frotas:ver'
-  | 'frotas:solicitar'
-  | 'frotas:aprovar'
-  | 'frotas:vistoria'
-  | 'frotas:gerenciar'
-  // Chamados TI
-  | 'chamados:ver'
-  | 'chamados:abrir'
-  | 'chamados:atender'
-  | 'chamados:gerenciar'
-  // Reserva de Salas
-  | 'salas:ver'
-  | 'salas:reservar'
-  | 'salas:cancelar_qualquer'
-  // Diárias
-  | 'diarias:ver'
-  | 'diarias:calcular'
-  | 'diarias:aprovar'
-  // CENSE
-  | 'cense:ver'
-  | 'cense:lancar_nfe'
-  | 'cense:fiscalizar'
-  // Ramais
-  | 'ramais:ver'
-  | 'ramais:editar'
-  // Segurança & Auditoria
-  | 'seguranca:auditar'
-  | 'seguranca:administrar';
+import { temPermissaoDemo, type PermissaoDemo } from './acessoDemo';
+
+export type Permissao = PermissaoDemo;
 
 /**
- * Matriz de Permissões RBAC Oficial SEJU/PR
+ * Com login real, quem responde é o banco (contexto da sessão). O SessaoProvider
+ * registra aqui a função "pode" do usuário logado.
  */
-const MATRIZ_PERMISSOES: Record<UserRole, Permissao[]> = {
-  servidor: [
-    'frotas:ver',
-    'frotas:solicitar',
-    'chamados:ver',
-    'chamados:abrir',
-    'salas:ver',
-    'salas:reservar',
-    'diarias:ver',
-    'diarias:calcular',
-    'cense:ver',
-    'ramais:ver'
-  ],
-  gestor_frota: [
-    'frotas:ver',
-    'frotas:solicitar',
-    'frotas:aprovar',
-    'frotas:vistoria',
-    'frotas:gerenciar',
-    'chamados:ver',
-    'chamados:abrir',
-    'salas:ver',
-    'salas:reservar',
-    'diarias:ver',
-    'diarias:calcular',
-    'cense:ver',
-    'ramais:ver',
-    'seguranca:auditar'
-  ],
-  chefe_gabinete: [
-    'frotas:ver',
-    'frotas:solicitar',
-    'frotas:aprovar',
-    'frotas:vistoria',
-    'chamados:ver',
-    'chamados:abrir',
-    'salas:ver',
-    'salas:reservar',
-    'salas:cancelar_qualquer',
-    'diarias:ver',
-    'diarias:calcular',
-    'diarias:aprovar',
-    'cense:ver',
-    'cense:fiscalizar',
-    'ramais:ver',
-    'seguranca:auditar'
-  ],
-  admin: [
-    'frotas:ver',
-    'frotas:solicitar',
-    'frotas:aprovar',
-    'frotas:vistoria',
-    'frotas:gerenciar',
-    'chamados:ver',
-    'chamados:abrir',
-    'chamados:atender',
-    'chamados:gerenciar',
-    'salas:ver',
-    'salas:reservar',
-    'salas:cancelar_qualquer',
-    'diarias:ver',
-    'diarias:calcular',
-    'diarias:aprovar',
-    'cense:ver',
-    'cense:lancar_nfe',
-    'cense:fiscalizar',
-    'ramais:ver',
-    'ramais:editar',
-    'seguranca:auditar',
-    'seguranca:administrar'
-  ]
+type FonteReal = { usuarioId: string; pode: (permissao: string) => boolean };
+let fonteReal: FonteReal | null = null;
+export function definirFontePermissoes(f: FonteReal | null): void {
+  fonteReal = f;
+}
+
+// Nomes que mudaram entre o front antigo e o banco.
+const NO_BANCO: Partial<Record<Permissao, string[]>> = {
+  'diarias:calcular': ['diarias:solicitar'],
+  'seguranca:administrar': ['usuarios:gerenciar', 'admin:configurar'],
 };
 
 /**
  * Verifica se um usuário possui determinada permissão
+ * (papel + módulo liberado para o setor dele).
  */
 export function temPermissao(usuario: Usuario | null | undefined, permissao: Permissao): boolean {
   if (!usuario) return false;
-  if (usuario.role === 'admin') return true;
-  const permissoes = MATRIZ_PERMISSOES[usuario.role] || [];
-  return permissoes.includes(permissao);
+  if (fonteReal && fonteReal.usuarioId === usuario.id) {
+    const nomes = NO_BANCO[permissao] ?? [permissao];
+    return nomes.some(n => fonteReal!.pode(n));
+  }
+  return temPermissaoDemo(usuario, permissao);
 }
 
 /**

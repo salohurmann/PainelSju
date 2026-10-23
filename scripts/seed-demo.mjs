@@ -37,8 +37,11 @@ const PESSOAS = [
   { login: 'otavio.carvalho', nome: 'Otávio Lins Carvalho', setor: 'UTEC',   papel: 'tecnico_ti',     cargo: 'Analista de Sistemas' },
   { login: 'marcos.viana',    nome: 'Marcos Viana',         setor: 'TRANSP', papel: 'gestor_frota',   cargo: 'Gestor de Transporte' },
   { login: 'maria.helena',    nome: 'Dra. Maria Helena',    setor: 'GAB',    papel: 'chefe_gabinete', cargo: 'Chefe de Gabinete' },
-  { login: 'direcao.cense',   nome: 'Direção CENSE Curitiba', setor: 'DEASE', papel: 'diretor_cense', cargo: 'Diretor de Unidade' },
+  { login: 'direcao.cense',   nome: 'Direção CENSE Curitiba', setor: 'NFS', papel: 'diretor_cense', cargo: 'Diretor de Unidade' },
   { login: 'admin',           nome: 'Administração do Painel', setor: 'UTEC', papel: 'admin',         cargo: 'Administrador do Sistema' },
+  { login: 'utsc.gestao',     nome: 'Fernanda Rocha',       setor: 'UTSC',   papel: 'gestor_votacao', cargo: 'Coordenadora da UTSC' },
+  { login: 'entidade.infancia', nome: 'Rosana Telles',      setor: 'UTSC',   papel: 'entidade_votante', cargo: 'Associação Paranaense de Apoio à Infância', entidade: 'Associação Paranaense de Apoio à Infância' },
+  { login: 'entidade.reconstruir', nome: 'Paulo Mendes',    setor: 'UTSC',   papel: 'entidade_votante', cargo: 'Instituto Reconstruir Cidadania', entidade: 'Instituto Reconstruir Cidadania' },
 ];
 
 async function usuariosExistentes() {
@@ -83,6 +86,11 @@ async function main() {
     if (error) throw new Error(`Falha ao criar ${email}: ${error.message}`);
     ids[p.login] = data.user.id;
     console.log(`+ ${email} (${p.papel})`);
+  }
+
+  // Logins das entidades da votação
+  for (const p of PESSOAS.filter((x) => x.entidade)) {
+    await db.from('vot_entidades').update({ perfil_id: ids[p.login] }).eq('nome', p.entidade);
   }
 
   // Direção CENSE responde pela unidade de Curitiba

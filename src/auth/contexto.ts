@@ -30,10 +30,10 @@ export function useSessao(): ValorSessao {
   return v;
 }
 
-/** Papéis novos que ainda não existem no front antigo usam o equivalente mais próximo. */
+const PAPEIS_CONHECIDOS: UserRole[] = ['servidor', 'tecnico_ti', 'gestor_frota', 'diretor_cense', 'chefe_gabinete', 'gestor_votacao', 'entidade_votante', 'admin'];
+/** Papel criado no banco que o front ainda não conhece vira "servidor" só para exibição; as permissões vêm do banco. */
 function papelLegado(papel: string): UserRole {
-  if (papel === 'admin' || papel === 'chefe_gabinete' || papel === 'gestor_frota') return papel;
-  return 'servidor';
+  return (PAPEIS_CONHECIDOS as string[]).includes(papel) ? (papel as UserRole) : 'servidor';
 }
 
 /** Converte o contexto do banco para o tipo Usuario usado pelas telas atuais. */
@@ -46,6 +46,7 @@ export function paraUsuarioLegado(c: ContextoSessao): Usuario {
     email: c.perfil.email,
     cpf: '',
     setor: c.perfil.setor?.nome ?? '',
+    setorSigla: c.perfil.setor?.sigla,
     cargo: c.perfil.cargo,
   };
 }

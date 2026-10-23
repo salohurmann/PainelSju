@@ -9,7 +9,7 @@ import { Araucaria, PALETAS } from '../marca/Araucaria';
  * Diárias lima, CENSE tinta, Ramais céu.
  * As cores da faixa são fixas (iguais no claro e no escuro) para manter a identidade.
  */
-export type CorModulo = 'azul' | 'noite' | 'verde' | 'lima' | 'tinta' | 'ceu';
+export type CorModulo = 'azul' | 'noite' | 'verde' | 'lima' | 'tinta' | 'ceu' | 'mata';
 
 const TEMAS: Record<
   CorModulo,
@@ -20,6 +20,7 @@ const TEMAS: Record<
   verde: { fundo: '#00703C', texto: '#FFFFFF', suave: 'rgba(255,255,255,0.78)', acento: '#C6E86B', botao: 'rgba(255,255,255,0.14)', arvore: 'clara' },
   lima: { fundo: '#C6E86B', texto: '#0B1B2E', suave: 'rgba(11,27,46,0.72)', acento: '#00703C', botao: 'rgba(11,27,46,0.08)', arvore: 'marca' },
   tinta: { fundo: '#00385E', texto: '#FFFFFF', suave: 'rgba(255,255,255,0.72)', acento: '#3CC27F', botao: 'rgba(255,255,255,0.12)', arvore: 'mata' },
+  mata: { fundo: '#0E4D32', texto: '#FFFFFF', suave: 'rgba(255,255,255,0.75)', acento: '#C6E86B', botao: 'rgba(255,255,255,0.12)', arvore: 'clara' },
   ceu: { fundo: '#DCEEFB', texto: '#00385E', suave: 'rgba(0,56,94,0.72)', acento: '#0072BB', botao: 'rgba(0,56,94,0.08)', arvore: 'marca' },
 };
 
@@ -61,7 +62,7 @@ export const ModuloCabecalho: React.FC<ModuloCabecalhoProps> = ({
   return (
     <header
       data-cor-modulo={cor}
-      className={`relative overflow-hidden rounded-[28px] px-5 pt-5 pb-6 sm:px-9 sm:pt-7 sm:pb-8 ${cor === 'noite' || cor === 'tinta' ? 'ring-1 ring-inset ring-white/10' : ''}`}
+      className={`relative overflow-hidden rounded-[28px] px-5 pt-5 pb-6 sm:px-9 sm:pt-7 sm:pb-8 ${cor === 'noite' || cor === 'tinta' || cor === 'mata' ? 'ring-1 ring-inset ring-white/10' : ''}`}
       style={vars}
     >
       {arvore && (

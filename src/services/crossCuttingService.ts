@@ -192,7 +192,22 @@ class CrossCuttingService {
       this.dispatchLog(log);
     });
 
-    // 7. Auditoria LGPD de revelação de CPF
+    // 7. Voto registrado (sem dizer em quem: o voto é secreto)
+    eventBus.subscribe('votacao.voto_registrado', async ({ payload, timestamp }) => {
+      const hash = await generateAuditHash({ action: 'VOTO_REGISTRADO', ticket: payload.eleicaoId, cpf: '', timestamp, details: payload.entidade });
+      this.dispatchLog({
+        id: `log-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        time: timestamp,
+        user: payload.entidade,
+        cpf: '',
+        ip: '',
+        action: 'VOTO_REGISTRADO',
+        details: `Votou em “${payload.titulo}”.`,
+        hash,
+      });
+    });
+
+    // 8. Auditoria LGPD de revelação de CPF
     eventBus.subscribe('seguranca.cpf_revelado', async ({ payload, timestamp }) => {
       const hash = await generateAuditHash({
         action: 'LGPD_CPF_REVELADO',

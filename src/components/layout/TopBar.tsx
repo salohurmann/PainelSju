@@ -34,7 +34,9 @@ const ROTULO_CURTO: Record<string, string> = {
   diarias: 'Diárias',
   cense: 'CENSE',
   ramais: 'Ramais',
+  votacao: 'Votação',
   auditoria: 'Auditoria',
+  admin: 'Admin',
 };
 
 const semTitulo = (nome: string) => nome.replace(/^(Dra?\.|Sr\.|Sra\.)\s+/i, '');
@@ -78,8 +80,10 @@ export const TopBar: React.FC<TopBarProps> = ({
 
   const modulos = useModulosPermitidos(currentUser);
 
+  // Login de entidade só tem a Votação: não mostra a Mesa.
+  const soVotacao = modulos.length === 1 && modulos[0].id === 'votacao';
   const pilulas: Array<{ id: Destino; rotulo: string; selo?: number }> = [
-    { id: 'hub', rotulo: 'Mesa', selo: pendentesMesa || undefined },
+    ...(soVotacao ? [] : [{ id: 'hub' as Destino, rotulo: 'Mesa', selo: pendentesMesa || undefined }]),
     ...modulos.map((m) => ({
       id: m.id as Destino,
       rotulo: ROTULO_CURTO[m.id] ?? m.nome,

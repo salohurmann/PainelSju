@@ -1,18 +1,11 @@
 import { ModuloCabecalho, AcaoModulo, AbasModulo, NumeroModulo } from './components/modulo/ModuloCabecalho';
 import React, { useState, useEffect, useRef } from 'react';
+import { useAcessoDemo, aplicarAcesso } from './services/acessoDemo';
+import { VotacaoView } from './components/votacao/VotacaoView';
+import { AdminView } from './components/admin/AdminView';
 import { useModulosPermitidos } from './modules/useModulosPermitidos';
-import { 
-  Agendamento, 
-  Veiculo, 
-  Vistoria, 
-  
-  Usuario 
-} from './types';
-import { 
-  loadInitialState, 
-  saveStateToStorage,
-  
-} from './services/store';
+import { Agendamento, Veiculo, Vistoria, Usuario } from './types';
+import { loadInitialState, saveStateToStorage, USUARIOS_MOCK } from './services/store';
 import { 
   
   
@@ -64,15 +57,23 @@ export interface SessaoReal {
   sair: () => Promise<void>;
 }
 
+/** Estado salvo antes desta versão pode não ter a sigla do setor. */
+function completarSigla(u: Usuario): Usuario {
+  if (u.setorSigla) return u;
+  const base = USUARIOS_MOCK.find(x => x.id === u.id);
+  return base ? { ...u, setorSigla: base.setorSigla, role: u.role ?? base.role } : u;
+}
+
 export function App({ sessao }: { sessao?: SessaoReal } = {}) {
   const [state, setState] = useState(() => loadInitialState());
   // Com login real, o perfil vem do banco e não pode ser trocado pela interface.
-  const currentUser = sessao?.usuario ?? state.currentUser;
+  const acessoDemo = useAcessoDemo();
+  const currentUser = sessao?.usuario ?? aplicarAcesso(completarSigla(state.currentUser), acessoDemo);
   const modulosPermitidos = useModulosPermitidos(currentUser).map(m => m.id);
   const [activeApp, setActiveApp] = useState<'hub' | AppModuleId | 'auditoria'>(() => {
     if (typeof window !== 'undefined') {
       const urlApp = new URLSearchParams(window.location.search).get('app') as any;
-      if (urlApp && ['hub', 'frota', 'chamados', 'salas', 'diarias', 'cense', 'ramais', 'auditoria'].includes(urlApp)) {
+      if (urlApp && ['hub', 'frota', 'chamados', 'salas', 'diarias', 'cense', 'ramais', 'votacao', 'admin', 'auditoria'].includes(urlApp)) {
         return urlApp;
       }
     }
@@ -381,6 +382,12 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
     }));
   };
 
+  // Guarda de acesso: módulo fora do setor/papel não abre nem pelo endereço.
+  const soVotacao = modulosPermitidos.length === 1 && modulosPermitidos[0] === 'votacao';
+  const destino = activeApp === 'hub' && soVotacao ? 'votacao' : activeApp;
+  const semAcesso = destino !== 'hub' && !modulosPermitidos.includes(destino);
+  const abaVisivel = semAcesso ? null : destino;
+
   const pendentesChefia = state.agendamentos.filter(a => a.status === 'pendente').length;
   // Selo da Mesa: pendências que esta pessoa pode decidir (nunca as próprias)
   const pendentesMesa = currentUser.role === 'chefe_gabinete' || currentUser.role === 'admin'
@@ -416,8 +423,30 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
 
         {/* Área Central de Conteúdo */}
         <main className="flex-1 px-4 pt-2 pb-8 sm:px-8 max-w-[1360px] w-full mx-auto">
+          {/* Sem acesso a esta aba (setor ou papel não liberado) */}
+          {semAcesso && (
+            <div className="mx-auto mt-10 max-w-lg rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-8 text-center">
+              <div className="font-display text-2xl font-bold text-[var(--text)]">Esta aba não está liberada para você.</div>
+              <p className="mt-2 text-sm text-[var(--text-muted)]">O acesso depende do seu setor e do seu papel. Fale com a administração se precisar.</p>
+              <button type="button" onClick={() => setActiveApp('hub')} className="mt-5 h-11 rounded-full bg-[#0072BB] px-6 text-sm font-semibold text-white cursor-pointer">
+                Voltar para a Mesa
+              </button>
+            </div>
+          )}
+
+          {/* Entidade da votação: a casa dela é a Votação */}
+          {abaVisivel === 'votacao' && (
+            <VotacaoView
+              currentUser={currentUser}
+              onVoltarHub={soVotacao ? undefined : () => setActiveApp('hub')}
+              pessoasLogin={USUARIOS_MOCK.map(u => aplicarAcesso(u, acessoDemo)).filter(u => u.role === 'entidade_votante').map(u => ({ id: u.id, nome: u.nome, email: u.email }))}
+            />
+          )}
+
+          {abaVisivel === 'admin' && <AdminView usuarioId={currentUser.id} onVoltar={() => setActiveApp('hub')} />}
+
           {/* TELA INICIAL: O HUB */}
-          {activeApp === 'hub' && (
+          {abaVisivel === 'hub' && (
             <MesaDespacho
               currentUser={currentUser}
               veiculos={state.veiculos}
@@ -430,7 +459,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
           )}
 
           {/* MÓDULO 1: GESTÃO DE FROTAS */}
-          {activeApp === 'frota' && (
+          {abaVisivel === 'frota' && (
             <div className="space-y-6">
               <ModuloCabecalho
                 cor="azul"
@@ -521,7 +550,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
           )}
 
           {/* MÓDULO 2: CHAMADOS DE TI */}
-          {activeApp === 'chamados' && (
+          {abaVisivel === 'chamados' && (
             <ChamadosKanban
               currentUser={currentUser}
               onVoltarHub={() => setActiveApp('hub')}
@@ -529,7 +558,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
           )}
 
           {/* MÓDULO 3: RESERVA DE SALAS */}
-          {activeApp === 'salas' && (
+          {abaVisivel === 'salas' && (
             <ReservaSalasView
               currentUser={currentUser}
               onVoltarHub={() => setActiveApp('hub')}
@@ -537,7 +566,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
           )}
 
           {/* MÓDULO 4: DIÁRIAS & VIAGENS */}
-          {activeApp === 'diarias' && (
+          {abaVisivel === 'diarias' && (
             <CalculadoraDiariasView
               currentUser={currentUser}
               onVoltarHub={() => setActiveApp('hub')}
@@ -545,7 +574,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
           )}
 
           {/* MÓDULO 5: TELEFONIA & RAMAIS */}
-          {activeApp === 'ramais' && (
+          {abaVisivel === 'ramais' && (
             <GuiaRamaisView
               currentUser={currentUser}
               onVoltarHub={() => setActiveApp('hub')}
@@ -553,7 +582,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
           )}
 
           {/* MÓDULO 6: FUNDO ROTATIVO CENSE */}
-          {activeApp === 'cense' && (
+          {abaVisivel === 'cense' && (
             <FundoRotativoCenseView
               currentUser={currentUser}
               onVoltarHub={() => setActiveApp('hub')}
@@ -561,7 +590,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
           )}
 
           {/* MÓDULO 7: TRILHA DE AUDITORIA SHA-256 */}
-          {activeApp === 'auditoria' && (
+          {abaVisivel === 'auditoria' && (
             <TrilhaAuditoria logs={state.logs} onVoltar={() => setActiveApp('hub')} />
           )}
         </main>

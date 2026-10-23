@@ -37,7 +37,10 @@ insert into public.permissoes (id, modulo, descricao) values
   ('ramais:editar',            'ramais',    'Editar o guia de ramais'),
   ('seguranca:auditar',        'auditoria', 'Consultar e verificar a trilha de auditoria'),
   ('usuarios:gerenciar',       'admin',     'Gerir contas, papéis e setores das pessoas'),
-  ('admin:configurar',         'admin',     'Configurar papéis, permissões, módulos e tabelas')
+  ('admin:configurar',         'admin',     'Configurar papéis, permissões, módulos e tabelas'),
+  ('votacao:ver',              'votacao',   'Ver eleições e resultados encerrados'),
+  ('votacao:votar',            'votacao',   'Votar em nome da própria entidade'),
+  ('votacao:gerenciar',        'votacao',   'Criar eleições, cadastrar entidades e ver resultados')
 on conflict (id) do update set modulo = excluded.modulo, descricao = excluded.descricao;
 
 -- ---------------------------------------------------------------------
@@ -49,6 +52,8 @@ insert into public.papeis (id, nome, descricao, sistema) values
   ('gestor_frota',    'Gestão de Frota',        'Vistorias e cadastro de veículos', false),
   ('diretor_cense',   'Direção de Unidade CENSE', 'Lança notas fiscais da própria unidade', false),
   ('chefe_gabinete',  'Chefia de Gabinete',     'Aprova viagens, diárias e fiscaliza o fundo rotativo', false),
+  ('gestor_votacao',  'Gestão da Votação',      'Organiza eleições e entidades (setor UTSC)', false),
+  ('entidade_votante','Entidade votante',       'Login de entidade: só vota nas eleições', false),
   ('admin',           'Administração',          'Acesso total ao sistema', true)
 on conflict (id) do update set nome = excluded.nome, descricao = excluded.descricao;
 
@@ -87,7 +92,18 @@ select papel, perm from (values
   ('chefe_gabinete','salas:ver'),('chefe_gabinete','salas:reservar'),('chefe_gabinete','salas:cancelar_qualquer'),
   ('chefe_gabinete','diarias:ver'),('chefe_gabinete','diarias:solicitar'),('chefe_gabinete','diarias:aprovar'),
   ('chefe_gabinete','cense:ver'),('chefe_gabinete','cense:fiscalizar'),
-  ('chefe_gabinete','ramais:ver'),('chefe_gabinete','seguranca:auditar')
+  ('chefe_gabinete','ramais:ver'),('chefe_gabinete','seguranca:auditar'),
+  -- votação: servidor vê (o módulo só aparece para o setor UTSC)
+  ('servidor','votacao:ver'),
+  -- gestão da votação
+  ('gestor_votacao','frotas:ver'),('gestor_votacao','frotas:solicitar'),
+  ('gestor_votacao','chamados:ver'),('gestor_votacao','chamados:abrir'),
+  ('gestor_votacao','salas:ver'),('gestor_votacao','salas:reservar'),
+  ('gestor_votacao','diarias:ver'),('gestor_votacao','diarias:solicitar'),
+  ('gestor_votacao','ramais:ver'),
+  ('gestor_votacao','votacao:ver'),('gestor_votacao','votacao:gerenciar'),
+  -- entidade: só vota
+  ('entidade_votante','votacao:votar')
 ) as m(papel, perm)
 on conflict do nothing;
 
@@ -101,6 +117,7 @@ insert into public.modulos (id, nome, descricao, ordem) values
   ('diarias',   'Diárias & Viagens',    'Cálculo e solicitação de diárias', 40),
   ('cense',     'Fundo Rotativo CENSE', 'Prestação de contas das unidades socioeducativas', 50),
   ('ramais',    'Ramais',               'Guia telefônico da Secretaria', 60),
+  ('votacao',   'Votação',              'Eleições de entidades (setor UTSC)', 70),
   ('auditoria', 'Auditoria',            'Trilha de registros do sistema', 90),
   ('admin',     'Administração',        'Pessoas, papéis, módulos e tabelas', 99)
 on conflict (id) do update set nome = excluded.nome, descricao = excluded.descricao, ordem = excluded.ordem;
@@ -118,12 +135,18 @@ insert into public.setores (sigla, nome) values
   ('DEASE',  'Departamento de Atendimento Socioeducativo'),
   ('JUR',    'Assessoria Jurídica'),
   ('OUV',    'Ouvidoria e Protocolo'),
-  ('RH',     'Recursos Humanos')
+  ('RH',     'Recursos Humanos'),
+  ('NFS',    'Núcleo Financeiro'),
+  ('UTSC',   'Unidade Técnica (UTSC)')
 on conflict (sigla) do update set nome = excluded.nome;
 
--- Módulos restritos por setor: CENSE visível só para DEASE e GAB (exemplo do recurso)
+-- Módulos restritos por setor (o admin muda isso no painel de administração):
+-- CENSE só para o financeiro (NFS); Votação só para a UTSC.
 insert into public.modulo_setores (modulo_id, setor_id)
-select 'cense', id from public.setores where sigla in ('DEASE', 'GAB')
+select 'cense', id from public.setores where sigla = 'NFS'
+on conflict do nothing;
+insert into public.modulo_setores (modulo_id, setor_id)
+select 'votacao', id from public.setores where sigla = 'UTSC'
 on conflict do nothing;
 
 -- ---------------------------------------------------------------------
@@ -205,3 +228,26 @@ values
   ('cense-pato-branco',           'CENSE Pato Branco',              'Pato Branco',              'Oeste & Sudoeste',         'Direção (fictícia)', 30000),
   ('cense-laranjeiras-do-sul',    'CENSE Laranjeiras do Sul',       'Laranjeiras do Sul',       'Oeste & Sudoeste',         'Direção (fictícia)', 28000)
 on conflict (slug) do nothing;
+
+-- ---------------------------------------------------------------------
+-- Votação: entidades e uma eleição de exemplo (FICTÍCIAS)
+-- Os logins das entidades são ligados por scripts/seed-demo.mjs.
+-- ---------------------------------------------------------------------
+insert into public.vot_entidades (nome, responsavel)
+select v.nome, v.resp from (values
+  ('Associação Paranaense de Apoio à Infância', 'Rosana Telles'),
+  ('Instituto Reconstruir Cidadania',           'Paulo Mendes'),
+  ('Rede Mulheres do Litoral',                  'Ivone Prado'),
+  ('Coletivo Direitos no Campo',                'Jorge Albuquerque'),
+  ('Fórum da Juventude de Londrina',            'Bianca Farias'),
+  ('Centro de Defesa dos Direitos Humanos de Maringá', 'Hélio Ramos')
+) as v(nome, resp)
+where not exists (select 1 from public.vot_entidades e where e.nome = v.nome);
+
+insert into public.vot_eleicoes (titulo, abre_em, fecha_em, votos_por_entidade)
+select 'Conselho Estadual · vagas da sociedade civil', now() - interval '1 day', now() + interval '6 days', 3
+where not exists (select 1 from public.vot_eleicoes);
+
+insert into public.vot_candidaturas (eleicao_id, entidade_id)
+select e.id, en.id from public.vot_eleicoes e cross join public.vot_entidades en
+on conflict do nothing;

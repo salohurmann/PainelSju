@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ExternalLink, ArrowRight, Mail, HardDrive, Video, Globe, FileText, Package, Car, Wrench, CalendarDays, Plane, Building2, Phone, ShieldCheck, Archive } from 'lucide-react';
+import { Search, ExternalLink, ArrowRight, Mail, HardDrive, Video, Globe, FileText, Package, Car, Wrench, CalendarDays, Plane, Building2, Phone, ShieldCheck, Archive, Vote } from 'lucide-react';
 import type { AppModuleId } from '../../types';
 import { Janela } from '../ui/Janela';
 
@@ -33,6 +33,7 @@ const INTERNOS: Interno[] = [
   { id: 'salas', nome: 'Salas', descricao: 'Reservar sala de reunião e auditório.', icone: <CalendarDays size={20} /> },
   { id: 'diarias', nome: 'Diárias', descricao: 'Calcular e pedir diária de viagem.', icone: <Plane size={20} /> },
   { id: 'cense', nome: 'CENSE', descricao: 'Fundo rotativo e notas fiscais das unidades.', icone: <Building2 size={20} /> },
+  { id: 'votacao', nome: 'Votação', descricao: 'Eleições das entidades (UTSC).', icone: <Vote size={20} /> },
   { id: 'ramais', nome: 'Ramais', descricao: 'Telefones e e-mails dos setores.', icone: <Phone size={20} /> },
   { id: 'auditoria', nome: 'Auditoria', descricao: 'Quem fez o quê, e quando.', icone: <ShieldCheck size={20} /> },
 ];
