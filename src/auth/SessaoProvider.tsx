@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { definirFontePermissoes } from '../services/rbac';
-import { supabase, supabaseConfigurado, tipoLinkDeAcesso } from '../lib/supabase';
+import { iniciarSupabase, supabaseConfigurado, tipoLinkDeAcesso } from '../lib/supabase';
 import * as sessaoApi from '../data/supabase/sessao';
 import { ContextoSessaoReact, paraUsuarioLegado, type EstadoSessao, type ValorSessao } from './contexto';
 
@@ -11,6 +11,7 @@ export const SessaoProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const carregar = useCallback(async () => {
     try {
+      await iniciarSupabase();
       const contexto = await sessaoApi.carregarContexto();
       if (!contexto) {
         setEstado({ fase: 'anonimo' });
@@ -27,33 +28,42 @@ export const SessaoProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     if (!supabaseConfigurado) return;
     let ativo = true;
-    const cliente = supabase();
+    let cancelarInscricao = () => {};
 
-    cliente.auth.getSession().then(({ data }) => {
-      if (!ativo) return;
-      if (!data.session) {
-        setEstado({ fase: 'anonimo' });
-      } else if (tipoLinkDeAcesso) {
-        setEstado({ fase: 'definir_senha', motivo: tipoLinkDeAcesso });
-      } else {
-        void carregar();
-      }
-    });
+    iniciarSupabase().then(
+      cliente => {
+        if (!ativo) return;
+        cliente.auth.getSession().then(({ data }) => {
+          if (!ativo) return;
+          if (!data.session) {
+            setEstado({ fase: 'anonimo' });
+          } else if (tipoLinkDeAcesso) {
+            setEstado({ fase: 'definir_senha', motivo: tipoLinkDeAcesso });
+          } else {
+            void carregar();
+          }
+        });
 
-    const { data: inscricao } = cliente.auth.onAuthStateChange((evento, session) => {
-      if (!ativo) return;
-      if (evento === 'PASSWORD_RECOVERY') {
-        setEstado({ fase: 'definir_senha', motivo: 'recovery' });
-      } else if (evento === 'SIGNED_OUT' || !session) {
-        setEstado({ fase: 'anonimo' });
-      } else if (evento === 'SIGNED_IN' && !tipoLinkDeAcesso) {
-        void carregar();
-      }
-    });
+        const { data: inscricao } = cliente.auth.onAuthStateChange((evento, session) => {
+          if (!ativo) return;
+          if (evento === 'PASSWORD_RECOVERY') {
+            setEstado({ fase: 'definir_senha', motivo: 'recovery' });
+          } else if (evento === 'SIGNED_OUT' || !session) {
+            setEstado({ fase: 'anonimo' });
+          } else if (evento === 'SIGNED_IN' && !tipoLinkDeAcesso) {
+            void carregar();
+          }
+        });
+        cancelarInscricao = () => inscricao.subscription.unsubscribe();
+      },
+      () => {
+        if (ativo) setEstado({ fase: 'erro', mensagem: 'Não foi possível conectar ao banco. Verifique a internet e tente de novo.' });
+      },
+    );
 
     return () => {
       ativo = false;
-      inscricao.subscription.unsubscribe();
+      cancelarInscricao();
     };
   }, [carregar]);
 

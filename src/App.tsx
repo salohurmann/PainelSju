@@ -1,8 +1,6 @@
 import { ModuloCabecalho, AcaoModulo, AbasModulo, NumeroModulo } from './components/modulo/ModuloCabecalho';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useAcessoDemo, aplicarAcesso } from './services/acessoDemo';
-import { VotacaoView } from './components/votacao/VotacaoView';
-import { AdminView } from './components/admin/AdminView';
 import { useModulosPermitidos } from './modules/useModulosPermitidos';
 import { Agendamento, Veiculo, Vistoria, Usuario } from './types';
 import { loadInitialState, saveStateToStorage, USUARIOS_MOCK } from './services/store';
@@ -15,21 +13,8 @@ import { eventBus } from './services/eventBus';
 import { crossCuttingService } from './services/crossCuttingService';
 import { TopBar } from './components/layout/TopBar';
 import { useRota, type DestinoApp } from './services/rota';
+import { VotacaoView, AdminView, NovaSolicitacaoForm, FilaAprovacao, CheckinCheckoutVistoria, PainelFrota, ConsultaCpf, TrilhaAuditoria, ChamadosKanban, ReservaSalasView, CalculadoraDiariasView, GuiaRamaisView, FundoRotativoCenseView, CommandPalette, HotkeysHelpModal, PainelDiagnosticoModal, preCarregarTelas, CarregandoTela, ErroTela } from './modules/telas';
 import { MesaDespacho } from './components/mesa/MesaDespacho';
-import { NovaSolicitacaoForm } from './components/frota/NovaSolicitacaoForm';
-import { FilaAprovacao } from './components/frota/FilaAprovacao';
-import { CheckinCheckoutVistoria } from './components/frota/CheckinCheckoutVistoria';
-import { PainelFrota } from './components/frota/PainelFrota';
-import { ConsultaCpf } from './components/frota/ConsultaCpf';
-import { TrilhaAuditoria } from './components/auditoria/TrilhaAuditoria';
-import { ChamadosKanban } from './components/chamados/ChamadosKanban';
-import { ReservaSalasView } from './components/salas/ReservaSalasView';
-import { CalculadoraDiariasView } from './components/diarias/CalculadoraDiariasView';
-import { GuiaRamaisView } from './components/ramais/GuiaRamaisView';
-import { FundoRotativoCenseView } from './components/cense/FundoRotativoCenseView';
-import { CommandPalette } from './components/navigation/CommandPalette';
-import { HotkeysHelpModal } from './components/navigation/HotkeysHelpModal';
-import { PainelDiagnosticoModal } from './components/navigation/PainelDiagnosticoModal';
 import { useSmartPolling } from './hooks/useSmartPolling';
 import { Toast, ToastItem } from './components/ui/Toast';
 import { 
@@ -384,6 +369,10 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
   const semAcesso = destino !== 'hub' && !modulosPermitidos.includes(destino);
   const abaVisivel = semAcesso ? null : destino;
 
+  // Baixa em segundo plano as telas que esta pessoa pode abrir.
+  const chaveModulos = modulosPermitidos.join(',');
+  useEffect(() => preCarregarTelas(chaveModulos.split(',')), [chaveModulos]);
+
   useEffect(() => {
     document.title = abaVisivel && abaVisivel !== 'hub' ? `${TITULO_TELA[abaVisivel]} · Seju.` : 'Painel de Gestão Integrada · SEJU-PR';
   }, [abaVisivel]);
@@ -423,6 +412,8 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
 
         {/* Área Central de Conteúdo */}
         <main className="flex-1 px-4 pt-2 pb-8 sm:px-8 max-w-[1360px] w-full mx-auto">
+          <ErroTela chave={activeApp}>
+          <Suspense fallback={<CarregandoTela />}>
           {/* Sem acesso a esta aba (setor ou papel não liberado) */}
           {semAcesso && (
             <div className="mx-auto mt-10 max-w-lg rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-8 text-center">
@@ -595,6 +586,8 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
           {abaVisivel === 'auditoria' && (
             <TrilhaAuditoria logs={state.logs} onVoltar={() => setActiveApp('hub')} />
           )}
+          </Suspense>
+          </ErroTela>
         </main>
 
         {/* Rodapé Institucional Silencioso */}
@@ -620,25 +613,27 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
       </div>
 
       {/* Modal Spotlight Command Palette (Ctrl+K) */}
-      <CommandPalette
+      <Suspense fallback={null}>
+      {commandPaletteOpen && <CommandPalette
         isOpen={commandPaletteOpen}
         onClose={() => setCommandPaletteOpen(false)}
         modulosPermitidos={modulosPermitidos}
         onNavigate={(appId, subTab) => navegar(appId, subTab)}
-      />
+      />}
 
       {/* Modal Institucional de Atalhos de Teclado (?) */}
-      <HotkeysHelpModal
+      {hotkeysHelpOpen && <HotkeysHelpModal
         isOpen={hotkeysHelpOpen}
         onClose={() => setHotkeysHelpOpen(false)}
-      />
+      />}
 
       {/* Painel de Diagnóstico & Telemetria de Suporte N1/N2 */}
-      <PainelDiagnosticoModal
+      {diagnosticoOpen && <PainelDiagnosticoModal
         isOpen={diagnosticoOpen}
         onClose={() => setDiagnosticoOpen(false)}
         currentUser={currentUser}
-      />
+      />}
+      </Suspense>
     </div>
   );
 }

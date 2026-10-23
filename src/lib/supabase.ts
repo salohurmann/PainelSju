@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Cliente Supabase do Painel SJU.
@@ -27,12 +27,18 @@ export const tipoLinkDeAcesso: 'invite' | 'recovery' | null = (() => {
 })();
 
 let cliente: SupabaseClient | null = null;
+let iniciando: Promise<SupabaseClient> | null = null;
 
-export function supabase(): SupabaseClient {
+/**
+ * Baixa a biblioteca do Supabase e cria o cliente. Só acontece com o banco
+ * configurado: no modo demonstração esse pedaço nem é baixado.
+ * A sessão (SessaoProvider) chama isto antes de qualquer consulta.
+ */
+export function iniciarSupabase(): Promise<SupabaseClient> {
   if (!supabaseConfigurado) {
-    throw new Error('Supabase não configurado (defina VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY).');
+    return Promise.reject(new Error('Supabase não configurado (defina VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY).'));
   }
-  if (!cliente) {
+  iniciando ??= import('@supabase/supabase-js').then(({ createClient }) => {
     cliente = createClient(url!, anonKey!, {
       auth: {
         persistSession: true,
@@ -41,6 +47,19 @@ export function supabase(): SupabaseClient {
         storageKey: 'painel-sju-auth',
       },
     });
+    return cliente;
+  }).catch(erro => {
+    iniciando = null; // deixa tentar de novo (ex.: a rede voltou)
+    throw erro;
+  });
+  return iniciando;
+}
+
+/** Cliente já iniciado (as telas só existem depois de iniciarSupabase). */
+export function supabase(): SupabaseClient {
+  if (!supabaseConfigurado) {
+    throw new Error('Supabase não configurado (defina VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY).');
   }
+  if (!cliente) throw new Error('Conexão com o banco ainda não iniciada.');
   return cliente;
 }
