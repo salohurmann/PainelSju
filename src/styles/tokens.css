@@ -1,27 +1,27 @@
 /* =====================================================================
-   Painel SJU · Tokens de design (v3 · identidade "Pinheiral")
+   Seju · Tokens de design (v4 · direção "Vitrine Paraná")
    ---------------------------------------------------------------------
-   Identidade do Paraná: azul do céu e da esfera da bandeira, verde da
-   bandeira e das araucárias, branco. Blocos de cor sólida e tipografia
-   grande dão a personalidade; nada de vidro, brilho ou gradiente.
-   - Azul Paraná (#0072BB) = ação e foco. Azul-profundo (#00385E) = âncora.
-   - Verde: --verde (#00703C) é seguro para texto e blocos com texto branco;
-     --verde-vivo (#00A859) só para grafismos (araucária, marcadores).
-   - Títulos e números de destaque: Bricolage Grotesque (--font-display).
+   Cor vibrante e tipografia grande, com a identidade do Paraná:
+   - Azul Paraná (#0072BB): grandes áreas de destaque e ações.
+   - Verde da bandeira (#00703C) para confirmar; verde vivo nas araucárias.
+   - Verde-limão (--lima, #C6E86B) como acento de energia (erva-mate),
+     sempre com texto escuro por cima.
+   - Títulos e números: Unbounded (--font-display). Interface: Inter.
+   - Formas generosas: cartões com raio 28–36px e botões em pílula.
    Contraste: todos os pares texto/fundo usados passam AA (4.5:1).
    ===================================================================== */
 
 :root {
   /* Superfícies */
-  --bg: #F3F6F8;
+  --bg: #F5F8F4;
   --surface: #FFFFFF;
-  --surface-2: #EEF2F5;
-  --surface-3: #E3E9EE;
-  --border: #DCE3E9;
-  --border-strong: #B9C5D0;
+  --surface-2: #EEF2EF;
+  --surface-3: #E1E8E3;
+  --border: #DCE5DF;
+  --border-strong: #CBD8CF;
 
   /* Texto */
-  --text: #0E1E33;
+  --text: #0B1B2E;
   --text-muted: #46566B;
   --text-subtle: #5F6F83;
 
@@ -33,6 +33,9 @@
   --verde-border: #A9DABE;
   --ceu: #DCEEFB;
   --pinhao: #7A4A1E;
+  --lima: #C6E86B;
+  --lima-soft: #EEF8D6;
+  --noite: #0B1B2E;
 
   /* Âncora institucional (sidebar, cabeçalhos fortes) */
   --ink: #00385E;
@@ -74,18 +77,18 @@
 
   /* Tipografia */
   --font-sans: 'Inter Variable', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', 'Inter Variable', system-ui, sans-serif;
+  --font-display: 'Unbounded Variable', Unbounded, 'Inter Variable', system-ui, sans-serif;
   /* --font-heading continua sans: é usado em rótulos pequenos pelo app */
   --font-heading: var(--font-sans);
   --font-mono: ui-monospace, SFMono-Regular, 'Cascadia Mono', Menlo, Consolas, monospace;
 
   /* Raios: discretos */
   --radius-xs: 3px;
-  --radius-sm: 5px;
-  --radius-md: 7px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-2xl: 22px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 28px;
+  --radius-2xl: 36px;
   --radius-full: 999px;
 
   /* Sombras: só onde há sobreposição real (menus, modais) */
@@ -131,6 +134,9 @@ html[data-design-theme="midnight"],
   --verde-border: rgba(95, 211, 154, 0.3);
   --ceu: #16304D;
   --pinhao: #D9A574;
+  --lima: #C6E86B;
+  --lima-soft: rgba(198, 232, 107, 0.14);
+  --noite: #050E19;
 
   --ink: #0A1424;
   --ink-2: #13223A;

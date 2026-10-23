@@ -64,12 +64,11 @@
    Sem vidro, sem brilho, sem gradiente: superfícies planas, bordas finas.
    ===================================================================== */
 
-/* Display (Bricolage Grotesque) para títulos de página e números de destaque */
+/* Display (Unbounded) para títulos de página e números de destaque */
 .font-display {
   font-family: var(--font-display);
   font-optical-sizing: auto;
-  font-variation-settings: "wdth" 100;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
 }
 
 .font-heading {

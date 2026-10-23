@@ -18,7 +18,6 @@ import {
 } from './services/notifications';
 import { eventBus } from './services/eventBus';
 import { crossCuttingService } from './services/crossCuttingService';
-import { Sidebar } from './components/layout/Sidebar';
 import { TopBar } from './components/layout/TopBar';
 import type { AppModuleId } from './components/hub/AppLauncherHub';
 import { MesaDespacho } from './components/mesa/MesaDespacho';
@@ -83,8 +82,6 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [hotkeysHelpOpen, setHotkeysHelpOpen] = useState(false);
   const [diagnosticoOpen, setDiagnosticoOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const pendingGKeyRef = useRef(false);
   const pendingGTimerRef = useRef<number | null>(null);
@@ -102,7 +99,6 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
       // 2. Esc fecha qualquer overlay ativo
       if (e.key === 'Escape') {
         setCommandPaletteOpen(false);
-        setMobileSidebarOpen(false);
         setHotkeysHelpOpen(false);
         setDiagnosticoOpen(false);
         return;
@@ -392,26 +388,9 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text)] flex">
-      {/* Sidebar Oficial de 264px */}
-      <Sidebar
-        activeApp={activeApp}
-        onNavigate={handleOpenApp}
-        collapsed={sidebarCollapsed}
-        onToggleCollapse={() => setSidebarCollapsed(prev => !prev)}
-        mobileOpen={mobileSidebarOpen}
-        onCloseMobile={() => setMobileSidebarOpen(false)}
-        pendentesFrotaCount={pendentesChefia}
-        pendentesMesaCount={pendentesMesa}
-        currentUser={currentUser}
-        modoDemo={!sessao}
-      />
 
-      {/* Container Principal com Margem Dinâmica da Sidebar */}
-      <div
-        className={`flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-200 ${
-          sidebarCollapsed ? 'lg:pl-[72px]' : 'lg:pl-[248px]'
-        }`}
-      >
+
+      <div className="flex-1 flex flex-col min-h-screen min-w-0">
         {/* TopBar Horizontal de 56px */}
         <TopBar
           currentUser={currentUser}
@@ -422,8 +401,9 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
           activeApp={activeApp}
           onNavigateApp={handleOpenApp}
           onOpenCommandPalette={() => setCommandPaletteOpen(true)}
-          onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
           onOpenDiagnostico={() => setDiagnosticoOpen(true)}
+          pendentesMesa={pendentesMesa}
+          pendentesFrota={pendentesChefia}
         />
 
         {/* Notificação Toast Flutuante Discreta */}
@@ -434,7 +414,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
         )}
 
         {/* Área Central de Conteúdo */}
-        <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8 max-w-[1320px] w-full mx-auto">
+        <main className="flex-1 px-4 pt-2 pb-8 sm:px-8 max-w-[1360px] w-full mx-auto">
           {/* TELA INICIAL: O HUB */}
           {activeApp === 'hub' && (
             <MesaDespacho
@@ -602,7 +582,7 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
 
         {/* Rodapé Institucional Silencioso */}
         <footer className="mt-auto border-t border-[var(--border)] py-5 px-4 sm:px-8 text-[12.5px] text-[var(--text-muted)]">
-          <div className="max-w-[1320px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="max-w-[1360px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <span className="text-center sm:text-left">
               Secretaria da Justiça e Cidadania do Paraná · Rua Tenente Francisco Ferreira de Souza, 766 · Hauer · Curitiba/PR
             </span>

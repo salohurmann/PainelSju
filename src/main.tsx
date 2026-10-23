@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '@fontsource-variable/inter'
-import '@fontsource-variable/bricolage-grotesque'
+import '@fontsource-variable/unbounded'
 import './index.css'
 import { SessaoProvider } from './auth/SessaoProvider'
 import { PortaoAcesso } from './auth/PortaoAcesso'

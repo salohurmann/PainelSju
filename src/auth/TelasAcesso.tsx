@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { AlertCircle, ArrowLeft, CheckCircle2, Loader2, Lock, Mail } from 'lucide-react';
-import { BrasaoParana } from '../components/common/BrasaoParana';
-import { Pinheiral } from '../components/marca/Araucaria';
+import { MarcaSeju, Pinheiral } from '../components/marca/Araucaria';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import * as sessaoApi from '../data/supabase/sessao';
@@ -9,36 +8,30 @@ import { useSessao } from './contexto';
 
 /** Moldura institucional comum às telas de acesso. */
 const Moldura: React.FC<{ titulo: string; subtitulo?: string; children: React.ReactNode }> = ({ titulo, subtitulo, children }) => (
-  <div className="min-h-screen grid lg:grid-cols-[minmax(320px,440px)_1fr] bg-[var(--bg)]">
-    <aside className="relative overflow-hidden hidden lg:flex flex-col justify-between bg-[#00385E] text-white px-10 py-12">
-      <div className="flex items-center gap-3">
-        <BrasaoParana size="md" />
-        <div className="leading-tight">
-          <p className="text-[11px] uppercase tracking-[0.14em] text-white/70">Governo do Estado do Paraná</p>
-          <p className="text-sm font-semibold">Secretaria da Justiça e Cidadania</p>
-        </div>
-      </div>
-      <div className="relative z-10 -mt-24">
-        <p className="font-display text-[44px] font-bold leading-[1.02]">
-          Painel de <span className="text-[#3CC27F]">/</span><br />Gestão Integrada
+  <div className="min-h-screen grid lg:grid-cols-[minmax(420px,46%)_1fr] bg-[var(--bg)]">
+    <aside className="relative overflow-hidden hidden lg:flex flex-col bg-[var(--brand)] text-white m-4 rounded-[36px] px-12 py-12">
+      <MarcaSeju clara tamanho="lg" />
+      <div className="relative z-10 mt-16">
+        <p className="flex items-center gap-2.5 text-[12.5px] font-semibold tracking-[0.12em] uppercase text-[#CFE7FA]">
+          <span aria-hidden="true" className="w-2.5 h-2.5 rounded-full bg-[var(--lima)]" />
+          Secretaria da Justiça e Cidadania · PR
         </p>
-        <p className="mt-3 text-sm text-white/75 max-w-xs leading-relaxed">
+        <p className="font-display mt-5 text-[56px] xl:text-[64px] font-extrabold leading-[0.95]">
+          Gestão <span className="text-[var(--lima)]">/</span><br />integrada<span className="text-[var(--lima)]">.</span>
+        </p>
+        <p className="mt-5 text-[16px] text-[#E3F1FC] max-w-sm leading-relaxed">
           Frotas, chamados, salas, diárias e fundo rotativo em um só lugar, com cada decisão registrada.
         </p>
       </div>
-      <Pinheiral className="absolute left-8 right-8 bottom-[88px] h-[32%]" />
-      <p className="relative text-[11px] text-white/70">Acesso restrito a servidores autorizados.</p>
+      <Pinheiral className="absolute left-10 right-10 bottom-0 h-[44%]" />
     </aside>
 
-    <main className="flex items-center justify-center px-4 py-10 sm:px-8">
-      <div className="w-full max-w-sm">
-        <div className="lg:hidden flex items-center gap-2.5 mb-8">
-          <BrasaoParana size="sm" />
-          <p className="text-xs font-semibold text-[var(--text)]">SEJU · Painel de Gestão Integrada</p>
-        </div>
-        <h1 className="font-display text-[30px] font-bold text-[var(--text)]">{titulo}</h1>
-        {subtitulo && <p className="mt-1.5 text-sm text-[var(--text-muted)] leading-relaxed">{subtitulo}</p>}
-        <div className="mt-7">{children}</div>
+    <main className="flex items-center justify-center px-5 py-10 sm:px-10">
+      <div className="w-full max-w-[400px]">
+        <div className="lg:hidden mb-10"><MarcaSeju /></div>
+        <h1 className="font-display text-[34px] font-extrabold leading-tight text-[var(--text)]">{titulo}</h1>
+        {subtitulo && <p className="mt-2 text-[15px] text-[var(--text-muted)] leading-relaxed">{subtitulo}</p>}
+        <div className="mt-8">{children}</div>
       </div>
     </main>
   </div>
@@ -100,7 +93,7 @@ export const TelaLogin: React.FC = () => {
           <Input label="E-mail institucional" type="email" autoComplete="email" required value={email}
             onChange={(e) => setEmail(e.target.value)} leftIcon={<Mail size={14} />} />
           {aviso && <Alerta tipo="sucesso">{aviso}</Alerta>}
-          <Button type="submit" variant="primary" size="lg" className="w-full" loading={enviando} disabled={!email}>
+          <Button type="submit" variant="primary" size="lg" className="w-full !h-[52px] !rounded-full !text-[15px]" loading={enviando} disabled={!email}>
             Enviar link
           </Button>
           <Button type="button" variant="ghost" size="md" className="w-full" icon={<ArrowLeft size={14} />}
@@ -120,7 +113,7 @@ export const TelaLogin: React.FC = () => {
         <Input label="Senha" type="password" autoComplete="current-password" required value={senha}
           onChange={(e) => setSenha(e.target.value)} leftIcon={<Lock size={14} />} />
         {erro && <Alerta tipo="erro">{erro}</Alerta>}
-        <Button type="submit" variant="primary" size="lg" className="w-full" loading={enviando} disabled={!email || !senha}>
+        <Button type="submit" variant="primary" size="lg" className="w-full !h-[52px] !rounded-full !text-[15px]" loading={enviando} disabled={!email || !senha}>
           Entrar
         </Button>
         <button type="button" onClick={() => { setModo('recuperar'); setErro(null); }}
@@ -168,7 +161,7 @@ export const TelaDefinirSenha: React.FC<{ motivo: 'invite' | 'recovery' }> = ({ 
         <Input label="Confirme a senha" type="password" autoComplete="new-password" required value={confirmacao}
           onChange={(e) => setConfirmacao(e.target.value)} />
         {erro && <Alerta tipo="erro">{erro}</Alerta>}
-        <Button type="submit" variant="primary" size="lg" className="w-full" loading={enviando} disabled={!senha || !confirmacao}>
+        <Button type="submit" variant="primary" size="lg" className="w-full !h-[52px] !rounded-full !text-[15px]" loading={enviando} disabled={!senha || !confirmacao}>
           Salvar senha e entrar
         </Button>
       </form>
