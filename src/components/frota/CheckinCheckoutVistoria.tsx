@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useJanela } from '../ui/Janela';
 import { Agendamento, Veiculo, Vistoria, Usuario, VistoriaFotos } from '../../types';
 import { generateAuditHash } from '../../services/crypto';
 import { PlacaMercosul } from '../ui/PlacaMercosul';
@@ -47,6 +48,7 @@ export const CheckinCheckoutVistoria: React.FC<CheckinCheckoutVistoriaProps> = (
   const [erro, setErro] = useState<string | null>(null);
   const [processando, setProcessando] = useState(false);
   const [feito, setFeito] = useState<Vistoria | null>(null);
+  const feitoRef = useJanela(Boolean(feito), () => setFeito(null));
 
   const saidas = agendamentos.filter(a => a.status === 'aprovado');
   const voltas = agendamentos.filter(a => a.status === 'em_andamento');
@@ -386,7 +388,7 @@ export const CheckinCheckoutVistoria: React.FC<CheckinCheckoutVistoriaProps> = (
       )}
 
       {feito && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B1B2E]/60 p-4" role="dialog" aria-modal="true" aria-labelledby="vis-ok">
+        <div ref={feitoRef} tabIndex={-1} className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B1B2E]/60 p-4 outline-none" role="dialog" aria-modal="true" aria-labelledby="vis-ok">
           <div className="w-full max-w-md rounded-[28px] bg-[var(--surface)] p-6 sm:p-7">
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#C6E86B] text-[#0B1B2E]">
               <Check size={24} strokeWidth={3} />

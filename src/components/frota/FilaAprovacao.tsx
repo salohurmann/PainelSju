@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { useJanela } from '../ui/Janela';
+import { imprimir } from '../../lib/imprimir';
 import { Agendamento, Usuario } from '../../types';
 import { generateAuditHash } from '../../services/crypto';
 import { podeAprovarSolicitacao } from '../../services/rbac';
@@ -39,6 +41,12 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({ agendamentos, curr
   const [motivo, setMotivo] = useState('');
   const [processandoId, setProcessandoId] = useState<string | null>(null);
   const [passe, setPasse] = useState<Agendamento | null>(null);
+  const passeRef = useRef<HTMLDivElement>(null);
+  const passeJanela = useJanela(Boolean(passe), () => setPasse(null));
+  const reprovarJanela = useJanela(Boolean(reprovando), () => {
+    setReprovando(null);
+    setMotivo('');
+  });
 
   const contagem: Record<Filtro, number> = {
     pendente: agendamentos.filter(a => a.status === 'pendente').length,
@@ -260,7 +268,7 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({ agendamentos, curr
       )}
 
       {reprovando && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B1B2E]/60 p-4" role="dialog" aria-modal="true" aria-labelledby="reprovar-titulo">
+        <div ref={reprovarJanela} tabIndex={-1} className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B1B2E]/60 p-4 outline-none" role="dialog" aria-modal="true" aria-labelledby="reprovar-titulo">
           <div className="w-full max-w-md rounded-[28px] bg-[var(--surface)] p-6 sm:p-7">
             <h3 id="reprovar-titulo" className="font-display text-2xl font-bold text-[var(--text)]">Não autorizar.</h3>
             <p className="mt-1 text-sm text-[var(--text-muted)]">
@@ -303,18 +311,22 @@ export const FilaAprovacao: React.FC<FilaAprovacaoProps> = ({ agendamentos, curr
 
       {passe && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#0B1B2E]/60 p-4"
+          ref={passeJanela}
+          tabIndex={-1}
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#0B1B2E]/60 p-4 outline-none"
           role="dialog"
           aria-modal="true"
           aria-label="Autorização de saída"
           onClick={e => e.target === e.currentTarget && setPasse(null)}
         >
           <div className="w-full max-w-md">
-            <PasseViagemOficial agendamento={passe} currentUser={currentUser} modoAprovacao={false} />
+            <div ref={passeRef}>
+              <PasseViagemOficial agendamento={passe} currentUser={currentUser} modoAprovacao={false} />
+            </div>
             <div className="mt-3 flex justify-center gap-2">
               <button
                 type="button"
-                onClick={() => window.print()}
+                onClick={() => imprimir(passeRef.current, `Autorização de saída ${passe.ticket}`)}
                 className="inline-flex h-11 items-center rounded-full bg-white px-5 text-sm font-semibold text-[#0B1B2E] cursor-pointer"
               >
                 Imprimir

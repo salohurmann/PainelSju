@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { useJanela } from '../ui/Janela';
+import { imprimir } from '../../lib/imprimir';
 import { Agendamento, Usuario } from '../../types';
 import { PasseViagemOficial } from './PasseViagemOficial';
 import { soundFX } from '../../services/soundFx';
@@ -41,6 +43,8 @@ export const ConsultaCpf: React.FC<ConsultaCpfProps> = ({ agendamentos, currentU
   const [cpfBusca, setCpfBusca] = useState('');
   const [cpfAtivo, setCpfAtivo] = useState(meuCpf);
   const [passe, setPasse] = useState<Agendamento | null>(null);
+  const passeRef = useRef<HTMLDivElement>(null);
+  const passeJanela = useJanela(Boolean(passe), () => setPasse(null));
 
   const meus = cpfAtivo === meuCpf;
   const lista = agendamentos
@@ -165,16 +169,20 @@ export const ConsultaCpf: React.FC<ConsultaCpfProps> = ({ agendamentos, currentU
 
       {passe && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#0B1B2E]/60 p-4"
+          ref={passeJanela}
+          tabIndex={-1}
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#0B1B2E]/60 p-4 outline-none"
           role="dialog"
           aria-modal="true"
           aria-label="Autorização de saída"
           onClick={e => e.target === e.currentTarget && setPasse(null)}
         >
           <div className="w-full max-w-md">
-            <PasseViagemOficial agendamento={passe} currentUser={currentUser} />
+            <div ref={passeRef}>
+              <PasseViagemOficial agendamento={passe} currentUser={currentUser} />
+            </div>
             <div className="mt-3 flex justify-center gap-2">
-              <button type="button" onClick={() => window.print()} className="inline-flex h-11 items-center rounded-full bg-white px-5 text-sm font-semibold text-[#0B1B2E] cursor-pointer">
+              <button type="button" onClick={() => imprimir(passeRef.current, `Autorização de saída ${passe.ticket}`)} className="inline-flex h-11 items-center rounded-full bg-white px-5 text-sm font-semibold text-[#0B1B2E] cursor-pointer">
                 Imprimir
               </button>
               <button type="button" onClick={() => setPasse(null)} className="inline-flex h-11 items-center rounded-full bg-white/15 px-5 text-sm font-semibold text-white cursor-pointer">

@@ -94,8 +94,8 @@ export const PasseViagemOficial: React.FC<PasseViagemOficialProps> = ({ agendame
       </div>
 
       <div className="relative border-t-2 border-dashed border-[var(--border)] px-6 py-4">
-        <span className="absolute -left-3 -top-3 h-6 w-6 rounded-full bg-[#0B1B2E]/60" aria-hidden="true" />
-        <span className="absolute -right-3 -top-3 h-6 w-6 rounded-full bg-[#0B1B2E]/60" aria-hidden="true" />
+        <span className="absolute -left-3 -top-3 h-6 w-6 rounded-full bg-[#0B1B2E]/60 print:hidden" aria-hidden="true" />
+        <span className="absolute -right-3 -top-3 h-6 w-6 rounded-full bg-[#0B1B2E]/60 print:hidden" aria-hidden="true" />
         <div className="flex items-end justify-between gap-3">
           <div>
             <div className="text-xs text-[var(--text-muted)]">Protocolo</div>

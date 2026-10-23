@@ -1,4 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Janela } from '../ui/Janela';
+import { imprimir } from '../../lib/imprimir';
 import { Usuario } from '../../types';
 import { soundFX } from '../../services/soundFx';
 import { eventBus } from '../../services/eventBus';
@@ -70,6 +72,7 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({ 
   const [recusando, setRecusando] = useState<NotaFiscalFundo | null>(null);
   const [relatorio, setRelatorio] = useState(false);
   const [aviso, setAviso] = useState<string | null>(null);
+  const relatorioRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     try {
@@ -392,7 +395,9 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({ 
       )}
 
       {relatorio && (
-        <Janela titulo={`Relatório · ${unidade.nome}`} onFechar={() => setRelatorio(false)} largo>
+        <Janela titulo={`Relatório · ${unidade.nome}`} onFechar={() => setRelatorio(false)} largura="xl">
+          <div ref={relatorioRef}>
+          <h4 className="hidden font-display text-2xl font-bold print:block">Relatório · {unidade.nome}</h4>
           <p className="text-sm text-[var(--text-muted)]">
             {unidade.competencia} · Responsável {unidade.diretorSuprido} · {unidade.contaBancoBrasil}
           </p>
@@ -425,8 +430,9 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({ 
               </tbody>
             </table>
           </div>
+          </div>
           <div className="mt-5 flex gap-2">
-            <button type="button" onClick={() => window.print()} className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#00385E] text-sm font-semibold text-white cursor-pointer">
+            <button type="button" onClick={() => imprimir(relatorioRef.current, `Relatório ${unidade.nome}`)} className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#00385E] text-sm font-semibold text-white cursor-pointer">
               <Printer size={15} /> Imprimir
             </button>
             <button type="button" onClick={() => setRelatorio(false)} className="h-11 flex-1 rounded-full border border-[var(--border)] text-sm font-semibold text-[var(--text)] hover:bg-[var(--surface-2)] cursor-pointer">
@@ -446,25 +452,6 @@ const Dado: React.FC<{ rotulo: string; valor: string; destaque?: boolean }> = ({
   </div>
 );
 
-const Janela: React.FC<{ titulo: string; onFechar: () => void; children: React.ReactNode; largo?: boolean }> = ({ titulo, onFechar, children, largo }) => (
-  <div
-    className="fixed inset-0 z-50 flex items-end justify-center bg-[#0B1B2E]/60 sm:items-center sm:p-4"
-    role="dialog"
-    aria-modal="true"
-    aria-label={titulo}
-    onClick={e => e.target === e.currentTarget && onFechar()}
-  >
-    <div className={`max-h-[92vh] w-full ${largo ? 'max-w-2xl' : 'max-w-lg'} overflow-y-auto rounded-t-[28px] bg-[var(--surface)] p-6 sm:rounded-[28px] sm:p-7`}>
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <h3 className="font-display text-2xl font-bold leading-tight text-[var(--text)]">{titulo}</h3>
-        <button type="button" onClick={onFechar} aria-label="Fechar" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--surface-3)] cursor-pointer">
-          <X size={16} />
-        </button>
-      </div>
-      {children}
-    </div>
-  </div>
-);
 
 const RecusarNota: React.FC<{ nota: NotaFiscalFundo; onCancelar: () => void; onConfirmar: (motivo: string) => void }> = ({ nota, onCancelar, onConfirmar }) => {
   const [motivo, setMotivo] = useState('');
@@ -566,7 +553,7 @@ const LancarNota: React.FC<{
   };
 
   return (
-    <Janela titulo={`Lançar nota · ${unidade.nome}`} onFechar={onFechar} largo>
+    <Janela titulo={`Lançar nota · ${unidade.nome}`} onFechar={onFechar} largura="xl">
       <form onSubmit={salvar} className="space-y-4">
         <div>
           <label htmlFor="nf-chave" className={rotulo}>

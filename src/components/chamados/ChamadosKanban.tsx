@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Janela } from '../ui/Janela';
 import { Usuario } from '../../types';
 import { soundFX } from '../../services/soundFx';
 import { eventBus } from '../../services/eventBus';
@@ -453,36 +454,6 @@ const CartaoChamado: React.FC<{
   );
 };
 
-const Janela: React.FC<{ titulo: string; onFechar: () => void; children: React.ReactNode; lateral?: boolean }> = ({
-  titulo,
-  onFechar,
-  children,
-  lateral = false,
-}) => (
-  <div
-    className={`fixed inset-0 z-50 flex bg-[#0B1B2E]/60 ${lateral ? 'justify-end' : 'items-end justify-center sm:items-center sm:p-4'}`}
-    role="dialog"
-    aria-modal="true"
-    aria-label={titulo}
-    onClick={e => e.target === e.currentTarget && onFechar()}
-  >
-    <div
-      className={
-        lateral
-          ? 'flex h-full w-full max-w-lg flex-col overflow-y-auto bg-[var(--surface)] p-6 sm:p-7'
-          : 'max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-[28px] bg-[var(--surface)] p-6 sm:rounded-[28px] sm:p-7'
-      }
-    >
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <h3 className="font-display text-2xl font-bold leading-tight text-[var(--text)]">{titulo}</h3>
-        <button type="button" onClick={onFechar} aria-label="Fechar" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--surface-3)] cursor-pointer">
-          <X size={16} />
-        </button>
-      </div>
-      {children}
-    </div>
-  </div>
-);
 
 const DetalheChamado: React.FC<{
   chamado: Chamado;

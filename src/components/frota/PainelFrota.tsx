@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Janela } from '../ui/Janela';
 import { Veiculo, Agendamento, StatusVeiculo } from '../../types';
 import { PlacaMercosul } from '../ui/PlacaMercosul';
 import { soundFX } from '../../services/soundFx';
@@ -194,35 +195,6 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({ veiculos, agendamentos
   );
 };
 
-const Janela: React.FC<{ titulo: string; onFechar: () => void; children: React.ReactNode; largura?: string }> = ({
-  titulo,
-  onFechar,
-  children,
-  largura = 'max-w-lg',
-}) => (
-  <div
-    className="fixed inset-0 z-50 flex items-end justify-center bg-[#0B1B2E]/60 p-0 sm:items-center sm:p-4"
-    role="dialog"
-    aria-modal="true"
-    aria-label={titulo}
-    onClick={e => e.target === e.currentTarget && onFechar()}
-  >
-    <div className={`max-h-[92vh] w-full ${largura} overflow-y-auto rounded-t-[28px] bg-[var(--surface)] p-6 sm:rounded-[28px] sm:p-7`}>
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <h3 className="font-display text-2xl font-bold text-[var(--text)]">{titulo}</h3>
-        <button
-          type="button"
-          onClick={onFechar}
-          aria-label="Fechar"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--surface-3)] cursor-pointer"
-        >
-          <X size={16} />
-        </button>
-      </div>
-      {children}
-    </div>
-  </div>
-);
 
 const FichaVeiculo: React.FC<{
   veiculo: Veiculo;
@@ -232,7 +204,7 @@ const FichaVeiculo: React.FC<{
 }> = ({ veiculo: v, agendamentos, onFechar, onAtualizar }) => {
   const historico = [...agendamentos].sort((a, b) => (b.datas[0] ?? '').localeCompare(a.datas[0] ?? ''));
   return (
-    <Janela titulo={v.modelo} onFechar={onFechar} largura="max-w-2xl">
+    <Janela titulo={v.modelo} onFechar={onFechar} largura="xl">
       <div className="flex flex-wrap items-center gap-3">
         <PlacaMercosul placa={v.placa} uf="PR" />
         <span className="text-sm text-[var(--text-muted)]">

@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useJanela } from '../ui/Janela';
+import { imprimir } from '../../lib/imprimir';
 import { Agendamento, Veiculo, PeriodoAgendamento, ModalidadeAgendamento } from '../../types';
 import { PlacaMercosul } from '../ui/PlacaMercosul';
 import {
@@ -129,6 +131,8 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
   // Erros e Validação
   const [erro, setErro] = useState<string | null>(null);
   const [comprovante, setComprovante] = useState<Agendamento | null>(null);
+  const comprovanteRef = useRef<HTMLDivElement>(null);
+  const comprovanteJanela = useJanela(Boolean(comprovante), () => setComprovante(null));
 
   // Validador de CPF Real
   const validarCPF = (strCPF: string) => {
@@ -708,8 +712,8 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
       </form>
 
       {comprovante && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B1B2E]/60 p-4" role="dialog" aria-modal="true" aria-labelledby="ns-ok">
-          <div className="w-full max-w-md rounded-[28px] bg-[var(--surface)] p-6 sm:p-7">
+        <div ref={comprovanteJanela} tabIndex={-1} className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B1B2E]/60 p-4 outline-none" role="dialog" aria-modal="true" aria-labelledby="ns-ok">
+          <div ref={comprovanteRef} className="w-full max-w-md rounded-[28px] bg-[var(--surface)] p-6 sm:p-7">
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#C6E86B] text-[#0B1B2E]">
               <Check size={24} strokeWidth={3} />
             </span>
@@ -725,7 +729,7 @@ export const NovaSolicitacaoForm: React.FC<NovaSolicitacaoFormProps> = ({
             <div className="mt-5 flex gap-2">
               <button
                 type="button"
-                onClick={() => window.print()}
+                onClick={() => imprimir(comprovanteRef.current, `Pedido de veículo ${comprovante.ticket}`)}
                 className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[var(--border)] text-sm font-semibold text-[var(--text)] hover:bg-[var(--surface-2)] cursor-pointer"
               >
                 <Printer size={15} /> Imprimir

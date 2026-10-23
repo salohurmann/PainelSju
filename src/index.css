@@ -142,12 +142,60 @@
 }
 
 /* Otimização para Impressão de Relatórios Oficiais */
+/* Impressão: só o documento escolhido (ver src/lib/imprimir.ts), em A4 e no tema claro. */
+#area-impressao { display: none; }
+
 @media print {
-  header, footer, nav, aside {
-    display: none !important;
+  @page { size: A4; margin: 14mm; }
+
+  html.imprimindo body > *:not(#area-impressao) { display: none !important; }
+  html.imprimindo body { background: #FFFFFF !important; }
+
+  html:not(.imprimindo) header,
+  html:not(.imprimindo) footer,
+  html:not(.imprimindo) nav { display: none !important; }
+
+  #area-impressao {
+    display: block;
+    color-scheme: light;
+    color: #0B1B2E;
+    background: #FFFFFF;
+    font-family: var(--font-sans);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    --bg: #FFFFFF; --surface: #FFFFFF; --surface-2: #EEF2EF; --surface-3: #E1E8E3;
+    --border: #DCE5DF; --border-strong: #CBD8CF; --border-subtle: #DCE5DF;
+    --text: #0B1B2E; --text-muted: #46566B; --text-subtle: #5F6F83;
+    --verde: #00703C; --verde-soft: #E2F3E9; --verde-border: #A9DABE;
+    --brand: #0072BB; --brand-soft: #E8F1F9; --brand-border: #B6D3EC;
+    --warning: #8A4B0B; --warning-soft: #FDF3DC; --warning-border: #EED39A;
+    --danger: #A8261B; --danger-soft: #FCEBE8; --danger-border: #F0C0B9;
+    --ink: #00385E; --ink-muted: #B7CADC; --lima: #C6E86B; --ceu: #DCEEFB; --noite: #0B1B2E;
   }
-  body {
-    background: #FFFFFF !important;
-    color: #000000 !important;
+  #area-impressao > *:not(.impressao-cabecalho) {
+    max-width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    margin: 0 auto !important;
   }
+  #area-impressao * { break-inside: avoid; }
+  .impressao-cabecalho {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid #DCE5DF;
+    font-size: 11px;
+    color: #46566B;
+  }
+  .impressao-cabecalho strong {
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: #0B1B2E;
+  }
+  .impressao-cabecalho span:last-child { margin-left: auto; }
 }
+

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Janela } from '../ui/Janela';
 import { Usuario } from '../../types';
 import { soundFX } from '../../services/soundFx';
 import { eventBus } from '../../services/eventBus';
@@ -558,7 +559,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
       </section>
 
       {detalhe && (
-        <Janela titulo={detalhe.motivo} onFechar={() => setDetalhe(null)}>
+        <Janela titulo={detalhe.motivo} onFechar={() => setDetalhe(null)} largura="md">
           <dl className="space-y-2 rounded-[18px] bg-[var(--surface-2)] p-4 text-sm">
             <Linha rotulo="Sala" valor={SALAS.find(s => s.id === detalhe.salaId)?.nome ?? ''} />
             <Linha rotulo="Quando" valor={`${dataLonga(detalhe.data)} · ${hh(detalhe.horaInicio)}–${hh(detalhe.horaFim)}`} />
@@ -581,7 +582,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
       )}
 
       {feita && (
-        <Janela titulo="Sala reservada." onFechar={() => setFeita(null)}>
+        <Janela titulo="Sala reservada." onFechar={() => setFeita(null)} largura="md">
           <p className="text-sm text-[var(--text-muted)]">
             {SALAS.find(s => s.id === feita.salaId)?.nome}, <span className="first-letter:lowercase">{dataLonga(feita.data)}</span>, das {hh(feita.horaInicio)} às {hh(feita.horaFim)}.
           </p>
@@ -601,22 +602,3 @@ const Linha: React.FC<{ rotulo: string; valor: string }> = ({ rotulo, valor }) =
   </div>
 );
 
-const Janela: React.FC<{ titulo: string; onFechar: () => void; children: React.ReactNode }> = ({ titulo, onFechar, children }) => (
-  <div
-    className="fixed inset-0 z-50 flex items-end justify-center bg-[#0B1B2E]/60 sm:items-center sm:p-4"
-    role="dialog"
-    aria-modal="true"
-    aria-label={titulo}
-    onClick={e => e.target === e.currentTarget && onFechar()}
-  >
-    <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-[28px] bg-[var(--surface)] p-6 sm:rounded-[28px] sm:p-7">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <h3 className="font-display text-2xl font-bold leading-tight text-[var(--text)]">{titulo}</h3>
-        <button type="button" onClick={onFechar} aria-label="Fechar" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--surface-3)] cursor-pointer">
-          <X size={16} />
-        </button>
-      </div>
-      {children}
-    </div>
-  </div>
-);

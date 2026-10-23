@@ -1,4 +1,6 @@
 import React, { useRef, useState } from 'react';
+import { useJanela } from '../ui/Janela';
+import { imprimir } from '../../lib/imprimir';
 import { Usuario } from '../../types';
 import { soundFX } from '../../services/soundFx';
 import { eventBus } from '../../services/eventBus';
@@ -88,6 +90,8 @@ export const CalculadoraDiariasView: React.FC<CalculadoraDiariasViewProps> = ({ 
   const [erro, setErro] = useState<string | null>(null);
   const [pedidos, setPedidos] = useState<PedidoDiaria[]>(() => PEDIDOS_INICIAIS(currentUser.nome));
   const [enviado, setEnviado] = useState<PedidoDiaria | null>(null);
+  const enviadoRef = useRef<HTMLDivElement>(null);
+  const enviadoJanela = useJanela(Boolean(enviado), () => setEnviado(null));
   const resumoRef = useRef<HTMLDivElement>(null);
 
   const conta = calcular(nivel, dias, pernoite);
@@ -343,8 +347,8 @@ export const CalculadoraDiariasView: React.FC<CalculadoraDiariasViewProps> = ({ 
       </section>
 
       {enviado && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#0B1B2E]/60 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="di-ok">
-          <div className="w-full max-w-md rounded-t-[28px] bg-[var(--surface)] p-6 sm:rounded-[28px] sm:p-7">
+        <div ref={enviadoJanela} tabIndex={-1} className="fixed inset-0 z-50 flex items-end justify-center bg-[#0B1B2E]/60 outline-none sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="di-ok">
+          <div ref={enviadoRef} className="w-full max-w-md rounded-t-[28px] bg-[var(--surface)] p-6 sm:rounded-[28px] sm:p-7">
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#C6E86B] text-[#0B1B2E]">
               <Check size={24} strokeWidth={3} />
             </span>
@@ -358,7 +362,7 @@ export const CalculadoraDiariasView: React.FC<CalculadoraDiariasViewProps> = ({ 
               <div className="flex justify-between gap-3"><dt className="text-[var(--text-muted)]">Valor</dt><dd className="font-semibold tabular-nums text-[var(--text)]">{moeda(enviado.total)}</dd></div>
             </dl>
             <div className="mt-5 flex gap-2">
-              <button type="button" onClick={() => window.print()} className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[var(--border)] text-sm font-semibold text-[var(--text)] hover:bg-[var(--surface-2)] cursor-pointer">
+              <button type="button" onClick={() => imprimir(enviadoRef.current, `Pedido de diária ${enviado.protocolo}`)} className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[var(--border)] text-sm font-semibold text-[var(--text)] hover:bg-[var(--surface-2)] cursor-pointer">
                 <Printer size={15} /> Imprimir
               </button>
               <button type="button" onClick={() => setEnviado(null)} className="h-11 flex-1 rounded-full bg-[#00385E] text-sm font-semibold text-white cursor-pointer">
