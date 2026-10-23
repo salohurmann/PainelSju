@@ -1,14 +1,15 @@
+import { ModuloCabecalho, AcaoModulo, NumeroModulo } from '../modulo/ModuloCabecalho';
 import React, { useState, useEffect } from 'react';
 import { Usuario } from '../../types';
 import { soundFX } from '../../services/soundFx';
 import { eventBus } from '../../services/eventBus';
 import { 
-  Wrench, 
+  
   Plus, 
   Clock, 
   CheckCircle2, 
   User, 
-  Flame, 
+  
   GripVertical,
   Sparkles,
   Check,
@@ -17,17 +18,17 @@ import {
   Send,
   X,
   FileText,
-  ArrowLeft,
+  
   SlidersHorizontal,
   ShieldCheck,
   ArrowUpRight,
   RotateCcw,
-  Activity,
-  Terminal,
+  
+  
   Cpu,
   Zap,
-  Radio,
-  AlertTriangle,
+  
+  
   Building2
 } from 'lucide-react';
 
@@ -420,335 +421,102 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
     switch (p) {
       case 'urgente':
         return {
-          badge: 'bg-red-500/10 text-red-700 border-red-500/25 shadow-[0_0_10px_rgba(239,68,68,0.12)]',
-          dot: 'bg-red-500 animate-ping',
-          solidDot: 'bg-red-600',
-          strip: 'from-red-500 via-rose-500 to-orange-500',
-          barColor: 'from-red-500 to-rose-400 shadow-[0_0_10px_rgba(239,68,68,0.5)]',
-          hoverBorder: 'hover:border-red-300/90 hover:shadow-[0_12px_28px_-8px_rgba(239,68,68,0.16)]',
+          badge: 'bg-[#C8372D]/10 text-[var(--danger)] border-[var(--danger)]/25 ',
+          dot: 'bg-[#C8372D] ',
+          solidDot: 'bg-[#B42318]',
+          strip: 'bg-[#C8372D]  ',
+          barColor: 'bg-[#C8372D]  ',
+          hoverBorder: 'hover:border-[var(--danger-border)]/90 ',
           label: 'CRÍTICO · P1'
         };
       case 'alta':
         return {
-          badge: 'bg-amber-500/10 text-amber-800 border-amber-500/25',
-          dot: 'bg-amber-500',
-          solidDot: 'bg-amber-500',
-          strip: 'from-amber-500 via-orange-400 to-yellow-400',
-          barColor: 'from-amber-500 to-yellow-400 shadow-[0_0_8px_rgba(245,158,11,0.4)]',
-          hoverBorder: 'hover:border-amber-300/90 hover:shadow-[0_12px_28px_-8px_rgba(245,158,11,0.15)]',
+          badge: 'bg-[#D98A00]/10 text-[var(--warning)] border-[var(--warning)]/25',
+          dot: 'bg-[#D98A00]',
+          solidDot: 'bg-[#D98A00]',
+          strip: 'bg-[#D98A00]  ',
+          barColor: 'bg-[#D98A00]  ',
+          hoverBorder: 'hover:border-[var(--warning-border)]/90 ',
           label: 'ALTA · P2'
         };
       case 'media':
         return {
-          badge: 'bg-blue-500/10 text-blue-700 border-blue-500/25',
-          dot: 'bg-blue-500',
-          solidDot: 'bg-blue-500',
-          strip: 'from-blue-600 via-indigo-500 to-cyan-400',
-          barColor: 'from-blue-600 to-cyan-400 shadow-[0_0_8px_rgba(37,99,235,0.35)]',
-          hoverBorder: 'hover:border-blue-300/90 hover:shadow-[0_12px_28px_-8px_rgba(37,99,235,0.15)]',
+          badge: 'bg-[#0072BB]/10 text-[var(--brand)] border-[var(--brand)]/25',
+          dot: 'bg-[#0072BB]',
+          solidDot: 'bg-[#0072BB]',
+          strip: 'bg-[#0072BB]  ',
+          barColor: 'bg-[#0072BB]  ',
+          hoverBorder: 'hover:border-[var(--brand-border)]/90 ',
           label: 'MÉDIA · P3'
         };
       default:
         return {
-          badge: 'bg-slate-500/10 text-slate-600 border-slate-400/25',
-          dot: 'bg-slate-400',
-          solidDot: 'bg-slate-400',
-          strip: 'from-slate-400 via-slate-300 to-slate-200',
-          barColor: 'from-slate-500 to-slate-400',
-          hoverBorder: 'hover:border-slate-300 hover:shadow-md',
+          badge: 'bg-[var(--text-muted)]/10 text-[var(--text-muted)] border-[var(--border-strong)]/25',
+          dot: 'bg-[var(--text-subtle)]',
+          solidDot: 'bg-[var(--text-subtle)]',
+          strip: 'bg-[var(--text-subtle)]  ',
+          barColor: 'bg-[var(--text-muted)] ',
+          hoverBorder: 'hover:border-[var(--border-strong)] ',
           label: 'BAIXA · P4'
         };
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-5 font-sans">
-      
-      {/* =====================================================================
-          SEÇÃO 1: CABEÇALHO NOC & PAINEL DE TELEMETRIA DE TI (LINEAR / VERCEL)
-         ===================================================================== */}
-      <div className="relative bg-white rounded-2xl border border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.04),0_12px_32px_-12px_rgba(15,23,42,0.07)] overflow-hidden">
-        {/* Brilho Especular Superior Estilo Vercel */}
-        <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-blue-600/60 to-transparent" />
+    <div className="space-y-5 font-sans">
+      <ModuloCabecalho
+        cor="noite"
+        rotulo="Atendimento · TI, Manutenção e Almoxarifado"
+        titulo="Chamados"
+        descricao="Abra um pedido de suporte, acompanhe o prazo de atendimento e veja quem está cuidando do seu caso."
+        onVoltar={onVoltarHub}
+        acoes={
+          <AcaoModulo
+            destaque
+            icone={<Plus size={15} />}
+            onClick={() => {
+              soundFX.playClick();
+              setModalNovo(true);
+            }}
+          >
+            Abrir chamado
+          </AcaoModulo>
+        }
+      >
+        <div className="flex flex-wrap gap-2">
+          <NumeroModulo rotulo="Em aberto" valor={totalAtivos} detalhe={`de ${totalChamados} no total`} />
+          <NumeroModulo rotulo="Prazo vencendo" valor={totalUrgentesSla} detalhe="menos de 1 hora" />
+          <NumeroModulo rotulo="Em atendimento" valor={totalEmAndamento} />
+          <NumeroModulo rotulo="Resolvidos" valor={`${taxaResolucao}%`} detalhe={`${totalConcluidos} chamados`} />
+        </div>
+      </ModuloCabecalho>
 
-        {/* Sub-Header de Comando NOC */}
+      <div className="relative bg-[var(--surface)] rounded-[18px] border border-[var(--border)] overflow-hidden">
         <div className="p-5 sm:p-6 space-y-6">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div className="flex items-start gap-3.5">
-              <button
-                onClick={onVoltarHub}
-                className="mt-0.5 p-2.5 rounded-xl bg-slate-50 hover:bg-slate-900 text-slate-600 hover:text-white border border-slate-200/90 hover:border-slate-900 shadow-2xs transition-all duration-200 cursor-pointer shrink-0 group"
-                title="Voltar à Central de Aplicativos"
-              >
-                <ArrowLeft size={17} className="group-hover:-translate-x-0.5 transition-transform" />
-              </button>
-
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-slate-700 bg-slate-100 border border-slate-200/90 px-2.5 py-0.5 rounded-md">
-                    <Terminal size={11} className="text-blue-600" />
-                    SEJU // NOC-TI COMMAND CENTER
-                  </span>
-
-                  <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-semibold text-emerald-700 bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 rounded-full">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                    </span>
-                    TELEMETRIA SLA · 99.98% ONLINE
-                  </span>
-
-                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono text-slate-400">
-                    <Radio size={11} className="text-blue-500" /> SYNC 1.0s
-                  </span>
-                </div>
-
-                <h2 className="text-lg sm:text-2xl font-bold text-slate-950 tracking-tight mt-1.5 flex items-center gap-2.5">
-                  <span className="p-1.5 rounded-lg bg-slate-900 text-white shadow-xs">
-                    <Wrench size={17} />
-                  </span>
-                  Quadro Kanban de TI & Ordens de Serviço
-                </h2>
-                <p className="text-xs text-slate-500 mt-0.5 max-w-2xl">
-                  Central de Operações de Rede e Infraestrutura com monitoramento regressivo de SLA, despacho técnico em tempo real e diário de bordo auditável.
-                </p>
-              </div>
-            </div>
-
-            {/* Ação Primária Linear-Grade */}
-            <div className="flex items-center gap-2.5 self-start lg:self-center">
-              <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] font-mono text-slate-600">
-                <Cpu size={13} className="text-blue-600" />
-                <span>OPERADOR:</span>
-                <span className="font-bold text-slate-900">{currentUser.nome.split(' ')[0].toUpperCase()}</span>
-              </div>
-
-              <button
-                onClick={() => {
-                  soundFX.playClick();
-                  setModalNovo(true);
-                }}
-                className="relative overflow-hidden bg-slate-950 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.2)] transition-all duration-200 flex items-center gap-2 cursor-pointer shrink-0 group"
-              >
-                <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-70" />
-                <Plus size={15} className="text-blue-400 group-hover:rotate-90 transition-transform duration-200" />
-                <span>Abrir Ordem de Serviço</span>
-                <kbd className="hidden sm:inline-block ml-1 px-1.5 py-0.5 text-[9px] font-mono bg-white/10 text-slate-300 rounded border border-white/15">
-                  OS+
-                </kbd>
-              </button>
-            </div>
-          </div>
-
-          {/* =================================================================
-              4 CARTÕES DE TELEMETRIA NOC (CANTONEIRAS, BORDAS DUPLAS E LEDS)
-             ================================================================= */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-            
-            {/* CARD 1: TOTAL DE DEMANDAS */}
-            <div className="relative rounded-xl bg-gradient-to-b from-slate-50/90 to-white p-4 border border-slate-200/90 ring-1 ring-inset ring-white shadow-2xs overflow-hidden group hover:border-slate-300 transition-all">
-              {/* Brilho Superior Duplo */}
-              <div className="absolute inset-x-4 top-0 h-[2px] bg-gradient-to-r from-transparent via-slate-900/50 to-transparent" />
-              {/* Cantoneiras Técnicas NOC */}
-              <span className="absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-slate-400/70 rounded-tl-[2px]" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-slate-400/70 rounded-tr-[2px]" />
-              <span className="absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-slate-400/70 rounded-bl-[2px]" />
-              <span className="absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-slate-400/70 rounded-br-[2px]" />
-
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">
-                  01 // Total de Demandas
-                </span>
-                <span className="relative flex h-2.5 w-2.5" title="Fila Monitorada">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-600" />
-                </span>
-              </div>
-
-              <div className="mt-2.5 flex items-baseline justify-between">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold font-mono tracking-tight text-slate-950">
-                    {String(totalChamados).padStart(2, '0')}
-                  </span>
-                  <span className="text-[11px] font-mono text-slate-500">
-                    ({totalAtivos} ativos)
-                  </span>
-                </div>
-                <span className="text-[10px] font-mono font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200/70 px-2 py-0.5 rounded-md">
-                  FILA GLOBAL
-                </span>
-              </div>
-
-              <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[10px] font-mono text-slate-400">
-                <span>TI · MANUT · ALMOX</span>
-                <span className="text-slate-600 font-semibold">100% RASTREADO</span>
-              </div>
-            </div>
-
-            {/* CARD 2: URGENTES SLA < 1H */}
-            <div className="relative rounded-xl bg-gradient-to-b from-red-50/40 via-white to-white p-4 border border-red-200/80 ring-1 ring-inset ring-white shadow-2xs overflow-hidden group hover:border-red-300 transition-all">
-              {/* Brilho Superior Duplo Vermelho */}
-              <div className="absolute inset-x-4 top-0 h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent shadow-[0_0_12px_rgba(239,68,68,0.6)]" />
-              {/* Cantoneiras Técnicas NOC */}
-              <span className="absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-red-400/80 rounded-tl-[2px]" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-red-400/80 rounded-tr-[2px]" />
-              <span className="absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-red-400/80 rounded-bl-[2px]" />
-              <span className="absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-red-400/80 rounded-br-[2px]" />
-
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-red-700 flex items-center gap-1">
-                  <Flame size={12} className="text-red-600" />
-                  02 // Urgentes SLA &lt; 1h
-                </span>
-                <span className="relative flex h-2.5 w-2.5" title="Alerta de Prioridade P1">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-80" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-600" />
-                </span>
-              </div>
-
-              <div className="mt-2.5 flex items-baseline justify-between">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold font-mono tracking-tight text-red-600">
-                    {String(totalUrgentesSla).padStart(2, '0')}
-                  </span>
-                  <span className="text-[11px] font-mono text-red-600/80">
-                    críticos P1
-                  </span>
-                </div>
-                <span className="text-[10px] font-mono font-semibold text-red-700 bg-red-100/80 border border-red-200 px-2 py-0.5 rounded-md flex items-center gap-1">
-                  <AlertTriangle size={10} /> ESCALONAMENTO
-                </span>
-              </div>
-
-              <div className="mt-3 pt-2.5 border-t border-red-100/80 flex items-center justify-between text-[10px] font-mono text-red-700/80">
-                <span>RESPOSTA IMEDIATA</span>
-                <span className="font-bold">TARGET &lt; 60m</span>
-              </div>
-            </div>
-
-            {/* CARD 3: TÉCNICOS EM CAMPO */}
-            <div className="relative rounded-xl bg-gradient-to-b from-blue-50/40 via-white to-white p-4 border border-blue-200/80 ring-1 ring-inset ring-white shadow-2xs overflow-hidden group hover:border-blue-300 transition-all">
-              {/* Brilho Superior Duplo Azul */}
-              <div className="absolute inset-x-4 top-0 h-[2px] bg-gradient-to-r from-transparent via-blue-500 to-transparent shadow-[0_0_12px_rgba(59,130,246,0.6)]" />
-              {/* Cantoneiras Técnicas NOC */}
-              <span className="absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-blue-400/80 rounded-tl-[2px]" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-blue-400/80 rounded-tr-[2px]" />
-              <span className="absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-blue-400/80 rounded-bl-[2px]" />
-              <span className="absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-blue-400/80 rounded-br-[2px]" />
-
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-800 flex items-center gap-1">
-                  <Activity size={12} className="text-blue-600" />
-                  03 // Técnicos em Campo
-                </span>
-                <span className="relative flex h-2.5 w-2.5" title="Especialistas em Atendimento">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600" />
-                </span>
-              </div>
-
-              <div className="mt-2.5 flex items-center justify-between">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold font-mono tracking-tight text-slate-950">
-                    {String(totalEmAndamento).padStart(2, '0')}
-                  </span>
-                  <span className="text-[11px] font-mono text-blue-700">
-                    alocados agora
-                  </span>
-                </div>
-
-                {/* Mini Avatares Empilhados com Anel de Status */}
-                <div className="flex -space-x-1.5">
-                  {['RM', 'PL', 'LS'].map((ini, idx) => (
-                    <div
-                      key={idx}
-                      className="w-6 h-6 rounded-full bg-slate-900 text-white text-[9px] font-mono font-bold flex items-center justify-center ring-2 ring-white border border-blue-400 shadow-2xs"
-                      title="Especialista N2 Ativo"
-                    >
-                      {ini}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-3 pt-2.5 border-t border-blue-100/80 flex items-center justify-between text-[10px] font-mono text-blue-800/80">
-                <span>EQUIPE N1 / N2 / N3</span>
-                <span className="font-bold text-blue-700">DESPACHO ATIVO</span>
-              </div>
-            </div>
-
-            {/* CARD 4: TAXA DE RESOLUÇÃO */}
-            <div className="relative rounded-xl bg-gradient-to-b from-emerald-50/40 via-white to-white p-4 border border-emerald-200/80 ring-1 ring-inset ring-white shadow-2xs overflow-hidden group hover:border-emerald-300 transition-all">
-              {/* Brilho Superior Duplo Esmeralda */}
-              <div className="absolute inset-x-4 top-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500 to-transparent shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
-              {/* Cantoneiras Técnicas NOC */}
-              <span className="absolute top-1.5 left-1.5 w-2 h-2 border-t-[1.5px] border-l-[1.5px] border-emerald-400/80 rounded-tl-[2px]" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-emerald-400/80 rounded-tr-[2px]" />
-              <span className="absolute bottom-1.5 left-1.5 w-2 h-2 border-b-[1.5px] border-l-[1.5px] border-emerald-400/80 rounded-bl-[2px]" />
-              <span className="absolute bottom-1.5 right-1.5 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-emerald-400/80 rounded-br-[2px]" />
-
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1">
-                  <ShieldCheck size={12} className="text-emerald-600" />
-                  04 // Taxa de Resolução
-                </span>
-                <span className="relative flex h-2.5 w-2.5" title="Conformidade de SLA">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
-                </span>
-              </div>
-
-              <div className="mt-2.5 flex items-baseline justify-between">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold font-mono tracking-tight text-emerald-700">
-                    {taxaResolucao}%
-                  </span>
-                  <span className="text-[11px] font-mono text-emerald-700/80">
-                    ({totalConcluidos}/{totalChamados} OS)
-                  </span>
-                </div>
-                <span className="text-[10px] font-mono font-semibold text-emerald-800 bg-emerald-100/80 border border-emerald-200 px-2 py-0.5 rounded-md">
-                  SLA COMPLIANT
-                </span>
-              </div>
-
-              <div className="mt-3 pt-2.5 border-t border-emerald-100/80 flex items-center justify-between gap-2">
-                <div className="flex-1 h-1.5 bg-emerald-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500"
-                    style={{ width: `${taxaResolucao}%` }}
-                  />
-                </div>
-                <span className="text-[10px] font-mono font-bold text-emerald-700">META 95%</span>
-              </div>
-            </div>
-
-          </div>
-
           {/* =================================================================
               SEÇÃO 2: BARRA DE BUSCA & FILTROS SEGMENTADOS (TACTILE MACHINED)
              ================================================================= */}
-          <div className="pt-4 border-t border-slate-200/70 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3.5">
+          <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3.5">
             
             {/* Busca Rápida Estilo Command Bar */}
             <div className="relative flex-1 max-w-md">
-              <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-subtle)]" />
               <input
                 type="text"
                 value={buscaChamado}
                 onChange={e => setBuscaChamado(e.target.value)}
                 placeholder="Filtrar por #código, assunto, solicitante ou especialista..."
-                className="w-full text-xs pl-9 pr-16 py-2.5 bg-slate-100/70 hover:bg-slate-100 focus:bg-white border border-slate-200/90 rounded-xl outline-hidden focus:ring-2 focus:ring-blue-500/15 focus:border-blue-500 transition-all text-slate-800 placeholder:text-slate-400 font-medium shadow-inner"
+                className="w-full text-xs pl-9 pr-16 py-2.5 bg-[var(--surface-2)]/70 hover:bg-[var(--surface-2)] focus:bg-[var(--surface)] border border-[var(--border)]/90 rounded-xl outline-hidden focus:ring-2 focus:ring-[var(--brand)]/15 focus:border-[var(--brand)] transition-all text-[var(--text)] placeholder:text-[var(--text-subtle)] font-medium "
               />
               {buscaChamado ? (
                 <button
                   onClick={() => setBuscaChamado('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 bg-slate-200/70 hover:bg-slate-200 p-1 rounded-md cursor-pointer transition"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-subtle)] hover:text-[var(--text)] bg-[var(--surface-3)]/70 hover:bg-[var(--surface-3)] p-1 rounded-md cursor-pointer transition"
                 >
                   <X size={12} />
                 </button>
               ) : (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 bg-white px-1.5 py-0.5 rounded border border-slate-200/80 shadow-2xs pointer-events-none">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] tabular-nums text-[var(--text-subtle)] bg-[var(--surface)] px-1.5 py-0.5 rounded border border-[var(--border)]/80 shadow-2xs pointer-events-none">
                   ⌘K
                 </span>
               )}
@@ -758,7 +526,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
             <div className="flex flex-wrap items-center gap-2.5">
               
               {/* Filtro Segmentado de Categoria */}
-              <div className="flex items-center gap-1 bg-slate-900/[0.04] p-1 rounded-xl border border-slate-200/90 shadow-inner">
+              <div className="flex items-center gap-1 bg-[#0B1B2E]/[0.04] p-1 rounded-xl border border-[var(--border)]/90 ">
                 {[
                   { id: 'todos', label: 'Todas Áreas' },
                   { id: 'TI', label: 'TI & Redes' },
@@ -776,16 +544,16 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                       }}
                       className={`px-2.5 py-1.5 rounded-lg transition-all duration-200 cursor-pointer text-[11px] flex items-center gap-1.5 ${
                         ativo
-                          ? 'bg-white text-slate-950 font-semibold shadow-[0_1px_3px_rgba(15,23,42,0.12)] border border-slate-200/90'
-                          : 'text-slate-600 hover:text-slate-900 font-medium border border-transparent'
+                          ? 'bg-[var(--surface)] text-[var(--text)] font-semibold  border border-[var(--border)]/90'
+                          : 'text-[var(--text-muted)] hover:text-[var(--text)] font-medium border border-transparent'
                       }`}
                     >
                       <span>{t.label}</span>
                       <span
-                        className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full transition-colors ${
+                        className={`text-[10px] tabular-nums px-1.5 py-0.2 rounded-full transition-colors ${
                           ativo
-                            ? 'bg-slate-900 text-white font-bold'
-                            : 'bg-slate-200/80 text-slate-600'
+                            ? 'bg-[#0B1B2E] text-white font-bold'
+                            : 'bg-[var(--surface-3)]/80 text-[var(--text-muted)]'
                         }`}
                       >
                         {count}
@@ -796,12 +564,12 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
               </div>
 
               {/* Filtro Segmentado de Prioridade */}
-              <div className="flex items-center gap-1 bg-slate-900/[0.04] p-1 rounded-xl border border-slate-200/90 shadow-inner">
+              <div className="flex items-center gap-1 bg-[#0B1B2E]/[0.04] p-1 rounded-xl border border-[var(--border)]/90 ">
                 {[
-                  { id: 'todas', label: 'Prioridade', dot: 'bg-slate-400' },
-                  { id: 'urgente', label: 'Críticas', dot: 'bg-red-500' },
-                  { id: 'alta', label: 'Altas', dot: 'bg-amber-500' },
-                  { id: 'media', label: 'Médias', dot: 'bg-blue-500' }
+                  { id: 'todas', label: 'Prioridade', dot: 'bg-[var(--text-subtle)]' },
+                  { id: 'urgente', label: 'Críticas', dot: 'bg-[#C8372D]' },
+                  { id: 'alta', label: 'Altas', dot: 'bg-[#D98A00]' },
+                  { id: 'media', label: 'Médias', dot: 'bg-[#0072BB]' }
                 ].map(p => {
                   const ativo = filtroPrioridade === p.id;
                   const count = countPorPrioridade(p.id);
@@ -814,17 +582,17 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                       }}
                       className={`px-2.5 py-1.5 rounded-lg transition-all duration-200 cursor-pointer text-[11px] flex items-center gap-1.5 ${
                         ativo
-                          ? 'bg-white text-slate-950 font-semibold shadow-[0_1px_3px_rgba(15,23,42,0.12)] border border-slate-200/90'
-                          : 'text-slate-600 hover:text-slate-900 font-medium border border-transparent'
+                          ? 'bg-[var(--surface)] text-[var(--text)] font-semibold  border border-[var(--border)]/90'
+                          : 'text-[var(--text-muted)] hover:text-[var(--text)] font-medium border border-transparent'
                       }`}
                     >
                       <span className={`w-1.5 h-1.5 rounded-full ${p.dot}`} />
                       <span>{p.label}</span>
                       <span
-                        className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full transition-colors ${
+                        className={`text-[10px] tabular-nums px-1.5 py-0.2 rounded-full transition-colors ${
                           ativo
-                            ? 'bg-slate-900 text-white font-bold'
-                            : 'bg-slate-200/80 text-slate-600'
+                            ? 'bg-[#0B1B2E] text-white font-bold'
+                            : 'bg-[var(--surface-3)]/80 text-[var(--text-muted)]'
                         }`}
                       >
                         {count}
@@ -835,9 +603,9 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
               </div>
 
               {/* Contador de Resultados Visíveis */}
-              <div className="hidden 2xl:flex items-center gap-1.5 text-[11px] font-mono text-slate-500 pl-2 border-l border-slate-200">
-                <SlidersHorizontal size={12} className="text-blue-600" />
-                <span className="font-bold text-slate-900">{chamadosFiltrados.length}</span>
+              <div className="hidden 2xl:flex items-center gap-1.5 text-[11px] tabular-nums text-[var(--text-muted)] pl-2 border-l border-[var(--border)]">
+                <SlidersHorizontal size={12} className="text-[var(--brand)]" />
+                <span className="font-bold text-[var(--text)]">{chamadosFiltrados.length}</span>
                 <span>OS visíveis</span>
               </div>
             </div>
@@ -851,11 +619,11 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
          ===================================================================== */}
       
       {/* Seletor Segmentado Mobile */}
-      <div className="md:hidden flex bg-white p-1.5 rounded-2xl border border-slate-200/90 shadow-2xs gap-1 text-xs">
+      <div className="md:hidden flex bg-[var(--surface)] p-1.5 rounded-[18px] border border-[var(--border)]/90 shadow-2xs gap-1 text-xs">
         {[
-          { id: 'a_fazer' as const, label: 'Triagem', dot: 'bg-amber-500' },
-          { id: 'em_andamento' as const, label: 'Atendimento', dot: 'bg-blue-600' },
-          { id: 'concluido' as const, label: 'Concluídos', dot: 'bg-emerald-500' }
+          { id: 'a_fazer' as const, label: 'Triagem', dot: 'bg-[#D98A00]' },
+          { id: 'em_andamento' as const, label: 'Atendimento', dot: 'bg-[#0072BB]' },
+          { id: 'concluido' as const, label: 'Concluídos', dot: 'bg-[#00A859]' }
         ].map(col => {
           const count = chamadosFiltrados.filter(c => c.status === col.id).length;
           const active = colunaAtivaMobile === col.id;
@@ -869,14 +637,14 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
               }}
               className={`flex-1 py-2 px-2 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer ${
                 active
-                  ? 'bg-slate-900 text-white font-semibold shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900 font-medium'
+                  ? 'bg-[#0B1B2E] text-white font-semibold shadow-2xs'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text)] font-medium'
               }`}
             >
               <span className={`w-1.5 h-1.5 rounded-full ${col.dot}`} />
               <span>{col.label}</span>
-              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+              <span className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums ${
+                active ? 'bg-white/20 text-white' : 'bg-[var(--surface-2)] text-[var(--text-muted)]'
               }`}>
                 {count}
               </span>
@@ -899,35 +667,35 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
             backgroundImage: 'radial-gradient(rgba(15, 23, 42, 0.055) 1px, transparent 1px)',
             backgroundSize: '16px 16px'
           }}
-          className={`${colunaAtivaMobile === 'a_fazer' ? 'flex' : 'hidden md:flex'} relative rounded-2xl border transition-all duration-200 flex-col justify-between min-h-[540px] overflow-hidden ${
+          className={`${colunaAtivaMobile === 'a_fazer' ? 'flex' : 'hidden md:flex'} relative rounded-[18px] border transition-all duration-200 flex-col justify-between min-h-[540px] overflow-hidden ${
             dragOverCol === 'a_fazer'
-              ? 'bg-amber-50/50 border-amber-400 ring-2 ring-amber-300/50 shadow-lg'
-              : 'bg-slate-100/70 border-slate-200/90 shadow-2xs'
+              ? 'bg-[var(--warning-soft)]/50 border-[var(--warning)] ring-2 ring-[var(--warning-border)]/50 '
+              : 'bg-[var(--surface-2)]/70 border-[var(--border)]/90 shadow-2xs'
           }`}
         >
           {/* Barra de Acento Superior Esculpida */}
-          <div className="h-1.5 w-full bg-gradient-to-r from-amber-500 via-orange-400 to-amber-300" />
+          <div className="h-1.5 w-full bg-[#D98A00]  " />
 
           <div className="p-4 space-y-3.5 flex-1">
             {/* Cabeçalho Esculpido da Coluna */}
-            <div className="bg-white/90 rounded-xl p-3 border border-slate-200/80 shadow-2xs flex items-center justify-between">
+            <div className="bg-[var(--surface)]/90 rounded-xl p-3 border border-[var(--border)]/80 shadow-2xs flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
+                  <span className=" absolute inline-flex h-full w-full rounded-full bg-[#D98A00] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#D98A00]" />
                 </span>
                 <div>
-                  <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-amber-700">
-                    STAGE 01 // INTAKE QUEUE
+                  <div className="text-[9px] tabular-nums font-bold uppercase tracking-widest text-[var(--warning)]">
+                    Etapa 1 · Novos
                   </div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text)]">
                     Triagem & Despacho
                   </h3>
                 </div>
               </div>
 
               <div className="flex items-center gap-1.5">
-                <span className="font-mono text-xs font-bold bg-amber-500/10 text-amber-800 px-2.5 py-1 rounded-lg border border-amber-500/25 shadow-2xs">
+                <span className="tabular-nums text-xs font-bold bg-[#D98A00]/10 text-[var(--warning)] px-2.5 py-1 rounded-lg border border-[var(--warning)]/25 shadow-2xs">
                   {String(chamadosFiltrados.filter(c => c.status === 'a_fazer').length).padStart(2, '0')}
                 </span>
               </div>
@@ -949,26 +717,26 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                       soundFX.playClick();
                       setChamadoSelecionado(c);
                     }}
-                    className={`relative bg-white rounded-xl p-4 pl-5 border border-slate-200/90 shadow-2xs ${prio.hoverBorder} hover:-translate-y-0.5 transition-all duration-200 space-y-3 cursor-pointer select-none group overflow-hidden ${
+                    className={`relative bg-[var(--surface)] rounded-xl p-4 pl-5 border border-[var(--border)]/90 shadow-2xs ${prio.hoverBorder} hover:-translate-y-0.5 transition-all duration-200 space-y-3 cursor-pointer select-none group overflow-hidden ${
                       draggingCardId === c.id ? 'opacity-40 scale-98' : ''
                     }`}
                   >
                     {/* Faixa Lateral de Prioridade */}
-                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${prio.strip}`} />
+                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${prio.strip}`} />
 
                     {/* Topo: Tag Monoespaçada + Prioridade */}
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5">
-                        <GripVertical size={13} className="text-slate-300 group-hover:text-slate-600 transition-colors" />
-                        <span className="font-mono text-[11px] font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/90 group-hover:border-slate-300">
+                        <GripVertical size={13} className="text-[var(--ink-muted)] group-hover:text-[var(--text-muted)] transition-colors" />
+                        <span className="tabular-nums text-[11px] font-bold text-[var(--text)] bg-[var(--surface-2)] px-2 py-0.5 rounded-md border border-[var(--border)]/90 group-hover:border-[var(--border-strong)]">
                           #{c.codigo}
                         </span>
-                        <span className="font-mono text-[10px] font-semibold text-slate-600 px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200/70">
+                        <span className="tabular-nums text-[10px] font-semibold text-[var(--text-muted)] px-1.5 py-0.5 rounded bg-[var(--surface-2)] border border-[var(--border)]/70">
                           {c.tipo}
                         </span>
                       </div>
 
-                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border flex items-center gap-1.5 ${prio.badge}`}>
+                      <span className={`text-[10px] tabular-nums font-bold px-2 py-0.5 rounded-full border flex items-center gap-1.5 ${prio.badge}`}>
                         <span className="relative flex h-1.5 w-1.5">
                           <span className={`absolute inline-flex h-full w-full rounded-full ${prio.dot} opacity-75`} />
                           <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${prio.solidDot}`} />
@@ -979,30 +747,30 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
 
                     {/* Título & Descrição */}
                     <div>
-                      <h4 className="font-bold text-xs sm:text-[13px] text-slate-900 leading-snug group-hover:text-blue-600 transition-colors">
+                      <h4 className="font-bold text-xs sm:text-[13px] text-[var(--text)] leading-snug group-hover:text-[var(--brand)] transition-colors">
                         {c.titulo}
                       </h4>
-                      <p className="text-[11px] text-slate-500 line-clamp-2 mt-1 leading-relaxed">
+                      <p className="text-[11px] text-[var(--text-muted)] line-clamp-2 mt-1 leading-relaxed">
                         {c.descricao}
                       </p>
                     </div>
 
                     {/* Barra de Progresso de SLA Regressiva com Brilho */}
-                    <div className="p-2.5 rounded-lg bg-slate-50/90 border border-slate-200/70 space-y-1.5">
-                      <div className="flex items-center justify-between text-[10px] font-mono">
-                        <span className="text-slate-500 flex items-center gap-1 font-semibold">
-                          <Clock size={11} className={slaCritico ? 'text-red-500 animate-pulse' : 'text-amber-600'} />
-                          SLA REGRESSIVO
+                    <div className="p-2.5 rounded-lg bg-[var(--surface-2)]/90 border border-[var(--border)]/70 space-y-1.5">
+                      <div className="flex items-center justify-between text-[10px] tabular-nums">
+                        <span className="text-[var(--text-muted)] flex items-center gap-1 font-semibold">
+                          <Clock size={11} className={slaCritico ? 'text-[var(--danger)] ' : 'text-[var(--warning)]'} />
+                          Prazo restante
                         </span>
                         <span className={`font-bold px-1.5 py-0.2 rounded ${
-                          slaCritico ? 'text-red-700 bg-red-100/80' : 'text-amber-800 bg-amber-100/70'
+                          slaCritico ? 'text-[var(--danger)] bg-[var(--danger-soft)]/80' : 'text-[var(--warning)] bg-[var(--warning-soft)]/70'
                         }`}>
                           {formatarSLA(c.slaSegundosRestantes)}
                         </span>
                       </div>
-                      <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
+                      <div className="w-full h-1.5 bg-[var(--surface-3)]/80 rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full bg-gradient-to-r ${prio.barColor} transition-all duration-700`}
+                          className={`h-full rounded-full ${prio.barColor} transition-all duration-700`}
                           style={{ width: `${slaPercent}%` }}
                         />
                       </div>
@@ -1012,18 +780,18 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                     <div className="pt-1 flex items-center justify-between text-[11px]">
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="relative shrink-0">
-                          <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-700 font-mono text-[10px] font-bold flex items-center justify-center ring-2 ring-amber-400/70">
+                          <div className="w-6 h-6 rounded-full bg-[var(--surface-2)] text-[var(--text)] tabular-nums text-[10px] font-bold flex items-center justify-center ring-2 ring-[var(--warning)]/70">
                             {getIniciais(c.solicitante)}
                           </div>
-                          <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-500 ring-1 ring-white" />
+                          <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#D98A00] ring-1 ring-white" />
                         </div>
                         <div className="truncate">
-                          <div className="font-semibold text-slate-800 truncate leading-tight">{c.solicitante}</div>
-                          <div className="text-[10px] text-slate-400 truncate">{c.setor}</div>
+                          <div className="font-semibold text-[var(--text)] truncate leading-tight">{c.solicitante}</div>
+                          <div className="text-[10px] text-[var(--text-subtle)] truncate">{c.setor}</div>
                         </div>
                       </div>
 
-                      <span className="text-[10px] font-mono text-amber-700 bg-amber-50 border border-amber-200/70 px-1.5 py-0.5 rounded">
+                      <span className="text-[10px] tabular-nums text-[var(--warning)] bg-[var(--warning-soft)] border border-[var(--warning-border)]/70 px-1.5 py-0.5 rounded">
                         AGUARDANDO N1
                       </span>
                     </div>
@@ -1037,7 +805,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                           soundFX.playClick();
                           setChamadoSelecionado(c);
                         }}
-                        className="flex-1 text-[11px] font-semibold text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 py-1.5 rounded-lg border border-slate-200/90 transition cursor-pointer flex items-center justify-center gap-1"
+                        className="flex-1 text-[11px] font-semibold text-[var(--text-muted)] hover:text-[var(--text)] bg-[var(--surface-2)] hover:bg-[var(--surface-2)] py-1.5 rounded-lg border border-[var(--border)]/90 transition cursor-pointer flex items-center justify-center gap-1"
                       >
                         <FileText size={12} /> Inspecionar
                       </button>
@@ -1048,7 +816,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                           soundFX.playClick();
                           moverStatus(c.id, 'em_andamento');
                         }}
-                        className="flex-1 text-[11px] font-semibold text-white bg-slate-900 hover:bg-blue-600 py-1.5 rounded-lg border border-slate-900 hover:border-blue-600 shadow-2xs transition cursor-pointer flex items-center justify-center gap-1"
+                        className="flex-1 text-[11px] font-semibold text-white bg-[#0B1B2E] hover:bg-[#0072BB] py-1.5 rounded-lg border border-[#22324C] hover:border-[var(--brand)] shadow-2xs transition cursor-pointer flex items-center justify-center gap-1"
                       >
                         Assumir OS <ArrowUpRight size={12} />
                       </button>
@@ -1058,7 +826,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
               })}
 
               {chamadosFiltrados.filter(c => c.status === 'a_fazer').length === 0 && (
-                <div className="text-center py-12 px-4 rounded-xl bg-white/60 border border-dashed border-slate-300 text-xs text-slate-400 font-mono">
+                <div className="text-center py-12 px-4 rounded-xl bg-[var(--surface)]/60 border border-dashed border-[var(--border-strong)] text-xs text-[var(--text-subtle)] tabular-nums">
                   [QUEUE EMPTY] · Nenhum chamado aguardando triagem.
                 </div>
               )}
@@ -1077,34 +845,34 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
             backgroundImage: 'radial-gradient(rgba(37, 99, 235, 0.06) 1px, transparent 1px)',
             backgroundSize: '16px 16px'
           }}
-          className={`${colunaAtivaMobile === 'em_andamento' ? 'flex' : 'hidden md:flex'} relative rounded-2xl border transition-all duration-200 flex-col justify-between min-h-[540px] overflow-hidden ${
+          className={`${colunaAtivaMobile === 'em_andamento' ? 'flex' : 'hidden md:flex'} relative rounded-[18px] border transition-all duration-200 flex-col justify-between min-h-[540px] overflow-hidden ${
             dragOverCol === 'em_andamento'
-              ? 'bg-blue-50/50 border-blue-400 ring-2 ring-blue-300/50 shadow-lg'
-              : 'bg-slate-100/70 border-slate-200/90 shadow-2xs'
+              ? 'bg-[var(--brand-soft)]/50 border-[var(--brand)] ring-2 ring-[var(--brand-border)]/50 '
+              : 'bg-[var(--surface-2)]/70 border-[var(--border)]/90 shadow-2xs'
           }`}
         >
           {/* Barra de Acento Superior Esculpida */}
-          <div className="h-1.5 w-full bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-400" />
+          <div className="h-1.5 w-full bg-[#0072BB]  " />
 
           <div className="p-4 space-y-3.5 flex-1">
             {/* Cabeçalho Esculpido da Coluna */}
-            <div className="bg-white/90 rounded-xl p-3 border border-slate-200/80 shadow-2xs flex items-center justify-between">
+            <div className="bg-[var(--surface)]/90 rounded-xl p-3 border border-[var(--border)]/80 shadow-2xs flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600" />
+                  <span className=" absolute inline-flex h-full w-full rounded-full bg-[#0072BB] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0072BB]" />
                 </span>
                 <div>
-                  <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-blue-700">
-                    STAGE 02 // ACTIVE FIELD OPS
+                  <div className="text-[9px] tabular-nums font-bold uppercase tracking-widest text-[var(--brand)]">
+                    Etapa 2 · Em atendimento
                   </div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text)]">
                     Em Atendimento Técnico
                   </h3>
                 </div>
               </div>
 
-              <span className="font-mono text-xs font-bold bg-blue-500/10 text-blue-800 px-2.5 py-1 rounded-lg border border-blue-500/25 shadow-2xs">
+              <span className="tabular-nums text-xs font-bold bg-[#0072BB]/10 text-[var(--brand)] px-2.5 py-1 rounded-lg border border-[var(--brand)]/25 shadow-2xs">
                 {String(chamadosFiltrados.filter(c => c.status === 'em_andamento').length).padStart(2, '0')}
               </span>
             </div>
@@ -1125,25 +893,25 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                       soundFX.playClick();
                       setChamadoSelecionado(c);
                     }}
-                    className={`relative bg-white rounded-xl p-4 pl-5 border border-slate-200/90 shadow-2xs ${prio.hoverBorder} hover:-translate-y-0.5 transition-all duration-200 space-y-3 cursor-pointer select-none group overflow-hidden ${
+                    className={`relative bg-[var(--surface)] rounded-xl p-4 pl-5 border border-[var(--border)]/90 shadow-2xs ${prio.hoverBorder} hover:-translate-y-0.5 transition-all duration-200 space-y-3 cursor-pointer select-none group overflow-hidden ${
                       draggingCardId === c.id ? 'opacity-40 scale-98' : ''
                     }`}
                   >
                     {/* Faixa Lateral de Prioridade */}
-                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${prio.strip}`} />
+                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${prio.strip}`} />
 
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5">
-                        <GripVertical size={13} className="text-slate-300 group-hover:text-slate-600 transition-colors" />
-                        <span className="font-mono text-[11px] font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200/80">
+                        <GripVertical size={13} className="text-[var(--ink-muted)] group-hover:text-[var(--text-muted)] transition-colors" />
+                        <span className="tabular-nums text-[11px] font-bold text-[var(--brand)] bg-[var(--brand-soft)] px-2 py-0.5 rounded-md border border-[var(--brand-border)]/80">
                           #{c.codigo}
                         </span>
-                        <span className="font-mono text-[10px] font-semibold text-slate-600 px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200/70">
+                        <span className="tabular-nums text-[10px] font-semibold text-[var(--text-muted)] px-1.5 py-0.5 rounded bg-[var(--surface-2)] border border-[var(--border)]/70">
                           {c.tipo}
                         </span>
                       </div>
 
-                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border flex items-center gap-1.5 ${prio.badge}`}>
+                      <span className={`text-[10px] tabular-nums font-bold px-2 py-0.5 rounded-full border flex items-center gap-1.5 ${prio.badge}`}>
                         <span className="relative flex h-1.5 w-1.5">
                           <span className={`absolute inline-flex h-full w-full rounded-full ${prio.dot} opacity-75`} />
                           <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${prio.solidDot}`} />
@@ -1153,55 +921,55 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                     </div>
 
                     <div>
-                      <h4 className="font-bold text-xs sm:text-[13px] text-slate-900 leading-snug group-hover:text-blue-600 transition-colors">
+                      <h4 className="font-bold text-xs sm:text-[13px] text-[var(--text)] leading-snug group-hover:text-[var(--brand)] transition-colors">
                         {c.titulo}
                       </h4>
-                      <p className="text-[11px] text-slate-500 line-clamp-2 mt-1 leading-relaxed">
+                      <p className="text-[11px] text-[var(--text-muted)] line-clamp-2 mt-1 leading-relaxed">
                         {c.descricao}
                       </p>
                     </div>
 
                     {/* Barra de Progresso de SLA Regressiva com Brilho */}
-                    <div className="p-2.5 rounded-lg bg-blue-50/40 border border-blue-200/60 space-y-1.5">
-                      <div className="flex items-center justify-between text-[10px] font-mono">
-                        <span className="text-blue-800 flex items-center gap-1 font-semibold">
-                          <Zap size={11} className="text-blue-600" />
-                          TELEMETRIA SLA ATIVA
+                    <div className="p-2.5 rounded-lg bg-[var(--brand-soft)]/40 border border-[var(--brand-border)]/60 space-y-1.5">
+                      <div className="flex items-center justify-between text-[10px] tabular-nums">
+                        <span className="text-[var(--brand)] flex items-center gap-1 font-semibold">
+                          <Zap size={11} className="text-[var(--brand)]" />
+                          Prazo em andamento
                         </span>
                         <span className={`font-bold px-1.5 py-0.2 rounded ${
-                          slaCritico ? 'text-red-700 bg-red-100' : 'text-blue-800 bg-blue-100/80'
+                          slaCritico ? 'text-[var(--danger)] bg-[var(--danger-soft)]' : 'text-[var(--brand)] bg-[var(--brand-soft)]/80'
                         }`}>
                           {formatarSLA(c.slaSegundosRestantes)}
                         </span>
                       </div>
-                      <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
+                      <div className="w-full h-1.5 bg-[var(--surface-3)]/80 rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full bg-gradient-to-r ${prio.barColor} transition-all duration-700`}
+                          className={`h-full rounded-full ${prio.barColor} transition-all duration-700`}
                           style={{ width: `${slaPercent}%` }}
                         />
                       </div>
                     </div>
 
                     {/* Avatar do Técnico com Anel de Status Luminoso */}
-                    <div className="px-2.5 py-2 bg-slate-50/90 rounded-lg border border-slate-200/80 flex items-center justify-between text-[11px]">
+                    <div className="px-2.5 py-2 bg-[var(--surface-2)]/90 rounded-lg border border-[var(--border)]/80 flex items-center justify-between text-[11px]">
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="relative shrink-0">
-                          <div className="w-6 h-6 rounded-full bg-slate-900 text-white font-mono text-[10px] font-bold flex items-center justify-center ring-2 ring-blue-500 shadow-2xs">
+                          <div className="w-6 h-6 rounded-full bg-[#0B1B2E] text-white tabular-nums text-[10px] font-bold flex items-center justify-center ring-2 ring-[var(--brand)] shadow-2xs">
                             {getIniciais(c.tecnico)}
                           </div>
-                          <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" title="Especialista Online em Campo" />
+                          <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#00A859] ring-2 ring-white" title="Especialista Online em Campo" />
                         </div>
                         <div className="truncate">
-                          <div className="font-semibold text-slate-900 truncate leading-tight">
+                          <div className="font-semibold text-[var(--text)] truncate leading-tight">
                             {c.tecnico || 'Especialista Designado'}
                           </div>
-                          <div className="text-[10px] text-slate-400 truncate">
+                          <div className="text-[10px] text-[var(--text-subtle)] truncate">
                             Solic.: {c.solicitante}
                           </div>
                         </div>
                       </div>
 
-                      <span className="font-mono text-[9px] font-bold text-blue-700 bg-blue-100/70 px-1.5 py-0.5 rounded shrink-0 ml-1">
+                      <span className="tabular-nums text-[9px] font-bold text-[var(--brand)] bg-[var(--brand-soft)]/70 px-1.5 py-0.5 rounded shrink-0 ml-1">
                         EM CAMPO
                       </span>
                     </div>
@@ -1214,7 +982,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                           soundFX.playClick();
                           setChamadoSelecionado(c);
                         }}
-                        className="flex-1 text-[11px] font-semibold text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 py-1.5 rounded-lg border border-slate-200/90 transition cursor-pointer flex items-center justify-center gap-1"
+                        className="flex-1 text-[11px] font-semibold text-[var(--text-muted)] hover:text-[var(--text)] bg-[var(--surface-2)] hover:bg-[var(--surface-2)] py-1.5 rounded-lg border border-[var(--border)]/90 transition cursor-pointer flex items-center justify-center gap-1"
                       >
                         <MessageSquare size={12} /> Diário ({c.notas?.length || 0})
                       </button>
@@ -1224,7 +992,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                           e.stopPropagation();
                           moverStatus(c.id, 'concluido');
                         }}
-                        className="flex-1 text-[11px] font-semibold text-white bg-emerald-600 hover:bg-emerald-500 py-1.5 rounded-lg border border-emerald-600 shadow-2xs transition cursor-pointer flex items-center justify-center gap-1"
+                        className="flex-1 text-[11px] font-semibold text-white bg-[#00703C] hover:bg-[#00A859] py-1.5 rounded-lg border border-[var(--verde)] shadow-2xs transition cursor-pointer flex items-center justify-center gap-1"
                       >
                         <CheckCircle2 size={12} /> Resolver OS
                       </button>
@@ -1234,7 +1002,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
               })}
 
               {chamadosFiltrados.filter(c => c.status === 'em_andamento').length === 0 && (
-                <div className="text-center py-12 px-4 rounded-xl bg-white/60 border border-dashed border-slate-300 text-xs text-slate-400 font-mono">
+                <div className="text-center py-12 px-4 rounded-xl bg-[var(--surface)]/60 border border-dashed border-[var(--border-strong)] text-xs text-[var(--text-subtle)] tabular-nums">
                   [IDLE] · Arraste um chamado para iniciar atendimento.
                 </div>
               )}
@@ -1253,33 +1021,33 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
             backgroundImage: 'radial-gradient(rgba(16, 185, 129, 0.06) 1px, transparent 1px)',
             backgroundSize: '16px 16px'
           }}
-          className={`${colunaAtivaMobile === 'concluido' ? 'flex' : 'hidden md:flex'} relative rounded-2xl border transition-all duration-200 flex-col justify-between min-h-[540px] overflow-hidden ${
+          className={`${colunaAtivaMobile === 'concluido' ? 'flex' : 'hidden md:flex'} relative rounded-[18px] border transition-all duration-200 flex-col justify-between min-h-[540px] overflow-hidden ${
             dragOverCol === 'concluido'
-              ? 'bg-emerald-50/50 border-emerald-400 ring-2 ring-emerald-300/50 shadow-lg'
-              : 'bg-slate-100/70 border-slate-200/90 shadow-2xs'
+              ? 'bg-[var(--verde-soft)]/50 border-[var(--verde)] ring-2 ring-[var(--verde-border)]/50 '
+              : 'bg-[var(--surface-2)]/70 border-[var(--border)]/90 shadow-2xs'
           }`}
         >
           {/* Barra de Acento Superior Esculpida */}
-          <div className="h-1.5 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-300" />
+          <div className="h-1.5 w-full bg-[#00A859]  " />
 
           <div className="p-4 space-y-3.5 flex-1">
             {/* Cabeçalho Esculpido da Coluna */}
-            <div className="bg-white/90 rounded-xl p-3 border border-slate-200/80 shadow-2xs flex items-center justify-between">
+            <div className="bg-[var(--surface)]/90 rounded-xl p-3 border border-[var(--border)]/80 shadow-2xs flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <span className="relative flex h-2.5 w-2.5">
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#00A859]" />
                 </span>
                 <div>
-                  <div className="text-[9px] font-mono font-bold uppercase tracking-widest text-emerald-700">
-                    STAGE 03 // VERIFIED & ARCHIVED
+                  <div className="text-[9px] tabular-nums font-bold uppercase tracking-widest text-[var(--verde)]">
+                    Etapa 3 · Encerrados
                   </div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text)]">
                     Concluídos no SLA
                   </h3>
                 </div>
               </div>
 
-              <span className="font-mono text-xs font-bold bg-emerald-500/10 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-500/25 shadow-2xs">
+              <span className="tabular-nums text-xs font-bold bg-[#00A859]/10 text-[var(--verde)] px-2.5 py-1 rounded-lg border border-[var(--verde)]/25 shadow-2xs">
                 {String(chamadosFiltrados.filter(c => c.status === 'concluido').length).padStart(2, '0')}
               </span>
             </div>
@@ -1296,48 +1064,48 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                     soundFX.playClick();
                     setChamadoSelecionado(c);
                   }}
-                  className={`relative bg-white/95 hover:bg-white rounded-xl p-4 pl-5 border border-slate-200/90 shadow-2xs hover:border-emerald-300 hover:shadow-[0_12px_28px_-8px_rgba(16,185,129,0.15)] hover:-translate-y-0.5 transition-all duration-200 space-y-3 cursor-pointer select-none group overflow-hidden ${
+                  className={`relative bg-[var(--surface)]/95 hover:bg-[var(--surface)] rounded-xl p-4 pl-5 border border-[var(--border)]/90 shadow-2xs hover:border-[var(--verde-border)] hover:-translate-y-0.5 transition-all duration-200 space-y-3 cursor-pointer select-none group overflow-hidden ${
                     draggingCardId === c.id ? 'opacity-40 scale-98' : ''
                   }`}
                 >
                   {/* Faixa Lateral Esmeralda */}
-                  <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-emerald-500 to-teal-400" />
+                  <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#00A859] " />
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
-                      <span className="font-mono text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/80">
+                      <span className="tabular-nums text-[11px] font-bold text-[var(--text-muted)] bg-[var(--surface-2)] px-2 py-0.5 rounded-md border border-[var(--border)]/80">
                         #{c.codigo}
                       </span>
-                      <span className="font-mono text-[10px] text-slate-500 px-1.5 py-0.5 rounded bg-slate-50 border border-slate-200/60">
+                      <span className="tabular-nums text-[10px] text-[var(--text-muted)] px-1.5 py-0.5 rounded bg-[var(--surface-2)] border border-[var(--border)]/60">
                         {c.tipo}
                       </span>
                     </div>
 
-                    <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span className="text-[10px] tabular-nums font-bold text-[var(--verde)] bg-[#00A859]/10 border border-[var(--verde)]/25 px-2 py-0.5 rounded-full flex items-center gap-1">
                       <Check size={11} /> HOMOLOGADO
                     </span>
                   </div>
 
                   <div>
-                    <h4 className="font-semibold text-xs sm:text-[13px] text-slate-600 line-through leading-snug group-hover:text-slate-900 transition-colors">
+                    <h4 className="font-semibold text-xs sm:text-[13px] text-[var(--text-muted)] line-through leading-snug group-hover:text-[var(--text)] transition-colors">
                       {c.titulo}
                     </h4>
-                    <p className="text-[11px] text-slate-500 line-clamp-2 mt-1 leading-relaxed">
+                    <p className="text-[11px] text-[var(--text-muted)] line-clamp-2 mt-1 leading-relaxed">
                       {c.solucao || c.descricao}
                     </p>
                   </div>
 
                   {/* Barra SLA 100% Concluída */}
                   <div className="space-y-1">
-                    <div className="w-full h-1 bg-emerald-100 rounded-full overflow-hidden">
-                      <div className="h-full w-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full" />
+                    <div className="w-full h-1 bg-[var(--verde-soft)] rounded-full overflow-hidden">
+                      <div className="h-full w-full bg-[#00A859] rounded-full" />
                     </div>
-                    <div className="pt-1 flex items-center justify-between text-[10px] font-mono text-slate-400">
-                      <span className="flex items-center gap-1 text-emerald-700 font-semibold">
+                    <div className="pt-1 flex items-center justify-between text-[10px] tabular-nums text-[var(--text-subtle)]">
+                      <span className="flex items-center gap-1 text-[var(--verde)] font-semibold">
                         <ShieldCheck size={12} /> SLA CUMPRIDO
                       </span>
                       <div className="flex items-center gap-1.5">
-                        <span className="w-5 h-5 rounded-full bg-emerald-950 text-emerald-200 text-[9px] font-bold flex items-center justify-center ring-1 ring-emerald-500">
+                        <span className="w-5 h-5 rounded-full bg-[#0B1B2E] text-[#C6E86B] text-[9px] font-bold flex items-center justify-center ring-1 ring-[var(--verde)]">
                           {getIniciais(c.tecnico)}
                         </span>
                         <span>{c.abertoEm.split(' ')[0]}</span>
@@ -1353,7 +1121,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                         soundFX.playClick();
                         setChamadoSelecionado(c);
                       }}
-                      className="flex-1 text-[11px] font-semibold text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 py-1.5 rounded-lg border border-slate-200/90 transition cursor-pointer flex items-center justify-center gap-1"
+                      className="flex-1 text-[11px] font-semibold text-[var(--text-muted)] hover:text-[var(--text)] bg-[var(--surface-2)] hover:bg-[var(--surface-2)] py-1.5 rounded-lg border border-[var(--border)]/90 transition cursor-pointer flex items-center justify-center gap-1"
                     >
                       <FileText size={12} /> Laudo Técnico
                     </button>
@@ -1363,7 +1131,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                         e.stopPropagation();
                         moverStatus(c.id, 'em_andamento');
                       }}
-                      className="px-2.5 py-1.5 text-[11px] font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg border border-slate-200/90 transition cursor-pointer flex items-center gap-1"
+                      className="px-2.5 py-1.5 text-[11px] font-semibold text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] rounded-lg border border-[var(--border)]/90 transition cursor-pointer flex items-center gap-1"
                       title="Reabrir chamado"
                     >
                       <RotateCcw size={11} /> Reabrir
@@ -1373,7 +1141,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
               ))}
 
               {chamadosFiltrados.filter(c => c.status === 'concluido').length === 0 && (
-                <div className="text-center py-12 px-4 rounded-xl bg-white/60 border border-dashed border-slate-300 text-xs text-slate-400 font-mono">
+                <div className="text-center py-12 px-4 rounded-xl bg-[var(--surface)]/60 border border-dashed border-[var(--border-strong)] text-xs text-[var(--text-subtle)] tabular-nums">
                   [NO RECORDS] · Nenhum chamado concluído neste filtro.
                 </div>
               )}
@@ -1388,43 +1156,43 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
          ===================================================================== */}
       {modalNovo && (
         <div
-          className="fixed inset-0 bg-slate-950/55 z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in"
+          className="fixed inset-0 bg-[#0B1B2E]/55 z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in"
           onClick={() => setModalNovo(false)}
         >
           <div
-            className="relative bg-white/95 rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 shadow-[0_24px_64px_-12px_rgba(15,23,42,0.45)] border border-white/80 ring-1 ring-slate-900/10 animate-in zoom-in-95"
+            className="relative bg-[var(--surface)]/95 rounded-[18px] max-w-lg w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 border border-white/80 ring-1 ring-[#22324C]/10 animate-in zoom-in-95"
             onClick={e => e.stopPropagation()}
           >
             {/* Barra Luminosa Superior */}
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-400" />
+            <div className="absolute inset-x-0 top-0 h-1 bg-[#0072BB]  " />
 
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200/80">
+            <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]/80">
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-blue-700">
+                  <span className="w-2 h-2 rounded-full bg-[#0072BB] " />
+                  <span className="text-[10px] tabular-nums font-bold uppercase tracking-widest text-[var(--brand)]">
                     TERMINAL DE ABERTURA DE OS // NOC SEJU
                   </span>
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-950 mt-0.5">
+                <h3 className="text-base sm:text-lg font-bold text-[var(--text)] mt-0.5">
                   Registrar Novo Chamado Técnico
                 </h3>
               </div>
               <button
                 onClick={() => setModalNovo(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition cursor-pointer"
+                className="p-2 rounded-xl text-[var(--text-subtle)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] border border-transparent hover:border-[var(--border)] transition cursor-pointer"
               >
                 <X size={16} />
               </button>
             </div>
 
             {/* Atalhos de Preenchimento Rápido (1 Clique) */}
-            <div className="py-4 border-b border-slate-200/70">
+            <div className="py-4 border-b border-[var(--border)]/70">
               <div className="flex items-center justify-between mb-2.5">
-                <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider">
+                <span className="text-[10px] tabular-nums font-bold text-[var(--text-muted)] uppercase tracking-wider">
                   Presets de Diagnóstico Rápido (1-Clique)
                 </span>
-                <span className="text-[10px] font-mono text-blue-600 font-semibold">
+                <span className="text-[10px] tabular-nums text-[var(--brand)] font-semibold">
                   AUTO-SLA
                 </span>
               </div>
@@ -1477,15 +1245,15 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                       setTitulo(diag.titulo);
                       setDescricao(diag.desc);
                     }}
-                    className="p-2.5 bg-slate-50/90 hover:bg-blue-50/60 border border-slate-200/90 hover:border-blue-300 rounded-xl text-left transition-all cursor-pointer flex items-center justify-between gap-2 group"
+                    className="p-2.5 bg-[var(--surface-2)]/90 hover:bg-[var(--brand-soft)]/60 border border-[var(--border)]/90 hover:border-[var(--brand-border)] rounded-xl text-left transition-all cursor-pointer flex items-center justify-between gap-2 group"
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="text-base shrink-0">{diag.icon}</span>
-                      <span className="text-[11px] font-semibold text-slate-800 group-hover:text-blue-700 truncate">
+                      <span className="text-[11px] font-semibold text-[var(--text)] group-hover:text-[var(--brand)] truncate">
                         {diag.label}
                       </span>
                     </div>
-                    <span className="text-[9px] font-mono font-bold text-slate-400 group-hover:text-blue-600 bg-white px-1.5 py-0.5 rounded border border-slate-200/80 shrink-0">
+                    <span className="text-[9px] tabular-nums font-bold text-[var(--text-subtle)] group-hover:text-[var(--brand)] bg-[var(--surface)] px-1.5 py-0.5 rounded border border-[var(--border)]/80 shrink-0">
                       {diag.code}
                     </span>
                   </button>
@@ -1496,13 +1264,13 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
             <form onSubmit={handleCriarChamado} className="space-y-4 pt-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-mono text-[10px] uppercase tracking-wider font-bold text-slate-600 mb-1.5">
+                  <label className="block tabular-nums text-[10px] uppercase tracking-wider font-bold text-[var(--text-muted)] mb-1.5">
                     Fila Operacional
                   </label>
                   <select
                     value={tipo}
                     onChange={e => setTipo(e.target.value as Chamado['tipo'])}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-semibold text-slate-800 outline-hidden focus:bg-white focus:border-blue-500 transition"
+                    className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl font-semibold text-[var(--text)] outline-hidden focus:bg-[var(--surface)] focus:border-[var(--brand)] transition"
                   >
                     <option value="TI">TI & Redes (NOC)</option>
                     <option value="Manutenção">Manutenção Predial</option>
@@ -1511,13 +1279,13 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                 </div>
 
                 <div>
-                  <label className="block font-mono text-[10px] uppercase tracking-wider font-bold text-slate-600 mb-1.5">
+                  <label className="block tabular-nums text-[10px] uppercase tracking-wider font-bold text-[var(--text-muted)] mb-1.5">
                     Severidade & SLA
                   </label>
                   <select
                     value={prioridade}
                     onChange={e => setPrioridade(e.target.value as Chamado['prioridade'])}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-semibold text-slate-800 outline-hidden focus:bg-white focus:border-blue-500 transition"
+                    className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl font-semibold text-[var(--text)] outline-hidden focus:bg-[var(--surface)] focus:border-[var(--brand)] transition"
                   >
                     <option value="urgente">P1 · Crítico (SLA 1h)</option>
                     <option value="alta">P2 · Alta (SLA 2h)</option>
@@ -1528,7 +1296,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
               </div>
 
               <div>
-                <label className="block font-mono text-[10px] uppercase tracking-wider font-bold text-slate-600 mb-1.5">
+                <label className="block tabular-nums text-[10px] uppercase tracking-wider font-bold text-[var(--text-muted)] mb-1.5">
                   Título da Ocorrência *
                 </label>
                 <input
@@ -1537,12 +1305,12 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                   value={titulo}
                   onChange={e => setTitulo(e.target.value)}
                   placeholder="Ex: Configuração de certificado ICP-Brasil, falha de switch..."
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-medium text-slate-800 outline-hidden focus:bg-white focus:border-blue-500 transition"
+                  className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl font-medium text-[var(--text)] outline-hidden focus:bg-[var(--surface)] focus:border-[var(--brand)] transition"
                 />
               </div>
 
               <div>
-                <label className="block font-mono text-[10px] uppercase tracking-wider font-bold text-slate-600 mb-1.5">
+                <label className="block tabular-nums text-[10px] uppercase tracking-wider font-bold text-[var(--text-muted)] mb-1.5">
                   Especificação Técnica, Sala & Patrimônio *
                 </label>
                 <textarea
@@ -1551,25 +1319,25 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                   value={descricao}
                   onChange={e => setDescricao(e.target.value)}
                   placeholder="Informe o andar, sala, tag de patrimônio ou sintomas técnicos observados..."
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-medium text-slate-800 outline-hidden focus:bg-white focus:border-blue-500 transition"
+                  className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl font-medium text-[var(--text)] outline-hidden focus:bg-[var(--surface)] focus:border-[var(--brand)] transition"
                 />
               </div>
 
-              <div className="pt-3 flex items-center justify-between gap-2 border-t border-slate-200/80">
-                <div className="text-[10px] font-mono text-slate-400">
-                  SOLICITANTE: <strong className="text-slate-700">{currentUser.nome}</strong>
+              <div className="pt-3 flex items-center justify-between gap-2 border-t border-[var(--border)]/80">
+                <div className="text-[10px] tabular-nums text-[var(--text-subtle)]">
+                  SOLICITANTE: <strong className="text-[var(--text)]">{currentUser.nome}</strong>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setModalNovo(false)}
-                    className="px-4 py-2 rounded-xl border border-slate-200/90 text-slate-600 font-semibold hover:bg-slate-100 transition cursor-pointer"
+                    className="px-4 py-2 rounded-xl border border-[var(--border)]/90 text-[var(--text-muted)] font-semibold hover:bg-[var(--surface-2)] transition cursor-pointer"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl bg-slate-950 hover:bg-blue-600 text-white font-semibold shadow-sm transition cursor-pointer flex items-center gap-1.5"
+                    className="px-5 py-2 rounded-xl bg-[#0B1B2E] hover:bg-[#0072BB] text-white font-semibold shadow-sm transition cursor-pointer flex items-center gap-1.5"
                   >
                     <Sparkles size={14} /> Despachar OS
                   </button>
@@ -1585,34 +1353,33 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
          ===================================================================== */}
       {chamadoInspecionado && (
         <div
-          className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-end animate-in fade-in"
+          className="fixed inset-0 bg-[#0B1B2E]/50 z-50 flex items-center justify-end animate-in fade-in"
           onClick={() => setChamadoSelecionado(null)}
         >
           <div
-            className="relative bg-white/95 w-full max-w-xl h-full shadow-[-24px_0_64px_-12px_rgba(15,23,42,0.35)] border-l border-slate-200/90 p-5 sm:p-6 overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-200"
+            className="relative bg-[var(--surface)]/95 w-full max-w-xl h-full border-l border-[var(--border)]/90 p-5 sm:p-6 overflow-y-auto flex flex-col justify-between animate-in slide-in-from-right duration-200"
             onClick={e => e.stopPropagation()}
           >
-            {/* Brilho Superior no Drawer */}
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-400" />
+            <div className="absolute inset-x-0 top-0 h-1 bg-[#0072BB]  " />
 
             <div className="space-y-5">
               {/* Cabeçalho Técnico do Drawer */}
-              <div className="flex items-center justify-between pb-4 border-b border-slate-200/80">
+              <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]/80">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-slate-950 bg-slate-100 border border-slate-300/80 px-2.5 py-1 rounded-lg shadow-2xs">
+                  <span className="tabular-nums text-xs font-bold text-[var(--text)] bg-[var(--surface-2)] border border-[var(--border-strong)]/80 px-2.5 py-1 rounded-lg shadow-2xs">
                     #{chamadoInspecionado.codigo}
                   </span>
-                  <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border ${getPrioridadeStyle(chamadoInspecionado.prioridade).badge}`}>
+                  <span className={`text-[10px] tabular-nums font-bold px-2.5 py-1 rounded-full border ${getPrioridadeStyle(chamadoInspecionado.prioridade).badge}`}>
                     {getPrioridadeStyle(chamadoInspecionado.prioridade).label}
                   </span>
-                  <span className="text-[10px] font-mono font-semibold text-slate-600 bg-slate-100/80 border border-slate-200/80 px-2.5 py-1 rounded-full">
+                  <span className="text-[10px] tabular-nums font-semibold text-[var(--text-muted)] bg-[var(--surface-2)]/80 border border-[var(--border)]/80 px-2.5 py-1 rounded-full">
                     {chamadoInspecionado.tipo}
                   </span>
                 </div>
 
                 <button
                   onClick={() => setChamadoSelecionado(null)}
-                  className="p-2 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-800 border border-transparent hover:border-slate-200 transition cursor-pointer"
+                  className="p-2 rounded-xl hover:bg-[var(--surface-2)] text-[var(--text-subtle)] hover:text-[var(--text)] border border-transparent hover:border-[var(--border)] transition cursor-pointer"
                 >
                   <X size={18} />
                 </button>
@@ -1620,54 +1387,54 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
 
               {/* Título e Especificação */}
               <div>
-                <div className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-bold mb-1">
+                <div className="text-[10px] tabular-nums uppercase tracking-widest text-[var(--text-subtle)] font-bold mb-1">
                   ESPECIFICAÇÃO DA ORDEM DE SERVIÇO
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-950 leading-snug">
+                <h3 className="text-base sm:text-lg font-bold text-[var(--text)] leading-snug">
                   {chamadoInspecionado.titulo}
                 </h3>
-                <div className="text-xs text-slate-600 mt-2.5 leading-relaxed bg-slate-50/90 p-3.5 rounded-xl border border-slate-200/90 shadow-inner">
+                <div className="text-xs text-[var(--text-muted)] mt-2.5 leading-relaxed bg-[var(--surface-2)]/90 p-3.5 rounded-xl border border-[var(--border)]/90 ">
                   {chamadoInspecionado.descricao}
                 </div>
               </div>
 
               {/* Grade de Metadados */}
-              <div className="grid grid-cols-2 gap-3 text-xs p-4 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
+              <div className="grid grid-cols-2 gap-3 text-xs p-4 bg-[var(--surface)] rounded-xl border border-[var(--border)]/90 shadow-2xs">
                 <div>
-                  <div className="text-[10px] font-mono font-bold text-slate-400 uppercase">Solicitante</div>
-                  <div className="font-bold text-slate-900 mt-0.5 flex items-center gap-1.5">
-                    <User size={12} className="text-blue-600" />
+                  <div className="text-[10px] tabular-nums font-bold text-[var(--text-subtle)] uppercase">Solicitante</div>
+                  <div className="font-bold text-[var(--text)] mt-0.5 flex items-center gap-1.5">
+                    <User size={12} className="text-[var(--brand)]" />
                     {chamadoInspecionado.solicitante}
                   </div>
                 </div>
                 <div>
-                  <div className="text-[10px] font-mono font-bold text-slate-400 uppercase">Unidade / Lotação</div>
-                  <div className="font-bold text-slate-900 mt-0.5 flex items-center gap-1.5">
-                    <Building2 size={12} className="text-indigo-600" />
+                  <div className="text-[10px] tabular-nums font-bold text-[var(--text-subtle)] uppercase">Unidade / Lotação</div>
+                  <div className="font-bold text-[var(--text)] mt-0.5 flex items-center gap-1.5">
+                    <Building2 size={12} className="text-[var(--brand)]" />
                     {chamadoInspecionado.setor}
                   </div>
                 </div>
                 <div>
-                  <div className="text-[10px] font-mono font-bold text-slate-400 uppercase">Timestamp Abertura</div>
-                  <div className="font-mono text-[11px] font-semibold text-slate-700 mt-0.5">{chamadoInspecionado.abertoEm}</div>
+                  <div className="text-[10px] tabular-nums font-bold text-[var(--text-subtle)] uppercase">Timestamp Abertura</div>
+                  <div className="tabular-nums text-[11px] font-semibold text-[var(--text)] mt-0.5">{chamadoInspecionado.abertoEm}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] font-mono font-bold text-slate-400 uppercase">Estágio Operacional</div>
-                  <div className="font-mono text-[11px] font-bold uppercase mt-0.5 text-blue-700">
+                  <div className="text-[10px] tabular-nums font-bold text-[var(--text-subtle)] uppercase">Estágio Operacional</div>
+                  <div className="tabular-nums text-[11px] font-bold uppercase mt-0.5 text-[var(--brand)]">
                     {chamadoInspecionado.status === 'a_fazer' ? '01 · EM TRIAGEM' : chamadoInspecionado.status === 'em_andamento' ? '02 · EM ATENDIMENTO' : '03 · CONCLUÍDO'}
                   </div>
                 </div>
               </div>
 
               {/* Designação de Especialista com Avatar e Anel de Status */}
-              <div className="p-3.5 rounded-xl bg-slate-50/90 border border-slate-200/90 space-y-2.5">
+              <div className="p-3.5 rounded-xl bg-[var(--surface-2)]/90 border border-[var(--border)]/90 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                    <Cpu size={13} className="text-blue-600" /> Especialista Responsável (N2/N3)
+                  <label className="text-[11px] tabular-nums font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
+                    <Cpu size={13} className="text-[var(--brand)]" /> Especialista Responsável (N2/N3)
                   </label>
                   {chamadoInspecionado.tecnico && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-mono font-semibold text-emerald-700 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="inline-flex items-center gap-1 text-[10px] tabular-nums font-semibold text-[var(--verde)] bg-[#00A859]/10 px-2 py-0.5 rounded-full border border-[var(--verde)]/20">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#00A859] " />
                       ALOCADO
                     </span>
                   )}
@@ -1675,18 +1442,18 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
 
                 <div className="flex items-center gap-2.5">
                   <div className="relative shrink-0">
-                    <div className="w-8 h-8 rounded-full bg-slate-900 text-white font-mono text-xs font-bold flex items-center justify-center ring-2 ring-blue-500">
+                    <div className="w-8 h-8 rounded-full bg-[#0B1B2E] text-white tabular-nums text-xs font-bold flex items-center justify-center ring-2 ring-[var(--brand)]">
                       {getIniciais(chamadoInspecionado.tecnico)}
                     </div>
                     <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-white ${
-                      chamadoInspecionado.tecnico ? 'bg-emerald-500' : 'bg-amber-400'
+                      chamadoInspecionado.tecnico ? 'bg-[#00A859]' : 'bg-[#D98A00]'
                     }`} />
                   </div>
 
                   <select
                     value={chamadoInspecionado.tecnico || ''}
                     onChange={(e) => handleAtribuirTecnico(e.target.value)}
-                    className="flex-1 p-2.5 bg-white border border-slate-200/90 rounded-xl text-xs font-semibold text-slate-800 outline-hidden focus:border-blue-500 shadow-2xs cursor-pointer"
+                    className="flex-1 p-2.5 bg-[var(--surface)] border border-[var(--border)]/90 rounded-xl text-xs font-semibold text-[var(--text)] outline-hidden focus:border-[var(--brand)] shadow-2xs cursor-pointer"
                   >
                     <option value="">-- Aguardando designação de engenheiro --</option>
                     <option value="Rodrigo Mendonça (TI / Redes)">Rodrigo Mendonça (TI / Redes)</option>
@@ -1699,25 +1466,25 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
               </div>
 
               {/* Barra de Progresso SLA Luminosa */}
-              <div className="p-3.5 bg-slate-950 text-white rounded-xl border border-slate-800 space-y-2 shadow-sm">
+              <div className="p-3.5 bg-[#0B1B2E] text-white rounded-xl border border-[#22324C] space-y-2 shadow-sm">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                    <Clock size={13} className="text-blue-400" /> Cronômetro de SLA Regressivo
+                  <span className="tabular-nums text-[11px] font-bold uppercase tracking-wider text-[var(--ink-muted)] flex items-center gap-1.5">
+                    <Clock size={13} className="text-[var(--brand)]" /> Cronômetro de SLA Regressivo
                   </span>
-                  <span className="font-mono text-sm font-bold text-emerald-400">
+                  <span className="tabular-nums text-sm font-bold text-[var(--verde)]">
                     {chamadoInspecionado.status === 'concluido' ? 'FINALIZADO NO PRAZO' : formatarSLA(chamadoInspecionado.slaSegundosRestantes)}
                   </span>
                 </div>
-                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden p-0.5">
+                <div className="w-full h-2 bg-[#0B1B2E] rounded-full overflow-hidden p-0.5">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
                       chamadoInspecionado.status === 'concluido'
-                        ? 'bg-gradient-to-r from-emerald-400 to-teal-300 shadow-[0_0_10px_rgba(52,211,153,0.6)]'
+                        ? ' bg-[#00A859]  '
                         : chamadoInspecionado.slaSegundosRestantes > 3600
-                        ? 'bg-gradient-to-r from-emerald-500 to-cyan-400 shadow-[0_0_10px_rgba(16,185,129,0.5)]'
+                        ? ' bg-[#00A859]  '
                         : chamadoInspecionado.slaSegundosRestantes > 1800
-                        ? 'bg-gradient-to-r from-amber-500 to-yellow-400 shadow-[0_0_10px_rgba(245,158,11,0.5)]'
-                        : 'bg-gradient-to-r from-red-500 to-rose-400 shadow-[0_0_12px_rgba(239,68,68,0.7)]'
+                        ? ' bg-[#D98A00]  '
+                        : ' bg-[#C8372D]  '
                     }`}
                     style={{ width: `${getSlaPercent(chamadoInspecionado)}%` }}
                   />
@@ -1729,47 +1496,47 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                  ============================================================= */}
               <div className="space-y-3 pt-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                    <MessageSquare size={13} className="text-blue-600" /> Timeline de Pareceres Técnicos
+                  <span className="text-[11px] tabular-nums font-bold uppercase tracking-wider text-[var(--text)] flex items-center gap-1.5">
+                    <MessageSquare size={13} className="text-[var(--brand)]" /> Timeline de Pareceres Técnicos
                   </span>
-                  <span className="text-[11px] text-slate-500 font-mono bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/80">
+                  <span className="text-[11px] text-[var(--text-muted)] tabular-nums bg-[var(--surface-2)] px-2 py-0.5 rounded-md border border-[var(--border)]/80">
                     {chamadoInspecionado.notas?.length || 0} eventos
                   </span>
                 </div>
 
                 <div className="relative pl-6 space-y-3 max-h-56 overflow-y-auto pr-1 py-1">
                   {/* Linha Vertical Luminosa Conectando os Eventos */}
-                  <div className="absolute left-2.5 top-2 bottom-2 w-[2px] bg-gradient-to-b from-blue-500 via-indigo-400 to-slate-200 shadow-[0_0_8px_rgba(59,130,246,0.45)]" />
+                  <div className="absolute left-2.5 top-2 bottom-2 w-[2px] bg-[#0072BB]   " />
 
                   {(!chamadoInspecionado.notas || chamadoInspecionado.notas.length === 0) ? (
-                    <div className="relative p-3.5 bg-slate-50/70 rounded-xl border border-dashed border-slate-200 text-xs text-slate-400 font-mono">
-                      <span className="absolute -left-[19px] top-4 w-2.5 h-2.5 rounded-full bg-slate-300 ring-4 ring-white" />
+                    <div className="relative p-3.5 bg-[var(--surface-2)]/70 rounded-xl border border-dashed border-[var(--border)] text-xs text-[var(--text-subtle)] tabular-nums">
+                      <span className="absolute -left-[19px] top-4 w-2.5 h-2.5 rounded-full bg-[var(--border-strong)] ring-4 ring-white" />
                       Nenhum parecer técnico registrado nesta OS.
                     </div>
                   ) : (
                     chamadoInspecionado.notas.map((n, idx) => (
                       <div
                         key={n.id}
-                        className="relative p-3 bg-white rounded-xl border border-slate-200/90 shadow-2xs text-xs space-y-1 hover:border-blue-300 transition-colors"
+                        className="relative p-3 bg-[var(--surface)] rounded-xl border border-[var(--border)]/90 shadow-2xs text-xs space-y-1 hover:border-[var(--brand-border)] transition-colors"
                       >
                         {/* Nó Luminoso da Timeline */}
                         <span
                           className={`absolute -left-[19px] top-3.5 w-2.5 h-2.5 rounded-full ring-4 ring-white ${
                             idx === (chamadoInspecionado.notas?.length || 1) - 1
-                              ? 'bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.8)]'
-                              : 'bg-indigo-400'
+                              ? 'bg-[#0072BB] '
+                              : 'bg-[#0072BB]'
                           }`}
                         />
                         <div className="flex items-center justify-between text-[10px]">
-                          <span className="font-bold text-slate-900 flex items-center gap-1.5">
-                            <span className="w-4 h-4 rounded-full bg-slate-900 text-white font-mono text-[8px] flex items-center justify-center">
+                          <span className="font-bold text-[var(--text)] flex items-center gap-1.5">
+                            <span className="w-4 h-4 rounded-full bg-[#0B1B2E] text-white tabular-nums text-[8px] flex items-center justify-center">
                               {getIniciais(n.autor)}
                             </span>
                             {n.autor}
                           </span>
-                          <span className="font-mono text-slate-400">{n.dataHora}</span>
+                          <span className="tabular-nums text-[var(--text-subtle)]">{n.dataHora}</span>
                         </div>
-                        <p className="text-slate-600 leading-relaxed pl-5">{n.texto}</p>
+                        <p className="text-[var(--text-muted)] leading-relaxed pl-5">{n.texto}</p>
                       </div>
                     ))
                   )}
@@ -1782,11 +1549,11 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                     value={novaNota}
                     onChange={e => setNovaNota(e.target.value)}
                     placeholder="Adicionar parecer técnico, comando executado ou peça trocada..."
-                    className="flex-1 p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl text-xs font-medium outline-hidden focus:bg-white focus:border-blue-500 transition"
+                    className="flex-1 p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl text-xs font-medium outline-hidden focus:bg-[var(--surface)] focus:border-[var(--brand)] transition"
                   />
                   <button
                     type="submit"
-                    className="bg-slate-950 hover:bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer shrink-0 shadow-2xs"
+                    className="bg-[#0B1B2E] hover:bg-[#0072BB] text-white px-4 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer shrink-0 shadow-2xs"
                   >
                     <Send size={13} /> Registrar
                   </button>
@@ -1795,7 +1562,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
             </div>
 
             {/* Rodapé de Ações do Drawer */}
-            <div className="pt-4 border-t border-slate-200/80 mt-4 flex items-center gap-2.5">
+            <div className="pt-4 border-t border-[var(--border)]/80 mt-4 flex items-center gap-2.5">
               {chamadoInspecionado.status !== 'concluido' ? (
                 <>
                   {chamadoInspecionado.status === 'a_fazer' && (
@@ -1804,7 +1571,7 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                       onClick={() => {
                         moverStatus(chamadoInspecionado.id, 'em_andamento');
                       }}
-                      className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
+                      className="flex-1 py-2.5 rounded-xl bg-[#0072BB] hover:bg-[#005A9C] text-white font-semibold text-xs transition cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
                     >
                       <ArrowUpRight size={15} /> Iniciar Atendimento
                     </button>
@@ -1814,20 +1581,20 @@ export const ChamadosKanban: React.FC<ChamadosKanbanProps> = ({ currentUser, onV
                     onClick={() => {
                       moverStatus(chamadoInspecionado.id, 'concluido');
                     }}
-                    className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+                    className="flex-1 py-2.5 rounded-xl bg-[#00703C] hover:bg-[#00A859] text-white font-semibold text-xs transition cursor-pointer flex items-center justify-center gap-2 shadow-sm"
                   >
                     <CheckCircle2 size={15} /> Homologar & Concluir OS
                   </button>
                 </>
               ) : (
                 <div className="w-full flex items-center gap-2">
-                  <div className="flex-1 p-2.5 bg-emerald-500/10 rounded-xl border border-emerald-500/25 text-center text-xs font-mono font-bold text-emerald-800 flex items-center justify-center gap-2">
-                    <CheckCircle2 size={15} className="text-emerald-600" /> OS HOMOLOGADA E ARQUIVADA
+                  <div className="flex-1 p-2.5 bg-[#00A859]/10 rounded-xl border border-[var(--verde)]/25 text-center text-xs tabular-nums font-bold text-[var(--verde)] flex items-center justify-center gap-2">
+                    <CheckCircle2 size={15} className="text-[var(--verde)]" /> OS HOMOLOGADA E ARQUIVADA
                   </div>
                   <button
                     type="button"
                     onClick={() => moverStatus(chamadoInspecionado.id, 'em_andamento')}
-                    className="px-3.5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-xs font-semibold text-slate-700 transition cursor-pointer flex items-center gap-1.5"
+                    className="px-3.5 py-2.5 rounded-xl border border-[var(--border)] hover:bg-[var(--surface-2)] text-xs font-semibold text-[var(--text)] transition cursor-pointer flex items-center gap-1.5"
                   >
                     <RotateCcw size={13} /> Reabrir
                   </button>

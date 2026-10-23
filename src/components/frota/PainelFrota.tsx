@@ -79,29 +79,29 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
   const totalManutencao = veiculos.filter(v => v.status === 'manutencao').length;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 font-sans">
+    <div className="space-y-6 font-sans">
       {/* Seção 1: Header Showroom Executivo & KPI Strip */}
       <div className="bg-[var(--surface)] rounded-[var(--radius-lg)] p-5 sm:p-6 border border-[var(--border)] space-y-6">
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[var(--border-subtle)]">
           <div className="flex items-start gap-4">
-            <div className="w-11 h-11 rounded-2xl bg-linear-to-br from-slate-900 via-slate-800 to-slate-950 text-white flex items-center justify-center shrink-0 shadow-[0_8px_20px_-4px_rgba(15,23,42,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] border border-slate-700/80">
-              <Car size={20} className="text-sky-400" />
+            <div className="w-11 h-11 rounded-[18px] bg-[#0B1B2E] text-white flex items-center justify-center shrink-0 border border-[#22324C]/80">
+              <Car size={20} className="text-[var(--brand)]" />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-slate-500 font-bold">
+                <span className="text-[10px] tabular-nums uppercase tracking-[0.18em] text-[var(--text-muted)] font-bold">
                   SHOWROOM PATRIMONIAL SEJU · GOVERNO DO PARANÁ
                 </span>
-                <span className="text-[10px] font-mono font-semibold bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full border border-emerald-200/80 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981] animate-pulse" />
+                <span className="text-[10px] tabular-nums font-semibold bg-[var(--verde-soft)] text-[var(--verde)] px-2.5 py-0.5 rounded-full border border-[var(--verde-border)]/80 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00A859]  " />
                   CAN-BUS Telemetria Ativa
                 </span>
               </div>
-              <h2 className="text-lg font-bold text-slate-900 tracking-tight mt-0.5">
+              <h2 className="text-lg font-bold text-[var(--text)] tracking-tight mt-0.5">
                 Catálogo Executivo de Viaturas Oficiais
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-[var(--text-muted)] mt-0.5">
                 Inspecione o cluster digital de odômetro, sonda graduada de combustível e prontuário preventivo Detran/PR.
               </p>
             </div>
@@ -113,10 +113,9 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
               soundFX.playClick();
               setModalNovo(true);
             }}
-            className="relative overflow-hidden bg-linear-to-r from-slate-950 via-slate-900 to-slate-950 hover:from-slate-900 hover:to-slate-800 text-white text-xs font-bold px-4.5 py-2.5 rounded-xl flex items-center gap-2 shadow-[0_8px_20px_-4px_rgba(15,23,42,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] border border-slate-700/80 transition cursor-pointer self-start sm:self-center shrink-0 active:scale-[0.99]"
+            className="relative overflow-hidden bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white text-xs font-bold px-4.5 py-2.5 rounded-xl flex items-center gap-2 border border-[#22324C]/80 transition cursor-pointer self-start sm:self-center shrink-0 active:scale-[0.99]"
           >
-            <span className="absolute inset-x-4 top-0 h-px bg-linear-to-r from-transparent via-sky-400/60 to-transparent" />
-            <Plus size={15} className="text-sky-400" /> Incorporar Viatura à Frota
+            <Plus size={15} className="text-[var(--brand)]" /> Incorporar Viatura à Frota
           </button>
         </div>
 
@@ -196,13 +195,13 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
       </div>
 
       {/* Seção 2: Barra de Filtro Elegante e Busca Rápida */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-[0_4px_20px_rgb(15,23,42,0.03)] text-xs">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0 bg-slate-100/80 p-1 rounded-xl border border-slate-200/70">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[var(--surface)] p-3.5 rounded-[18px] border border-[var(--border)]/90 text-xs">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0 bg-[var(--surface-2)]/80 p-1 rounded-xl border border-[var(--border)]/70">
           {[
-            { id: 'todos', label: 'Catálogo Completo', count: veiculos.length, dot: 'bg-slate-400' },
-            { id: 'disponivel', label: 'Disponíveis', count: totalDisponiveis, dot: 'bg-emerald-500 shadow-[0_0_6px_#10b981]' },
-            { id: 'em_missao', label: 'Em Missão', count: totalEmMissao, dot: 'bg-sky-400 shadow-[0_0_6px_#38bdf8]' },
-            { id: 'manutencao', label: 'Manutenção', count: totalManutencao, dot: 'bg-amber-500 shadow-[0_0_6px_#f59e0b]' }
+            { id: 'todos', label: 'Catálogo Completo', count: veiculos.length, dot: 'bg-[var(--text-subtle)]' },
+            { id: 'disponivel', label: 'Disponíveis', count: totalDisponiveis, dot: 'bg-[#00A859] ' },
+            { id: 'em_missao', label: 'Em Missão', count: totalEmMissao, dot: 'bg-[#0072BB] ' },
+            { id: 'manutencao', label: 'Manutenção', count: totalManutencao, dot: 'bg-[#D98A00] ' }
           ].map(f => {
             const active = filtroStatus === f.id;
             return (
@@ -215,14 +214,14 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
                 }}
                 className={`px-3.5 py-2 rounded-lg font-semibold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
                   active
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+                    ? 'bg-[#0B1B2E] text-white shadow-xs'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface)]/60'
                 }`}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${f.dot}`} />
                 <span>{f.label}</span>
-                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md ${
-                  active ? 'bg-white/15 text-sky-300' : 'bg-slate-200/80 text-slate-700'
+                <span className={`text-[10px] tabular-nums font-bold px-1.5 py-0.5 rounded-md ${
+                  active ? 'bg-white/15 text-[#DCEEFB]' : 'bg-[var(--surface-3)]/80 text-[var(--text)]'
                 }`}>
                   {f.count}
                 </span>
@@ -232,24 +231,24 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
         </div>
 
         <div className="relative w-full sm:w-80">
-          <Search size={14} className="absolute left-3.5 top-2.5 text-slate-400" />
+          <Search size={14} className="absolute left-3.5 top-2.5 text-[var(--text-subtle)]" />
           <input
             type="text"
             value={busca}
             onChange={e => setBusca(e.target.value)}
             placeholder="Filtrar por modelo, prefixo ou placa Mercosul..."
-            className="w-full pl-9 pr-14 py-2 bg-slate-50/90 border border-slate-200/90 rounded-xl outline-hidden focus:ring-2 focus:ring-sky-500/20 focus:border-slate-900 focus:bg-white transition font-medium text-slate-900"
+            className="w-full pl-9 pr-14 py-2 bg-[var(--surface-2)]/90 border border-[var(--border)]/90 rounded-xl outline-hidden focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[#22324C] focus:bg-[var(--surface)] transition font-medium text-[var(--text)]"
           />
           {busca ? (
             <button
               type="button"
               onClick={() => setBusca('')}
-              className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-700 cursor-pointer p-0.5"
+              className="absolute right-2.5 top-2 text-[var(--text-subtle)] hover:text-[var(--text)] cursor-pointer p-0.5"
             >
               <X size={14} />
             </button>
           ) : (
-            <span className="absolute right-3 top-2 text-[10px] font-mono text-slate-400 bg-white px-1.5 py-0.5 rounded border border-slate-200">
+            <span className="absolute right-3 top-2 text-[10px] tabular-nums text-[var(--text-subtle)] bg-[var(--surface)] px-1.5 py-0.5 rounded border border-[var(--border)]">
               PR
             </span>
           )}
@@ -272,37 +271,37 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
                 soundFX.playClick();
                 setVeiculoInspecionado(v);
               }}
-              className="relative bg-white rounded-2xl p-6 border border-slate-200/90 shadow-[0_4px_20px_rgb(15,23,42,0.03)] hover:border-slate-400 hover:shadow-[0_16px_36px_-10px_rgba(15,23,42,0.12)] transition-all duration-300 flex flex-col justify-between cursor-pointer group overflow-hidden"
+              className="relative bg-[var(--surface)] rounded-[18px] p-6 border border-[var(--border)]/90 hover:border-[var(--border-strong)] transition-all duration-300 flex flex-col justify-between cursor-pointer group overflow-hidden"
             >
               {/* Faixa Superior de Status Luminoso */}
               <div
                 className={`absolute inset-x-0 top-0 h-1 transition-all ${
                   v.status === 'disponivel'
-                    ? 'bg-linear-to-r from-emerald-500 via-teal-400 to-emerald-600'
+                    ? ' bg-[#00A859]  '
                     : v.status === 'em_missao'
-                    ? 'bg-linear-to-r from-slate-900 via-sky-500 to-slate-900'
-                    : 'bg-linear-to-r from-amber-500 via-orange-400 to-amber-600'
+                    ? ' bg-[#0B1B2E]  '
+                    : ' bg-[#D98A00]  '
                 }`}
               />
 
               <div>
                 {/* Topo do Card: Placa Mercosul e Status */}
-                <div className="flex items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                <div className="flex items-center justify-between gap-3 pb-4 border-b border-[var(--border-subtle)]">
                   <PlacaMercosul placa={v.placa} uf="PR" />
 
                   <span className={`text-[11px] font-semibold px-3 py-1 rounded-full border flex items-center gap-2 shadow-2xs ${
                     v.status === 'disponivel'
-                      ? 'bg-emerald-50/90 text-emerald-900 border-emerald-200'
+                      ? 'bg-[var(--verde-soft)]/90 text-[var(--verde)] border-[var(--verde-border)]'
                       : v.status === 'em_missao'
-                      ? 'bg-slate-900 text-white border-slate-800'
-                      : 'bg-amber-50/90 text-amber-900 border-amber-200'
+                      ? 'bg-[#0B1B2E] text-white border-[#22324C]'
+                      : 'bg-[var(--warning-soft)]/90 text-[var(--warning)] border-[var(--warning-border)]'
                   }`}>
                     <span className={`w-2 h-2 rounded-full ${
                       v.status === 'disponivel'
-                        ? 'bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse'
+                        ? 'bg-[#00A859]  '
                         : v.status === 'em_missao'
-                        ? 'bg-sky-400 shadow-[0_0_8px_#38bdf8] animate-pulse'
-                        : 'bg-amber-500 shadow-[0_0_8px_#f59e0b]'
+                        ? 'bg-[#0072BB]  '
+                        : 'bg-[#D98A00] '
                     }`} />
                     {v.status === 'disponivel' && 'Disponível no Pátio'}
                     {v.status === 'em_missao' && 'Em Missão Oficial'}
@@ -314,21 +313,21 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
                 <div className="mt-4 flex items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-semibold">
+                      <span className="text-[10px] tabular-nums uppercase tracking-widest text-[var(--text-subtle)] font-semibold">
                         PATRIMÔNIO SEJU #{v.id.toUpperCase()}
                       </span>
                     </div>
-                    <h3 className="font-bold text-slate-900 text-base sm:text-lg tracking-tight group-hover:text-sky-700 transition-colors mt-0.5">
+                    <h3 className="font-bold text-[var(--text)] text-base sm:text-lg tracking-tight group-hover:text-[var(--brand)] transition-colors mt-0.5">
                       {v.modelo}
                     </h3>
                     <div className="flex flex-wrap items-center gap-2 mt-2">
-                      <span className="text-[11px] font-medium text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200/80">
-                        Cor: <strong className="text-slate-800">{v.cor}</strong>
+                      <span className="text-[11px] font-medium text-[var(--text-muted)] bg-[var(--surface-2)] px-2.5 py-0.5 rounded-md border border-[var(--border)]/80">
+                        Cor: <strong className="text-[var(--text)]">{v.cor}</strong>
                       </span>
-                      <span className="text-[11px] font-medium text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200/80 flex items-center gap-1">
-                        <Users size={11} className="text-slate-500" /> {v.capacidade} assentos
+                      <span className="text-[11px] font-medium text-[var(--text-muted)] bg-[var(--surface-2)] px-2.5 py-0.5 rounded-md border border-[var(--border)]/80 flex items-center gap-1">
+                        <Users size={11} className="text-[var(--text-muted)]" /> {v.capacidade} assentos
                       </span>
-                      <span className="text-[11px] font-mono font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200/80">
+                      <span className="text-[11px] tabular-nums font-semibold text-[var(--text-muted)] bg-[var(--surface-2)] px-2.5 py-0.5 rounded-md border border-[var(--border)]/80">
                         MOD {v.ano || 2024}
                       </span>
                     </div>
@@ -337,31 +336,31 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
               </div>
 
               {/* Cluster Compacto de Telemetria (Odômetro + Barra de Combustível Graduada) */}
-              <div className="mt-5 pt-4 border-t border-slate-100 space-y-3.5">
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 p-3.5 bg-[#0B0F19] text-white rounded-xl border border-slate-800 shadow-inner">
+              <div className="mt-5 pt-4 border-t border-[var(--border-subtle)] space-y-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 p-3.5 bg-[#0B1B2E] text-white rounded-xl border border-[#22324C] ">
                   {/* Odômetro Digital */}
-                  <div className="sm:col-span-5 flex flex-col justify-between sm:border-r border-slate-800 sm:pr-3">
-                    <span className="text-[9px] font-mono uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                      <Gauge size={11} className="text-sky-400" /> Hodômetro Oficial
+                  <div className="sm:col-span-5 flex flex-col justify-between sm:border-r border-[#22324C] sm:pr-3">
+                    <span className="text-[9px] tabular-nums uppercase tracking-wider text-[var(--text-subtle)] flex items-center gap-1.5">
+                      <Gauge size={11} className="text-[var(--brand)]" /> Hodômetro Oficial
                     </span>
-                    <div className="font-mono font-black text-base text-white tracking-wider mt-1 flex items-baseline gap-1">
+                    <div className="tabular-nums font-black text-base text-white tracking-wider mt-1 flex items-baseline gap-1">
                       {String(v.kmAtual).padStart(6, '0').replace(/(\d{3})(\d{3})/, '$1.$2')}
-                      <span className="text-[10px] text-sky-400 font-bold">KM</span>
+                      <span className="text-[10px] text-[var(--brand)] font-bold">KM</span>
                     </div>
                   </div>
 
                   {/* Barra de Combustível Graduada em 12 Segmentos Luminosos */}
                   <div className="sm:col-span-7 flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-[9px] font-mono uppercase tracking-wider">
-                      <span className="text-slate-400 flex items-center gap-1">
-                        <Fuel size={11} className="text-emerald-400" /> Sonda Tanque
+                    <div className="flex items-center justify-between text-[9px] tabular-nums uppercase tracking-wider">
+                      <span className="text-[var(--text-subtle)] flex items-center gap-1">
+                        <Fuel size={11} className="text-[var(--verde)]" /> Sonda Tanque
                       </span>
-                      <span className="font-bold text-slate-200">
-                        {v.nivelCombustivel}% <span className="text-slate-500">·</span> ~{autonomiaKm} km
+                      <span className="font-bold text-white/90">
+                        {v.nivelCombustivel}% <span className="text-[var(--text-muted)]">·</span> ~{autonomiaKm} km
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1 mt-2 p-1 bg-slate-950 rounded-md border border-slate-800/90">
+                    <div className="flex items-center gap-1 mt-2 p-1 bg-[#0B1B2E] rounded-md border border-[#22324C]/90">
                       {Array.from({ length: totalSegs }).map((_, idx) => {
                         const ativo = idx < segsAtivos;
                         const cor =
@@ -388,17 +387,17 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
 
                 {/* Rodapé do Card */}
                 <div className="flex items-center justify-between text-xs pt-0.5">
-                  <div className="flex items-center gap-2.5 text-[11px] text-slate-500">
-                    <span className="bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200/80">
-                      Fila: <strong className="text-slate-900 font-mono">{pendentes}</strong>
+                  <div className="flex items-center gap-2.5 text-[11px] text-[var(--text-muted)]">
+                    <span className="bg-[var(--surface-2)] px-2 py-0.5 rounded-md border border-[var(--border)]/80">
+                      Fila: <strong className="text-[var(--text)] tabular-nums">{pendentes}</strong>
                     </span>
-                    <span className="bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200/80">
-                      Ativas: <strong className="text-emerald-700 font-mono">{autorizados}</strong>
+                    <span className="bg-[var(--surface-2)] px-2 py-0.5 rounded-md border border-[var(--border)]/80">
+                      Ativas: <strong className="text-[var(--verde)] tabular-nums">{autorizados}</strong>
                     </span>
                   </div>
 
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-900 group-hover:text-sky-600 transition-colors">
-                    <Activity size={13} className="text-sky-500" />
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--text)] group-hover:text-[var(--brand)] transition-colors">
+                    <Activity size={13} className="text-[var(--brand)]" />
                     Abrir Cockpit & Ficha
                     <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
                   </span>
@@ -412,23 +411,23 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
       {/* Modal Impecável: Incorporar Novo Veículo com Preview Ao Vivo da Placa Mercosul */}
       {modalNovo && (
         <div
-          className="fixed inset-0 bg-slate-950/60 z-50 flex items-center justify-center p-4 animate-in fade-in"
+          className="fixed inset-0 bg-[#0B1B2E]/60 z-50 flex items-center justify-center p-4 animate-in fade-in"
           onClick={() => setModalNovo(false)}
         >
           <div
-            className="relative bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-xl border border-slate-200/90 animate-in zoom-in-95 overflow-hidden"
+            className="relative bg-[var(--surface)] rounded-[18px] max-w-lg w-full p-6 sm:p-7 border border-[var(--border)]/90 animate-in zoom-in-95 overflow-hidden"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4 mb-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-900 text-sky-400 flex items-center justify-center shadow-2xs">
+                <div className="w-10 h-10 rounded-xl bg-[#0B1B2E] text-[var(--brand)] flex items-center justify-center shadow-2xs">
                   <Car size={18} />
                 </div>
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-bold block">
+                  <span className="text-[10px] tabular-nums uppercase tracking-widest text-[var(--text-subtle)] font-bold block">
                     REGISTRO PATRIMONIAL DETRAN/PR
                   </span>
-                  <h3 className="text-base font-bold text-slate-900">
+                  <h3 className="text-base font-bold text-[var(--text)]">
                     Incorporar Viatura Oficial à Frota
                   </h3>
                 </div>
@@ -436,22 +435,22 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
               <button
                 type="button"
                 onClick={() => setModalNovo(false)}
-                className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center cursor-pointer transition"
+                className="w-8 h-8 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-muted)] hover:text-[var(--text)] flex items-center justify-center cursor-pointer transition"
               >
                 <X size={16} />
               </button>
             </div>
 
             {/* Preview Ao Vivo da Placa Estampada */}
-            <div className="mb-5 p-4 rounded-2xl bg-slate-900 text-white border border-slate-800 flex items-center justify-between gap-4 shadow-inner">
+            <div className="mb-5 p-4 rounded-[18px] bg-[#0B1B2E] text-white border border-[#22324C] flex items-center justify-between gap-4 ">
               <div>
-                <span className="text-[10px] font-mono uppercase tracking-wider text-sky-400 font-semibold flex items-center gap-1">
+                <span className="text-[10px] tabular-nums uppercase tracking-wider text-[var(--brand)] font-semibold flex items-center gap-1">
                   <Sparkles size={11} /> Estamparia Digital Ao Vivo
                 </span>
                 <div className="text-xs font-bold text-white mt-1 truncate max-w-[200px]">
                   {modelo.trim() || 'Nova Viatura Oficial SEJU'}
                 </div>
-                <div className="text-[10px] font-mono text-slate-400 mt-0.5">
+                <div className="text-[10px] tabular-nums text-[var(--text-subtle)] mt-0.5">
                   {cor.trim() || 'Prata Metálico'} · {capacidade} Lugares · {kmAtual.toLocaleString('pt-BR')} km
                 </div>
               </div>
@@ -460,7 +459,7 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
                   Marca, Modelo e Versão Oficial *
                 </label>
                 <input
@@ -469,13 +468,13 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
                   value={modelo}
                   onChange={e => setModelo(e.target.value)}
                   placeholder="Ex: Toyota Corolla Altis Hybrid 1.8"
-                  className="w-full text-xs px-3.5 py-2.5 bg-slate-50/80 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-sky-500/20 focus:border-slate-900 focus:bg-white outline-hidden font-medium text-slate-900"
+                  className="w-full text-xs px-3.5 py-2.5 bg-[var(--surface-2)]/80 border border-[var(--border)]/90 rounded-xl focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[#22324C] focus:bg-[var(--surface)] outline-hidden font-medium text-[var(--text)]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
                     Placa Mercosul *
                   </label>
                   <input
@@ -485,12 +484,12 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
                     value={placa}
                     onChange={e => setPlaca(e.target.value.toUpperCase())}
                     placeholder="BCB-4A12"
-                    className="w-full text-xs font-mono font-bold px-3.5 py-2.5 bg-slate-50/80 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-sky-500/20 focus:border-slate-900 focus:bg-white outline-hidden text-center uppercase tracking-widest text-slate-900"
+                    className="w-full text-xs tabular-nums font-bold px-3.5 py-2.5 bg-[var(--surface-2)]/80 border border-[var(--border)]/90 rounded-xl focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[#22324C] focus:bg-[var(--surface)] outline-hidden text-center uppercase tracking-widest text-[var(--text)]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
                     Pintura / Cor Oficial
                   </label>
                   <input
@@ -498,14 +497,14 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
                     value={cor}
                     onChange={e => setCor(e.target.value)}
                     placeholder="Prata Metálico"
-                    className="w-full text-xs px-3.5 py-2.5 bg-slate-50/80 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-sky-500/20 focus:border-slate-900 focus:bg-white outline-hidden font-medium text-slate-900"
+                    className="w-full text-xs px-3.5 py-2.5 bg-[var(--surface-2)]/80 border border-[var(--border)]/90 rounded-xl focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[#22324C] focus:bg-[var(--surface)] outline-hidden font-medium text-[var(--text)]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
                     Lotação (Assentos)
                   </label>
                   <input
@@ -514,36 +513,36 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
                     max="50"
                     value={capacidade}
                     onChange={e => setCapacidade(Number(e.target.value))}
-                    className="w-full text-xs font-mono font-semibold px-3.5 py-2.5 bg-slate-50/80 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-sky-500/20 focus:border-slate-900 focus:bg-white outline-hidden text-slate-900"
+                    className="w-full text-xs tabular-nums font-semibold px-3.5 py-2.5 bg-[var(--surface-2)]/80 border border-[var(--border)]/90 rounded-xl focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[#22324C] focus:bg-[var(--surface)] outline-hidden text-[var(--text)]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
                     Hodômetro Inicial (KM)
                   </label>
                   <input
                     type="number"
                     value={kmAtual}
                     onChange={e => setKmAtual(Number(e.target.value))}
-                    className="w-full text-xs font-mono font-semibold px-3.5 py-2.5 bg-slate-50/80 border border-slate-200/90 rounded-xl focus:ring-2 focus:ring-sky-500/20 focus:border-slate-900 focus:bg-white outline-hidden text-slate-900"
+                    className="w-full text-xs tabular-nums font-semibold px-3.5 py-2.5 bg-[var(--surface-2)]/80 border border-[var(--border)]/90 rounded-xl focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[#22324C] focus:bg-[var(--surface)] outline-hidden text-[var(--text)]"
                   />
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-2.5">
+              <div className="pt-4 border-t border-[var(--border-subtle)] flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setModalNovo(false)}
-                  className="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl cursor-pointer transition"
+                  className="px-4 py-2.5 text-xs font-semibold text-[var(--text-muted)] hover:bg-[var(--surface-2)] rounded-xl cursor-pointer transition"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-[0_6px_16px_rgba(15,23,42,0.25)] cursor-pointer transition flex items-center gap-1.5"
+                  className="px-5 py-2.5 text-xs font-bold text-white bg-[#0B1B2E] hover:bg-[#0B1B2E] rounded-xl cursor-pointer transition flex items-center gap-1.5"
                 >
-                  <CheckCircle2 size={14} className="text-sky-400" />
+                  <CheckCircle2 size={14} className="text-[var(--brand)]" />
                   Confirmar Incorporação
                 </button>
               </div>
@@ -555,25 +554,25 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
       {/* Modal de Inspeção: Cockpit Digital & Ficha Patrimonial */}
       {veiculoInspecionado && (
         <div 
-          className="fixed inset-0 bg-slate-950/60 z-50 flex items-center justify-center p-4 animate-in fade-in"
+          className="fixed inset-0 bg-[#0B1B2E]/60 z-50 flex items-center justify-center p-4 animate-in fade-in"
           onClick={() => setVeiculoInspecionado(null)}
         >
           <div 
-            className="relative bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-7 shadow-2xl border border-slate-200/90 animate-in zoom-in-95 max-h-[92vh] overflow-y-auto space-y-6"
+            className="relative bg-[var(--surface)] rounded-[28px] max-w-3xl w-full p-6 sm:p-7 border border-[var(--border)]/90 animate-in zoom-in-95 max-h-[92vh] overflow-y-auto space-y-6"
             onClick={e => e.stopPropagation()}
           >
             {/* Header com Placa Mercosul */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[var(--border-subtle)]">
               <div className="flex items-center gap-4">
                 <PlacaMercosul placa={veiculoInspecionado.placa} uf="PR" />
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-bold block">
+                  <span className="text-[10px] tabular-nums uppercase tracking-widest text-[var(--text-subtle)] font-bold block">
                     FICHA PATRIMONIAL & COCKPIT DE TELEMETRIA
                   </span>
-                  <h3 className="text-lg font-bold text-slate-900 leading-tight mt-0.5">
+                  <h3 className="text-lg font-bold text-[var(--text)] leading-tight mt-0.5">
                     {veiculoInspecionado.modelo}
                   </h3>
-                  <div className="text-xs text-slate-500 mt-0.5 font-medium">
+                  <div className="text-xs text-[var(--text-muted)] mt-0.5 font-medium">
                     Ano {veiculoInspecionado.ano || 2024} · Cor {veiculoInspecionado.cor} · {veiculoInspecionado.capacidade} lugares
                   </div>
                 </div>
@@ -582,7 +581,7 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
               <button 
                 type="button"
                 onClick={() => setVeiculoInspecionado(null)}
-                className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center cursor-pointer self-start sm:self-auto transition"
+                className="w-8 h-8 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-muted)] flex items-center justify-center cursor-pointer self-start sm:self-auto transition"
               >
                 <X size={16} />
               </button>
@@ -610,8 +609,8 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
             {/* Divisão 1: Controle de Status Operacional e Abastecimento Rápido */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Status */}
-              <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-2.5">
-                <div className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-bold">
+              <div className="p-4 bg-[var(--surface-2)]/90 rounded-[18px] border border-[var(--border)]/80 space-y-2.5">
+                <div className="text-[10px] tabular-nums uppercase tracking-wider text-[var(--text-muted)] font-bold">
                   Status Operacional no Pátio SEJU
                 </div>
                 <div className="flex gap-1.5">
@@ -635,8 +634,8 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
                         }}
                         className={`flex-1 py-2 px-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
                           ativo 
-                            ? 'bg-slate-900 text-white shadow-xs' 
-                            : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+                            ? 'bg-[#0B1B2E] text-white shadow-xs' 
+                            : 'bg-[var(--surface)] text-[var(--text-muted)] hover:bg-[var(--surface-2)] border border-[var(--border)]/80'
                         }`}
                       >
                         {st.label}
@@ -647,10 +646,10 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
               </div>
 
               {/* Ação Rápida de Abastecimento Oficial */}
-              <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80 flex flex-col justify-between space-y-2.5">
-                <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-slate-500 font-bold">
+              <div className="p-4 bg-[var(--surface-2)]/90 rounded-[18px] border border-[var(--border)]/80 flex flex-col justify-between space-y-2.5">
+                <div className="flex items-center justify-between text-[10px] tabular-nums uppercase tracking-wider text-[var(--text-muted)] font-bold">
                   <span>Ordem de Abastecimento (Cartão Frota PR)</span>
-                  <span className="text-xs text-emerald-700 font-bold">{veiculoInspecionado.nivelCombustivel}%</span>
+                  <span className="text-xs text-[var(--verde)] font-bold">{veiculoInspecionado.nivelCombustivel}%</span>
                 </div>
                 <button
                   type="button"
@@ -661,61 +660,61 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
                       onAtualizarVeiculo(veiculoInspecionado.id, { nivelCombustivel: 100 });
                     }
                   }}
-                  className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer shadow-xs"
+                  className="w-full py-2.5 bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer shadow-xs"
                 >
-                  <Fuel size={14} className="text-emerald-400" /> Atestar Tanque Cheio (100% · 55L)
+                  <Fuel size={14} className="text-[var(--verde)]" /> Atestar Tanque Cheio (100% · 55L)
                 </button>
               </div>
             </div>
 
             {/* Divisão 2: Diagnóstico Preventivo */}
-            <div className="p-4.5 bg-slate-50/80 rounded-2xl border border-slate-200/80 space-y-3">
-              <div className="text-xs font-bold text-slate-900 flex items-center justify-between">
+            <div className="p-4.5 bg-[var(--surface-2)]/80 rounded-[18px] border border-[var(--border)]/80 space-y-3">
+              <div className="text-xs font-bold text-[var(--text)] flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Wrench size={15} className="text-slate-700" />
+                  <Wrench size={15} className="text-[var(--text)]" />
                   Diagnóstico de Manutenção Preventiva (Detran/PR & SEJU)
                 </span>
-                <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                <span className="text-[10px] tabular-nums text-[var(--verde)] bg-[var(--verde-soft)] border border-[var(--verde-border)] px-2 py-0.5 rounded-md">
                   LAUDO TÉCNICO OK
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-                <div className="p-3 bg-white rounded-xl border border-slate-200/80 flex items-center justify-between">
+                <div className="p-3 bg-[var(--surface)] rounded-xl border border-[var(--border)]/80 flex items-center justify-between">
                   <div>
-                    <span className="font-bold text-slate-800 block">Lubrificante & Filtros Sintéticos</span>
-                    <span className="text-[10px] font-mono text-slate-400">Próxima revisão: {(veiculoInspecionado.kmAtual + 8200).toLocaleString('pt-BR')} km</span>
+                    <span className="font-bold text-[var(--text)] block">Lubrificante & Filtros Sintéticos</span>
+                    <span className="text-[10px] tabular-nums text-[var(--text-subtle)]">Próxima revisão: {(veiculoInspecionado.kmAtual + 8200).toLocaleString('pt-BR')} km</span>
                   </div>
-                  <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                  <span className="text-[10px] font-semibold text-[var(--verde)] bg-[var(--verde-soft)] border border-[var(--verde-border)] px-2.5 py-0.5 rounded-full">
                     Em Dia
                   </span>
                 </div>
 
-                <div className="p-3 bg-white rounded-xl border border-slate-200/80 flex items-center justify-between">
+                <div className="p-3 bg-[var(--surface)] rounded-xl border border-[var(--border)]/80 flex items-center justify-between">
                   <div>
-                    <span className="font-bold text-slate-800 block">Sistema de Freios ABS/EBD</span>
-                    <span className="text-[10px] font-mono text-slate-400">Pastilhas e discos inspecionados</span>
+                    <span className="font-bold text-[var(--text)] block">Sistema de Freios ABS/EBD</span>
+                    <span className="text-[10px] tabular-nums text-[var(--text-subtle)]">Pastilhas e discos inspecionados</span>
                   </div>
-                  <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                  <span className="text-[10px] font-semibold text-[var(--verde)] bg-[var(--verde-soft)] border border-[var(--verde-border)] px-2.5 py-0.5 rounded-full">
                     Conforme
                   </span>
                 </div>
 
-                <div className="p-3 bg-white rounded-xl border border-slate-200/80 flex items-center justify-between">
+                <div className="p-3 bg-[var(--surface)] rounded-xl border border-[var(--border)]/80 flex items-center justify-between">
                   <div>
-                    <span className="font-bold text-slate-800 block">Pneumáticos & Geometria</span>
-                    <span className="text-[10px] font-mono text-slate-400">Pressão nominal telemetria</span>
+                    <span className="font-bold text-[var(--text)] block">Pneumáticos & Geometria</span>
+                    <span className="text-[10px] tabular-nums text-[var(--text-subtle)]">Pressão nominal telemetria</span>
                   </div>
-                  <span className="text-[10px] font-mono font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full">
+                  <span className="text-[10px] tabular-nums font-bold text-[var(--text)] bg-[var(--surface-2)] border border-[var(--border)] px-2.5 py-0.5 rounded-full">
                     32 PSI
                   </span>
                 </div>
 
-                <div className="p-3 bg-white rounded-xl border border-slate-200/80 flex items-center justify-between">
+                <div className="p-3 bg-[var(--surface)] rounded-xl border border-[var(--border)]/80 flex items-center justify-between">
                   <div>
-                    <span className="font-bold text-slate-800 block">Licenciamento Oficial CRLV-e</span>
-                    <span className="text-[10px] font-mono text-slate-400">Frota Patrimonial Estado do Paraná</span>
+                    <span className="font-bold text-[var(--text)] block">Licenciamento Oficial CRLV-e</span>
+                    <span className="text-[10px] tabular-nums text-[var(--text-subtle)]">Frota Patrimonial Estado do Paraná</span>
                   </div>
-                  <span className="text-[10px] font-semibold text-sky-800 bg-sky-50 border border-sky-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="text-[10px] font-semibold text-[var(--brand)] bg-[var(--brand-soft)] border border-[var(--brand-border)] px-2.5 py-0.5 rounded-full flex items-center gap-1">
                     <ShieldCheck size={11} /> Regular 2026
                   </span>
                 </div>
@@ -724,18 +723,18 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
 
             {/* Divisão 3: Histórico de Missões */}
             <div className="space-y-2.5">
-              <div className="text-xs font-bold text-slate-900 flex items-center justify-between">
+              <div className="text-xs font-bold text-[var(--text)] flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
-                  <FileText size={14} className="text-slate-600" />
+                  <FileText size={14} className="text-[var(--text-muted)]" />
                   Diário de Bordo Recente da Viatura
                 </span>
-                <span className="text-[11px] text-slate-500 font-mono">
+                <span className="text-[11px] text-[var(--text-muted)] tabular-nums">
                   Hodômetro: {veiculoInspecionado.kmAtual.toLocaleString('pt-BR')} km
                 </span>
               </div>
 
               {agendamentos.filter(a => a.veiculoId === veiculoInspecionado.id).length === 0 ? (
-                <div className="p-4 bg-slate-50/70 rounded-xl text-center text-xs text-slate-400 border border-slate-200/70">
+                <div className="p-4 bg-[var(--surface-2)]/70 rounded-xl text-center text-xs text-[var(--text-subtle)] border border-[var(--border)]/70">
                   Nenhuma missão registrada no diário de bordo recente para esta viatura.
                 </div>
               ) : (
@@ -744,14 +743,14 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
                     .filter(a => a.veiculoId === veiculoInspecionado.id)
                     .slice(0, 3)
                     .map(ag => (
-                      <div key={ag.id} className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/80 text-xs flex items-center justify-between gap-2">
+                      <div key={ag.id} className="p-3 bg-[var(--surface-2)]/80 rounded-xl border border-[var(--border)]/80 text-xs flex items-center justify-between gap-2">
                         <div className="min-w-0">
-                          <div className="font-semibold text-slate-900 truncate">{ag.destino}</div>
-                          <div className="text-[11px] text-slate-500 mt-0.5">
-                            Condutor: <strong className="text-slate-700">{ag.nome}</strong> · {ag.datas.join(', ')}
+                          <div className="font-semibold text-[var(--text)] truncate">{ag.destino}</div>
+                          <div className="text-[11px] text-[var(--text-muted)] mt-0.5">
+                            Condutor: <strong className="text-[var(--text)]">{ag.nome}</strong> · {ag.datas.join(', ')}
                           </div>
                         </div>
-                        <span className="text-[10px] font-mono font-bold bg-white text-slate-800 px-2.5 py-1 rounded-lg border border-slate-200/90 shrink-0 shadow-2xs">
+                        <span className="text-[10px] tabular-nums font-bold bg-[var(--surface)] text-[var(--text)] px-2.5 py-1 rounded-lg border border-[var(--border)]/90 shrink-0 shadow-2xs">
                           {ag.ticket}
                         </span>
                       </div>
@@ -761,11 +760,11 @@ export const PainelFrota: React.FC<PainelFrotaProps> = ({
             </div>
 
             {/* Rodapé */}
-            <div className="pt-4 border-t border-slate-100 flex justify-end">
+            <div className="pt-4 border-t border-[var(--border-subtle)] flex justify-end">
               <button
                 type="button"
                 onClick={() => setVeiculoInspecionado(null)}
-                className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition cursor-pointer shadow-xs"
+                className="px-6 py-2.5 bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white rounded-xl text-xs font-bold transition cursor-pointer shadow-xs"
               >
                 Encerrar Inspeção de Telemetria
               </button>

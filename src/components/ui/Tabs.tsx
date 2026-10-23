@@ -25,7 +25,7 @@ export const Tabs: React.FC<TabsProps> = ({
   if (variant === 'segmented') {
     return (
       <div
-        className={`inline-flex items-center gap-1 p-1 bg-[var(--surface-2)] rounded-[var(--radius-md)] border border-[var(--border)] overflow-x-auto max-w-full ${className}`}
+        className={`inline-flex items-center gap-1 p-1 bg-[var(--surface-2)] rounded-full border border-[var(--border)] overflow-x-auto max-w-full ${className}`}
       >
         {items.map((tab) => {
           const isActive = tab.id === activeId;
@@ -34,9 +34,9 @@ export const Tabs: React.FC<TabsProps> = ({
               key={tab.id}
               type="button"
               onClick={() => onChange(tab.id)}
-              className={`inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-[var(--radius-sm)] transition-all cursor-pointer whitespace-nowrap select-none ${
+              className={`inline-flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-full transition-all cursor-pointer whitespace-nowrap select-none ${
                 isActive
-                  ? 'bg-[var(--surface)] text-[var(--text)] font-semibold shadow-xs border border-[var(--border)]'
+                  ? 'bg-[var(--ink)] text-white font-semibold border border-transparent'
                   : 'text-[var(--text-muted)] hover:text-[var(--text)] border border-transparent'
               }`}
             >
@@ -45,7 +45,7 @@ export const Tabs: React.FC<TabsProps> = ({
               {tab.count !== undefined && (
                 <span
                   className={`text-[10px] px-1.5 py-0.2 rounded-full font-semibold ${
-                    isActive ? 'bg-[var(--surface-2)] text-[var(--text)]' : 'bg-[var(--surface)] text-[var(--text-muted)]'
+                    isActive ? 'bg-[var(--lima)] text-[#0B1B2E]' : 'bg-[var(--surface)] text-[var(--text-muted)]'
                   }`}
                 >
                   {tab.count}

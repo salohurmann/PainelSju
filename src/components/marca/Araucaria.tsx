@@ -9,7 +9,7 @@ import React, { useId } from 'react';
 
 type Paleta = { escuro: string; medio: string; claro: string; tronco: string };
 
-const PALETAS = {
+export const PALETAS = {
   mata: { escuro: '#006B36', medio: '#00984C', claro: '#3CC27F', tronco: '#0B3A5E' },
   broto: { escuro: '#00984C', medio: '#2FBF71', claro: '#8FE3B3', tronco: '#0B3A5E' },
   marca: { escuro: '#006B36', medio: '#00984C', claro: '#3CC27F', tronco: '#0B1B2E' },

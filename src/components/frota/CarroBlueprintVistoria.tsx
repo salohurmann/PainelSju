@@ -125,33 +125,33 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
   ];
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 text-slate-900 shadow-[0_16px_40px_-12px_rgba(15,23,42,0.10)] relative overflow-hidden font-sans space-y-6">
+    <div className="bg-[var(--surface)] rounded-[28px] p-6 sm:p-7 border border-[var(--border)]/90 text-[var(--text)] relative overflow-hidden font-sans space-y-6">
       {/* Miras de Precisão CAD nos 4 Cantos Externos do Container */}
-      <span className="absolute top-3 left-3 text-xs font-mono font-bold text-slate-300 select-none pointer-events-none">+</span>
-      <span className="absolute top-3 right-3 text-xs font-mono font-bold text-slate-300 select-none pointer-events-none">+</span>
-      <span className="absolute bottom-3 left-3 text-xs font-mono font-bold text-slate-300 select-none pointer-events-none">+</span>
-      <span className="absolute bottom-3 right-3 text-xs font-mono font-bold text-slate-300 select-none pointer-events-none">+</span>
+      <span className="absolute top-3 left-3 text-xs tabular-nums font-bold text-[var(--ink-muted)] select-none pointer-events-none">+</span>
+      <span className="absolute top-3 right-3 text-xs tabular-nums font-bold text-[var(--ink-muted)] select-none pointer-events-none">+</span>
+      <span className="absolute bottom-3 left-3 text-xs tabular-nums font-bold text-[var(--ink-muted)] select-none pointer-events-none">+</span>
+      <span className="absolute bottom-3 right-3 text-xs tabular-nums font-bold text-[var(--ink-muted)] select-none pointer-events-none">+</span>
 
       {/* Optical Scan Line Animation */}
       {escaneando && (
-        <div className="absolute inset-x-0 top-0 h-1.5 bg-linear-to-r from-transparent via-sky-500 to-transparent shadow-[0_0_20px_#0ea5e9] z-50 animate-pulse pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-1.5 bg-transparent z-50 pointer-events-none" />
       )}
 
       {/* STUDIO HEADER */}
-      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-subtle)] pb-5">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#005A9C] bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200/70">
+            <div className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--brand)] bg-[var(--brand-soft)] px-2.5 py-1 rounded-full border border-[var(--brand-border)]/70">
               <ShieldCheck size={13} /> Estúdio CAD de Vistoria Cautelar 360°
             </div>
-            <span className="text-[10px] font-mono font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/70">
+            <span className="text-[10px] tabular-nums font-semibold text-[var(--text-muted)] bg-[var(--surface-2)] px-2 py-0.5 rounded-md border border-[var(--border)]/70">
               CAD REV 4.2 · ESCALA 1:18
             </span>
           </div>
-          <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight mt-2">
+          <h3 className="text-lg sm:text-xl font-black text-[var(--text)] tracking-tight mt-2">
             Inspeção Pericial & Telemetria Óptica de 4 Quadrantes
           </h3>
-          <p className="text-xs text-slate-500 mt-0.5 max-w-xl">
+          <p className="text-xs text-[var(--text-muted)] mt-0.5 max-w-xl">
             Mapeamento vetorial de integridade externa com carimbo criptográfico SHA-256 e georreferenciamento PR.
           </p>
         </div>
@@ -161,16 +161,16 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
           <div
             className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 ring-1 transition-all ${
               completo
-                ? 'bg-emerald-50 text-emerald-700 ring-emerald-500/30 shadow-2xs'
-                : 'bg-slate-100 text-slate-700 ring-slate-200'
+                ? 'bg-[var(--verde-soft)] text-[var(--verde)] ring-[var(--verde)]/30 shadow-2xs'
+                : 'bg-[var(--surface-2)] text-[var(--text)] ring-[var(--border)]'
             }`}
           >
             {completo ? (
-              <Check size={13} className="text-emerald-600" />
+              <Check size={13} className="text-[var(--verde)]" />
             ) : (
-              <Scan size={13} className="text-sky-600" />
+              <Scan size={13} className="text-[var(--brand)]" />
             )}
-            <span className="font-mono font-bold">{totalFotos}/4</span>
+            <span className="tabular-nums font-bold">{totalFotos}/4</span>
             <span className="text-[11px] font-medium">sensores</span>
           </div>
 
@@ -178,9 +178,9 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
             <button
               type="button"
               onClick={handleSimularComLaser}
-              className="text-xs font-bold bg-slate-900 hover:bg-[#004B87] text-white px-4 py-2 rounded-full shadow-xs transition flex items-center gap-1.5 cursor-pointer shrink-0"
+              className="text-xs font-bold bg-[#0B1B2E] hover:bg-[#005A9C] text-white px-4 py-2 rounded-full shadow-xs transition flex items-center gap-1.5 cursor-pointer shrink-0"
             >
-              <Sparkles size={13} className="text-amber-300" /> Preencher Vistoria Demo
+              <Sparkles size={13} className="text-[#FFE2A8]" /> Preencher Vistoria Demo
             </button>
           )}
         </div>
@@ -189,7 +189,7 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
       {/* ===================================================================== */}
       {/* BLUEPRINT CAD DE ENGENHARIA AUTOMOTIVA & TELEMETRIA F1                */}
       {/* ===================================================================== */}
-      <div className="relative z-10 rounded-2xl bg-[#07111F] text-white border border-slate-800 shadow-inner overflow-hidden p-5 sm:p-6">
+      <div className="relative z-10 rounded-[18px] bg-[#0B1B2E] text-white border border-[#22324C] overflow-hidden p-5 sm:p-6">
         {/* Grade Milimetrada Técnica CAD (Sub-grid 10px + Main grid 50px) */}
         <div
           className="absolute inset-0 opacity-25 pointer-events-none"
@@ -208,39 +208,39 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(14,165,233,0.14),transparent_70%)] pointer-events-none" />
 
         {/* Miras de Precisão (+) nos 4 Cantos do Blueprint CAD */}
-        <div className="absolute top-2.5 left-3 flex items-center gap-1.5 text-[10px] font-mono text-sky-400/80 select-none pointer-events-none">
-          <span className="text-xs font-bold text-sky-300">+</span>
+        <div className="absolute top-2.5 left-3 flex items-center gap-1.5 text-[10px] tabular-nums text-[var(--brand)]/80 select-none pointer-events-none">
+          <span className="text-xs font-bold text-[#DCEEFB]">+</span>
           <span>X:000.0 Y:000.0</span>
         </div>
-        <div className="absolute top-2.5 right-3 flex items-center gap-1.5 text-[10px] font-mono text-sky-400/80 select-none pointer-events-none">
+        <div className="absolute top-2.5 right-3 flex items-center gap-1.5 text-[10px] tabular-nums text-[var(--brand)]/80 select-none pointer-events-none">
           <span>CAD-GRID 10MM</span>
-          <span className="text-xs font-bold text-sky-300">+</span>
+          <span className="text-xs font-bold text-[#DCEEFB]">+</span>
         </div>
-        <div className="absolute bottom-2.5 left-3 flex items-center gap-1.5 text-[10px] font-mono text-sky-400/80 select-none pointer-events-none">
-          <span className="text-xs font-bold text-sky-300">+</span>
+        <div className="absolute bottom-2.5 left-3 flex items-center gap-1.5 text-[10px] tabular-nums text-[var(--brand)]/80 select-none pointer-events-none">
+          <span className="text-xs font-bold text-[#DCEEFB]">+</span>
           <span>DATUM: CHASSIS-CL</span>
         </div>
-        <div className="absolute bottom-2.5 right-3 flex items-center gap-1.5 text-[10px] font-mono text-sky-400/80 select-none pointer-events-none">
+        <div className="absolute bottom-2.5 right-3 flex items-center gap-1.5 text-[10px] tabular-nums text-[var(--brand)]/80 select-none pointer-events-none">
           <span>TOL: ±0.05MM</span>
-          <span className="text-xs font-bold text-sky-300">+</span>
+          <span className="text-xs font-bold text-[#DCEEFB]">+</span>
         </div>
 
         {/* Barra Superior de Telemetria F1 dentro do Blueprint */}
-        <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-sky-500/20">
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-[var(--brand)]/20">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-sky-500/15 border border-sky-400/30 flex items-center justify-center text-sky-300 font-mono text-xs font-bold">
+            <div className="w-8 h-8 rounded-lg bg-[#0072BB]/15 border border-[var(--brand)]/30 flex items-center justify-center text-[#DCEEFB] tabular-nums text-xs font-bold">
               <Crosshair size={15} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-sky-300">
+                <span className="text-[11px] tabular-nums font-bold uppercase tracking-wider text-[#DCEEFB]">
                   BLUEPRINT VETORIAL DE INSPEÇÃO PERIMETRAL
                 </span>
-                <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-200 border border-sky-400/30">
+                <span className="text-[9px] tabular-nums uppercase px-1.5 py-0.5 rounded bg-[#0072BB]/20 text-[#DCEEFB] border border-[var(--brand)]/30">
                   TELEMETRY LIVE
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-mono">
+              <p className="text-[11px] text-[var(--text-subtle)] tabular-nums">
                 {completo
                   ? 'STATUS: 4/4 QUADRANTES CALIBRADOS E AUTENTICADOS'
                   : 'STATUS: AGUARDANDO AQUISIÇÃO ÓPTICA DOS SENSORES PERIMETRAIS'}
@@ -249,16 +249,16 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
           </div>
 
           {/* Indicadores estilo Telemetria F1 */}
-          <div className="flex items-center gap-2 text-[10px] font-mono">
-            <div className="px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-700/80 flex items-center gap-1.5">
-              <Cpu size={11} className="text-sky-400" />
-              <span className="text-slate-400">CHASSI:</span>
+          <div className="flex items-center gap-2 text-[10px] tabular-nums">
+            <div className="px-2.5 py-1 rounded-md bg-[#0B1B2E]/90 border border-[#22324C]/80 flex items-center gap-1.5">
+              <Cpu size={11} className="text-[var(--brand)]" />
+              <span className="text-[var(--text-subtle)]">CHASSI:</span>
               <span className="text-white font-bold">SEDAN-EXEC</span>
             </div>
-            <div className="px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-700/80 flex items-center gap-1.5">
-              <Radio size={11} className={completo ? 'text-emerald-400' : 'text-amber-400'} />
-              <span className="text-slate-400">INTEGRIDADE:</span>
-              <span className={completo ? 'text-emerald-400 font-bold' : 'text-amber-300 font-bold'}>
+            <div className="px-2.5 py-1 rounded-md bg-[#0B1B2E]/90 border border-[#22324C]/80 flex items-center gap-1.5">
+              <Radio size={11} className={completo ? 'text-[var(--verde)]' : 'text-[var(--warning)]'} />
+              <span className="text-[var(--text-subtle)]">INTEGRIDADE:</span>
+              <span className={completo ? 'text-[var(--verde)] font-bold' : 'text-[#FFE2A8] font-bold'}>
                 {totalFotos * 25}%
               </span>
             </div>
@@ -481,7 +481,7 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
                   cy="95"
                   r="13"
                   fill={fotos.frente ? 'rgba(16,185,129,0.20)' : 'rgba(56,189,248,0.18)'}
-                  className="animate-ping"
+                  className=""
                   style={{ animationDuration: '2.4s' }}
                 />
                 <circle
@@ -519,7 +519,7 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
                   cy="95"
                   r="13"
                   fill={fotos.traseira ? 'rgba(16,185,129,0.20)' : 'rgba(56,189,248,0.18)'}
-                  className="animate-ping"
+                  className=""
                   style={{ animationDuration: '2.6s' }}
                 />
                 <circle
@@ -557,7 +557,7 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
                   cy="22"
                   r="12"
                   fill={fotos.lateralEsquerda ? 'rgba(16,185,129,0.20)' : 'rgba(56,189,248,0.18)'}
-                  className="animate-ping"
+                  className=""
                   style={{ animationDuration: '2.8s' }}
                 />
                 <circle
@@ -595,7 +595,7 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
                   cy="156"
                   r="12"
                   fill={fotos.lateralDireita ? 'rgba(16,185,129,0.20)' : 'rgba(56,189,248,0.18)'}
-                  className="animate-ping"
+                  className=""
                   style={{ animationDuration: '3s' }}
                 />
                 <circle
@@ -620,12 +620,12 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
           </div>
 
           {/* Coluna Direita: Legenda Técnica de Telemetria F1 */}
-          <div className="lg:col-span-5 bg-slate-950/80 border border-sky-500/25 rounded-xl p-4 space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-sky-400 flex items-center gap-1.5">
+          <div className="lg:col-span-5 bg-[#0B1B2E]/80 border border-[var(--brand)]/25 rounded-xl p-4 space-y-3">
+            <div className="flex items-center justify-between border-b border-[#22324C] pb-2">
+              <span className="text-[10px] tabular-nums font-bold uppercase tracking-widest text-[var(--brand)] flex items-center gap-1.5">
                 <Compass size={12} /> Matriz de Sensores Ópticos
               </span>
-              <span className="text-[10px] font-mono text-slate-400">
+              <span className="text-[10px] tabular-nums text-[var(--text-subtle)]">
                 TELEMETRIA F1 · PR
               </span>
             </div>
@@ -638,21 +638,21 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
                 return (
                   <div
                     key={ang.id}
-                    className={`px-3 py-2 rounded-lg border font-mono text-[11px] flex items-center justify-between transition ${
+                    className={`px-3 py-2 rounded-lg border tabular-nums text-[11px] flex items-center justify-between transition ${
                       ok
-                        ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200'
+                        ? 'bg-[#0B1B2E]/40 border-[var(--verde)]/40 text-[#C6E86B]'
                         : isHovered
-                        ? 'bg-sky-950/60 border-sky-400/60 text-sky-100'
-                        : 'bg-slate-900/70 border-slate-800 text-slate-300'
+                        ? 'bg-[#0B1B2E]/60 border-[var(--brand)]/60 text-[#DCEEFB]'
+                        : 'bg-[#0B1B2E]/70 border-[#22324C] text-[var(--ink-muted)]'
                     }`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <span
                         className={`w-2 h-2 rounded-full shrink-0 ${
-                          ok ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]' : 'bg-sky-400 animate-pulse'
+                          ok ? 'bg-[#00A859] ' : 'bg-[#0072BB] '
                         }`}
                       />
-                      <span className="text-[10px] text-sky-400/90 font-bold">{ang.sensorCode}</span>
+                      <span className="text-[10px] text-[var(--brand)]/90 font-bold">{ang.sensorCode}</span>
                       <span className="truncate text-xs font-sans font-semibold text-white">
                         {ang.posicao}
                       </span>
@@ -662,8 +662,8 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
                       <span
                         className={`text-[9px] px-1.5 py-0.5 rounded uppercase font-bold ${
                           ok
-                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                            : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                            ? 'bg-[#00A859]/20 text-[#C6E86B] border border-[var(--verde)]/30'
+                            : 'bg-[#D98A00]/15 text-[#FFE2A8] border border-[var(--warning)]/30'
                         }`}
                       >
                         {ok ? 'LOCKED · OK' : 'STANDBY'}
@@ -675,9 +675,9 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
             </div>
 
             {/* Rodapé da Telemetria com Barra de Calibração */}
-            <div className="pt-2 border-t border-slate-800/90 flex items-center justify-between text-[10px] font-mono text-slate-400">
+            <div className="pt-2 border-t border-[#22324C]/90 flex items-center justify-between text-[10px] tabular-nums text-[var(--text-subtle)]">
               <span>HASH ENGINE: SHA-256</span>
-              <span className="text-sky-300 font-bold">GPS: 25°25&apos;S 49°16&apos;W</span>
+              <span className="text-[#DCEEFB] font-bold">GPS: 25°25&apos;S 49°16&apos;W</span>
             </div>
           </div>
         </div>
@@ -695,48 +695,43 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
               key={ang.id}
               onMouseEnter={() => setAnguloHover(ang.id)}
               onMouseLeave={() => setAnguloHover(null)}
-              className={`group rounded-2xl p-3.5 flex flex-col justify-between transition-all duration-300 border ${
+              className={`group rounded-[18px] p-3.5 flex flex-col justify-between transition-all duration-300 border ${
                 imgUrl
-                  ? 'bg-white border-emerald-500/50 shadow-[0_8px_24px_-8px_rgba(16,185,129,0.18)]'
-                  : 'bg-slate-50/80 hover:bg-white border-slate-200/90 hover:border-sky-500/50 hover:shadow-md'
+                  ? 'bg-[var(--surface)] border-[var(--verde)]/50 '
+                  : 'bg-[var(--surface-2)]/80 hover:bg-[var(--surface)] border-[var(--border)]/90 hover:border-[var(--brand)]/50 '
               }`}
             >
               {/* Card Top Metadata */}
               <div className="flex items-center justify-between mb-2.5">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-mono font-bold text-slate-600 bg-slate-200/75 px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] tabular-nums font-bold text-[var(--text-muted)] bg-[var(--surface-3)]/75 px-1.5 py-0.5 rounded">
                     {ang.step}
                   </span>
-                  <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-[var(--text)] uppercase tracking-wider">
                     {ang.posicao}
                   </span>
                 </div>
 
                 {imgUrl ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-mono font-bold">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--verde-soft)] text-[var(--verde)] border border-[var(--verde-border)] text-[9px] tabular-nums font-bold">
                     <Check size={10} strokeWidth={3} /> OK
                   </span>
                 ) : (
-                  <span className="text-[9px] font-mono text-slate-400 uppercase">
+                  <span className="text-[9px] tabular-nums text-[var(--text-subtle)] uppercase">
                     {ang.sensorCode}
                   </span>
                 )}
               </div>
 
               {/* Viewfinder Pericial Frame com Cantoneiras L nos 4 Cantos */}
-              <div className="aspect-4/3 rounded-xl bg-slate-950 ring-1 ring-slate-900/15 flex items-center justify-center overflow-hidden relative p-2">
-                {/* Cantoneiras L de Viewfinder nos 4 cantos */}
-                <span className="absolute top-2 left-2 w-3.5 h-3.5 border-t-2 border-l-2 border-sky-400/90 rounded-tl-[2px] z-20 pointer-events-none" />
-                <span className="absolute top-2 right-2 w-3.5 h-3.5 border-t-2 border-r-2 border-sky-400/90 rounded-tr-[2px] z-20 pointer-events-none" />
-                <span className="absolute bottom-2 left-2 w-3.5 h-3.5 border-b-2 border-l-2 border-sky-400/90 rounded-bl-[2px] z-20 pointer-events-none" />
-                <span className="absolute bottom-2 right-2 w-3.5 h-3.5 border-b-2 border-r-2 border-sky-400/90 rounded-br-[2px] z-20 pointer-events-none" />
+              <div className="aspect-4/3 rounded-xl bg-[#0B1B2E] ring-1 ring-[#22324C]/15 flex items-center justify-center overflow-hidden relative p-2">    
 
                 {/* Top Viewfinder HUD Metadata Bar */}
-                <div className="absolute top-2.5 inset-x-6 flex items-center justify-between text-[8px] font-mono text-sky-200/90 z-20 pointer-events-none">
-                  <span className="bg-slate-950/75 px-1.5 py-0.5 rounded border border-white/10">
+                <div className="absolute top-2.5 inset-x-6 flex items-center justify-between text-[8px] tabular-nums text-[#DCEEFB]/90 z-20 pointer-events-none">
+                  <span className="bg-[#0B1B2E]/75 px-1.5 py-0.5 rounded border border-white/10">
                     ISO 100 · f/2.8 · GPS PR
                   </span>
-                  <span className="bg-slate-950/75 px-1.5 py-0.5 rounded text-emerald-300 border border-white/10">
+                  <span className="bg-[#0B1B2E]/75 px-1.5 py-0.5 rounded text-[#C6E86B] border border-white/10">
                     REC ●
                   </span>
                 </div>
@@ -746,30 +741,30 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
                     <img
                       src={imgUrl}
                       alt={ang.label}
-                      className="absolute inset-0 w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                      className="absolute inset-0 w-full h-full object-cover transition duration-500 "
                     />
-                    <div className="absolute inset-0 bg-linear-to-t from-slate-950/80 via-transparent to-slate-950/40 pointer-events-none" />
+                    <div className="absolute inset-0 bg-[#0B1B2E]/80 pointer-events-none" />
                     <div className="absolute bottom-2.5 inset-x-3 flex items-center justify-between z-20">
-                      <span className="text-[8px] font-mono text-slate-200 bg-slate-950/75 px-1.5 py-0.5 rounded border border-white/10">
+                      <span className="text-[8px] tabular-nums text-white/90 bg-[#0B1B2E]/75 px-1.5 py-0.5 rounded border border-white/10">
                         {ang.coord}
                       </span>
-                      <span className="bg-emerald-950/90 px-2 py-0.5 rounded text-[9px] font-mono text-emerald-300 font-bold border border-emerald-400/40 flex items-center gap-1">
+                      <span className="bg-[#0B1B2E]/90 px-2 py-0.5 rounded text-[9px] tabular-nums text-[#C6E86B] font-bold border border-[var(--verde)]/40 flex items-center gap-1">
                         <Lock size={9} /> SHA-256
                       </span>
                     </div>
                   </>
                 ) : (
                   <div className="flex flex-col items-center justify-center p-3 text-center relative z-10">
-                    <div className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 text-sky-400 flex items-center justify-center mb-2 group-hover:scale-110 group-hover:border-sky-400 transition-all">
+                    <div className="w-10 h-10 rounded-full bg-[#0B1B2E] border border-[#22324C] text-[var(--brand)] flex items-center justify-center mb-2 group-hover:border-[var(--brand)] transition-all">
                       <Camera size={17} />
                     </div>
                     <span className="text-xs font-bold text-white">
                       {ang.label}
                     </span>
-                    <span className="text-[10px] text-slate-400 mt-0.5 leading-tight">
+                    <span className="text-[10px] text-[var(--text-subtle)] mt-0.5 leading-tight">
                       {ang.alvo}
                     </span>
-                    <span className="mt-2 text-[8px] font-mono text-sky-400/80 uppercase tracking-wider">
+                    <span className="mt-2 text-[8px] tabular-nums text-[var(--brand)]/80 uppercase tracking-wider">
                       [ + RETÍCULO ÓPTICO PRONTO ]
                     </span>
                   </div>
@@ -777,18 +772,18 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
               </div>
 
               {/* Card Bottom Action Bar */}
-              <div className="mt-3 pt-2.5 border-t border-slate-200/70 flex items-center justify-between gap-2">
+              <div className="mt-3 pt-2.5 border-t border-[var(--border)]/70 flex items-center justify-between gap-2">
                 <div className="min-w-0">
-                  <span className="text-[11px] font-bold text-slate-800 block truncate">
+                  <span className="text-[11px] font-bold text-[var(--text)] block truncate">
                     {ang.label}
                   </span>
-                  <span className="text-[9px] font-mono text-slate-400 block truncate">
+                  <span className="text-[9px] tabular-nums text-[var(--text-subtle)] block truncate">
                     {ang.meta}
                   </span>
                 </div>
 
                 {!readOnly && (
-                  <label className="text-[11px] font-bold text-white bg-slate-900 hover:bg-[#005A9C] px-3 py-1.5 rounded-lg cursor-pointer transition shrink-0 shadow-2xs">
+                  <label className="text-[11px] font-bold text-white bg-[#0B1B2E] hover:bg-[#005A9C] px-3 py-1.5 rounded-lg cursor-pointer transition shrink-0 shadow-2xs">
                     {imgUrl ? 'Recapturar' : 'Capturar'}
                     <input
                       type="file"
@@ -807,19 +802,19 @@ export const CarroBlueprintVistoria: React.FC<CarroBlueprintVistoriaProps> = ({
 
       {/* COMPLETION BANNER */}
       {completo && (
-        <div className="relative z-10 p-4 bg-emerald-50/90 border border-emerald-300/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-emerald-950 shadow-2xs">
+        <div className="relative z-10 p-4 bg-[var(--verde-soft)]/90 border border-[var(--verde-border)]/80 rounded-[18px] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[var(--verde)] shadow-2xs">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+            <div className="w-8 h-8 rounded-xl bg-[#00703C] text-white flex items-center justify-center shrink-0 shadow-2xs">
               <ShieldCheck size={17} />
             </div>
             <div>
               <span className="font-bold block sm:inline">Laudo Pericial CAD 360° Homologado: </span>
-              <span className="text-emerald-800">
+              <span className="text-[var(--verde)]">
                 As 4 evidências ópticas foram seladas com carimbo SHA-256 para emissão do Termo de Cautela.
               </span>
             </div>
           </div>
-          <span className="font-mono text-[10px] font-bold uppercase tracking-wider bg-white text-emerald-800 border border-emerald-300 px-3 py-1 rounded-full shrink-0 self-start sm:self-center">
+          <span className="tabular-nums text-[10px] font-bold uppercase tracking-wider bg-[var(--surface)] text-[var(--verde)] border border-[var(--verde-border)] px-3 py-1 rounded-full shrink-0 self-start sm:self-center">
             SHA-256 · VERIFICADO
           </span>
         </div>

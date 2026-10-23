@@ -1,7 +1,8 @@
+import { ModuloCabecalho, AcaoModulo } from '../modulo/ModuloCabecalho';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Building2,
-  ArrowLeft,
+  
   Search,
   PlusCircle,
   CheckCircle2,
@@ -24,11 +25,11 @@ import {
   PieChart,
   Landmark,
   QrCode,
-  Activity,
+  
   Lock,
   Layers,
   Scale,
-  ArrowUpRight
+  
 } from 'lucide-react';
 import { Usuario } from '../../types';
 import { soundFX } from '../../services/soundFx';
@@ -1162,231 +1163,159 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
 
   return (
     <div className="space-y-6 font-sans">
-      
-      {/* =====================================================================
-          SEÇÃO 1: HEADER EXECUTIVO & KPIS FISCAIS CONSOLIDADOS DOS 19 CENSES
-         ===================================================================== */}
-      <div className="relative overflow-hidden bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-gov-card space-y-6">
-        {/* Brilho Especular Superior estilo Stripe Treasury / Terminal Financeiro */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#0072BB] to-emerald-500 opacity-90" />
-        <div className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full bg-gradient-to-br from-[#0072BB]/[0.05] via-emerald-500/[0.03] to-transparent blur-2xl" />
-
-        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex items-start sm:items-center gap-3.5">
-            <button
-              onClick={() => {
-                soundFX.playClick();
-                onVoltarHub();
-              }}
-              className="group relative w-10 h-10 rounded-xl bg-slate-100/90 hover:bg-slate-900 text-slate-600 hover:text-white border border-slate-200/80 hover:border-slate-900 flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 mt-0.5 sm:mt-0 shadow-2xs active:scale-95"
-              title="Voltar ao Início"
-            >
-              <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-0.5" />
-            </button>
-
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50/90 px-2.5 py-0.5 rounded-full border border-emerald-300/70 shadow-2xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Lei Estadual nº 14.268/PR · DEASE / SEJU
-                </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-[#0072BB] bg-blue-50/80 px-2.5 py-0.5 rounded-full border border-blue-200/80">
-                  <Landmark size={11} /> BB TESOURARIA · 19 UNIDADES CENSE
-                </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-mono font-semibold text-slate-500 bg-slate-100/80 px-2 py-0.5 rounded-md border border-slate-200/60 tabular-nums">
-                  <Activity size={10} className="text-emerald-600" /> SIAF / TCE-PR SYNC
-                </span>
-              </div>
-              <h2 className="text-lg sm:text-2xl font-extrabold text-slate-900 tracking-tight mt-1.5 flex items-center gap-2">
-                <span>Gestão Fiscal de Fundo Rotativo · Unidades CENSE</span>
-              </h2>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 self-start lg:self-auto">
-            <button
-              type="button"
-              onClick={handleExportarCsv}
-              className="group px-3.5 py-2.5 rounded-xl bg-emerald-50/90 hover:bg-emerald-600 text-emerald-800 hover:text-white border border-emerald-200/90 hover:border-emerald-600 text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-2xs"
-              title="Exportar Planilha Consolidada para Excel (.CSV)"
-            >
-              <Download size={14} className="text-emerald-600 group-hover:text-white transition-colors" />
-              <span>Exportar Planilha</span>
-              <span className="font-mono text-[10px] px-1.5 py-0.2 rounded bg-emerald-200/60 group-hover:bg-emerald-700 text-emerald-900 group-hover:text-emerald-50">
-                .CSV
-              </span>
-            </button>
-
-            <button
-              type="button"
+      <ModuloCabecalho
+        cor="tinta"
+        rotulo="DEASE · Fundo rotativo das unidades"
+        titulo="CENSE"
+        descricao="Acompanhe a verba de cada unidade, lance as notas fiscais de compra e gere o relatório de prestação de contas."
+        onVoltar={() => {
+          soundFX.playClick();
+          onVoltarHub();
+        }}
+        acoes={
+          <>
+            <AcaoModulo
+              destaque
+              icone={<ScanLine size={15} />}
               onClick={() => {
                 soundFX.playClick();
                 setAbaDetalhe('nova-despesa');
               }}
-              className="group relative overflow-hidden px-4 py-2.5 rounded-xl bg-gradient-to-b from-slate-800 to-slate-950 hover:from-slate-700 hover:to-slate-900 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm ring-1 ring-slate-900/80 transition-all duration-200 cursor-pointer"
             >
-              <span className="pointer-events-none absolute inset-x-2 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-              <ScanLine size={14} className="text-emerald-400 group-hover:scale-110 transition-transform" />
-              <span>Scanner / Lançar NF-e</span>
-            </button>
-
-            <button
-              type="button"
+              Lançar nota
+            </AcaoModulo>
+            <AcaoModulo icone={<Download size={15} />} onClick={handleExportarCsv}>
+              Planilha
+            </AcaoModulo>
+            <AcaoModulo
+              icone={<FileText size={15} />}
               onClick={() => {
                 soundFX.playClick();
                 setAbaDetalhe('relatorio');
               }}
-              className="px-3.5 py-2.5 rounded-xl bg-slate-100/90 hover:bg-slate-200/80 text-slate-700 border border-slate-200/80 text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer"
             >
-              <FileText size={14} className="text-[#0072BB]" />
-              <span className="hidden sm:inline">Espelho TCE-PR</span>
-            </button>
-          </div>
-        </div>
+              Relatório
+            </AcaoModulo>
+          </>
+        }
+      />
 
+      <div className="relative overflow-hidden bg-[var(--surface)] rounded-[28px] p-5 sm:p-7 border border-[var(--border)] space-y-6">
         {/* =================================================================
             FAIXA CONSOLIDADA DE 4 INDICADORES FISCAIS (CANTONEIRAS TÉCNICAS + BRILHO ESPECULAR + TABULAR-NUMS)
            ================================================================= */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {/* KPI 1: ORÇAMENTO GLOBAL / DOTAÇÃO TOTAL */}
-          <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white via-slate-50/60 to-slate-100/40 border border-slate-200/90 shadow-2xs group hover:border-slate-300 transition-all">
-            {/* Brilho Especular Superior */}
-            <div className="pointer-events-none absolute inset-x-4 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-slate-400/60 to-transparent" />
-            {/* Cantoneiras Técnicas nos 4 Cantos */}
-            <span className="pointer-events-none absolute top-2 left-2 w-2.5 h-2.5 border-t-[1.5px] border-l-[1.5px] border-slate-300 group-hover:border-slate-500 transition-colors rounded-tl-[2px]" />
-            <span className="pointer-events-none absolute top-2 right-2 w-2.5 h-2.5 border-t-[1.5px] border-r-[1.5px] border-slate-300 group-hover:border-slate-500 transition-colors rounded-tr-[2px]" />
-            <span className="pointer-events-none absolute bottom-2 left-2 w-2.5 h-2.5 border-b-[1.5px] border-l-[1.5px] border-slate-300 group-hover:border-slate-500 transition-colors rounded-bl-[2px]" />
-            <span className="pointer-events-none absolute bottom-2 right-2 w-2.5 h-2.5 border-b-[1.5px] border-r-[1.5px] border-slate-300 group-hover:border-slate-500 transition-colors rounded-br-[2px]" />
+          <div className="relative overflow-hidden p-4 sm:p-5 rounded-[18px] bg-[var(--surface)] border border-[var(--border)]/90 shadow-2xs group hover:border-[var(--border-strong)] transition-all">    
 
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--text-muted)]">
                 Orçamento Global · Dotação
               </span>
-              <div className="w-7 h-7 rounded-lg bg-slate-900/5 border border-slate-200/80 flex items-center justify-center">
-                <Wallet size={13} className="text-slate-700" />
+              <div className="w-7 h-7 rounded-lg bg-[#0B1B2E]/5 border border-[var(--border)]/80 flex items-center justify-center">
+                <Wallet size={13} className="text-[var(--text)]" />
               </div>
             </div>
 
-            <div className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-2 font-mono tabular-nums tracking-tight">
+            <div className="text-xl sm:text-2xl font-extrabold text-[var(--text)] mt-2 tabular-nums tabular-nums tracking-tight">
               R$ {dotacaoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </div>
 
-            <div className="mt-2.5 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[10px] font-mono tabular-nums">
-              <span className="text-slate-500 font-semibold">
+            <div className="mt-2.5 pt-2 border-t border-[var(--border)]/60 flex items-center justify-between text-[10px] tabular-nums tabular-nums">
+              <span className="text-[var(--text-muted)] font-semibold">
                 {unidades.length} CENSEs · 4º Trim/26
               </span>
-              <span className="px-1.5 py-0.5 rounded bg-slate-200/70 text-slate-700 font-bold">
+              <span className="px-1.5 py-0.5 rounded bg-[var(--surface-3)]/70 text-[var(--text)] font-bold">
                 TETO R$ 8k/NF
               </span>
             </div>
           </div>
 
           {/* KPI 2: TOTAL EXECUTADO (NF-e) */}
-          <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white via-blue-50/25 to-blue-50/40 border border-blue-200/80 shadow-2xs group hover:border-blue-300 transition-all">
-            {/* Brilho Especular Superior */}
-            <div className="pointer-events-none absolute inset-x-4 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#0072BB]/70 to-transparent" />
-            {/* Cantoneiras Técnicas nos 4 Cantos */}
-            <span className="pointer-events-none absolute top-2 left-2 w-2.5 h-2.5 border-t-[1.5px] border-l-[1.5px] border-blue-300 group-hover:border-[#0072BB] transition-colors rounded-tl-[2px]" />
-            <span className="pointer-events-none absolute top-2 right-2 w-2.5 h-2.5 border-t-[1.5px] border-r-[1.5px] border-blue-300 group-hover:border-[#0072BB] transition-colors rounded-tr-[2px]" />
-            <span className="pointer-events-none absolute bottom-2 left-2 w-2.5 h-2.5 border-b-[1.5px] border-l-[1.5px] border-blue-300 group-hover:border-[#0072BB] transition-colors rounded-bl-[2px]" />
-            <span className="pointer-events-none absolute bottom-2 right-2 w-2.5 h-2.5 border-b-[1.5px] border-r-[1.5px] border-blue-300 group-hover:border-[#0072BB] transition-colors rounded-br-[2px]" />
+          <div className="relative overflow-hidden p-4 sm:p-5 rounded-[18px] bg-[var(--surface)] border border-[var(--brand-border)]/80 shadow-2xs group hover:border-[var(--brand-border)] transition-all">    
 
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0072BB]">
+              <span className="text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--brand)]">
                 Total Executado (NF-e)
               </span>
-              <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-200/80 flex items-center justify-center">
-                <Receipt size={13} className="text-[#0072BB]" />
+              <div className="w-7 h-7 rounded-lg bg-[#0072BB]/10 border border-[var(--brand-border)]/80 flex items-center justify-center">
+                <Receipt size={13} className="text-[var(--brand)]" />
               </div>
             </div>
 
             <div className="flex items-baseline gap-2 mt-2">
-              <div className="text-xl sm:text-2xl font-extrabold text-[#0072BB] font-mono tabular-nums tracking-tight">
+              <div className="text-xl sm:text-2xl font-extrabold text-[var(--brand)] tabular-nums tabular-nums tracking-tight">
                 R$ {executadoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </div>
-              <span className="text-[10px] font-mono font-bold tabular-nums px-1.5 py-0.5 rounded bg-blue-100/80 text-[#0072BB]">
+              <span className="text-[10px] tabular-nums font-bold tabular-nums px-1.5 py-0.5 rounded bg-[var(--brand-soft)]/80 text-[var(--brand)]">
                 {percGlobalExec}%
               </span>
             </div>
 
-            <div className="mt-2.5 pt-2 border-t border-blue-200/50 flex items-center justify-between text-[10px] font-mono tabular-nums text-slate-600">
+            <div className="mt-2.5 pt-2 border-t border-[var(--brand-border)]/50 flex items-center justify-between text-[10px] tabular-nums tabular-nums text-[var(--text-muted)]">
               <span>
-                <strong className="text-[#0072BB]">30:</strong> R$ {totalRede30.toLocaleString('pt-BR')}
+                <strong className="text-[var(--brand)]">30:</strong> R$ {totalRede30.toLocaleString('pt-BR')}
               </span>
-              <span className="text-slate-300">|</span>
+              <span className="text-[var(--ink-muted)]">|</span>
               <span>
-                <strong className="text-emerald-700">39:</strong> R$ {totalRede39.toLocaleString('pt-BR')}
+                <strong className="text-[var(--verde)]">39:</strong> R$ {totalRede39.toLocaleString('pt-BR')}
               </span>
             </div>
           </div>
 
           {/* KPI 3: SALDO EM CONTA BB */}
-          <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white via-emerald-50/25 to-emerald-50/40 border border-emerald-200/80 shadow-2xs group hover:border-emerald-300 transition-all">
-            {/* Brilho Especular Superior */}
-            <div className="pointer-events-none absolute inset-x-4 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-500/70 to-transparent" />
-            {/* Cantoneiras Técnicas nos 4 Cantos */}
-            <span className="pointer-events-none absolute top-2 left-2 w-2.5 h-2.5 border-t-[1.5px] border-l-[1.5px] border-emerald-300 group-hover:border-emerald-600 transition-colors rounded-tl-[2px]" />
-            <span className="pointer-events-none absolute top-2 right-2 w-2.5 h-2.5 border-t-[1.5px] border-r-[1.5px] border-emerald-300 group-hover:border-emerald-600 transition-colors rounded-tr-[2px]" />
-            <span className="pointer-events-none absolute bottom-2 left-2 w-2.5 h-2.5 border-b-[1.5px] border-l-[1.5px] border-emerald-300 group-hover:border-emerald-600 transition-colors rounded-bl-[2px]" />
-            <span className="pointer-events-none absolute bottom-2 right-2 w-2.5 h-2.5 border-b-[1.5px] border-r-[1.5px] border-emerald-300 group-hover:border-emerald-600 transition-colors rounded-br-[2px]" />
+          <div className="relative overflow-hidden p-4 sm:p-5 rounded-[18px] bg-[var(--surface)] border border-[var(--verde-border)]/80 shadow-2xs group hover:border-[var(--verde-border)] transition-all">    
 
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-700">
+              <span className="text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--verde)]">
                 Saldo em Conta BB
               </span>
-              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-200/80 flex items-center justify-center">
-                <TrendingUp size={13} className="text-emerald-600" />
+              <div className="w-7 h-7 rounded-lg bg-[#00A859]/10 border border-[var(--verde-border)]/80 flex items-center justify-center">
+                <TrendingUp size={13} className="text-[var(--verde)]" />
               </div>
             </div>
 
             <div className="flex items-baseline gap-2 mt-2">
-              <div className="text-xl sm:text-2xl font-extrabold text-emerald-600 font-mono tabular-nums tracking-tight">
+              <div className="text-xl sm:text-2xl font-extrabold text-[var(--verde)] tabular-nums tabular-nums tracking-tight">
                 R$ {saldoTotalDisponivel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </div>
-              <span className="text-[10px] font-mono font-bold tabular-nums px-1.5 py-0.5 rounded bg-emerald-100/80 text-emerald-800">
+              <span className="text-[10px] tabular-nums font-bold tabular-nums px-1.5 py-0.5 rounded bg-[var(--verde-soft)]/80 text-[var(--verde)]">
                 {percGlobalSaldo}% livre
               </span>
             </div>
 
-            <div className="mt-2.5 pt-2 border-t border-emerald-200/50 flex items-center justify-between text-[10px] font-mono tabular-nums text-slate-600">
-              <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Liquidez Imediata BB
+            <div className="mt-2.5 pt-2 border-t border-[var(--verde-border)]/50 flex items-center justify-between text-[10px] tabular-nums tabular-nums text-[var(--text-muted)]">
+              <span className="inline-flex items-center gap-1 text-[var(--verde)] font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00A859]" /> Liquidez Imediata BB
               </span>
-              <span className="text-slate-400">19 Contas Ativas</span>
+              <span className="text-[var(--text-subtle)]">19 Contas Ativas</span>
             </div>
           </div>
 
           {/* KPI 4: ALERTAS DE GLOSA TCE-PR & AUDITORIA */}
-          <div className="relative overflow-hidden p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-white via-amber-50/20 to-slate-50/70 border border-amber-200/85 shadow-2xs group hover:border-amber-300 transition-all">
-            {/* Brilho Especular Superior */}
-            <div className="pointer-events-none absolute inset-x-4 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-amber-500/70 to-transparent" />
-            {/* Cantoneiras Técnicas nos 4 Cantos */}
-            <span className="pointer-events-none absolute top-2 left-2 w-2.5 h-2.5 border-t-[1.5px] border-l-[1.5px] border-amber-300 group-hover:border-amber-600 transition-colors rounded-tl-[2px]" />
-            <span className="pointer-events-none absolute top-2 right-2 w-2.5 h-2.5 border-t-[1.5px] border-r-[1.5px] border-amber-300 group-hover:border-amber-600 transition-colors rounded-tr-[2px]" />
-            <span className="pointer-events-none absolute bottom-2 left-2 w-2.5 h-2.5 border-b-[1.5px] border-l-[1.5px] border-amber-300 group-hover:border-amber-600 transition-colors rounded-bl-[2px]" />
-            <span className="pointer-events-none absolute bottom-2 right-2 w-2.5 h-2.5 border-b-[1.5px] border-r-[1.5px] border-amber-300 group-hover:border-amber-600 transition-colors rounded-br-[2px]" />
+          <div className="relative overflow-hidden p-4 sm:p-5 rounded-[18px] bg-[var(--surface)] border border-[var(--warning-border)]/85 shadow-2xs group hover:border-[var(--warning-border)] transition-all">    
 
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-800">
+              <span className="text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--warning)]">
                 Alertas & Glosa TCE-PR
               </span>
-              <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-200/80 flex items-center justify-center">
-                <ShieldCheck size={13} className="text-amber-600" />
+              <div className="w-7 h-7 rounded-lg bg-[#D98A00]/10 border border-[var(--warning-border)]/80 flex items-center justify-center">
+                <ShieldCheck size={13} className="text-[var(--warning)]" />
               </div>
             </div>
 
             <div className="flex items-baseline gap-2 mt-2">
-              <div className="text-xl sm:text-2xl font-extrabold text-slate-900 font-mono tabular-nums tracking-tight">
+              <div className="text-xl sm:text-2xl font-extrabold text-[var(--text)] tabular-nums tabular-nums tracking-tight">
                 {unidades.length - unidadesComPendencia}/{unidades.length} Regulares
               </div>
             </div>
 
-            <div className="mt-2.5 pt-2 border-t border-amber-200/60 flex items-center justify-between text-[10px] font-mono tabular-nums">
-              <span className="text-amber-700 font-bold flex items-center gap-1">
-                <AlertTriangle size={11} className="text-amber-600" />
+            <div className="mt-2.5 pt-2 border-t border-[var(--warning-border)]/60 flex items-center justify-between text-[10px] tabular-nums tabular-nums">
+              <span className="text-[var(--warning)] font-bold flex items-center gap-1">
+                <AlertTriangle size={11} className="text-[var(--warning)]" />
                 {unidadesComPendencia} em revisão
               </span>
-              <span className="px-1.5 py-0.5 rounded bg-red-100/80 text-red-700 font-bold">
+              <span className="px-1.5 py-0.5 rounded bg-[var(--danger-soft)]/80 text-[var(--danger)] font-bold">
                 {totalGlosasRede} {totalGlosasRede === 1 ? 'Glosa' : 'Glosas'}
               </span>
             </div>
@@ -1394,52 +1323,52 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
         </div>
 
         {/* Barra de Telemetria Contábil da Rede: 33.90.30 (Consumo) vs 33.90.39 (Serviços PJ) */}
-        <div className="p-3.5 rounded-2xl bg-slate-900 text-white border border-slate-800 shadow-inner flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div className="p-3.5 rounded-[18px] bg-[#0B1B2E] text-white border border-[#22324C] flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2.5 text-[11px]">
-            <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono font-bold text-[10px] uppercase tracking-wider">
+            <span className="px-2 py-0.5 rounded bg-[#00A859]/20 text-[#C6E86B] border border-[var(--verde)]/30 tabular-nums font-bold text-[10px] uppercase tracking-wider">
               TELEMETRIA ORÇAMENTÁRIA REDE CENSE
             </span>
-            <span className="text-slate-300 font-mono tabular-nums">
-              Rubrica <strong className="text-sky-400">33.90.30 (Material de Consumo)</strong>: R$ {totalRede30.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ({percRede30}%)
+            <span className="text-[var(--ink-muted)] tabular-nums tabular-nums">
+              Rubrica <strong className="text-[var(--brand)]">33.90.30 (Material de Consumo)</strong>: R$ {totalRede30.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ({percRede30}%)
             </span>
-            <span className="text-slate-600 hidden sm:inline">•</span>
-            <span className="text-slate-300 font-mono tabular-nums">
-              Rubrica <strong className="text-emerald-400">33.90.39 (Serviços Terceiros PJ)</strong>: R$ {totalRede39.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ({percRede39}%)
+            <span className="text-[var(--text-muted)] hidden sm:inline">•</span>
+            <span className="text-[var(--ink-muted)] tabular-nums tabular-nums">
+              Rubrica <strong className="text-[var(--verde)]">33.90.39 (Serviços Terceiros PJ)</strong>: R$ {totalRede39.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} ({percRede39}%)
             </span>
           </div>
 
-          <div className="w-full lg:w-64 h-2 bg-slate-800 rounded-full overflow-hidden flex p-0.5 gap-0.5 shrink-0">
+          <div className="w-full lg:w-64 h-2 bg-[#0B1B2E] rounded-full overflow-hidden flex p-0.5 gap-0.5 shrink-0">
             <div
-              className="h-full rounded-l-full bg-gradient-to-r from-[#0072BB] to-sky-400 transition-all duration-500"
+              className="h-full rounded-l-full bg-[#0072BB] transition-all duration-500"
               style={{ width: `${percRede30}%` }}
             />
             <div
-              className="h-full rounded-r-full bg-gradient-to-r from-emerald-500 to-teal-300 transition-all duration-500"
+              className="h-full rounded-r-full bg-[#00A859] transition-all duration-500"
               style={{ width: `${percRede39}%` }}
             />
           </div>
         </div>
 
         {/* Barra de Busca e Filtros por Regional / Situação Fiscal */}
-        <div className="pt-2 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="pt-2 border-t border-[var(--border-subtle)] flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="relative flex-1 max-w-md">
-            <Search size={15} className="absolute left-3.5 top-2.5 text-slate-400" />
+            <Search size={15} className="absolute left-3.5 top-2.5 text-[var(--text-subtle)]" />
             <input
               type="text"
               value={busca}
               onChange={e => setBusca(e.target.value)}
               placeholder="Buscar entre os 19 CENSEs por cidade, conta BB ou gestor suprido..."
-              className="w-full text-xs pl-9 pr-16 py-2.5 bg-slate-50/90 focus:bg-white border border-slate-200/90 rounded-xl focus:outline-hidden focus:border-slate-900 focus:ring-2 focus:ring-slate-900/5 text-slate-800 transition-all"
+              className="w-full text-xs pl-9 pr-16 py-2.5 bg-[var(--surface-2)]/90 focus:bg-[var(--surface)] border border-[var(--border)]/90 rounded-xl focus:outline-hidden focus:border-[#22324C] focus:ring-2 focus:ring-[#22324C]/5 text-[var(--text)] transition-all"
             />
             {busca ? (
               <button
                 onClick={() => setBusca('')}
-                className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-700 p-0.5 cursor-pointer"
+                className="absolute right-2.5 top-2 text-[var(--text-subtle)] hover:text-[var(--text)] p-0.5 cursor-pointer"
               >
                 <X size={14} />
               </button>
             ) : (
-              <span className="pointer-events-none absolute right-2.5 top-2 text-[10px] font-mono font-bold text-slate-400 bg-slate-200/60 px-1.5 py-0.5 rounded">
+              <span className="pointer-events-none absolute right-2.5 top-2 text-[10px] tabular-nums font-bold text-[var(--text-subtle)] bg-[var(--surface-3)]/60 px-1.5 py-0.5 rounded">
                 19 UNID
               </span>
             )}
@@ -1462,8 +1391,8 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer border ${
                   filtroRegional === reg.id
-                    ? 'bg-slate-900 text-white border-slate-900 shadow-2xs'
-                    : 'bg-slate-50/90 text-slate-600 border-slate-200/80 hover:bg-slate-100 hover:border-slate-300'
+                    ? 'bg-[#0B1B2E] text-white border-[#22324C] shadow-2xs'
+                    : 'bg-[var(--surface-2)]/90 text-[var(--text-muted)] border-[var(--border)]/80 hover:bg-[var(--surface-2)] hover:border-[var(--border-strong)]'
                 }`}
               >
                 {reg.label}
@@ -1475,15 +1404,14 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
 
       {/* Feedback Toast */}
       {feedbackMsg && (
-        <div className="relative overflow-hidden bg-slate-900 text-white px-4 py-3.5 rounded-2xl border border-emerald-500/40 shadow-lg flex items-center justify-between text-xs font-semibold animate-in fade-in">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400 to-transparent" />
+        <div className="relative overflow-hidden bg-[#0B1B2E] text-white px-4 py-3.5 rounded-[18px] border border-[var(--verde)]/40 flex items-center justify-between text-xs font-semibold animate-in fade-in">
           <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0">
-              <CheckCircle2 size={14} className="text-emerald-400" />
+            <div className="w-6 h-6 rounded-lg bg-[#00A859]/20 border border-[var(--verde)]/40 flex items-center justify-center shrink-0">
+              <CheckCircle2 size={14} className="text-[var(--verde)]" />
             </div>
-            <span className="font-mono">{feedbackMsg}</span>
+            <span className="tabular-nums">{feedbackMsg}</span>
           </div>
-          <button onClick={() => setFeedbackMsg(null)} className="text-slate-400 hover:text-white cursor-pointer p-1">
+          <button onClick={() => setFeedbackMsg(null)} className="text-[var(--text-subtle)] hover:text-white cursor-pointer p-1">
             <X size={14} />
           </button>
         </div>
@@ -1495,23 +1423,23 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* COLUNA ESQUERDA (5 COLUNAS): UNIDADES CENSE E SALDO DE COTAS */}
-        <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200/90 shadow-gov-card overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-200/70 flex flex-wrap items-center justify-between gap-2 bg-gradient-to-b from-slate-50/90 to-white">
+        <div className="lg:col-span-5 bg-[var(--surface)] rounded-[28px] border border-[var(--border)]/90 overflow-hidden">
+          <div className="px-5 py-4 border-b border-[var(--border)]/70 flex flex-wrap items-center justify-between gap-2 bg-[var(--surface-2)]/90 ">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center">
+              <div className="w-7 h-7 rounded-lg bg-[#0B1B2E] text-white flex items-center justify-center">
                 <Building2 size={14} />
               </div>
               <div>
-                <span className="text-xs font-extrabold text-slate-900 block leading-tight">
+                <span className="text-xs font-extrabold text-[var(--text)] block leading-tight">
                   Unidades Socioeducativas ({unidadesFiltradas.length})
                 </span>
-                <span className="text-[10px] font-mono text-slate-400 tabular-nums">
+                <span className="text-[10px] tabular-nums text-[var(--text-subtle)] tabular-nums">
                   Monitoramento de Cotas Trimestrais TCE-PR
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-0.5 p-1 rounded-xl bg-slate-100 border border-slate-200/70">
+            <div className="flex items-center gap-0.5 p-1 rounded-xl bg-[var(--surface-2)] border border-[var(--border)]/70">
               {[
                 { id: 'todos', label: 'Todos' },
                 { id: 'regular', label: 'Regulares' },
@@ -1526,8 +1454,8 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                   }}
                   className={`px-2.5 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all ${
                     filtroStatus === st.id
-                      ? 'bg-slate-900 text-white shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-[#0B1B2E] text-white shadow-2xs'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text)]'
                   }`}
                 >
                   {st.label}
@@ -1536,7 +1464,7 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
             </div>
           </div>
 
-          <div className="divide-y divide-slate-100 max-h-[760px] overflow-y-auto">
+          <div className="divide-y divide-[var(--border-subtle)] max-h-[760px] overflow-y-auto">
             {unidadesFiltradas.map((u, idx) => {
               const isSelected = u.id === censeAtual.id;
               const execU = u.notas.filter(n => n.status !== 'glosada').reduce((s, n) => s + n.valor, 0);
@@ -1552,34 +1480,32 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                   }}
                   className={`group relative p-4 sm:p-5 transition-all duration-150 cursor-pointer ${
                     isSelected
-                      ? 'bg-gradient-to-r from-blue-50/75 via-blue-50/25 to-white border-l-4 border-l-[#0072BB]'
-                      : 'hover:bg-slate-50/90 border-l-4 border-l-transparent'
+                      ? ' bg-[var(--brand-soft)]/75   border-l-4 border-l-[var(--brand)]'
+                      : 'hover:bg-[var(--surface-2)]/90 border-l-4 border-l-transparent'
                   }`}
                 >
                   {isSelected && (
-                    <>
-                      <span className="pointer-events-none absolute top-2 right-2 w-2 h-2 border-t-[1.5px] border-r-[1.5px] border-[#0072BB]/60" />
-                      <span className="pointer-events-none absolute bottom-2 right-2 w-2 h-2 border-b-[1.5px] border-r-[1.5px] border-[#0072BB]/60" />
+                    <>  
                     </>
                   )}
 
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono font-bold text-slate-400 tabular-nums">
+                        <span className="text-[10px] tabular-nums font-bold text-[var(--text-subtle)] tabular-nums">
                           #{String(idx + 1).padStart(2, '0')}
                         </span>
-                        <h3 className="text-sm font-extrabold text-slate-900 group-hover:text-[#0072BB] transition-colors truncate">
+                        <h3 className="text-sm font-extrabold text-[var(--text)] group-hover:text-[var(--brand)] transition-colors truncate">
                           {u.nome}
                         </h3>
-                        <span className="text-[10px] text-slate-400 font-semibold shrink-0">· {u.cidade}</span>
+                        <span className="text-[10px] text-[var(--text-subtle)] font-semibold shrink-0">· {u.cidade}</span>
                       </div>
 
-                      <div className="text-[11px] text-slate-500 mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                      <div className="text-[11px] text-[var(--text-muted)] mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
                         <span>
-                          Suprido: <strong className="font-semibold text-slate-700">{u.diretorSuprido}</strong>
+                          Suprido: <strong className="font-semibold text-[var(--text)]">{u.diretorSuprido}</strong>
                         </span>
-                        <span className="text-[10px] font-mono text-slate-400 tabular-nums bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200/70">
+                        <span className="text-[10px] tabular-nums text-[var(--text-subtle)] tabular-nums bg-[var(--surface-2)] px-1.5 py-0.2 rounded border border-[var(--border)]/70">
                           {u.contaBancoBrasil}
                         </span>
                       </div>
@@ -1587,26 +1513,26 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
 
                     <div className="flex flex-col items-end gap-1 shrink-0">
                       {u.statusFiscal === 'regular' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300/80 shadow-2xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--verde-soft)] text-[var(--verde)] border border-[var(--verde-border)]/80 shadow-2xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#00A859]" />
                           Regular TCE
                         </span>
                       )}
                       {u.statusFiscal === 'em_analise' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300/80 shadow-2xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--warning-soft)] text-[var(--warning)] border border-[var(--warning-border)]/80 shadow-2xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#D98A00] " />
                           Em Análise
                         </span>
                       )}
                       {u.statusFiscal === 'alerta_glosa' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-800 border border-red-300/80 shadow-2xs">
-                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--danger-soft)] text-[var(--danger)] border border-[var(--danger-border)]/80 shadow-2xs">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#C8372D] " />
                           Glosa Fiscal
                         </span>
                       )}
                       <span
-                        className={`text-[10px] font-mono tabular-nums font-bold flex items-center gap-1 ${
-                          u.diasRestantesPrestacao <= 15 ? 'text-amber-600' : 'text-slate-400'
+                        className={`text-[10px] tabular-nums tabular-nums font-bold flex items-center gap-1 ${
+                          u.diasRestantesPrestacao <= 15 ? 'text-[var(--warning)]' : 'text-[var(--text-subtle)]'
                         }`}
                       >
                         <Clock size={10} /> {u.diasRestantesPrestacao}d prazo
@@ -1615,24 +1541,24 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                   </div>
 
                   {/* Barra de Execução da Cota com Gradiente Suave & Tabular-Nums */}
-                  <div className="mt-3 pt-2.5 border-t border-slate-100/90 space-y-1.5">
-                    <div className="flex items-center justify-between text-[11px] font-mono tabular-nums">
-                      <span className="text-slate-500">
-                        Exec.: <strong className="text-slate-900">R$ {execU.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>{' '}
-                        <span className="text-[10px] text-slate-400">({percU}%)</span>
+                  <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle)]/90 space-y-1.5">
+                    <div className="flex items-center justify-between text-[11px] tabular-nums tabular-nums">
+                      <span className="text-[var(--text-muted)]">
+                        Exec.: <strong className="text-[var(--text)]">R$ {execU.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>{' '}
+                        <span className="text-[10px] text-[var(--text-subtle)]">({percU}%)</span>
                       </span>
-                      <span className="text-emerald-700 font-bold">
+                      <span className="text-[var(--verde)] font-bold">
                         Saldo: R$ {saldoU.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </span>
                     </div>
-                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                    <div className="w-full h-2 bg-[var(--surface-2)] rounded-full overflow-hidden p-0.5 border border-[var(--border)]/60">
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${
                           u.statusFiscal === 'alerta_glosa'
-                            ? 'bg-gradient-to-r from-red-600 via-red-500 to-amber-500'
+                            ? ' bg-[#B42318]  '
                             : percU > 85
-                            ? 'bg-gradient-to-r from-amber-500 to-orange-400'
-                            : 'bg-gradient-to-r from-[#0072BB] via-sky-500 to-emerald-500'
+                            ? ' bg-[#D98A00] '
+                            : ' bg-[#0072BB]  '
                         }`}
                         style={{ width: `${percU}%` }}
                       />
@@ -1645,37 +1571,36 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
         </div>
 
         {/* COLUNA DIREITA (7 COLUNAS): PAINEL FISCAL DETALHADO DO CENSE SELECIONADO */}
-        <div className="relative lg:col-span-7 bg-white rounded-3xl border border-slate-200/90 shadow-gov-card overflow-hidden">
-          {/* Brilho Especular Superior */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#0072BB] via-sky-400 to-emerald-500" />
+        <div className="relative lg:col-span-7 bg-[var(--surface)] rounded-[28px] border border-[var(--border)]/90 overflow-hidden">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-[#0072BB]  " />
           
           {/* Cabeçalho da Unidade Selecionada */}
-          <div className="p-5 sm:p-6 border-b border-slate-200/80 bg-gradient-to-b from-slate-50/70 to-white space-y-4">
+          <div className="p-5 sm:p-6 border-b border-[var(--border)]/80 bg-[var(--surface-2)]/70 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500 font-medium">
-                  <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold border border-slate-200/80">
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-[var(--text-muted)] font-medium">
+                  <span className="px-2 py-0.5 rounded-md bg-[var(--surface-2)] text-[var(--text)] font-bold border border-[var(--border)]/80">
                     {censeAtual.regional}
                   </span>
-                  <span className="inline-flex items-center gap-1 font-mono tabular-nums text-[11px] font-bold text-[#0072BB] bg-blue-50/80 px-2.5 py-0.5 rounded-md border border-blue-200/70">
+                  <span className="inline-flex items-center gap-1 tabular-nums tabular-nums text-[11px] font-bold text-[var(--brand)] bg-[var(--brand-soft)]/80 px-2.5 py-0.5 rounded-md border border-[var(--brand-border)]/70">
                     <Landmark size={11} /> {censeAtual.contaBancoBrasil}
                   </span>
                   <span
-                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono tabular-nums font-bold border ${
+                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] tabular-nums tabular-nums font-bold border ${
                       censeAtual.diasRestantesPrestacao <= 15
-                        ? 'bg-amber-50 text-amber-800 border-amber-300/80'
-                        : 'bg-slate-100 text-slate-700 border-slate-200/80'
+                        ? 'bg-[var(--warning-soft)] text-[var(--warning)] border-[var(--warning-border)]/80'
+                        : 'bg-[var(--surface-2)] text-[var(--text)] border-[var(--border)]/80'
                     }`}
                   >
                     <Clock size={11} /> Prazo Legal 60d: {censeAtual.diasRestantesPrestacao}d restantes
                   </span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-1.5 tracking-tight">
-                  {censeAtual.nome} <span className="text-sm font-semibold text-slate-400">· {censeAtual.cidade}/PR</span>
+                <h3 className="text-lg sm:text-xl font-extrabold text-[var(--text)] mt-1.5 tracking-tight">
+                  {censeAtual.nome} <span className="text-sm font-semibold text-[var(--text-subtle)]">· {censeAtual.cidade}/PR</span>
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Servidor Suprido: <strong className="text-slate-800 font-bold">{censeAtual.diretorSuprido}</strong>{' '}
-                  <span className="font-mono text-[11px] text-slate-400 tabular-nums">({censeAtual.matricula})</span>
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                  Servidor Suprido: <strong className="text-[var(--text)] font-bold">{censeAtual.diretorSuprido}</strong>{' '}
+                  <span className="tabular-nums text-[11px] text-[var(--text-subtle)] tabular-nums">({censeAtual.matricula})</span>
                 </p>
               </div>
 
@@ -1683,20 +1608,19 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                 <button
                   type="button"
                   onClick={handleLiberarNovaCota}
-                  className="group px-3.5 py-2 rounded-xl bg-white hover:bg-blue-50/60 text-slate-700 hover:text-[#0072BB] border border-slate-200/90 hover:border-blue-300 text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-2xs"
+                  className="group px-3.5 py-2 rounded-xl bg-[var(--surface)] hover:bg-[var(--brand-soft)]/60 text-[var(--text)] hover:text-[var(--brand)] border border-[var(--border)]/90 hover:border-[var(--brand-border)] text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-2xs"
                   title="Liberar Cota Extraordinária / Repasse Suplementar SEJU"
                 >
-                  <RefreshCw size={13} className="text-[#0072BB] group-hover:rotate-180 transition-transform duration-500" />
+                  <RefreshCw size={13} className="text-[var(--brand)] group-hover:rotate-180 transition-transform duration-500" />
                   <span>Liberar Nova Cota</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleHomologarPrestacao}
-                  className="group relative overflow-hidden px-3.5 py-2 rounded-xl bg-gradient-to-b from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm ring-1 ring-emerald-700/60 transition-all duration-200 cursor-pointer"
+                  className="group relative overflow-hidden px-3.5 py-2 rounded-xl bg-[#00703C] hover:bg-[#00A859] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm ring-1 ring-[var(--verde)]/60 transition-all duration-200 cursor-pointer"
                 >
-                  <span className="pointer-events-none absolute inset-x-2 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-                  <CheckCircle2 size={14} className="text-emerald-100" />
+                  <CheckCircle2 size={14} className="text-[#C6E86B]" />
                   <span>Homologar Prestação</span>
                 </button>
               </div>
@@ -1704,102 +1628,102 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
 
             {/* Mini Resumo Orçamentário da Unidade */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              <div className="p-3.5 rounded-xl bg-white border border-slate-200/85 shadow-2xs">
-                <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+              <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)]/85 shadow-2xs">
+                <div className="text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--text-subtle)]">
                   Cota Trimestral
                 </div>
-                <div className="text-sm sm:text-base font-extrabold text-slate-900 font-mono tabular-nums mt-1">
+                <div className="text-sm sm:text-base font-extrabold text-[var(--text)] tabular-nums tabular-nums mt-1">
                   R$ {censeAtual.cotaTrimestral.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-white border border-blue-200/80 shadow-2xs">
-                <div className="flex items-center justify-between text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+              <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--brand-border)]/80 shadow-2xs">
+                <div className="flex items-center justify-between text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--text-subtle)]">
                   <span>Executado NF-e</span>
-                  <span className="text-[#0072BB] tabular-nums">{percentualExecutado}%</span>
+                  <span className="text-[var(--brand)] tabular-nums">{percentualExecutado}%</span>
                 </div>
-                <div className="text-sm sm:text-base font-extrabold text-[#0072BB] font-mono tabular-nums mt-1">
+                <div className="text-sm sm:text-base font-extrabold text-[var(--brand)] tabular-nums tabular-nums mt-1">
                   R$ {executadoUnidade.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-white border border-emerald-200/80 shadow-2xs">
-                <div className="flex items-center justify-between text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+              <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--verde-border)]/80 shadow-2xs">
+                <div className="flex items-center justify-between text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--text-subtle)]">
                   <span>Saldo Conta BB</span>
-                  <span className="text-emerald-700 tabular-nums">{100 - percentualExecutado}%</span>
+                  <span className="text-[var(--verde)] tabular-nums">{100 - percentualExecutado}%</span>
                 </div>
-                <div className="text-sm sm:text-base font-extrabold text-emerald-600 font-mono tabular-nums mt-1">
+                <div className="text-sm sm:text-base font-extrabold text-[var(--verde)] tabular-nums tabular-nums mt-1">
                   R$ {saldoUnidade.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
               </div>
             </div>
 
             {/* DECOMPOSIÇÃO VISUAL IMPECÁVEL DAS RUBRICAS: 33.90.30 (CONSUMO) VS 33.90.39 (SERVIÇOS PJ) */}
-            <div className="p-4 rounded-2xl bg-slate-50/90 border border-slate-200/85 space-y-3">
+            <div className="p-4 rounded-[18px] bg-[var(--surface-2)]/90 border border-[var(--border)]/85 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
-                <span className="font-extrabold text-slate-800 flex items-center gap-1.5 uppercase tracking-wide text-[10px]">
-                  <PieChart size={13} className="text-[#0072BB]" />
+                <span className="font-extrabold text-[var(--text)] flex items-center gap-1.5 uppercase tracking-wide text-[10px]">
+                  <PieChart size={13} className="text-[var(--brand)]" />
                   <span>Decomposição Contábil por Natureza de Despesa · TCE-PR</span>
                 </span>
-                <span className="text-[10px] font-mono text-slate-400 tabular-nums">
+                <span className="text-[10px] tabular-nums text-[var(--text-subtle)] tabular-nums">
                   {notasValidasUnidade.length} {notasValidasUnidade.length === 1 ? 'documento válido' : 'documentos válidos'}
                 </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div className="p-3 rounded-xl bg-white border border-blue-200/70 flex items-center justify-between gap-2 shadow-2xs">
+                <div className="p-3 rounded-xl bg-[var(--surface)] border border-[var(--brand-border)]/70 flex items-center justify-between gap-2 shadow-2xs">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200/80 text-[#0072BB] flex items-center justify-center font-mono text-[10px] font-extrabold shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-[var(--brand-soft)] border border-[var(--brand-border)]/80 text-[var(--brand)] flex items-center justify-center tabular-nums text-[10px] font-extrabold shrink-0">
                       .30
                     </div>
                     <div>
-                      <div className="text-[10px] font-mono font-bold uppercase text-[#0072BB]">
+                      <div className="text-[10px] tabular-nums font-bold uppercase text-[var(--brand)]">
                         Rubrica 33.90.30 · Consumo
                       </div>
-                      <div className="text-[11px] text-slate-500">
+                      <div className="text-[11px] text-[var(--text-muted)]">
                         Higiene, Oficinas & Saúde
                       </div>
                     </div>
                   </div>
-                  <div className="text-right font-mono tabular-nums">
-                    <div className="text-xs sm:text-sm font-extrabold text-slate-900">
+                  <div className="text-right tabular-nums tabular-nums">
+                    <div className="text-xs sm:text-sm font-extrabold text-[var(--text)]">
                       R$ {unidadeConsumo30.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </div>
-                    <div className="text-[10px] font-bold text-[#0072BB]">{percConsumo30}% do gasto</div>
+                    <div className="text-[10px] font-bold text-[var(--brand)]">{percConsumo30}% do gasto</div>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-xl bg-white border border-emerald-200/70 flex items-center justify-between gap-2 shadow-2xs">
+                <div className="p-3 rounded-xl bg-[var(--surface)] border border-[var(--verde-border)]/70 flex items-center justify-between gap-2 shadow-2xs">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200/80 text-emerald-700 flex items-center justify-center font-mono text-[10px] font-extrabold shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-[var(--verde-soft)] border border-[var(--verde-border)]/80 text-[var(--verde)] flex items-center justify-center tabular-nums text-[10px] font-extrabold shrink-0">
                       .39
                     </div>
                     <div>
-                      <div className="text-[10px] font-mono font-bold uppercase text-emerald-700">
+                      <div className="text-[10px] tabular-nums font-bold uppercase text-[var(--verde)]">
                         Rubrica 33.90.39 · Serviços PJ
                       </div>
-                      <div className="text-[11px] text-slate-500">
+                      <div className="text-[11px] text-[var(--text-muted)]">
                         Manutenção Predial & Reparos
                       </div>
                     </div>
                   </div>
-                  <div className="text-right font-mono tabular-nums">
-                    <div className="text-xs sm:text-sm font-extrabold text-slate-900">
+                  <div className="text-right tabular-nums tabular-nums">
+                    <div className="text-xs sm:text-sm font-extrabold text-[var(--text)]">
                       R$ {unidadeServicos39.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </div>
-                    <div className="text-[10px] font-bold text-emerald-700">{percServicos39}% do gasto</div>
+                    <div className="text-[10px] font-bold text-[var(--verde)]">{percServicos39}% do gasto</div>
                   </div>
                 </div>
               </div>
 
-              <div className="w-full h-2.5 bg-slate-200/80 rounded-full overflow-hidden flex p-0.5 gap-0.5">
+              <div className="w-full h-2.5 bg-[var(--surface-3)]/80 rounded-full overflow-hidden flex p-0.5 gap-0.5">
                 <div
-                  className="h-full rounded-l-full bg-gradient-to-r from-[#0072BB] to-sky-500 transition-all duration-500"
+                  className="h-full rounded-l-full bg-[#0072BB] transition-all duration-500"
                   style={{ width: `${percConsumo30}%` }}
                   title="Material de Consumo (33.90.30)"
                 />
                 <div
-                  className="h-full rounded-r-full bg-gradient-to-r from-emerald-600 to-teal-400 transition-all duration-500"
+                  className="h-full rounded-r-full bg-[#00703C] transition-all duration-500"
                   style={{ width: `${percServicos39}%` }}
                   title="Outros Serviços de Terceiros - Pessoa Jurídica (33.90.39)"
                 />
@@ -1825,11 +1749,11 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     }}
                     className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                       ativa
-                        ? 'bg-slate-900 text-white shadow-sm'
-                        : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
+                        ? 'bg-[#0B1B2E] text-white shadow-sm'
+                        : 'bg-[var(--surface)] text-[var(--text-muted)] hover:bg-[var(--surface-2)] border border-[var(--border)]/80'
                     }`}
                   >
-                    <Icon size={13} className={ativa ? 'text-emerald-400' : 'text-slate-500'} />
+                    <Icon size={13} className={ativa ? 'text-[var(--verde)]' : 'text-[var(--text-muted)]'} />
                     <span>{t.label}</span>
                   </button>
                 );
@@ -1847,90 +1771,90 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                 return (
                   <div
                     key={nf.id}
-                    className={`relative overflow-hidden p-4 sm:p-5 rounded-2xl border bg-white space-y-3 transition-all shadow-2xs hover:shadow-md ${
+                    className={`relative overflow-hidden p-4 sm:p-5 rounded-[18px] border bg-[var(--surface)] space-y-3 transition-all shadow-2xs ${
                       nf.status === 'glosada'
-                        ? 'border-red-200/90 border-l-4 border-l-red-500'
+                        ? 'border-[var(--danger-border)]/90 border-l-4 border-l-[var(--danger)]'
                         : nf.status === 'pendente'
-                        ? 'border-amber-200/90 border-l-4 border-l-amber-500'
-                        : 'border-slate-200/90 hover:border-slate-300 border-l-4 border-l-emerald-500'
+                        ? 'border-[var(--warning-border)]/90 border-l-4 border-l-[var(--warning)]'
+                        : 'border-[var(--border)]/90 hover:border-[var(--border-strong)] border-l-4 border-l-[var(--verde)]'
                     }`}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5">
                       <div className="space-y-1.5">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-mono tabular-nums text-xs font-extrabold text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded-lg border border-slate-200/80">
+                          <span className="tabular-nums tabular-nums text-xs font-extrabold text-[var(--text)] bg-[var(--surface-2)] px-2.5 py-0.5 rounded-lg border border-[var(--border)]/80">
                             {nf.numeroNf}
                           </span>
-                          <span className="text-xs sm:text-sm font-extrabold text-slate-900">{nf.fornecedor}</span>
-                          <span className="text-[11px] font-mono tabular-nums text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-200/60">
+                          <span className="text-xs sm:text-sm font-extrabold text-[var(--text)]">{nf.fornecedor}</span>
+                          <span className="text-[11px] tabular-nums tabular-nums text-[var(--text-subtle)] bg-[var(--surface-2)] px-2 py-0.5 rounded border border-[var(--border)]/60">
                             CNPJ {nf.cnpj}
                           </span>
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2 text-[11px]">
                           <span
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono font-bold text-[10px] border ${
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md tabular-nums font-bold text-[10px] border ${
                               ehConsumo30
-                                ? 'bg-blue-50 text-[#0072BB] border-blue-200/70'
-                                : 'bg-emerald-50 text-emerald-700 border-emerald-200/70'
+                                ? 'bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--brand-border)]/70'
+                                : 'bg-[var(--verde-soft)] text-[var(--verde)] border-[var(--verde-border)]/70'
                             }`}
                           >
                             {ehConsumo30 ? '33.90.30 · CONSUMO' : '33.90.39 · SERVIÇOS PJ'}
                           </span>
-                          <span className="font-medium text-slate-600">{nf.rubrica}</span>
-                          <span className="text-slate-300">·</span>
-                          <span className="font-mono tabular-nums text-slate-500">Emissão: {nf.dataEmissao}</span>
+                          <span className="font-medium text-[var(--text-muted)]">{nf.rubrica}</span>
+                          <span className="text-[var(--ink-muted)]">·</span>
+                          <span className="tabular-nums tabular-nums text-[var(--text-muted)]">Emissão: {nf.dataEmissao}</span>
 
                           {nf.tresOrcamentos !== false && (
-                            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80">
+                            <span className="text-[10px] font-bold text-[var(--verde)] bg-[var(--verde-soft)] px-2 py-0.5 rounded-md border border-[var(--verde-border)]/80">
                               ✓ 3 Cotações Anexas
                             </span>
                           )}
                           {nf.comprovanteNome && (
-                            <span className="text-[10px] font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/70">
+                            <span className="text-[10px] tabular-nums text-[var(--text-muted)] bg-[var(--surface-2)] px-2 py-0.5 rounded-md border border-[var(--border)]/70">
                               {nf.comprovanteNome}
                             </span>
                           )}
                         </div>
 
                         {nf.chaveAcesso && (
-                          <div className="inline-flex items-center gap-1.5 text-[10px] font-mono tabular-nums text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/70">
-                            <QrCode size={11} className="text-[#0072BB] shrink-0" />
-                            <span className="uppercase font-bold text-slate-400">Chave DANFE:</span>
-                            <span className="tracking-wider text-slate-700">{nf.chaveAcesso}</span>
+                          <div className="inline-flex items-center gap-1.5 text-[10px] tabular-nums tabular-nums text-[var(--text-muted)] bg-[var(--surface-2)] px-2.5 py-1 rounded-lg border border-[var(--border)]/70">
+                            <QrCode size={11} className="text-[var(--brand)] shrink-0" />
+                            <span className="uppercase font-bold text-[var(--text-subtle)]">Chave DANFE:</span>
+                            <span className="tracking-wider text-[var(--text)]">{nf.chaveAcesso}</span>
                           </div>
                         )}
                       </div>
 
                       <div className="text-left sm:text-right shrink-0">
-                        <div className="text-base sm:text-lg font-extrabold font-mono tabular-nums text-slate-900">
+                        <div className="text-base sm:text-lg font-extrabold tabular-nums tabular-nums text-[var(--text)]">
                           R$ {nf.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </div>
                         {nf.status === 'aprovada' && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/90 mt-1">
-                            <CheckCircle2 size={11} className="text-emerald-600" /> Atestada TCE-PR
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--verde-soft)] text-[var(--verde)] border border-[var(--verde-border)]/90 mt-1">
+                            <CheckCircle2 size={11} className="text-[var(--verde)]" /> Atestada TCE-PR
                           </span>
                         )}
                         {nf.status === 'pendente' && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200/90 mt-1">
-                            <Clock size={11} className="text-amber-600" /> Em Conferência Fiscal
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--warning-soft)] text-[var(--warning)] border border-[var(--warning-border)]/90 mt-1">
+                            <Clock size={11} className="text-[var(--warning)]" /> Em Conferência Fiscal
                           </span>
                         )}
                         {nf.status === 'glosada' && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-800 border border-red-200/90 mt-1">
-                            <AlertTriangle size={11} className="text-red-600" /> Nota Glosada
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--danger-soft)] text-[var(--danger)] border border-[var(--danger-border)]/90 mt-1">
+                            <AlertTriangle size={11} className="text-[var(--danger)]" /> Nota Glosada
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <p className="text-xs text-slate-600 bg-slate-50/90 p-3 rounded-xl border border-slate-200/60 leading-relaxed">
+                    <p className="text-xs text-[var(--text-muted)] bg-[var(--surface-2)]/90 p-3 rounded-xl border border-[var(--border)]/60 leading-relaxed">
                       {nf.descricao}
                     </p>
 
                     {nf.motivoGlosa && (
-                      <div className="p-3 rounded-xl bg-red-50/90 border border-red-200 text-xs text-red-900 flex items-start gap-2">
-                        <AlertTriangle size={14} className="text-red-600 shrink-0 mt-0.5" />
+                      <div className="p-3 rounded-xl bg-[var(--danger-soft)]/90 border border-[var(--danger-border)] text-xs text-[var(--danger)] flex items-start gap-2">
+                        <AlertTriangle size={14} className="text-[var(--danger)] shrink-0 mt-0.5" />
                         <div>
                           <strong className="font-bold">Motivo da Glosa Fiscal (TCE-PR / Controle Interno): </strong>
                           {nf.motivoGlosa}
@@ -1938,9 +1862,9 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                       </div>
                     )}
 
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100">
-                      <span className="inline-flex items-center gap-1.5 text-[10px] font-mono text-slate-400 select-none">
-                        <Lock size={10} className="text-emerald-600" />
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-[var(--border-subtle)]">
+                      <span className="inline-flex items-center gap-1.5 text-[10px] tabular-nums text-[var(--text-subtle)] select-none">
+                        <Lock size={10} className="text-[var(--verde)]" />
                         <span>Hash SEFAZ-PR · ••••••••••••••••</span>
                       </span>
 
@@ -1949,7 +1873,7 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                           <button
                             type="button"
                             onClick={() => handleAprovarNota(nf.id)}
-                            className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-600 text-emerald-800 hover:text-white border border-emerald-200/90 hover:border-emerald-600 text-[11px] font-bold flex items-center gap-1 transition-all duration-150 cursor-pointer shadow-2xs active:scale-95"
+                            className="px-3 py-1.5 rounded-xl bg-[var(--verde-soft)] hover:bg-[#00703C] text-[var(--verde)] hover:text-white border border-[var(--verde-border)]/90 hover:border-[var(--verde)] text-[11px] font-bold flex items-center gap-1 transition-all duration-150 cursor-pointer shadow-2xs active:scale-95"
                           >
                             <CheckCircle2 size={12} /> Aprovar NF-e
                           </button>
@@ -1958,7 +1882,7 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                           <button
                             type="button"
                             onClick={() => handleGlosarNota(nf.id)}
-                            className="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-600 text-red-700 hover:text-white border border-red-200/90 hover:border-red-600 text-[11px] font-bold flex items-center gap-1 transition-all duration-150 cursor-pointer shadow-2xs active:scale-95"
+                            className="px-3 py-1.5 rounded-xl bg-[var(--danger-soft)] hover:bg-[#B42318] text-[var(--danger)] hover:text-white border border-[var(--danger-border)]/90 hover:border-[var(--danger)] text-[11px] font-bold flex items-center gap-1 transition-all duration-150 cursor-pointer shadow-2xs active:scale-95"
                           >
                             <Ban size={12} /> Glosar
                           </button>
@@ -1978,7 +1902,7 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
             <form onSubmit={handleLancarNota} className="p-5 sm:p-6 space-y-5">
               
               {/* ZONA DE SCANNER LASER FAZENDÁRIO (CANTONEIRAS LUMINOSAS + BARRA DE VARREDURA + CRACHÁ SEFAZ-PR / RECEITA FEDERAL) */}
-              <div className="relative overflow-hidden p-5 rounded-2xl bg-slate-950 text-white border border-slate-800 shadow-lg space-y-4">
+              <div className="relative overflow-hidden p-5 rounded-[18px] bg-[#0B1B2E] text-white border border-[#22324C] space-y-4">
                 {/* Grade Óptica Fazendária de Fundo */}
                 <div
                   className="pointer-events-none absolute inset-0 opacity-15"
@@ -1990,26 +1914,22 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                 />
 
                 {/* Barra de Varredura Laser Sutil */}
-                <div className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-400/80 to-transparent shadow-[0_0_16px_rgba(16,185,129,0.85)]" />
+                <div className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-[1.5px] bg-transparent   " />
 
-                {/* 4 Cantoneiras Luminosas do Scanner Laser */}
-                <span className="pointer-events-none absolute top-2.5 left-2.5 w-4 h-4 border-t-2 border-l-2 border-emerald-400 rounded-tl-xs shadow-[-2px_-2px_8px_rgba(16,185,129,0.4)]" />
-                <span className="pointer-events-none absolute top-2.5 right-2.5 w-4 h-4 border-t-2 border-r-2 border-emerald-400 rounded-tr-xs shadow-[2px_-2px_8px_rgba(16,185,129,0.4)]" />
-                <span className="pointer-events-none absolute bottom-2.5 left-2.5 w-4 h-4 border-b-2 border-l-2 border-emerald-400 rounded-bl-xs shadow-[-2px_2px_8px_rgba(16,185,129,0.4)]" />
-                <span className="pointer-events-none absolute bottom-2.5 right-2.5 w-4 h-4 border-b-2 border-r-2 border-emerald-400 rounded-br-xs shadow-[2px_2px_8px_rgba(16,185,129,0.4)]" />
+                {/* 4 Cantoneiras Luminosas do Scanner Laser */}    
 
                 <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-start sm:items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-400 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(16,185,129,0.25)]">
+                    <div className="w-10 h-10 rounded-xl bg-[#00A859]/15 border border-[var(--verde)]/40 text-[var(--verde)] flex items-center justify-center shrink-0 ">
                       <ScanLine size={20} />
                     </div>
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-mono text-[10px] font-bold uppercase tracking-wider">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#00A859]/20 text-[#C6E86B] border border-[var(--verde)]/40 tabular-nums text-[10px] font-bold uppercase tracking-wider">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#00A859] " />
                           SEFAZ-PR · RECEITA FEDERAL · SPED NF-e
                         </span>
-                        <span className="text-[10px] font-mono text-slate-400 tabular-nums">
+                        <span className="text-[10px] tabular-nums text-[var(--text-subtle)] tabular-nums">
                           OCR / XML LASER SCANNER
                         </span>
                       </div>
@@ -2030,16 +1950,16 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 hover:border-slate-500 text-[11px] font-bold flex items-center gap-1.5 transition cursor-pointer"
+                      className="px-3 py-2 rounded-xl bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white/90 border border-[#22324C] hover:border-[var(--border-strong)] text-[11px] font-bold flex items-center gap-1.5 transition cursor-pointer"
                     >
-                      <Upload size={13} className="text-sky-400" />
+                      <Upload size={13} className="text-[var(--brand)]" />
                       <span>Drop DANFE / XML</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={handleSimularLeituraDanfe}
-                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 text-[11px] font-extrabold flex items-center gap-1.5 shadow-[0_0_16px_rgba(16,185,129,0.4)] transition cursor-pointer active:scale-95"
+                      className="px-3.5 py-2 rounded-xl bg-[#00A859] hover:bg-[#00A859] text-[var(--text)] text-[11px] font-extrabold flex items-center gap-1.5 transition cursor-pointer active:scale-95"
                     >
                       <Sparkles size={13} />
                       <span>Simular Leitura Laser DANFE (SEFAZ-PR)</span>
@@ -2049,16 +1969,16 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
 
                 {/* Visor Óptico dos 44 Dígitos da Chave de Acesso */}
                 <div className="relative space-y-2">
-                  <div className="flex items-center justify-between text-[10px] font-mono">
-                    <span className="text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <QrCode size={11} className="text-emerald-400" />
+                  <div className="flex items-center justify-between text-[10px] tabular-nums">
+                    <span className="text-[var(--text-subtle)] uppercase tracking-wider flex items-center gap-1.5">
+                      <QrCode size={11} className="text-[var(--verde)]" />
                       Barramento Óptico de Chave de Acesso NF-e (Modelo 55 / 65)
                     </span>
                     <span
                       className={`px-2 py-0.5 rounded font-bold tabular-nums ${
                         digitosChave.length === 44
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                          : 'bg-slate-800 text-slate-400 border border-slate-700'
+                          ? 'bg-[#00A859]/20 text-[#C6E86B] border border-[var(--verde)]/40'
+                          : 'bg-[#0B1B2E] text-[var(--text-subtle)] border border-[#22324C]'
                       }`}
                     >
                       {digitosChave.length}/44 DÍGITOS
@@ -2070,16 +1990,16 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     value={chaveDanfe}
                     onChange={e => setChaveDanfe(e.target.value)}
                     placeholder="4126 1082 3910 4400 0192 5500 1000 0284 1010 9283 7461 (Cole ou escaneie os 44 dígitos)"
-                    className="w-full text-xs font-mono tabular-nums tracking-wider px-4 py-3 rounded-xl bg-slate-900/95 text-emerald-300 placeholder:text-slate-600 border border-emerald-500/30 focus:outline-hidden focus:border-emerald-400 shadow-inner"
+                    className="w-full text-xs tabular-nums tabular-nums tracking-wider px-4 py-3 rounded-xl bg-[#0B1B2E]/95 text-[#C6E86B] placeholder:text-[var(--text-muted)] border border-[var(--verde)]/30 focus:outline-hidden focus:border-[var(--verde)] "
                   />
 
                   {comprovanteNome && (
-                    <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-[11px] text-emerald-300 font-mono">
+                    <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#00A859]/10 border border-[var(--verde)]/30 text-[11px] text-[#C6E86B] tabular-nums">
                       <span className="flex items-center gap-1.5 font-semibold">
-                        <CheckCircle2 size={13} className="text-emerald-400" />
+                        <CheckCircle2 size={13} className="text-[var(--verde)]" />
                         Autenticado SEFAZ-PR / Receita Federal: <strong>{comprovanteNome}</strong>
                       </span>
-                      <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
+                      <span className="text-[10px] uppercase tracking-wider text-[var(--verde)] font-bold">
                         PROTOCOLO VÁLIDO
                       </span>
                     </div>
@@ -2088,13 +2008,13 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
               </div>
 
               {/* Decomposição Interativa de Rubrica no Lançamento: 33.90.30 vs 33.90.39 */}
-              <div className="p-4 rounded-2xl bg-slate-50/90 border border-slate-200/85 space-y-3">
+              <div className="p-4 rounded-[18px] bg-[var(--surface-2)]/90 border border-[var(--border)]/85 space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
-                    <Layers size={14} className="text-[#0072BB]" />
+                  <label className="text-xs font-extrabold text-[var(--text)] flex items-center gap-1.5">
+                    <Layers size={14} className="text-[var(--brand)]" />
                     <span>Classificação da Rubrica Orçamentária (33.90.30 vs 33.90.39)</span>
                   </label>
-                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-200/70 text-slate-700">
+                  <span className="text-[10px] tabular-nums font-bold px-2 py-0.5 rounded bg-[var(--surface-3)]/70 text-[var(--text)]">
                     {isRubricaConsumo30(rubrica) ? 'NATUREZA 33.90.30 · CONSUMO' : 'NATUREZA 33.90.39 · SERVIÇOS PJ'}
                   </span>
                 </div>
@@ -2105,19 +2025,19 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     onClick={() => setRubrica('Material de Consumo & Higiene (33.90.30)')}
                     className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
                       isRubricaConsumo30(rubrica)
-                        ? 'bg-blue-50/90 border-[#0072BB] ring-1 ring-[#0072BB]/30'
-                        : 'bg-white border-slate-200/80 hover:border-slate-300'
+                        ? 'bg-[var(--brand-soft)]/90 border-[var(--brand)] ring-1 ring-[var(--brand)]/30'
+                        : 'bg-[var(--surface)] border-[var(--border)]/80 hover:border-[var(--border-strong)]'
                     }`}
                   >
                     <div>
-                      <div className="text-[10px] font-mono font-extrabold uppercase text-[#0072BB]">
+                      <div className="text-[10px] tabular-nums font-extrabold uppercase text-[var(--brand)]">
                         Elemento 33.90.30
                       </div>
-                      <div className="text-xs font-bold text-slate-900 mt-0.5">
+                      <div className="text-xs font-bold text-[var(--text)] mt-0.5">
                         Material de Consumo, Oficinas & Saúde
                       </div>
                     </div>
-                    <Scale size={15} className="text-[#0072BB] shrink-0" />
+                    <Scale size={15} className="text-[var(--brand)] shrink-0" />
                   </button>
 
                   <button
@@ -2125,26 +2045,26 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     onClick={() => setRubrica('Manutenção Predial (33.90.39)')}
                     className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
                       !isRubricaConsumo30(rubrica)
-                        ? 'bg-emerald-50/90 border-emerald-600 ring-1 ring-emerald-600/30'
-                        : 'bg-white border-slate-200/80 hover:border-slate-300'
+                        ? 'bg-[var(--verde-soft)]/90 border-[var(--verde)] ring-1 ring-[var(--verde)]/30'
+                        : 'bg-[var(--surface)] border-[var(--border)]/80 hover:border-[var(--border-strong)]'
                     }`}
                   >
                     <div>
-                      <div className="text-[10px] font-mono font-extrabold uppercase text-emerald-700">
+                      <div className="text-[10px] tabular-nums font-extrabold uppercase text-[var(--verde)]">
                         Elemento 33.90.39
                       </div>
-                      <div className="text-xs font-bold text-slate-900 mt-0.5">
+                      <div className="text-xs font-bold text-[var(--text)] mt-0.5">
                         Serviços de Terceiros PJ & Manutenção
                       </div>
                     </div>
-                    <Scale size={15} className="text-emerald-600 shrink-0" />
+                    <Scale size={15} className="text-[var(--verde)] shrink-0" />
                   </button>
                 </div>
 
                 <select
                   value={rubrica}
                   onChange={e => setRubrica(e.target.value as RubricaFundo)}
-                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:border-slate-900"
+                  className="w-full text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] focus:outline-hidden focus:border-[#22324C]"
                 >
                   <option value="Manutenção Predial (33.90.39)">Manutenção Predial (33.90.39)</option>
                   <option value="Reparos Elétricos & Hidráulicos (33.90.39)">Reparos Elétricos & Hidráulicos (33.90.39)</option>
@@ -2156,7 +2076,7 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-[var(--text)] mb-1">
                     Número da NF-e / Cupom Fiscal *
                   </label>
                   <input
@@ -2165,12 +2085,12 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     value={numeroNf}
                     onChange={e => setNumeroNf(e.target.value)}
                     placeholder="Ex: 009.412"
-                    className="w-full text-xs font-mono tabular-nums px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-slate-900"
+                    className="w-full text-xs tabular-nums tabular-nums px-3.5 py-2.5 rounded-xl border border-[var(--border)] focus:outline-hidden focus:border-[#22324C]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-[var(--text)] mb-1">
                     Valor da Nota Fiscal (R$) *
                   </label>
                   <input
@@ -2180,12 +2100,12 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     value={valorNf}
                     onChange={e => setValorNf(e.target.value)}
                     placeholder="Ex: 1450.00"
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-slate-900 font-mono tabular-nums"
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-[var(--border)] focus:outline-hidden focus:border-[#22324C] tabular-nums tabular-nums"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-[var(--text)] mb-1">
                     Razão Social do Fornecedor *
                   </label>
                   <input
@@ -2194,12 +2114,12 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     value={fornecedor}
                     onChange={e => setFornecedor(e.target.value)}
                     placeholder="Ex: Comercial Suprimentos Paraná Ltda"
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-slate-900"
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-[var(--border)] focus:outline-hidden focus:border-[#22324C]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                  <label className="block text-xs font-bold text-[var(--text)] mb-1">
                     CNPJ do Fornecedor (Receita Federal)
                   </label>
                   <input
@@ -2207,13 +2127,13 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     value={cnpj}
                     onChange={e => setCnpj(e.target.value)}
                     placeholder="00.000.000/0001-00"
-                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-slate-900 font-mono tabular-nums"
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-[var(--border)] focus:outline-hidden focus:border-[#22324C] tabular-nums tabular-nums"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-[var(--text)] mb-1">
                   Justificativa e Atesto de Aplicação no {censeAtual.nome}
                 </label>
                 <textarea
@@ -2221,40 +2141,40 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                   value={descricaoNf}
                   onChange={e => setDescricaoNf(e.target.value)}
                   placeholder="Descreva a finalidade socioeducativa ou emergencial do material/serviço adquirido..."
-                  className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:border-slate-900"
+                  className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-[var(--border)] focus:outline-hidden focus:border-[#22324C]"
                 />
               </div>
 
               {/* Validador de Conformidade Legal (Lei Estadual 14.268/PR) */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/85 space-y-3">
+              <div className="p-4 rounded-[18px] bg-[var(--surface-2)] border border-[var(--border)]/85 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
-                    <ShieldCheck size={14} className="text-emerald-600" />
+                  <span className="text-xs font-extrabold text-[var(--text)] flex items-center gap-1.5">
+                    <ShieldCheck size={14} className="text-[var(--verde)]" />
                     <span>Validador de Conformidade Legal · Lei Estadual nº 14.268/PR & TCE-PR</span>
                   </span>
-                  <label className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                  <label className="inline-flex items-center gap-2 text-xs font-bold text-[var(--text)] cursor-pointer">
                     <input
                       type="checkbox"
                       checked={tresOrcamentos}
                       onChange={e => setTresOrcamentos(e.target.checked)}
-                      className="rounded border-slate-300 text-slate-900 focus:ring-0"
+                      className="rounded border-[var(--border-strong)] text-[var(--text)] focus:ring-0"
                     />
                     <span>Possui 3 Orçamentos Prévios anexos</span>
                   </label>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[11px] font-mono tabular-nums">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-[11px] tabular-nums tabular-nums">
                   <div
                     className={`p-2.5 rounded-xl border flex items-center gap-2 ${
                       excedeLimiteLegal
-                        ? 'bg-red-50 border-red-200 text-red-800 font-bold'
-                        : 'bg-white border-slate-200/80 text-slate-700'
+                        ? 'bg-[var(--danger-soft)] border-[var(--danger-border)] text-[var(--danger)] font-bold'
+                        : 'bg-[var(--surface)] border-[var(--border)]/80 text-[var(--text)]'
                     }`}
                   >
                     {excedeLimiteLegal ? (
-                      <AlertTriangle size={13} className="text-red-600 shrink-0" />
+                      <AlertTriangle size={13} className="text-[var(--danger)] shrink-0" />
                     ) : (
-                      <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
+                      <CheckCircle2 size={13} className="text-[var(--verde)] shrink-0" />
                     )}
                     <span>Teto NF: R$ 8.000,00</span>
                   </div>
@@ -2262,14 +2182,14 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                   <div
                     className={`p-2.5 rounded-xl border flex items-center gap-2 ${
                       excedeSaldoUnidade
-                        ? 'bg-amber-50 border-amber-200 text-amber-800 font-bold'
-                        : 'bg-white border-slate-200/80 text-slate-700'
+                        ? 'bg-[var(--warning-soft)] border-[var(--warning-border)] text-[var(--warning)] font-bold'
+                        : 'bg-[var(--surface)] border-[var(--border)]/80 text-[var(--text)]'
                     }`}
                   >
                     {excedeSaldoUnidade ? (
-                      <AlertTriangle size={13} className="text-amber-600 shrink-0" />
+                      <AlertTriangle size={13} className="text-[var(--warning)] shrink-0" />
                     ) : (
-                      <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
+                      <CheckCircle2 size={13} className="text-[var(--verde)] shrink-0" />
                     )}
                     <span>Saldo BB: R$ {saldoUnidade.toLocaleString('pt-BR')}</span>
                   </div>
@@ -2277,14 +2197,14 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                   <div
                     className={`p-2.5 rounded-xl border flex items-center gap-2 ${
                       !tresOrcamentos
-                        ? 'bg-red-50 border-red-200 text-red-800 font-bold'
-                        : 'bg-white border-slate-200/80 text-slate-700'
+                        ? 'bg-[var(--danger-soft)] border-[var(--danger-border)] text-[var(--danger)] font-bold'
+                        : 'bg-[var(--surface)] border-[var(--border)]/80 text-[var(--text)]'
                     }`}
                   >
                     {!tresOrcamentos ? (
-                      <AlertTriangle size={13} className="text-red-600 shrink-0" />
+                      <AlertTriangle size={13} className="text-[var(--danger)] shrink-0" />
                     ) : (
-                      <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
+                      <CheckCircle2 size={13} className="text-[var(--verde)] shrink-0" />
                     )}
                     <span>3 Cotações Prévias</span>
                   </div>
@@ -2295,15 +2215,15 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setAbaDetalhe('notas')}
-                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-xs font-bold cursor-pointer transition"
+                  className="px-4 py-2.5 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--surface-3)]/80 text-[var(--text)] text-xs font-bold cursor-pointer transition"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 transition"
+                  className="px-5 py-2.5 rounded-xl bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 transition"
                 >
-                  <PlusCircle size={14} className="text-emerald-400" />
+                  <PlusCircle size={14} className="text-[var(--verde)]" />
                   <span>Registrar Nota Fiscal no CENSE</span>
                 </button>
               </div>
@@ -2315,15 +2235,15 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
              ================================================================= */}
           {abaDetalhe === 'relatorio' && (
             <div className="p-5 sm:p-6 space-y-5">
-              <div className="relative overflow-hidden p-5 rounded-2xl bg-slate-50/90 border border-slate-200/90 space-y-5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
+              <div className="relative overflow-hidden p-5 rounded-[18px] bg-[var(--surface-2)]/90 border border-[var(--border)]/90 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--border)]/80 pb-4">
                   <div className="flex items-center gap-3">
                     <BrasaoParana size="sm" />
                     <div>
-                      <div className="text-xs font-extrabold text-slate-900 uppercase tracking-tight">
+                      <div className="text-xs font-extrabold text-[var(--text)] uppercase tracking-tight">
                         Espelho Oficial de Prestação de Contas · Fundo Rotativo (TCE-PR / SEJU)
                       </div>
-                      <div className="text-[11px] font-mono tabular-nums text-slate-500 mt-0.5">
+                      <div className="text-[11px] tabular-nums tabular-nums text-[var(--text-muted)] mt-0.5">
                         {censeAtual.nome} · {censeAtual.competencia} · {censeAtual.contaBancoBrasil}
                       </div>
                     </div>
@@ -2333,84 +2253,84 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                     <button
                       type="button"
                       onClick={handleExportarCsv}
-                      className="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/90 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs transition"
+                      className="px-3 py-2 rounded-xl bg-[var(--surface)] hover:bg-[var(--surface-2)] text-[var(--text)] border border-[var(--border)]/90 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs transition"
                     >
-                      <Download size={13} className="text-emerald-600" /> Exportar .CSV
+                      <Download size={13} className="text-[var(--verde)]" /> Exportar .CSV
                     </button>
                     <button
                       type="button"
                       onClick={() => window.print()}
-                      className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs transition"
+                      className="px-3.5 py-2 rounded-xl bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs transition"
                     >
-                      <Printer size={14} className="text-emerald-400" /> Imprimir Termo TCE-PR
+                      <Printer size={14} className="text-[var(--verde)]" /> Imprimir Termo TCE-PR
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-white p-3.5 rounded-xl border border-slate-200/80">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-[var(--surface)] p-3.5 rounded-xl border border-[var(--border)]/80">
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Unidade Socioeducativa</span>
-                    <strong className="text-slate-900">{censeAtual.nome} ({censeAtual.cidade})</strong>
+                    <span className="text-[10px] uppercase font-bold text-[var(--text-subtle)] block">Unidade Socioeducativa</span>
+                    <strong className="text-[var(--text)]">{censeAtual.nome} ({censeAtual.cidade})</strong>
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Servidor Suprido</span>
-                    <strong className="text-slate-900">{censeAtual.diretorSuprido} ({censeAtual.matricula})</strong>
+                    <span className="text-[10px] uppercase font-bold text-[var(--text-subtle)] block">Servidor Suprido</span>
+                    <strong className="text-[var(--text)]">{censeAtual.diretorSuprido} ({censeAtual.matricula})</strong>
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Última Conferência / Prazo</span>
-                    <strong className="text-slate-900 font-mono tabular-nums">
+                    <span className="text-[10px] uppercase font-bold text-[var(--text-subtle)] block">Última Conferência / Prazo</span>
+                    <strong className="text-[var(--text)] tabular-nums tabular-nums">
                       {censeAtual.ultimaPrestacao} ({censeAtual.diasRestantesPrestacao}d restantes)
                     </strong>
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Blindagem Criptográfica</span>
-                    <strong className="text-emerald-700 font-mono select-none">••••••••••••••••</strong>
+                    <span className="text-[10px] uppercase font-bold text-[var(--text-subtle)] block">Blindagem Criptográfica</span>
+                    <strong className="text-[var(--verde)] tabular-nums select-none">••••••••••••••••</strong>
                   </div>
                 </div>
 
                 {/* Quadro Sintético por Natureza de Despesa */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="p-3.5 rounded-xl bg-white border border-blue-200/80 shadow-2xs">
-                    <div className="text-[10px] font-mono font-bold uppercase text-[#0072BB]">
+                  <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--brand-border)]/80 shadow-2xs">
+                    <div className="text-[10px] tabular-nums font-bold uppercase text-[var(--brand)]">
                       Material de Consumo (33.90.30)
                     </div>
-                    <div className="text-sm sm:text-base font-extrabold font-mono tabular-nums text-slate-900 mt-1">
+                    <div className="text-sm sm:text-base font-extrabold tabular-nums tabular-nums text-[var(--text)] mt-1">
                       R$ {unidadeConsumo30.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </div>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-white border border-emerald-200/80 shadow-2xs">
-                    <div className="text-[10px] font-mono font-bold uppercase text-emerald-700">
+                  <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--verde-border)]/80 shadow-2xs">
+                    <div className="text-[10px] tabular-nums font-bold uppercase text-[var(--verde)]">
                       Serviços de Terceiros PJ (33.90.39)
                     </div>
-                    <div className="text-sm sm:text-base font-extrabold font-mono tabular-nums text-slate-900 mt-1">
+                    <div className="text-sm sm:text-base font-extrabold tabular-nums tabular-nums text-[var(--text)] mt-1">
                       R$ {unidadeServicos39.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </div>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-                    <div className="text-[10px] font-mono font-bold uppercase text-slate-500">
+                  <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)]/80 shadow-2xs">
+                    <div className="text-[10px] tabular-nums font-bold uppercase text-[var(--text-muted)]">
                       Saldo em Conta BB a Reprogramar
                     </div>
-                    <div className="text-sm sm:text-base font-extrabold font-mono tabular-nums text-emerald-700 mt-1">
+                    <div className="text-sm sm:text-base font-extrabold tabular-nums tabular-nums text-[var(--verde)] mt-1">
                       R$ {saldoUnidade.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </div>
                   </div>
                 </div>
 
                 {/* Tabela Discriminada de Documentos Fiscais da Prestação (Bloomberg / Stripe Treasury Table) */}
-                <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
-                  <div className="px-4 py-3 bg-slate-900 text-white flex items-center justify-between text-[11px] font-bold uppercase tracking-wider">
+                <div className="bg-[var(--surface)] rounded-[18px] border border-[var(--border)]/90 shadow-2xs overflow-hidden">
+                  <div className="px-4 py-3 bg-[#0B1B2E] text-white flex items-center justify-between text-[11px] font-bold uppercase tracking-wider">
                     <span className="flex items-center gap-2">
-                      <Receipt size={13} className="text-emerald-400" />
+                      <Receipt size={13} className="text-[var(--verde)]" />
                       <span>Relação de Comprovantes Fiscais Atestados ({censeAtual.notas.length} documentos)</span>
                     </span>
-                    <span className="font-mono text-[10px] text-slate-400 tabular-nums">
+                    <span className="tabular-nums text-[10px] text-[var(--text-subtle)] tabular-nums">
                       AUDITORIA TCE-PR · LEI 14.268/PR
                     </span>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse text-xs">
                       <thead>
-                        <tr className="border-b border-slate-200/80 text-[10px] font-mono font-bold uppercase text-slate-500 bg-slate-50/90">
+                        <tr className="border-b border-[var(--border)]/80 text-[10px] tabular-nums font-bold uppercase text-[var(--text-muted)] bg-[var(--surface-2)]/90">
                           <th className="py-2.5 px-3.5">Documento</th>
                           <th className="py-2.5 px-3">Emissão</th>
                           <th className="py-2.5 px-3">Credor / CNPJ</th>
@@ -2419,42 +2339,42 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                           <th className="py-2.5 px-3.5 text-center">Conformidade TCE</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100">
+                      <tbody className="divide-y divide-[var(--border-subtle)]">
                         {censeAtual.notas.map(nf => {
                           const is30 = isRubricaConsumo30(nf.rubrica);
                           return (
-                            <tr key={nf.id} className="hover:bg-slate-50/90 transition-colors">
-                              <td className="py-3 px-3.5 font-mono tabular-nums font-extrabold text-slate-900">
+                            <tr key={nf.id} className="hover:bg-[var(--surface-2)]/90 transition-colors">
+                              <td className="py-3 px-3.5 tabular-nums tabular-nums font-extrabold text-[var(--text)]">
                                 {nf.numeroNf}
                               </td>
-                              <td className="py-3 px-3 font-mono tabular-nums text-slate-600">{nf.dataEmissao}</td>
+                              <td className="py-3 px-3 tabular-nums tabular-nums text-[var(--text-muted)]">{nf.dataEmissao}</td>
                               <td className="py-3 px-3">
-                                <div className="font-bold text-slate-900">{nf.fornecedor}</div>
-                                <div className="text-[10px] font-mono tabular-nums text-slate-400">{nf.cnpj}</div>
+                                <div className="font-bold text-[var(--text)]">{nf.fornecedor}</div>
+                                <div className="text-[10px] tabular-nums tabular-nums text-[var(--text-subtle)]">{nf.cnpj}</div>
                               </td>
                               <td className="py-3 px-3">
                                 <span
-                                  className={`inline-block font-mono text-[10px] font-bold px-2 py-0.5 rounded border mb-0.5 ${
+                                  className={`inline-block tabular-nums text-[10px] font-bold px-2 py-0.5 rounded border mb-0.5 ${
                                     is30
-                                      ? 'bg-blue-50 text-[#0072BB] border-blue-200/70'
-                                      : 'bg-emerald-50 text-emerald-700 border-emerald-200/70'
+                                      ? 'bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--brand-border)]/70'
+                                      : 'bg-[var(--verde-soft)] text-[var(--verde)] border-[var(--verde-border)]/70'
                                   }`}
                                 >
                                   {is30 ? '33.90.30' : '33.90.39'}
                                 </span>
-                                <div className="text-[11px] text-slate-600">{nf.rubrica}</div>
+                                <div className="text-[11px] text-[var(--text-muted)]">{nf.rubrica}</div>
                               </td>
-                              <td className="py-3 px-3.5 text-right font-mono tabular-nums font-extrabold text-slate-900">
+                              <td className="py-3 px-3.5 text-right tabular-nums tabular-nums font-extrabold text-[var(--text)]">
                                 R$ {nf.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                               </td>
                               <td className="py-3 px-3.5 text-center">
                                 <span
                                   className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
                                     nf.status === 'aprovada'
-                                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300/80'
+                                      ? 'bg-[var(--verde-soft)] text-[var(--verde)] border-[var(--verde-border)]/80'
                                       : nf.status === 'glosada'
-                                      ? 'bg-red-50 text-red-800 border-red-300/80'
-                                      : 'bg-amber-50 text-amber-800 border-amber-300/80'
+                                      ? 'bg-[var(--danger-soft)] text-[var(--danger)] border-[var(--danger-border)]/80'
+                                      : 'bg-[var(--warning-soft)] text-[var(--warning)] border-[var(--warning-border)]/80'
                                   }`}
                                 >
                                   {nf.status === 'aprovada'
@@ -2469,14 +2389,14 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
                         })}
                       </tbody>
                       <tfoot>
-                        <tr className="bg-slate-50/90 border-t-2 border-slate-200 font-mono tabular-nums text-xs">
-                          <td colSpan={4} className="py-2.5 px-3.5 font-bold text-slate-600 uppercase text-[10px]">
+                        <tr className="bg-[var(--surface-2)]/90 border-t-2 border-[var(--border)] tabular-nums tabular-nums text-xs">
+                          <td colSpan={4} className="py-2.5 px-3.5 font-bold text-[var(--text-muted)] uppercase text-[10px]">
                             Total Executado Válido ({notasValidasUnidade.length} NFs) · Cota R$ {censeAtual.cotaTrimestral.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                           </td>
-                          <td className="py-2.5 px-3.5 text-right font-extrabold text-[#0072BB]">
+                          <td className="py-2.5 px-3.5 text-right font-extrabold text-[var(--brand)]">
                             R$ {executadoUnidade.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                           </td>
-                          <td className="py-2.5 px-3.5 text-center text-[10px] font-bold text-emerald-700">
+                          <td className="py-2.5 px-3.5 text-center text-[10px] font-bold text-[var(--verde)]">
                             {percentualExecutado}% EXEC.
                           </td>
                         </tr>
@@ -2487,30 +2407,30 @@ export const FundoRotativoCenseView: React.FC<FundoRotativoCenseViewProps> = ({
 
                 {/* Chancelas Eletrônicas Seladas */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  <div className="p-3.5 rounded-xl bg-white border border-slate-200/85 flex items-center justify-between shadow-2xs">
+                  <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)]/85 flex items-center justify-between shadow-2xs">
                     <div>
-                      <div className="text-[10px] uppercase font-bold text-slate-400">
+                      <div className="text-[10px] uppercase font-bold text-[var(--text-subtle)]">
                         Assinatura Digital · Gestor Suprido
                       </div>
-                      <div className="text-xs font-extrabold text-slate-900 mt-0.5">
-                        {censeAtual.diretorSuprido} · <span className="font-mono">{censeAtual.matricula}</span>
+                      <div className="text-xs font-extrabold text-[var(--text)] mt-0.5">
+                        {censeAtual.diretorSuprido} · <span className="tabular-nums">{censeAtual.matricula}</span>
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200/80 select-none">
+                    <span className="text-[10px] tabular-nums text-[var(--verde)] bg-[var(--verde-soft)] px-2.5 py-1 rounded-lg border border-[var(--verde-border)]/80 select-none">
                       ••••••••••••••••
                     </span>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-white border border-slate-200/85 flex items-center justify-between shadow-2xs">
+                  <div className="p-3.5 rounded-xl bg-[var(--surface)] border border-[var(--border)]/85 flex items-center justify-between shadow-2xs">
                     <div>
-                      <div className="text-[10px] uppercase font-bold text-slate-400">
+                      <div className="text-[10px] uppercase font-bold text-[var(--text-subtle)]">
                         Inspetoria de Controle Interno SEJU / TCE-PR
                       </div>
-                      <div className="text-xs font-extrabold text-slate-900 mt-0.5">
+                      <div className="text-xs font-extrabold text-[var(--text)] mt-0.5">
                         Conformidade Lei Estadual nº 14.268/PR
                       </div>
                     </div>
-                    <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200/80 select-none">
+                    <span className="text-[10px] tabular-nums text-[var(--verde)] bg-[var(--verde-soft)] px-2.5 py-1 rounded-lg border border-[var(--verde-border)]/80 select-none">
                       ••••••••••••••••
                     </span>
                   </div>

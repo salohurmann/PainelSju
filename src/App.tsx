@@ -1,19 +1,20 @@
+import { ModuloCabecalho, AcaoModulo, AbasModulo, NumeroModulo } from './components/modulo/ModuloCabecalho';
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Agendamento, 
   Veiculo, 
   Vistoria, 
-  AuditoriaLog, 
+  
   Usuario 
 } from './types';
 import { 
   loadInitialState, 
   saveStateToStorage,
-  USUARIOS_MOCK
+  
 } from './services/store';
 import { 
-  notifyManagerNewRequest, 
-  notifyUserApproved, 
+  
+  
   notifyUserRejected 
 } from './services/notifications';
 import { eventBus } from './services/eventBus';
@@ -37,7 +38,7 @@ import { HotkeysHelpModal } from './components/navigation/HotkeysHelpModal';
 import { PainelDiagnosticoModal } from './components/navigation/PainelDiagnosticoModal';
 import { useSmartPolling } from './hooks/useSmartPolling';
 import { Toast, ToastItem } from './components/ui/Toast';
-import { Tabs } from './components/ui/Tabs';
+import {  } from './components/ui/Tabs';
 import { Button } from './components/ui/Button';
 import { 
   Car, 
@@ -46,9 +47,9 @@ import {
   Search, 
   ArrowLeft,
   PlusCircle,
-  ShieldCheck,
-  MapPin,
-  Lock
+  
+  
+  
 } from 'lucide-react';
 
 export type FrotaSubTab = 
@@ -431,40 +432,35 @@ export function App({ sessao }: { sessao?: SessaoReal } = {}) {
           {/* MÓDULO 1: GESTÃO DE FROTAS */}
           {activeApp === 'frota' && (
             <div className="space-y-6">
-              {/* Barra de Sub-Navegação de Frotas com Tabs Padronizadas */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setActiveApp('hub')}
-                      icon={<ArrowLeft size={14} />}
-                    >
-                      Início
-                    </Button>
-                    <h2 className="text-xl font-bold tracking-tight text-[var(--text)]">
-                      Gestão de Frotas & Viaturas
-                    </h2>
-                  </div>
-                  <p className="text-xs text-[var(--text-muted)] mt-1">
-                    Requisição de saída, autorização da Chefia, vistoria com fotos e controle de quilometragem.
-                  </p>
+              <ModuloCabecalho
+                cor="azul"
+                rotulo="Logística · Transportes"
+                titulo="Frotas"
+                descricao="Peça um carro oficial, acompanhe a autorização da chefia e registre a vistoria de saída e de volta."
+                onVoltar={() => setActiveApp('hub')}
+                acoes={
+                  <AcaoModulo destaque icone={<PlusCircle size={15} />} onClick={() => setFrotaTab('nova-solicitacao')}>
+                    Pedir veículo
+                  </AcaoModulo>
+                }
+              >
+                <div className="flex flex-wrap gap-2">
+                  <NumeroModulo rotulo="Disponíveis" valor={state.veiculos.filter(v => v.status === 'disponivel').length} detalhe={`de ${state.veiculos.length} veículos`} />
+                  <NumeroModulo rotulo="Em missão" valor={state.veiculos.filter(v => v.status === 'em_missao').length} />
+                  <NumeroModulo rotulo="Aguardando chefia" valor={pendentesChefia} />
                 </div>
-
-                <Tabs
-                  variant="segmented"
-                  activeId={frotaTab}
-                  onChange={(id) => setFrotaTab(id as FrotaSubTab)}
-                  items={[
-                    { id: 'nova-solicitacao', label: 'Solicitar', icon: <PlusCircle size={14} /> },
-                    { id: 'aprovacoes', label: 'Aprovações', icon: <CheckSquare size={14} />, count: pendentesChefia > 0 ? pendentesChefia : undefined },
-                    { id: 'checkin-checkout', label: 'Vistoria', icon: <ClipboardCheck size={14} /> },
-                    { id: 'frota', label: 'Catálogo', icon: <Car size={14} />, count: state.veiculos.length },
-                    { id: 'consultar', label: 'Histórico', icon: <Search size={14} /> }
+                <AbasModulo<FrotaSubTab>
+                  ativa={frotaTab}
+                  onChange={setFrotaTab}
+                  itens={[
+                    { id: 'nova-solicitacao', rotulo: 'Solicitar', icone: <PlusCircle size={14} /> },
+                    { id: 'aprovacoes', rotulo: 'Aprovações', icone: <CheckSquare size={14} />, contagem: pendentesChefia },
+                    { id: 'checkin-checkout', rotulo: 'Vistoria', icone: <ClipboardCheck size={14} /> },
+                    { id: 'frota', rotulo: 'Catálogo', icone: <Car size={14} /> },
+                    { id: 'consultar', rotulo: 'Histórico', icone: <Search size={14} /> },
                   ]}
                 />
-              </div>
+              </ModuloCabecalho>
 
               {/* Telas Internas de Frota */}
               {frotaTab === 'nova-solicitacao' && (

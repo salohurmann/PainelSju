@@ -1,3 +1,4 @@
+import { ModuloCabecalho, AbasModulo, NumeroModulo } from '../modulo/ModuloCabecalho';
 import React, { useState, useEffect } from 'react';
 import { 
   PhoneCall, 
@@ -18,8 +19,8 @@ import {
   ShieldCheck,
   Volume2,
   Hash,
-  Radio,
-  Activity,
+  
+  
   ChevronRight,
   CornerDownRight
 } from 'lucide-react';
@@ -241,11 +242,11 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
 
   // Painel de Elevador Executivo (Andares do Edifício Sede SEJU)
   const andaresElevador = [
-    { id: 'todos', codigo: 'ALL', andarLabel: 'Todos Pavimentos', sub: 'Visão Integral', corLed: 'bg-sky-400' },
-    { id: '3º Andar', codigo: '03F', andarLabel: '3º Andar · Cúpula', sub: 'Gabinete & Jurídico', corLed: 'bg-amber-400' },
-    { id: '2º Andar', codigo: '02F', andarLabel: '2º Andar · Digital', sub: 'TI, Redes & Suporte', corLed: 'bg-cyan-400' },
-    { id: '1º Andar', codigo: '01F', andarLabel: '1º Andar · Gestão', sub: 'Direitos Humanos & RH', corLed: 'bg-emerald-400' },
-    { id: 'Térreo', codigo: 'TER', andarLabel: 'Térreo · Operações', sub: 'Frotas & Ouvidoria', corLed: 'bg-indigo-400' }
+    { id: 'todos', codigo: 'ALL', andarLabel: 'Todos Pavimentos', sub: 'Visão Integral', corLed: 'bg-[#0072BB]' },
+    { id: '3º Andar', codigo: '03F', andarLabel: '3º Andar · Cúpula', sub: 'Gabinete & Jurídico', corLed: 'bg-[#D98A00]' },
+    { id: '2º Andar', codigo: '02F', andarLabel: '2º Andar · Digital', sub: 'TI, Redes & Suporte', corLed: 'bg-[#0072BB]' },
+    { id: '1º Andar', codigo: '01F', andarLabel: '1º Andar · Gestão', sub: 'Direitos Humanos & RH', corLed: 'bg-[#00A859]' },
+    { id: 'Térreo', codigo: 'TER', andarLabel: 'Térreo · Operações', sub: 'Frotas & Ouvidoria', corLed: 'bg-[#0072BB]' }
   ];
 
   const ramaisFiltrados = ramais.filter(r => {
@@ -281,139 +282,45 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 font-sans pb-12">
-      
-      {/* (1) CABEÇALHO EXECUTIVO DE TELECOMUNICAÇÕES VOIP & CONTROLE DE PAVIMENTOS */}
-      <div className="relative bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-        {/* Barra Superior Técnica de Telemetria SIP */}
-        <div className="bg-slate-950 text-slate-300 px-5 py-2.5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 text-[11px]">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onVoltarHub}
-              className="text-slate-300 hover:text-white font-semibold transition-colors cursor-pointer flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 px-2.5 py-1 rounded-md border border-slate-800"
-            >
-              ← Central de Aplicativos
-            </button>
-            <span className="text-slate-700 hidden sm:inline">|</span>
-            <span className="font-mono text-[10px] uppercase tracking-widest text-sky-400 font-semibold flex items-center gap-1.5">
-              <Radio size={12} className="text-emerald-400 animate-pulse" />
-              PABX IP Trunk SEJU-PR · SIP TLS 1.3
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4 font-mono text-[10px]">
-            <span className="hidden md:inline-flex items-center gap-1.5 text-slate-400">
-              <Activity size={11} className="text-emerald-400" />
-              LATÊNCIA: <strong className="text-emerald-400">2.4ms</strong>
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-              CODEC OPUS 48kHz HD
-            </span>
-          </div>
+    <div className="space-y-6 font-sans pb-12">
+      <ModuloCabecalho
+        cor="ceu"
+        rotulo="Contatos · Sede e unidades"
+        titulo="Ramais"
+        descricao="Encontre o ramal de qualquer setor ou pessoa, filtre por andar e guarde os contatos que você mais usa."
+        onVoltar={onVoltarHub}
+      >
+        <div className="flex flex-wrap gap-2">
+          <NumeroModulo rotulo="Disponíveis" valor={totalOnline} />
+          <NumeroModulo rotulo="Em reunião" valor={totalReuniao} />
+          <NumeroModulo rotulo="Fora da sede" valor={totalMissao} />
         </div>
+        <AbasModulo<'diretorio' | 'organograma' | 'favoritos'>
+          ativa={modoVisualizacao}
+          onChange={(id) => {
+            soundFX.playClick();
+            setModoVisualizacao(id);
+          }}
+          itens={[
+            { id: 'diretorio', rotulo: 'Lista', icone: <Users size={14} /> },
+            { id: 'organograma', rotulo: 'Organograma', icone: <Network size={14} /> },
+            { id: 'favoritos', rotulo: 'Favoritos', icone: <Star size={14} />, contagem: totalFavoritos },
+          ]}
+        />
+      </ModuloCabecalho>
 
+      <div className="relative bg-[var(--surface)] rounded-[18px] border border-[var(--border)] overflow-hidden">
         <div className="p-5 sm:p-6 space-y-5">
-          {/* Título, Telemetria de Presença e Seletor de Modo */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div className="flex items-start sm:items-center gap-3.5">
-              <div className="relative w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-sky-400 shrink-0 shadow-inner">
-                <PhoneCall size={22} />
-                <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white" />
-              </div>
-              <div className="space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-                    Catálogo de Ramais, Console VoIP & Organograma SEJU
-                  </h2>
-                  <span className="px-2 py-0.5 rounded bg-sky-50 border border-sky-200/80 text-[#0072BB] font-mono text-[10px] font-bold uppercase tracking-wider">
-                    Sede Hauer & Unidades
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500">
-                  Diretório tátil com anéis de presença ao vivo, seletor de pavimento estilo elevador executivo e discagem CallKit.
-                </p>
-              </div>
-            </div>
-
-            {/* Indicadores de Presença Ao Vivo + Seletor de Visão */}
-            <div className="flex flex-wrap items-center gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100">
-              <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200/80 text-xs">
-                <div className="flex items-center gap-1.5" title="Servidores Disponíveis no Posto">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20" />
-                  <span className="text-slate-600 font-medium">Disponível:</span>
-                  <span className="font-mono font-bold text-slate-900">{totalOnline}</span>
-                </div>
-                <div className="h-3.5 w-px bg-slate-200" />
-                <div className="flex items-center gap-1.5" title="Em Reunião">
-                  <span className="w-2 h-2 rounded-full bg-amber-500" />
-                  <span className="font-mono font-bold text-slate-700">{totalReuniao}</span>
-                </div>
-                <div className="h-3.5 w-px bg-slate-200" />
-                <div className="flex items-center gap-1.5" title="Em Missão Externa">
-                  <span className="w-2 h-2 rounded-full bg-indigo-500" />
-                  <span className="font-mono font-bold text-slate-700">{totalMissao}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80 shrink-0">
-                <button
-                  onClick={() => {
-                    soundFX.playClick();
-                    setModoVisualizacao('diretorio');
-                  }}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
-                    modoVisualizacao === 'diretorio'
-                      ? 'bg-slate-900 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Users size={13} /> Diretório VoIP
-                </button>
-
-                <button
-                  onClick={() => {
-                    soundFX.playClick();
-                    setModoVisualizacao('organograma');
-                  }}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
-                    modoVisualizacao === 'organograma'
-                      ? 'bg-slate-900 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Network size={13} /> Organograma
-                </button>
-
-                <button
-                  onClick={() => {
-                    soundFX.playClick();
-                    setModoVisualizacao('favoritos');
-                  }}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
-                    modoVisualizacao === 'favoritos'
-                      ? 'bg-slate-900 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Star size={13} className="text-amber-500 fill-amber-500" />
-                  <span>Favoritos</span>
-                  <span className="font-mono text-[10px] opacity-80">({totalFavoritos})</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
           {/* PAINEL DE ELEVADOR EXECUTIVO (FILTRO TÁTIL POR ANDAR DO EDIFÍCIO SEJU) */}
-          <div className="bg-slate-950 rounded-xl p-3.5 border border-slate-800 shadow-inner space-y-2.5">
+          <div className="bg-[#0B1B2E] rounded-xl p-3.5 border border-[#22324C] space-y-2.5">
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
-                <Building2 size={13} className="text-amber-400" />
-                <span className="font-mono text-[10px] uppercase tracking-widest text-slate-300 font-bold">
+                <Building2 size={13} className="text-[var(--warning)]" />
+                <span className="tabular-nums text-[10px] uppercase tracking-widest text-[var(--ink-muted)] font-bold">
                   Painel de Elevador Executivo · Seletor de Pavimento SEJU
                 </span>
               </div>
-              <span className="font-mono text-[10px] text-slate-400 hidden sm:inline">
+              <span className="tabular-nums text-[10px] text-[var(--text-subtle)] hidden sm:inline">
                 Pressione o andar para isolar salas e ramais do pavimento
               </span>
             </div>
@@ -435,34 +342,34 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
                     }}
                     className={`group relative text-left p-2.5 rounded-lg border transition-all cursor-pointer flex items-center justify-between gap-2 ${
                       ativo
-                        ? 'bg-slate-800/95 border-amber-400/80 shadow-[0_0_15px_rgba(251,191,36,0.15)]'
-                        : 'bg-slate-900/90 hover:bg-slate-800/60 border-slate-800 hover:border-slate-700'
+                        ? 'bg-[#0B1B2E]/95 border-[var(--warning)]/80 '
+                        : 'bg-[#0B1B2E]/90 hover:bg-[#0B1B2E]/60 border-[#22324C] hover:border-[#22324C]'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       {/* Botão Redondo Iluminado de Elevador */}
                       <div
-                        className={`w-9 h-9 rounded-full border-2 flex flex-col items-center justify-center font-mono text-[11px] font-extrabold shrink-0 transition-all ${
+                        className={`w-9 h-9 rounded-full border-2 flex flex-col items-center justify-center tabular-nums text-[11px] font-extrabold shrink-0 transition-all ${
                           ativo
-                            ? 'bg-amber-400/15 border-amber-400 text-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.35)]'
-                            : 'bg-slate-950 border-slate-700 text-slate-400 group-hover:border-slate-500 group-hover:text-slate-200'
+                            ? 'bg-[#D98A00]/15 border-[var(--warning)] text-[#FFE2A8] '
+                            : 'bg-[#0B1B2E] border-[#22324C] text-[var(--text-subtle)] group-hover:border-[var(--border-strong)] group-hover:text-white/90'
                         }`}
                       >
                         {item.codigo}
                       </div>
                       <div className="min-w-0">
-                        <div className={`text-xs font-bold truncate ${ativo ? 'text-white' : 'text-slate-300'}`}>
+                        <div className={`text-xs font-bold truncate ${ativo ? 'text-white' : 'text-[var(--ink-muted)]'}`}>
                           {item.andarLabel}
                         </div>
-                        <div className="text-[10px] text-slate-400 truncate">
+                        <div className="text-[10px] text-[var(--text-subtle)] truncate">
                           {item.sub}
                         </div>
                       </div>
                     </div>
 
                     <div className="flex flex-col items-end shrink-0">
-                      <span className={`w-1.5 h-1.5 rounded-full mb-1 ${ativo ? 'bg-amber-400 animate-ping' : item.corLed}`} />
-                      <span className="font-mono text-[10px] text-slate-400 bg-slate-950/90 px-1.5 py-0.5 rounded border border-slate-800">
+                      <span className={`w-1.5 h-1.5 rounded-full mb-1 ${ativo ? 'bg-[#D98A00] ' : item.corLed}`} />
+                      <span className="tabular-nums text-[10px] text-[var(--text-subtle)] bg-[#0B1B2E]/90 px-1.5 py-0.5 rounded border border-[#22324C]">
                         {qtd}
                       </span>
                     </div>
@@ -475,18 +382,18 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
           {/* Linha Inferior do Header: Busca Instantânea e Pílulas de Departamento */}
           <div className="pt-2 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="relative flex-1 max-w-xl">
-              <Search size={15} className="absolute left-3.5 top-2.5 text-slate-400" />
+              <Search size={15} className="absolute left-3.5 top-2.5 text-[var(--text-subtle)]" />
               <input
                 type="text"
                 value={busca}
                 onChange={e => setBusca(e.target.value)}
                 placeholder="Buscar por servidor, cargo, setor (Gabinete, TI, Frota) ou ramal (ex: 8201)..."
-                className="w-full text-xs pl-10 pr-8 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200/90 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#0072BB]/20 focus:border-[#0072BB] text-slate-800 transition"
+                className="w-full text-xs pl-10 pr-8 py-2.5 bg-[var(--surface-2)] hover:bg-[var(--surface)] focus:bg-[var(--surface)] border border-[var(--border)]/90 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[var(--brand)]/20 focus:border-[var(--brand)] text-[var(--text)] transition"
               />
               {busca && (
                 <button
                   onClick={() => setBusca('')}
-                  className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                  className="absolute right-2.5 top-2.5 text-[var(--text-subtle)] hover:text-[var(--text-muted)] p-0.5 cursor-pointer"
                 >
                   <X size={14} />
                 </button>
@@ -503,8 +410,8 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
                   }}
                   className={`px-3 py-1.5 rounded-xl font-semibold transition shrink-0 cursor-pointer text-xs border ${
                     filtroDepto === dep.id
-                      ? 'bg-[#0072BB] text-white border-[#0072BB] shadow-2xs'
-                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-200/80'
+                      ? 'bg-[#0072BB] text-white border-[var(--brand)] shadow-2xs'
+                      : 'bg-[var(--surface-2)] text-[var(--text-muted)] hover:bg-[var(--surface-2)] border-[var(--border)]/80'
                   }`}
                 >
                   {dep.label}
@@ -518,10 +425,10 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
       {/* (2) GRID DE CARDS CHANFRADOS OU ORGANOGRAMA HIERÁRQUICO ILUMINADO */}
       {modoVisualizacao !== 'organograma' ? (
         <div className="space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-slate-500">
+          <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-[var(--text-muted)]">
             <div className="flex items-center gap-2">
               <span className="font-medium">
-                Exibindo <strong className="text-slate-900 font-mono">{ramaisFiltrados.length}</strong> ramal(is) operacional(is)
+                Exibindo <strong className="text-[var(--text)] tabular-nums">{ramaisFiltrados.length}</strong> ramal(is) operacional(is)
               </span>
               {(filtroAndar !== 'todos' || filtroDepto !== 'todos') && (
                 <button
@@ -530,24 +437,24 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
                     setFiltroAndar('todos');
                     setFiltroDepto('todos');
                   }}
-                  className="text-[11px] font-semibold text-[#0072BB] hover:underline cursor-pointer"
+                  className="text-[11px] font-semibold text-[var(--brand)] hover:underline cursor-pointer"
                 >
                   Limpar filtros ativos ×
                 </button>
               )}
             </div>
-            <span className="font-mono text-[11px] text-slate-500 bg-white px-2.5 py-1 rounded-lg border border-slate-200/80">
-              Discagem Direta Externa (DDR): <strong className="text-slate-800">(41) 3310-XXXX</strong>
+            <span className="tabular-nums text-[11px] text-[var(--text-muted)] bg-[var(--surface)] px-2.5 py-1 rounded-lg border border-[var(--border)]/80">
+              Discagem Direta Externa (DDR): <strong className="text-[var(--text)]">(41) 3310-XXXX</strong>
             </span>
           </div>
 
           {ramaisFiltrados.length === 0 ? (
-            <div className="p-12 bg-white rounded-2xl border border-slate-200/80 shadow-2xs text-center space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center mx-auto">
+            <div className="p-12 bg-[var(--surface)] rounded-[18px] border border-[var(--border)]/80 shadow-2xs text-center space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-[var(--surface-2)] text-[var(--text-muted)] flex items-center justify-center mx-auto">
                 <PhoneCall size={18} />
               </div>
-              <div className="text-sm font-bold text-slate-800">Nenhum ramal localizado neste pavimento/setor</div>
-              <p className="text-xs text-slate-500 max-w-md mx-auto">
+              <div className="text-sm font-bold text-[var(--text)]">Nenhum ramal localizado neste pavimento/setor</div>
+              <p className="text-xs text-[var(--text-muted)] max-w-md mx-auto">
                 Utilize o Painel de Elevador acima para alternar para "Todos Pavimentos" ou redefina sua pesquisa.
               </p>
               <button
@@ -556,7 +463,7 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
                   setFiltroAndar('todos');
                   setFiltroDepto('todos');
                 }}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold cursor-pointer hover:bg-slate-800 transition"
+                className="px-4 py-2 rounded-xl bg-[#0B1B2E] text-white text-xs font-semibold cursor-pointer hover:bg-[#0B1B2E] transition"
               >
                 Restaurar Todos os Ramais
               </button>
@@ -569,50 +476,50 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
                   r.statusPresenca === 'online'
                     ? {
                         label: 'Disponível',
-                        ringAvatar: 'ring-2 ring-emerald-500 ring-offset-2 ring-offset-white',
-                        dotColor: 'bg-emerald-500',
-                        badgeClass: 'text-emerald-800 bg-emerald-50 border-emerald-200/90',
-                        topAccent: 'from-emerald-500 via-sky-500 to-transparent'
+                        ringAvatar: 'ring-2 ring-[var(--verde)] ring-offset-2 ring-offset-white',
+                        dotColor: 'bg-[#00A859]',
+                        badgeClass: 'text-[var(--verde)] bg-[var(--verde-soft)] border-[var(--verde-border)]/90',
+                        topAccent: 'bg-[#00A859]  '
                       }
                     : r.statusPresenca === 'reuniao'
                     ? {
                         label: 'Em Reunião',
-                        ringAvatar: 'ring-2 ring-amber-500 ring-offset-2 ring-offset-white',
-                        dotColor: 'bg-amber-500',
-                        badgeClass: 'text-amber-800 bg-amber-50 border-amber-200/90',
-                        topAccent: 'from-amber-500 via-orange-400 to-transparent'
+                        ringAvatar: 'ring-2 ring-[var(--warning)] ring-offset-2 ring-offset-white',
+                        dotColor: 'bg-[#D98A00]',
+                        badgeClass: 'text-[var(--warning)] bg-[var(--warning-soft)] border-[var(--warning-border)]/90',
+                        topAccent: 'bg-[#D98A00]  '
                       }
                     : {
                         label: 'Em Missão',
-                        ringAvatar: 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-white',
-                        dotColor: 'bg-indigo-500',
-                        badgeClass: 'text-indigo-800 bg-indigo-50 border-indigo-200/90',
-                        topAccent: 'from-indigo-500 via-sky-500 to-transparent'
+                        ringAvatar: 'ring-2 ring-[var(--brand)] ring-offset-2 ring-offset-white',
+                        dotColor: 'bg-[#0072BB]',
+                        badgeClass: 'text-[var(--brand)] bg-[var(--brand-soft)] border-[var(--brand-border)]/90',
+                        topAccent: 'bg-[#0072BB]  '
                       };
 
                 return (
                   <div
                     key={r.id}
-                    className="group relative bg-white p-5 rounded-xl border border-slate-200/90 hover:border-slate-300 shadow-xs hover:shadow-sm transition-all flex flex-col justify-between gap-4 overflow-hidden"
+                    className="group relative bg-[var(--surface)] p-5 rounded-xl border border-[var(--border)]/90 hover:border-[var(--border-strong)] shadow-xs hover:shadow-sm transition-all flex flex-col justify-between gap-4 overflow-hidden"
                   >
                     {/* Filete Superior de Status */}
-                    <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${statusConfig.topAccent}`} />
+                    <div className={`absolute top-0 left-0 right-0 h-1 ${statusConfig.topAccent}`} />
 
                     {/* Topo do Card: Departamento, Status Ao Vivo e Tecla VoIP Tátil do Ramal */}
                     <div className="flex items-start justify-between gap-3 pt-0.5">
                       <div className="space-y-1.5 min-w-0">
                         <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded border border-slate-200/90">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text)] bg-[var(--surface-2)] px-2.5 py-0.5 rounded border border-[var(--border)]/90">
                             {r.departamento}
                           </span>
 
                           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border flex items-center gap-1.5 ${statusConfig.badgeClass}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dotColor} ${r.statusPresenca === 'online' ? 'animate-pulse' : ''}`} />
+                            <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dotColor} ${r.statusPresenca === 'online' ? '' : ''}`} />
                             {statusConfig.label}
                           </span>
                         </div>
 
-                        <h3 className="font-bold text-sm sm:text-base text-slate-900 truncate group-hover:text-[#0072BB] transition-colors">
+                        <h3 className="font-bold text-sm sm:text-base text-[var(--text)] truncate group-hover:text-[var(--brand)] transition-colors">
                           {r.setor}
                         </h3>
                       </div>
@@ -621,21 +528,21 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
                       <div className="flex items-center gap-2 shrink-0">
                         <button
                           onClick={() => handleToggleFavorito(r.id)}
-                          className="p-2 rounded-lg border border-slate-200/70 hover:border-amber-300 bg-slate-50/70 hover:bg-amber-50/50 text-slate-400 hover:text-amber-500 transition cursor-pointer"
+                          className="p-2 rounded-lg border border-[var(--border)]/70 hover:border-[var(--warning-border)] bg-[var(--surface-2)]/70 hover:bg-[var(--warning-soft)]/50 text-[var(--text-subtle)] hover:text-[var(--warning)] transition cursor-pointer"
                           title={r.favorito ? 'Remover dos favoritos' : 'Fixar nos favoritos'}
                         >
-                          <Star size={14} className={r.favorito ? 'text-amber-500 fill-amber-500' : ''} />
+                          <Star size={14} className={r.favorito ? 'text-[var(--warning)] fill-[var(--warning)]' : ''} />
                         </button>
 
                         {/* Tecla VoIP Tátil Esculpida */}
                         <button
                           onClick={() => handleCopiar(r.id, r.ramal)}
                           title="Tecla VoIP Tátil: Clique para copiar o ramal"
-                          className="relative px-3 py-1.5 rounded-lg bg-gradient-to-b from-slate-800 to-slate-950 hover:from-slate-700 hover:to-slate-900 active:translate-y-0.5 text-white font-mono border border-slate-700 shadow-[0_3px_0_0_#0f172a] active:shadow-[0_1px_0_0_#0f172a] transition-all cursor-pointer flex items-center gap-2 shrink-0"
+                          className="relative px-3 py-1.5 rounded-lg bg-[#0B1B2E] hover:bg-[#13223A] active:translate-y-0.5 text-white tabular-nums border border-[#22324C] transition-all cursor-pointer flex items-center gap-2 shrink-0"
                         >
                           <span className={`w-1.5 h-3.5 rounded-full ${statusConfig.dotColor}`} />
                           <div className="text-left leading-none">
-                            <span className="block text-[8px] uppercase tracking-widest text-slate-400 font-semibold">
+                            <span className="block text-[8px] uppercase tracking-widest text-[var(--text-subtle)] font-semibold">
                               TECLA EXT
                             </span>
                             <span className="text-sm font-extrabold tracking-tight tabular-nums text-white">
@@ -643,21 +550,21 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
                             </span>
                           </div>
                           {copiadoId === r.id ? (
-                            <Check size={13} className="text-emerald-400 ml-0.5" />
+                            <Check size={13} className="text-[var(--verde)] ml-0.5" />
                           ) : (
-                            <Copy size={12} className="text-slate-400 ml-0.5" />
+                            <Copy size={12} className="text-[var(--text-subtle)] ml-0.5" />
                           )}
                         </button>
                       </div>
                     </div>
 
                     {/* Corpo: Avatar com Anel de Status Ao Vivo + Pavimento Estilo Sinalização */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-slate-50/90 border border-slate-200/80 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-[var(--surface-2)]/90 border border-[var(--border)]/80 text-xs">
                       <div className="flex items-center gap-3 min-w-0">
                         {/* Avatar com Anel Ao Vivo */}
                         <div className="relative shrink-0">
                           <div
-                            className={`w-10 h-10 rounded-full bg-slate-900 text-white font-mono text-xs font-bold flex items-center justify-center ${statusConfig.ringAvatar}`}
+                            className={`w-10 h-10 rounded-full bg-[#0B1B2E] text-white tabular-nums text-xs font-bold flex items-center justify-center ${statusConfig.ringAvatar}`}
                           >
                             {iniciais}
                           </div>
@@ -667,32 +574,32 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
                           />
                         </div>
                         <div className="min-w-0">
-                          <div className="font-bold text-slate-900 truncate">{r.responsavel}</div>
-                          <div className="text-[11px] text-slate-500 truncate">{r.cargo}</div>
+                          <div className="font-bold text-[var(--text)] truncate">{r.responsavel}</div>
+                          <div className="text-[11px] text-[var(--text-muted)] truncate">{r.cargo}</div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2.5 min-w-0 sm:border-l sm:border-slate-200/80 sm:pl-3">
-                        <div className="w-8 h-8 rounded-lg bg-slate-900 text-amber-400 font-mono text-[10px] font-extrabold flex items-center justify-center shrink-0 border border-slate-700">
+                      <div className="flex items-center gap-2.5 min-w-0 sm:border-l sm:border-[var(--border)]/80 sm:pl-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#0B1B2E] text-[var(--warning)] tabular-nums text-[10px] font-extrabold flex items-center justify-center shrink-0 border border-[#22324C]">
                           {r.andar.startsWith('3') ? '03F' : r.andar.startsWith('2') ? '02F' : r.andar.startsWith('1') ? '01F' : 'TER'}
                         </div>
                         <div className="min-w-0">
-                          <div className="font-semibold text-slate-800 truncate">{r.andar}</div>
-                          <div className="font-mono text-[11px] text-slate-500 tabular-nums truncate">{r.telefoneDireto}</div>
+                          <div className="font-semibold text-[var(--text)] truncate">{r.andar}</div>
+                          <div className="tabular-nums text-[11px] text-[var(--text-muted)] tabular-nums truncate">{r.telefoneDireto}</div>
                         </div>
                       </div>
                     </div>
 
                     {/* Rodapé de Ações Rápidas (E-mail & Tecla de Discagem VoIP Direta) */}
-                    <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
-                      <span className="font-mono text-[11px] text-slate-500 truncate">
+                    <div className="pt-2.5 border-t border-[var(--border-subtle)] flex items-center justify-between gap-2 text-xs">
+                      <span className="tabular-nums text-[11px] text-[var(--text-muted)] truncate">
                         {r.email}
                       </span>
 
                       <div className="flex items-center gap-2 shrink-0">
                         <a
                           href={`mailto:${r.email}`}
-                          className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold transition flex items-center gap-1.5 border border-slate-200/80"
+                          className="px-2.5 py-1.5 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)]/80 text-[var(--text)] font-semibold transition flex items-center gap-1.5 border border-[var(--border)]/80"
                           title={`Enviar e-mail institucional para ${r.email}`}
                         >
                           <Mail size={13} />
@@ -701,7 +608,7 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
 
                         <button
                           onClick={() => handleIniciarChamada(r)}
-                          className="px-3.5 py-1.5 rounded-lg bg-gradient-to-b from-[#0084D6] to-[#0062A3] hover:from-[#0072BB] hover:to-[#005187] active:translate-y-0.5 text-white font-bold transition cursor-pointer flex items-center gap-1.5 shadow-[0_2px_0_0_#003d66]"
+                          className="px-3.5 py-1.5 rounded-lg bg-[#0084D6] hover:bg-[#0072BB] active:translate-y-0.5 text-white font-bold transition cursor-pointer flex items-center gap-1.5 "
                         >
                           <PhoneForwarded size={13} /> Discar VoIP
                         </button>
@@ -715,22 +622,18 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
         </div>
       ) : (
         /* (3) MODO ORGANOGRAMA INSTITUCIONAL HIERÁRQUICO COM LINHAS CONECTORAS, CANTONEIRAS E DESTAQUE LUMINOSO */
-        <div className="relative bg-slate-950 text-white rounded-2xl p-6 sm:p-8 border border-slate-800 shadow-xl overflow-hidden space-y-8">
+        <div className="relative bg-[#0B1B2E] text-white rounded-[18px] p-6 sm:p-8 border border-[#22324C] overflow-hidden space-y-8">
           {/* Malha Arquitetônica de Fundo + Cantoneiras Externas */}
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(56,189,248,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(56,189,248,0.05)_1px,transparent_1px)] bg-[size:28px_28px]" />
-          <span className="pointer-events-none absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2 border-sky-400/60" />
-          <span className="pointer-events-none absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2 border-sky-400/60" />
-          <span className="pointer-events-none absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2 border-sky-400/60" />
-          <span className="pointer-events-none absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2 border-sky-400/60" />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(56,189,248,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(56,189,248,0.05)_1px,transparent_1px)] bg-[size:28px_28px]" />    
 
           <div className="relative z-10 text-center space-y-1.5 max-w-2xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-400/30 text-sky-300 font-mono text-[10px] uppercase tracking-widest">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0072BB]/10 border border-[var(--brand)]/30 text-[#DCEEFB] tabular-nums text-[10px] uppercase tracking-widest">
               <Network size={12} /> Arquitetura Hierárquica & Comando VoIP SEJU-PR
             </div>
             <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
               Cadeia de Comando: Secretário → Diretorias → Núcleos Operacionais
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[var(--text-subtle)]">
               Clique em qualquer unidade para filtrar seus ramais ou acione a discagem VoIP imediata no próprio bloco hierárquico.
             </p>
           </div>
@@ -740,27 +643,22 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
             
             {/* NÍVEL 1: SECRETÁRIO / GABINETE SUPERIOR */}
             <div className="max-w-xl mx-auto relative group">
-              <div className="relative bg-gradient-to-b from-slate-900 to-slate-950 p-5 rounded-xl border border-sky-400/50 shadow-[0_0_30px_rgba(14,165,233,0.18)] text-left transition hover:border-sky-300">
-                {/* Cantoneiras Técnicas nos 4 Cantos */}
-                <span className="absolute top-1.5 left-1.5 w-3 h-3 border-t-2 border-l-2 border-sky-400" />
-                <span className="absolute top-1.5 right-1.5 w-3 h-3 border-t-2 border-r-2 border-sky-400" />
-                <span className="absolute bottom-1.5 left-1.5 w-3 h-3 border-b-2 border-l-2 border-sky-400" />
-                <span className="absolute bottom-1.5 right-1.5 w-3 h-3 border-b-2 border-r-2 border-sky-400" />
+              <div className="relative bg-[#0B1B2E] p-5 rounded-xl border border-[var(--brand)]/50 text-left transition hover:border-[var(--brand-border)]">    
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded bg-sky-500/20 border border-sky-400/40 font-mono text-[10px] font-bold uppercase tracking-widest text-sky-300">
+                      <span className="px-2 py-0.5 rounded bg-[#0072BB]/20 border border-[var(--brand)]/40 tabular-nums text-[10px] font-bold uppercase tracking-widest text-[#DCEEFB]">
                         NÍVEL I · CÚPULA DIRETIVA
                       </span>
-                      <span className="font-mono text-[10px] text-emerald-400 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" /> 3º Andar
+                      <span className="tabular-nums text-[10px] text-[var(--verde)] flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#00A859] " /> 3º Andar
                       </span>
                     </div>
                     <h4 className="text-base sm:text-lg font-bold text-white">
                       Gabinete do Secretário da Justiça e Cidadania
                     </h4>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-[var(--ink-muted)]">
                       Chefia de Gabinete: <strong className="text-white">Dra. Maria Helena</strong> · Assessoria Técnica & Despachos
                     </p>
                   </div>
@@ -768,7 +666,7 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
                   <div className="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0">
                     <button
                       onClick={() => handleIniciarChamada(ramais[0])}
-                      className="px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-mono text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition shadow-sm"
+                      className="px-3 py-1.5 rounded-lg bg-[#0072BB] hover:bg-[#0072BB] text-[var(--text)] tabular-nums text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition shadow-sm"
                     >
                       <PhoneForwarded size={13} /> EXT 8201
                     </button>
@@ -778,7 +676,7 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
                         setFiltroDepto('Gabinete');
                         setModoVisualizacao('diretorio');
                       }}
-                      className="text-[11px] font-semibold text-sky-300 hover:text-white flex items-center gap-1 cursor-pointer"
+                      className="text-[11px] font-semibold text-[#DCEEFB] hover:text-white flex items-center gap-1 cursor-pointer"
                     >
                       Abrir Gabinete <ArrowUpRight size={12} />
                     </button>
@@ -789,16 +687,16 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
 
             {/* CONECTOR VERTICAL NÍVEL 1 -> BARRAMENTO HORIZONTAL NÍVEL 2 */}
             <div className="flex flex-col items-center">
-              <div className="w-0.5 h-7 bg-gradient-to-b from-sky-400 to-sky-500/60 relative">
-                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-sky-400 shadow-[0_0_10px_#38bdf8]" />
+              <div className="w-0.5 h-7 bg-[#0072BB] relative">
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-[#0072BB] " />
               </div>
               {/* Barramento horizontal para 3 colunas em telas grandes */}
               <div className="hidden md:grid grid-cols-3 w-full max-w-4xl">
-                <div className="h-5 border-t-2 border-l-2 border-sky-500/40 rounded-tl-lg ml-[50%]" />
-                <div className="h-5 border-t-2 border-sky-500/40 relative">
-                  <div className="w-0.5 h-5 bg-sky-500/40 mx-auto" />
+                <div className="h-5 border-t-2 border-l-2 border-[var(--brand)]/40 rounded-tl-lg ml-[50%]" />
+                <div className="h-5 border-t-2 border-[var(--brand)]/40 relative">
+                  <div className="w-0.5 h-5 bg-[#0072BB]/40 mx-auto" />
                 </div>
-                <div className="h-5 border-t-2 border-r-2 border-sky-500/40 rounded-tr-lg mr-[50%]" />
+                <div className="h-5 border-t-2 border-r-2 border-[var(--brand)]/40 rounded-tr-lg mr-[50%]" />
               </div>
             </div>
 
@@ -850,37 +748,37 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
               ].map(dir => (
                 <div key={dir.codigo} className="flex flex-col">
                   {/* Card Nível 2 (Diretoria) */}
-                  <div className="bg-slate-900 p-4 rounded-xl border border-slate-700/90 hover:border-slate-600 transition shadow-md flex-1 flex flex-col justify-between gap-3">
+                  <div className="bg-[#0B1B2E] p-4 rounded-xl border border-[#22324C]/90 hover:border-[var(--border-strong)] transition flex-1 flex flex-col justify-between gap-3">
                     <div className="space-y-1.5">
-                      <div className="flex items-center justify-between text-[10px] font-mono">
-                        <span className="text-sky-400 font-bold uppercase tracking-wider">
+                      <div className="flex items-center justify-between text-[10px] tabular-nums">
+                        <span className="text-[var(--brand)] font-bold uppercase tracking-wider">
                           NÍVEL II · {dir.codigo}
                         </span>
-                        <span className="text-slate-400">{dir.andar}</span>
+                        <span className="text-[var(--text-subtle)]">{dir.andar}</span>
                       </div>
                       <h5 className="font-bold text-sm text-white leading-snug">
                         {dir.titulo}
                       </h5>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-[var(--text-subtle)]">
                         {dir.titular}
                       </p>
                     </div>
 
-                    <div className="pt-2.5 border-t border-slate-800 flex items-center justify-between gap-2">
+                    <div className="pt-2.5 border-t border-[#22324C] flex items-center justify-between gap-2">
                       <button
                         onClick={() => {
                           soundFX.playClick();
                           setFiltroDepto(dir.filtro);
                           setModoVisualizacao('diretorio');
                         }}
-                        className="text-[11px] font-semibold text-sky-400 hover:text-sky-300 flex items-center gap-1 cursor-pointer"
+                        className="text-[11px] font-semibold text-[var(--brand)] hover:text-[#DCEEFB] flex items-center gap-1 cursor-pointer"
                       >
                         Filtrar Diretoria <ChevronRight size={13} />
                       </button>
 
                       <button
                         onClick={() => handleIniciarChamada(dir.ramalObj)}
-                        className="px-2.5 py-1 rounded bg-slate-800 hover:bg-sky-500 hover:text-slate-950 text-sky-300 font-mono text-[11px] font-bold border border-slate-700 transition cursor-pointer flex items-center gap-1"
+                        className="px-2.5 py-1 rounded bg-[#0B1B2E] hover:bg-[#0072BB] hover:text-[var(--text)] text-[#DCEEFB] tabular-nums text-[11px] font-bold border border-[#22324C] transition cursor-pointer flex items-center gap-1"
                       >
                         <PhoneCall size={11} /> {dir.ramalPrincipal}
                       </button>
@@ -889,24 +787,24 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
 
                   {/* Conector Vertical para Nível 3 (Núcleos Operacionais) */}
                   <div className="pl-5 pt-2 space-y-2 relative">
-                    <div className="absolute left-2.5 top-0 bottom-4 w-px bg-slate-700" />
+                    <div className="absolute left-2.5 top-0 bottom-4 w-px bg-[#13223A]" />
                     {dir.nucleos.map(nuc => (
                       <div
                         key={nuc.ramal}
-                        className="relative bg-slate-900/60 hover:bg-slate-800/90 p-3 rounded-lg border border-slate-800 hover:border-slate-600 transition flex items-center justify-between gap-2"
+                        className="relative bg-[#0B1B2E]/60 hover:bg-[#0B1B2E]/90 p-3 rounded-lg border border-[#22324C] hover:border-[var(--border-strong)] transition flex items-center justify-between gap-2"
                       >
-                        <CornerDownRight size={13} className="text-sky-400/70 shrink-0 -ml-1" />
+                        <CornerDownRight size={13} className="text-[var(--brand)]/70 shrink-0 -ml-1" />
                         <div className="min-w-0 flex-1">
-                          <div className="text-xs font-semibold text-slate-200 truncate">
+                          <div className="text-xs font-semibold text-white/90 truncate">
                             {nuc.nome}
                           </div>
-                          <div className="text-[10px] font-mono text-slate-400">
+                          <div className="text-[10px] tabular-nums text-[var(--text-subtle)]">
                             Núcleo Operacional · {nuc.andar}
                           </div>
                         </div>
                         <button
                           onClick={() => handleIniciarChamada(nuc.item)}
-                          className="px-2.5 py-1 rounded bg-slate-950 hover:bg-emerald-500 hover:text-slate-950 text-emerald-400 border border-slate-700 font-mono text-[11px] font-bold transition cursor-pointer shrink-0"
+                          className="px-2.5 py-1 rounded bg-[#0B1B2E] hover:bg-[#00A859] hover:text-[var(--text)] text-[var(--verde)] border border-[#22324C] tabular-nums text-[11px] font-bold transition cursor-pointer shrink-0"
                           title={`Discar VoIP para ramal ${nuc.ramal}`}
                         >
                           EXT {nuc.ramal}
@@ -923,24 +821,22 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
 
       {/* (4) SIMULADOR DE LIGAÇÃO VOIP — WIDGET FLUTUANTE CALLKIT / WEBEX EXECUTIVE */}
       {chamadaAtiva && (
-        <div className="fixed inset-0 bg-slate-950/65 z-50 flex items-center justify-center p-4 animate-in fade-in">
+        <div className="fixed inset-0 bg-[#0B1B2E]/65 z-50 flex items-center justify-center p-4 animate-in fade-in">
           <div
             style={{
               clipPath: 'polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px))'
             }}
-            className="relative bg-slate-950 text-white max-w-md w-full p-6 shadow-2xl border border-slate-700/90 space-y-5 overflow-hidden animate-in zoom-in-95"
+            className="relative bg-[#0B1B2E] text-white max-w-md w-full p-6 border border-[#22324C]/90 space-y-5 overflow-hidden animate-in zoom-in-95"
           >
             {/* Malha Sutil + Cantoneiras Executive CallKit */}
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.16),transparent_65%)]" />
-            <span className="pointer-events-none absolute top-2.5 left-2.5 w-3.5 h-3.5 border-t-2 border-l-2 border-sky-400/70" />
-            <span className="pointer-events-none absolute bottom-2.5 right-2.5 w-3.5 h-3.5 border-b-2 border-r-2 border-sky-400/70" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.16),transparent_65%)]" />  
 
             {/* Top Bar do CallKit */}
-            <div className="relative z-10 flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-slate-400 border-b border-slate-800/90 pb-3">
-              <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
+            <div className="relative z-10 flex items-center justify-between text-[10px] tabular-nums uppercase tracking-widest text-[var(--text-subtle)] border-b border-[#22324C]/90 pb-3">
+              <span className="flex items-center gap-1.5 text-[var(--verde)] font-bold">
                 <ShieldCheck size={13} /> SRTP AES-256 · CALLKIT SEJU
               </span>
-              <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-sky-400">
+              <span className="px-2 py-0.5 rounded bg-[#0B1B2E] border border-[#22324C] text-[var(--brand)]">
                 CANAL VOIP #{chamadaAtiva.ramal}
               </span>
             </div>
@@ -948,32 +844,32 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
             {/* Avatar Pulsante + Identificação Executiva */}
             <div className="relative z-10 flex items-center gap-4">
               <div className="relative shrink-0">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-sky-400/50 text-white flex items-center justify-center font-mono font-extrabold text-xl shadow-[0_0_20px_rgba(56,189,248,0.2)]">
+                <div className="w-16 h-16 rounded-[18px] bg-[#0B1B2E] border border-[var(--brand)]/50 text-white flex items-center justify-center tabular-nums font-extrabold text-xl ">
                   {extrairIniciais(chamadaAtiva.responsavel)}
                 </div>
-                <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-slate-950 animate-pulse" />
+                <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#00A859] border-2 border-[#22324C] " />
               </div>
 
               <div className="text-left min-w-0 flex-1 space-y-0.5">
-                <div className="text-[11px] text-sky-400 font-mono uppercase tracking-wider font-semibold">
+                <div className="text-[11px] text-[var(--brand)] tabular-nums uppercase tracking-wider font-semibold">
                   {chamadaAtiva.andar}
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-white truncate">
                   {chamadaAtiva.responsavel}
                 </h3>
-                <p className="text-xs text-slate-400 truncate">{chamadaAtiva.setor}</p>
-                <p className="text-[11px] font-mono text-slate-500">{chamadaAtiva.telefoneDireto}</p>
+                <p className="text-xs text-[var(--text-subtle)] truncate">{chamadaAtiva.setor}</p>
+                <p className="text-[11px] tabular-nums text-[var(--text-muted)]">{chamadaAtiva.telefoneDireto}</p>
               </div>
             </div>
 
             {/* Display de Onda Sonora Animada (Audio Waveform) + Cronômetro Tabular */}
-            <div className="relative z-10 p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
+            <div className="relative z-10 p-4 rounded-xl bg-[#0B1B2E]/90 border border-[#22324C] space-y-3">
               <div className="flex items-center justify-between">
                 <div className="text-left">
-                  <span className="block text-[9px] font-mono uppercase tracking-widest text-slate-400">
+                  <span className="block text-[9px] tabular-nums uppercase tracking-widest text-[var(--text-subtle)]">
                     Duração da Sessão
                   </span>
-                  <span className="font-mono text-2xl font-extrabold text-emerald-400 tabular-nums tracking-tight">
+                  <span className="tabular-nums text-2xl font-extrabold text-[var(--verde)] tabular-nums tracking-tight">
                     {formatarDuracao(chamadaSegundos)}
                   </span>
                 </div>
@@ -990,10 +886,10 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
                         style={{ height: `${alturaDinamica}%` }}
                         className={`w-1.5 rounded-full transition-all duration-150 ${
                           chamadaMutada
-                            ? 'bg-amber-500/40'
+                            ? 'bg-[#D98A00]/40'
                             : barIdx % 2 === 0
-                            ? 'bg-emerald-400'
-                            : 'bg-sky-400'
+                            ? 'bg-[#00A859]'
+                            : 'bg-[#0072BB]'
                         }`}
                       />
                     );
@@ -1002,22 +898,22 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
               </div>
 
               {dtmfDigitado && (
-                <div className="pt-2 border-t border-slate-800 flex items-center justify-between font-mono text-xs">
-                  <span className="text-slate-400 text-[10px]">TOM DTMF ENVIADO:</span>
-                  <span className="text-amber-300 font-bold tracking-widest">{dtmfDigitado}</span>
+                <div className="pt-2 border-t border-[#22324C] flex items-center justify-between tabular-nums text-xs">
+                  <span className="text-[var(--text-subtle)] text-[10px]">TOM DTMF ENVIADO:</span>
+                  <span className="text-[#FFE2A8] font-bold tracking-widest">{dtmfDigitado}</span>
                 </div>
               )}
             </div>
 
             {/* Teclado DTMF Tátil Expansível */}
             {tecladoDtmfAberto && (
-              <div className="relative z-10 grid grid-cols-3 gap-2 p-3 rounded-xl bg-slate-900 border border-slate-800 animate-in fade-in">
+              <div className="relative z-10 grid grid-cols-3 gap-2 p-3 rounded-xl bg-[#0B1B2E] border border-[#22324C] animate-in fade-in">
                 {['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'].map(tecla => (
                   <button
                     key={tecla}
                     type="button"
                     onClick={() => handlePressionarDtmf(tecla)}
-                    className="py-2 rounded-lg bg-slate-950 hover:bg-slate-800 active:translate-y-0.5 border border-slate-800 font-mono text-sm font-bold text-white shadow-[0_2px_0_0_#020617] cursor-pointer transition"
+                    className="py-2 rounded-lg bg-[#0B1B2E] hover:bg-[#0B1B2E] active:translate-y-0.5 border border-[#22324C] tabular-nums text-sm font-bold text-white cursor-pointer transition"
                   >
                     {tecla}
                   </button>
@@ -1034,8 +930,8 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
                 }}
                 className={`p-3 rounded-xl border font-semibold text-[11px] flex flex-col items-center justify-center gap-1 transition cursor-pointer ${
                   chamadaMutada
-                    ? 'bg-amber-500 text-slate-950 border-amber-400'
-                    : 'bg-slate-900 hover:bg-slate-800 text-slate-200 border-slate-800'
+                    ? 'bg-[#D98A00] text-[var(--text)] border-[var(--warning)]'
+                    : 'bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white/90 border-[#22324C]'
                 }`}
                 title={chamadaMutada ? 'Ativar Microfone' : 'Silenciar Microfone'}
               >
@@ -1050,8 +946,8 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
                 }}
                 className={`p-3 rounded-xl border font-semibold text-[11px] flex flex-col items-center justify-center gap-1 transition cursor-pointer ${
                   vivaVozAtivo
-                    ? 'bg-sky-500/20 text-sky-300 border-sky-500/40'
-                    : 'bg-slate-900 hover:bg-slate-800 text-slate-400 border-slate-800'
+                    ? 'bg-[#0072BB]/20 text-[#DCEEFB] border-[var(--brand)]/40'
+                    : 'bg-[#0B1B2E] hover:bg-[#0B1B2E] text-[var(--text-subtle)] border-[#22324C]'
                 }`}
                 title="Alternar Áudio HD / Viva-Voz"
               >
@@ -1066,8 +962,8 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
                 }}
                 className={`p-3 rounded-xl border font-semibold text-[11px] flex flex-col items-center justify-center gap-1 transition cursor-pointer ${
                   tecladoDtmfAberto
-                    ? 'bg-slate-800 text-white border-slate-600'
-                    : 'bg-slate-900 hover:bg-slate-800 text-slate-200 border-slate-800'
+                    ? 'bg-[#0B1B2E] text-white border-[var(--border-strong)]'
+                    : 'bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white/90 border-[#22324C]'
                 }`}
                 title="Abrir Teclado DTMF"
               >
@@ -1077,7 +973,7 @@ export const GuiaRamaisView: React.FC<GuiaRamaisViewProps> = ({ onVoltarHub }) =
 
               <button
                 onClick={handleEncerrarChamada}
-                className="p-3 rounded-xl bg-gradient-to-b from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 text-white border border-red-400/40 font-bold text-[11px] flex flex-col items-center justify-center gap-1 transition cursor-pointer shadow-[0_3px_0_0_#450a0a] active:translate-y-0.5"
+                className="p-3 rounded-xl bg-[#C8372D] hover:bg-[#B42318] text-white border border-[var(--danger)]/40 font-bold text-[11px] flex flex-col items-center justify-center gap-1 transition cursor-pointer active:translate-y-0.5"
                 title="Encerrar Ligação VoIP"
               >
                 <PhoneOff size={17} />

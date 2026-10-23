@@ -1,8 +1,9 @@
+import { ModuloCabecalho, AcaoModulo, NumeroModulo } from '../modulo/ModuloCabecalho';
 import React, { useState } from 'react';
 import { 
   Calendar as CalendarIcon, 
   Plus, 
-  Clock, 
+  
   Users, 
   Building, 
   CheckCircle2, 
@@ -15,14 +16,14 @@ import {
   Trash2,
   CalendarDays,
   X,
-  ArrowLeft,
+  
   SlidersHorizontal,
   MapPin,
-  ShieldCheck,
+  
   Layers,
   Mic,
   Wifi,
-  Compass,
+  
   ArrowUpRight,
   Check
 } from 'lucide-react';
@@ -156,11 +157,11 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
       cap: 120, 
       layout: 'Auditório / Plenária',
       equip: 'Projetor Laser 4K, 4 Mics Sem Fio, Som Line-Array, Cabine de Tradução', 
-      dotColor: 'bg-indigo-600',
-      accentBorder: 'border-l-indigo-500',
-      blockBg: 'from-indigo-950/95 via-slate-900/95 to-slate-900/90 border-indigo-500/40',
-      badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200/80',
-      ringActive: 'ring-indigo-500/20 border-indigo-600',
+      dotColor: 'bg-[#0072BB]',
+      accentBorder: 'border-l-[var(--brand)]',
+      blockBg: 'bg-[#0B1B2E]/95   border-[var(--brand)]/40',
+      badgeColor: 'bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--brand-border)]/80',
+      ringActive: 'ring-[var(--brand)]/20 border-[var(--brand)]',
       hasVideo: true, 
       hasProjetor: true,
       hasAudioPro: true
@@ -173,11 +174,11 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
       cap: 18, 
       layout: 'Mesa em U Executiva',
       equip: 'Kit Videoconferência Teams 360°, Smart TV 75", Lousa de Vidro', 
-      dotColor: 'bg-emerald-600',
-      accentBorder: 'border-l-emerald-500',
-      blockBg: 'from-emerald-950/95 via-slate-900/95 to-slate-900/90 border-emerald-500/40',
-      badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
-      ringActive: 'ring-emerald-500/20 border-emerald-600',
+      dotColor: 'bg-[#00703C]',
+      accentBorder: 'border-l-[var(--verde)]',
+      blockBg: 'bg-[#0B1B2E]/95   border-[var(--verde)]/40',
+      badgeColor: 'bg-[var(--verde-soft)] text-[var(--verde)] border-[var(--verde-border)]/80',
+      ringActive: 'ring-[var(--verde)]/20 border-[var(--verde)]',
       hasVideo: true, 
       hasProjetor: false,
       hasAudioPro: true
@@ -190,11 +191,11 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
       cap: 8, 
       layout: 'Mesa Circular Mediação',
       equip: 'Isolamento Acústico Duplo, Estação de Apoio, Climatização Dedicada', 
-      dotColor: 'bg-amber-500',
-      accentBorder: 'border-l-amber-500',
-      blockBg: 'from-amber-950/95 via-slate-900/95 to-slate-900/90 border-amber-500/40',
-      badgeColor: 'bg-amber-50 text-amber-700 border-amber-200/80',
-      ringActive: 'ring-amber-500/20 border-amber-600',
+      dotColor: 'bg-[#D98A00]',
+      accentBorder: 'border-l-[var(--warning)]',
+      blockBg: 'bg-[#7A4800]/95   border-[var(--warning)]/40',
+      badgeColor: 'bg-[var(--warning-soft)] text-[var(--warning)] border-[var(--warning-border)]/80',
+      ringActive: 'ring-[var(--warning)]/20 border-[var(--warning)]',
       hasVideo: false, 
       hasProjetor: false,
       hasAudioPro: false
@@ -207,11 +208,11 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
       cap: 35, 
       layout: 'Bancadas com 20 Estações PC',
       equip: '20 Workstations Rede Gigabit, Projetor Interativo, Lousa Digital', 
-      dotColor: 'bg-sky-600',
-      accentBorder: 'border-l-sky-500',
-      blockBg: 'from-sky-950/95 via-slate-900/95 to-slate-900/90 border-sky-500/40',
-      badgeColor: 'bg-sky-50 text-sky-700 border-sky-200/80',
-      ringActive: 'ring-sky-500/20 border-sky-600',
+      dotColor: 'bg-[#0072BB]',
+      accentBorder: 'border-l-[var(--brand)]',
+      blockBg: 'bg-[#0B1B2E]/95   border-[var(--brand)]/40',
+      badgeColor: 'bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--brand-border)]/80',
+      ringActive: 'ring-[var(--brand)]/20 border-[var(--brand)]',
       hasVideo: false, 
       hasProjetor: true,
       hasAudioPro: false
@@ -330,44 +331,44 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
         {temCopa && (
           <span
             title="Serviço de Copa (Café & Água)"
-            className={`inline-flex items-center gap-0.5 rounded bg-amber-500/20 text-amber-200 border border-amber-400/30 font-mono ${
+            className={`inline-flex items-center gap-0.5 rounded bg-[#D98A00]/20 text-[#FFE2A8] border border-[var(--warning)]/30 tabular-nums ${
               compact ? 'px-1 py-0.5 text-[8px]' : 'px-1.5 py-0.5 text-[9px]'
             }`}
           >
-            <Coffee size={compact ? 8 : 9} className="text-amber-300 shrink-0" />
+            <Coffee size={compact ? 8 : 9} className="text-[#FFE2A8] shrink-0" />
             {!compact && <span>Copa</span>}
           </span>
         )}
         {temHibrido && (
           <span
             title="Transmissão Híbrida (Teams / Meet PR)"
-            className={`inline-flex items-center gap-0.5 rounded bg-sky-500/20 text-sky-200 border border-sky-400/30 font-mono ${
+            className={`inline-flex items-center gap-0.5 rounded bg-[#0072BB]/20 text-[#DCEEFB] border border-[var(--brand)]/30 tabular-nums ${
               compact ? 'px-1 py-0.5 text-[8px]' : 'px-1.5 py-0.5 text-[9px]'
             }`}
           >
-            <Monitor size={compact ? 8 : 9} className="text-sky-300 shrink-0" />
+            <Monitor size={compact ? 8 : 9} className="text-[#DCEEFB] shrink-0" />
             {!compact && <span>Híbrida</span>}
           </span>
         )}
         {temTI && (
           <span
             title="Suporte TI Presencial"
-            className={`inline-flex items-center gap-0.5 rounded bg-indigo-500/20 text-indigo-200 border border-indigo-400/30 font-mono ${
+            className={`inline-flex items-center gap-0.5 rounded bg-[#0072BB]/20 text-[#DCEEFB] border border-[var(--brand)]/30 tabular-nums ${
               compact ? 'px-1 py-0.5 text-[8px]' : 'px-1.5 py-0.5 text-[9px]'
             }`}
           >
-            <Laptop size={compact ? 8 : 9} className="text-indigo-300 shrink-0" />
+            <Laptop size={compact ? 8 : 9} className="text-[#DCEEFB] shrink-0" />
             {!compact && <span>TI</span>}
           </span>
         )}
         {temVideo && (
           <span
             title="Gravação em Vídeo / Ata Digital"
-            className={`inline-flex items-center gap-0.5 rounded bg-rose-500/20 text-rose-200 border border-rose-400/30 font-mono ${
+            className={`inline-flex items-center gap-0.5 rounded bg-[#C8372D]/20 text-[#FFD3CC] border border-[var(--danger)]/30 tabular-nums ${
               compact ? 'px-1 py-0.5 text-[8px]' : 'px-1.5 py-0.5 text-[9px]'
             }`}
           >
-            <Video size={compact ? 8 : 9} className="text-rose-300 shrink-0" />
+            <Video size={compact ? 8 : 9} className="text-[#FFD3CC] shrink-0" />
             {!compact && <span>Rec</span>}
           </span>
         )}
@@ -376,97 +377,40 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-5 font-sans">
-      
-      {/* =====================================================================
-          SEÇÃO 1: CABEÇALHO ARQUITETÔNICO & FITA DE CALENDÁRIO DE 7 DIAS (CRON / NOTION STYLE)
-         ===================================================================== */}
-      <div className="relative bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-xs overflow-hidden space-y-5">
-        {/* Marcadores de Canto de Placa Arquitetônica no Header */}
-        <span className="pointer-events-none absolute top-2.5 left-2.5 w-2.5 h-2.5 border-t-2 border-l-2 border-slate-300/80" />
-        <span className="pointer-events-none absolute top-2.5 right-2.5 w-2.5 h-2.5 border-t-2 border-r-2 border-slate-300/80" />
-        <span className="pointer-events-none absolute bottom-2.5 left-2.5 w-2.5 h-2.5 border-b-2 border-l-2 border-slate-300/80" />
-        <span className="pointer-events-none absolute bottom-2.5 right-2.5 w-2.5 h-2.5 border-b-2 border-r-2 border-slate-300/80" />
-
-        {/* Linha Superior: Back Button + Título + KPI Pills + Primary Action */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex items-start gap-3.5">
-            <button
-              onClick={onVoltarHub}
-              className="mt-0.5 p-2.5 rounded-xl bg-slate-50 hover:bg-slate-900 text-slate-600 hover:text-white border border-slate-200/90 hover:border-slate-900 transition-all duration-200 cursor-pointer shrink-0 shadow-2xs group"
-              title="Voltar à Central de Aplicativos"
-            >
-              <ArrowLeft size={18} className="group-hover:-translate-x-0.5 transition-transform" />
-            </button>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest text-slate-500 bg-slate-100/90 border border-slate-200/80 px-2 py-0.5 rounded-md">
-                  <Compass size={11} className="text-slate-600" /> PLANTA CRONOLÓGICA · SEJU-PR
-                </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50/90 border border-emerald-200/80 px-2.5 py-0.5 rounded-full shadow-2xs">
-                  <ShieldCheck size={11} className="text-emerald-600" /> Motor Anti-Colisão em Tempo Real
-                </span>
-              </div>
-              <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight mt-1 flex items-center gap-2.5">
-                <CalendarIcon size={20} className="text-indigo-600 shrink-0" />
-                <span>Reserva Inteligente de Salas, Auditórios & Plenárias</span>
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Régua de precisão horária (08:00 às 18:00), especificação arquitetônica de espaços e logística de copa e TI integrada.
-              </p>
-            </div>
-          </div>
-
-          {/* KPI Pills + Botão de Ação */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50/90 border border-slate-200/80">
-              <Building size={13} className="text-slate-500" />
-              <div className="flex flex-col">
-                <span className="text-[9px] font-mono uppercase tracking-wider text-slate-400 leading-none">Catálogo</span>
-                <span className="text-xs font-bold text-slate-900 font-mono leading-tight mt-0.5">{salas.length} Espaços</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-emerald-50/70 border border-emerald-200/80">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              <div className="flex flex-col">
-                <span className="text-[9px] font-mono uppercase tracking-wider text-emerald-700/80 leading-none">Disponíveis Agora</span>
-                <span className="text-xs font-bold text-emerald-900 font-mono leading-tight mt-0.5">{salasLivresAgora} de {salas.length} Livres</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-50/70 border border-indigo-200/70">
-              <Clock size={13} className="text-indigo-600" />
-              <div className="flex flex-col">
-                <span className="text-[9px] font-mono uppercase tracking-wider text-indigo-700/80 leading-none">Pautas do Dia</span>
-                <span className="text-xs font-bold text-indigo-950 font-mono leading-tight mt-0.5">{reservasDoDia.length} Agendadas</span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => {
-                soundFX.playClick();
-                setModalNovo(true);
-              }}
-              style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22), 0 4px 12px -2px rgba(15,23,42,0.25)' }}
-              className="bg-gradient-to-b from-slate-800 to-slate-950 hover:from-slate-700 hover:to-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-700/80 transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ml-auto sm:ml-1 active:scale-[0.99]"
-            >
-              <Plus size={15} className="text-emerald-400" />
-              <span>Reserva Completa</span>
-            </button>
-          </div>
+    <div className="space-y-5 font-sans">
+      <ModuloCabecalho
+        cor="verde"
+        rotulo="Espaços · Salas e auditórios"
+        titulo="Salas"
+        descricao="Veja o que está livre, reserve sala ou auditório e peça copa ou apoio técnico. Dois horários no mesmo espaço nunca se sobrepõem."
+        onVoltar={onVoltarHub}
+        acoes={
+          <AcaoModulo
+            destaque
+            icone={<Plus size={15} />}
+            onClick={() => {
+              soundFX.playClick();
+              setModalNovo(true);
+            }}
+          >
+            Reservar sala
+          </AcaoModulo>
+        }
+      >
+        <div className="flex flex-wrap gap-2">
+          <NumeroModulo rotulo="Livres agora" valor={salasLivresAgora} detalhe={`de ${salas.length} espaços`} />
+          <NumeroModulo rotulo="Reservas no dia" valor={reservasDoDia.length} />
         </div>
+      </ModuloCabecalho>
 
+      <div className="relative bg-[var(--surface)] rounded-[18px] p-5 sm:p-6 border border-[var(--border)] overflow-hidden space-y-5">
         {/* Fita de Calendário de 7 Dias com Bordas Chanfradas, Brilho Especular e Indicador Luminoso */}
-        <div className="pt-4 border-t border-slate-100 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-            <div className="hidden sm:flex flex-col justify-center pr-3 mr-1 border-r border-slate-200/80 shrink-0">
-              <span className="text-[9px] font-mono uppercase tracking-widest text-slate-400">Fita Cronológica</span>
-              <span className="text-xs font-bold text-slate-700 flex items-center gap-1 mt-0.5">
-                <CalendarDays size={13} className="text-indigo-600" /> 7 Dias
+            <div className="hidden sm:flex flex-col justify-center pr-3 mr-1 border-r border-[var(--border)]/80 shrink-0">
+              <span className="text-[9px] tabular-nums uppercase tracking-widest text-[var(--text-subtle)]">Fita Cronológica</span>
+              <span className="text-xs font-bold text-[var(--text)] flex items-center gap-1 mt-0.5">
+                <CalendarDays size={13} className="text-[var(--brand)]" /> 7 Dias
               </span>
             </div>
 
@@ -490,53 +434,49 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                   }}
                   className={`relative group px-3.5 py-2 rounded-lg text-left transition-all duration-200 flex items-center gap-2.5 shrink-0 cursor-pointer border ${
                     isSelected
-                      ? 'bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950 text-white border-slate-700 scale-[1.02]'
-                      : 'bg-slate-50/90 hover:bg-white text-slate-700 border-slate-200/90 hover:border-slate-300'
+                      ? ' bg-[#0B1B2E]   text-white border-[#22324C] scale-[1.02]'
+                      : 'bg-[var(--surface-2)]/90 hover:bg-[var(--surface)] text-[var(--text)] border-[var(--border)]/90 hover:border-[var(--border-strong)]'
                   }`}
                 >
-                  {/* Reflexo Especular Superior no Card Selecionado */}
-                  {isSelected && (
-                    <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-                  )}
 
                   <div className="flex flex-col leading-none">
                     <span
-                      className={`text-[9px] font-mono font-bold uppercase tracking-wider ${
-                        isSelected ? 'text-emerald-400' : 'text-slate-400 group-hover:text-slate-600'
+                      className={`text-[9px] tabular-nums font-bold uppercase tracking-wider ${
+                        isSelected ? 'text-[var(--verde)]' : 'text-[var(--text-subtle)] group-hover:text-[var(--text-muted)]'
                       }`}
                     >
                       {d.diaCurto} · {d.mes}
                     </span>
                     <div className="flex items-baseline gap-1 mt-1">
-                      <span className={`text-sm font-mono font-extrabold tracking-tight ${isSelected ? 'text-white' : 'text-slate-900'}`}>
+                      <span className={`text-sm tabular-nums font-extrabold tracking-tight ${isSelected ? 'text-white' : 'text-[var(--text)]'}`}>
                         {d.diaNum}
                       </span>
-                      <span className={`text-[10px] font-medium ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
+                      <span className={`text-[10px] font-medium ${isSelected ? 'text-[var(--ink-muted)]' : 'text-[var(--text-muted)]'}`}>
                         {d.rotulo}
                       </span>
                     </div>
                   </div>
 
                   {/* Indicador Luminoso de Quantidade de Reuniões */}
-                  <div className="flex flex-col items-end justify-between pl-1.5 border-l border-slate-500/20">
+                  <div className="flex flex-col items-end justify-between pl-1.5 border-l border-[var(--border-strong)]/20">
                     <span
-                      className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md border ${
+                      className={`inline-flex items-center gap-1 text-[10px] tabular-nums font-bold px-1.5 py-0.5 rounded-md border ${
                         qtdNoDia > 0
                           ? isSelected
-                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40 shadow-[0_0_8px_rgba(16,185,129,0.35)]'
-                            : 'bg-indigo-50 text-indigo-700 border-indigo-200/80'
+                            ? 'bg-[#00A859]/20 text-[#C6E86B] border-[var(--verde)]/40 '
+                            : 'bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--brand-border)]/80'
                           : isSelected
-                          ? 'bg-white/10 text-slate-400 border-white/10'
-                          : 'bg-slate-100 text-slate-400 border-slate-200/60'
+                          ? 'bg-white/10 text-[var(--text-subtle)] border-white/10'
+                          : 'bg-[var(--surface-2)] text-[var(--text-subtle)] border-[var(--border)]/60'
                       }`}
                     >
                       <span
                         className={`w-1.5 h-1.5 rounded-full ${
                           qtdNoDia > 0
                             ? isSelected
-                              ? 'bg-emerald-400 shadow-[0_0_6px_#34d399]'
-                              : 'bg-indigo-500'
-                            : 'bg-slate-300'
+                              ? 'bg-[#00A859] '
+                              : 'bg-[#0072BB]'
+                            : 'bg-[var(--border-strong)]'
                         }`}
                       />
                       {qtdNoDia}
@@ -553,15 +493,15 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                 value={dataSelecionada}
                 onChange={e => setDataSelecionada(e.target.value)}
                 aria-label="Selecionar data no calendário"
-                className="text-xs px-3 py-2 bg-slate-50 hover:bg-white border border-slate-200/90 hover:border-slate-300 rounded-xl font-mono font-semibold text-slate-700 outline-hidden shrink-0 cursor-pointer transition shadow-2xs"
+                className="text-xs px-3 py-2 bg-[var(--surface-2)] hover:bg-[var(--surface)] border border-[var(--border)]/90 hover:border-[var(--border-strong)] rounded-xl tabular-nums font-semibold text-[var(--text)] outline-hidden shrink-0 cursor-pointer transition shadow-2xs"
               />
             </div>
           </div>
 
           {/* Filtro Rápido de Infraestrutura */}
           <div className="flex items-center gap-2 shrink-0 self-start xl:self-auto">
-            <SlidersHorizontal size={13} className="text-slate-400 hidden sm:inline" />
-            <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/80">
+            <SlidersHorizontal size={13} className="text-[var(--text-subtle)] hidden sm:inline" />
+            <div className="flex items-center gap-1 bg-[var(--surface-2)]/90 p-1 rounded-xl border border-[var(--border)]/80">
               {[
                 { id: 'todos', label: 'Todos os Espaços' },
                 { id: 'video', label: 'Videoconferência' },
@@ -575,8 +515,8 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                   }}
                   className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all cursor-pointer ${
                     filtroEquip === f.id
-                      ? 'bg-white text-slate-900 font-semibold shadow-2xs border border-slate-200/60'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-[var(--surface)] text-[var(--text)] font-semibold shadow-2xs border border-[var(--border)]/60'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text)]'
                   }`}
                 >
                   {f.label}
@@ -598,32 +538,32 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
           {/* -----------------------------------------------------------------
               2A. RÉGUA CRONOLÓGICA VISUAL DE ALTA PRECISÃO (08:00 ÀS 18:00)
              ----------------------------------------------------------------- */}
-          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs space-y-3.5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100">
+          <div className="bg-[var(--surface)] rounded-[18px] p-4 sm:p-5 border border-[var(--border)]/90 shadow-xs space-y-3.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[var(--border-subtle)]">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-indigo-600" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                  <span className="w-2 h-2 rounded-full bg-[#0072BB]" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text)]">
                     Régua Cronológica de Ocupação · 08:00 às 18:00
                   </h3>
-                  <span className="text-[10px] font-mono font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200/70">
+                  <span className="text-[10px] tabular-nums font-semibold text-[var(--text-muted)] bg-[var(--surface-2)] px-2 py-0.5 rounded border border-[var(--border)]/70">
                     {dataSelecionada}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 mt-0.5">
-                  Passe o cursor sobre os blocos para inspecionar a pauta ou clique em uma janela livre (<span className="font-mono text-emerald-700 font-semibold">+ Reservar Horário</span>).
+                <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
+                  Passe o cursor sobre os blocos para inspecionar a pauta ou clique em uma janela livre (<span className="tabular-nums text-[var(--verde)] font-semibold">+ Reservar Horário</span>).
                 </p>
               </div>
 
-              <div className="flex items-center gap-3 text-[10px] font-mono font-medium text-slate-500 shrink-0">
+              <div className="flex items-center gap-3 text-[10px] tabular-nums font-medium text-[var(--text-muted)] shrink-0">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-xs border border-dashed border-emerald-500 bg-emerald-50" /> Slot Livre
+                  <span className="w-2.5 h-2.5 rounded-xs border border-dashed border-[var(--verde)] bg-[var(--verde-soft)]" /> Slot Livre
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-xs bg-slate-900 border-l-2 border-l-indigo-500" /> Ocupado
+                  <span className="w-2.5 h-2.5 rounded-xs bg-[#0B1B2E] border-l-2 border-l-[var(--brand)]" /> Ocupado
                 </span>
-                <span className="flex items-center gap-1 text-rose-600 font-semibold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" /> 10:25
+                <span className="flex items-center gap-1 text-[var(--danger)] font-semibold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C8372D] " /> 10:25
                 </span>
               </div>
             </div>
@@ -631,14 +571,14 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
             <div className="overflow-x-auto no-scrollbar">
               <div className="min-w-[760px] pt-1">
                 {/* Cabeçalho da Régua Horária (08:00 até 18:00) */}
-                <div className="grid grid-cols-12 gap-0 text-[10px] font-mono font-bold text-slate-400 pb-2 border-b border-slate-200/80">
-                  <div className="col-span-3 text-left pl-2 font-sans text-[11px] text-slate-600 font-bold uppercase tracking-wider flex items-center gap-1.5">
-                    <Layers size={12} className="text-slate-400" /> Espaço / Planta
+                <div className="grid grid-cols-12 gap-0 text-[10px] tabular-nums font-bold text-[var(--text-subtle)] pb-2 border-b border-[var(--border)]/80">
+                  <div className="col-span-3 text-left pl-2 font-sans text-[11px] text-[var(--text-muted)] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                    <Layers size={12} className="text-[var(--text-subtle)]" /> Espaço / Planta
                   </div>
                   <div className="col-span-9 grid grid-cols-10">
                     {slotsHorarios.map(h => (
-                      <div key={h} className="text-left pl-1.5 border-l border-dashed border-slate-200 flex items-center justify-between pr-1">
-                        <span className={h === 10 ? 'text-rose-600 font-extrabold' : 'text-slate-500'}>
+                      <div key={h} className="text-left pl-1.5 border-l border-dashed border-[var(--border)] flex items-center justify-between pr-1">
+                        <span className={h === 10 ? 'text-[var(--danger)] font-extrabold' : 'text-[var(--text-muted)]'}>
                           {String(h).padStart(2, '0')}:00
                         </span>
                       </div>
@@ -647,7 +587,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                 </div>
 
                 {/* Linhas de Cada Sala na Régua Cronológica */}
-                <div className="divide-y divide-slate-100">
+                <div className="divide-y divide-[var(--border-subtle)]">
                   {salasFiltradas.map(s => {
                     const reservasDaSala = reservas.filter(r => r.salaId === s.id && r.data === dataSelecionada);
                     const isSalaSelected = salaId === s.id;
@@ -656,7 +596,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                       <div
                         key={s.id}
                         className={`py-3 grid grid-cols-12 gap-0 items-center transition-colors ${
-                          isSalaSelected ? 'bg-slate-50/70' : 'hover:bg-slate-50/40'
+                          isSalaSelected ? 'bg-[var(--surface-2)]/70' : 'hover:bg-[var(--surface-2)]/40'
                         }`}
                       >
                         {/* Identificação Arquitetônica da Sala na Esquerda */}
@@ -669,28 +609,28 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                         >
                           <div className="flex items-center gap-1.5">
                             <span className={`w-2 h-2 rounded-full ${s.dotColor} shrink-0`} />
-                            <span className="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
+                            <span className="text-xs font-bold text-[var(--text)] group-hover:text-[var(--brand)] transition-colors truncate">
                               {s.nome}
                             </span>
                           </div>
                           <div className="flex items-center gap-2 pl-3.5 mt-0.5">
-                            <span className="text-[9px] font-mono font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200/70">
+                            <span className="text-[9px] tabular-nums font-semibold text-[var(--text-subtle)] bg-[var(--surface-2)] px-1.5 py-0.2 rounded border border-[var(--border)]/70">
                               {s.codigo}
                             </span>
-                            <span className="text-[10px] text-slate-400 truncate">
+                            <span className="text-[10px] text-[var(--text-subtle)] truncate">
                               {s.cap} lug.
                             </span>
                           </div>
                         </div>
 
                         {/* Faixa Cronológica 08:00 às 18:00 (10 slots de 1h) */}
-                        <div className="col-span-9 relative h-16 bg-slate-50/60 rounded-xl border border-slate-200/80 overflow-hidden">
+                        <div className="col-span-9 relative h-16 bg-[var(--surface-2)]/60 rounded-xl border border-[var(--border)]/80 overflow-hidden">
                           {/* Marcador Vertical de Hora Atual (10:25 -> 24.1% da faixa de 10h) */}
                           <div
                             style={{ left: '24.16%' }}
-                            className="pointer-events-none absolute top-0 bottom-0 w-px bg-rose-500/70 z-20"
+                            className="pointer-events-none absolute top-0 bottom-0 w-px bg-[#C8372D]/70 z-20"
                           >
-                            <span className="absolute -top-0.5 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-rose-500" />
+                            <span className="absolute -top-0.5 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#C8372D]" />
                           </div>
 
                           {/* 10 Células de Hora com Linhas Tracejadas Finas e Hover Convidativo nos Slots Livres */}
@@ -706,26 +646,26 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                                   disabled={isOcupado}
                                   onClick={() => !isOcupado && handleCelulaClick(s.id, h)}
                                   title={!isOcupado ? `Reservar ${s.nome} às ${String(h).padStart(2, '0')}:00` : undefined}
-                                  className={`relative h-full border-l first:border-l-0 border-dashed border-slate-200/90 flex flex-col items-center justify-center transition-all duration-150 group/slot ${
+                                  className={`relative h-full border-l first:border-l-0 border-dashed border-[var(--border)]/90 flex flex-col items-center justify-center transition-all duration-150 group/slot ${
                                     isOcupado
                                       ? 'bg-transparent cursor-default'
                                       : isPreviewSlot
-                                      ? 'bg-emerald-500/10 border-emerald-400/60 cursor-pointer'
-                                      : 'hover:bg-emerald-50/90 cursor-pointer'
+                                      ? 'bg-[#00A859]/10 border-[var(--verde)]/60 cursor-pointer'
+                                      : 'hover:bg-[var(--verde-soft)]/90 cursor-pointer'
                                   }`}
                                 >
                                   {!isOcupado && (
                                     <div
                                       className={`inset-1 absolute rounded-lg border border-dashed transition-all flex flex-col items-center justify-center px-0.5 ${
                                         isPreviewSlot
-                                          ? 'border-emerald-500/80 bg-emerald-50/70 opacity-100 shadow-[inset_0_0_8px_rgba(16,185,129,0.12)]'
-                                          : 'border-transparent group-hover/slot:border-emerald-400 group-hover/slot:bg-white/95 group-hover/slot:shadow-[0_0_12px_rgba(16,185,129,0.2)] opacity-0 group-hover/slot:opacity-100'
+                                          ? 'border-[var(--verde)]/80 bg-[var(--verde-soft)]/70 opacity-100 '
+                                          : 'border-transparent group-hover/slot:border-[var(--verde)] group-hover/slot:bg-[var(--surface)]/95 group-hover/slot: opacity-0 group-hover/slot:opacity-100'
                                       }`}
                                     >
-                                      <span className="text-[8px] font-mono font-bold text-emerald-700 leading-none">
+                                      <span className="text-[8px] tabular-nums font-bold text-[var(--verde)] leading-none">
                                         + Reservar
                                       </span>
-                                      <span className="text-[8px] font-mono text-emerald-600/90 leading-none mt-0.5">
+                                      <span className="text-[8px] tabular-nums text-[var(--verde)]/90 leading-none mt-0.5">
                                         {String(h).padStart(2, '0')}:00
                                       </span>
                                     </div>
@@ -760,7 +700,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                                 }}
                                 onMouseEnter={() => setHoverReserva(r)}
                                 onMouseLeave={() => setHoverReserva(null)}
-                                className={`absolute top-1.5 bottom-1.5 bg-gradient-to-r ${s.blockBg} text-white rounded-lg border border-l-4 ${s.accentBorder} px-2.5 py-1.5 flex flex-col justify-between overflow-hidden z-10 cursor-pointer transition-all duration-200 ${
+                                className={`absolute top-1.5 bottom-1.5 ${s.blockBg} text-white rounded-lg border border-l-4 ${s.accentBorder} px-2.5 py-1.5 flex flex-col justify-between overflow-hidden z-10 cursor-pointer transition-all duration-200 ${
                                   isHovered ? 'scale-[1.01] z-30 ring-2 ring-white/20' : ''
                                 }`}
                               >
@@ -768,13 +708,13 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                                   <div className="font-semibold text-[10px] leading-tight truncate text-white">
                                     {r.motivo}
                                   </div>
-                                  <span className="text-[8px] font-mono font-bold text-slate-300 bg-white/10 px-1 py-0.2 rounded shrink-0">
+                                  <span className="text-[8px] tabular-nums font-bold text-[var(--ink-muted)] bg-white/10 px-1 py-0.2 rounded shrink-0">
                                     {String(r.horaInicio).padStart(2, '0')}h–{String(r.horaFim).padStart(2, '0')}h
                                   </span>
                                 </div>
 
                                 <div className="flex items-center justify-between gap-1.5 mt-0.5">
-                                  <span className="text-[9px] text-slate-300 font-medium truncate">
+                                  <span className="text-[9px] text-[var(--ink-muted)] font-medium truncate">
                                     {r.responsavel.split('(')[0].trim()}
                                   </span>
                                   {renderResourceBadges(r.recursosExtras, colSpan <= 2)}
@@ -794,35 +734,35 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
             <div
               className={`p-3 rounded-xl border transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs ${
                 hoverReserva
-                  ? 'bg-slate-900 text-white border-slate-800 shadow-sm'
-                  : 'bg-slate-50/80 text-slate-500 border-slate-200/70'
+                  ? 'bg-[#0B1B2E] text-white border-[#22324C] shadow-sm'
+                  : 'bg-[var(--surface-2)]/80 text-[var(--text-muted)] border-[var(--border)]/70'
               }`}
             >
               {hoverReserva ? (
                 <>
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 shadow-[0_0_8px_#34d399]" />
+                    <span className="w-2 h-2 rounded-full bg-[#00A859] shrink-0 " />
                     <div className="truncate">
                       <span className="font-bold text-white">{hoverReserva.motivo}</span>
-                      <span className="text-slate-300 ml-2 text-[11px]">
+                      <span className="text-[var(--ink-muted)] ml-2 text-[11px]">
                         · {hoverReserva.salaNome} ({String(hoverReserva.horaInicio).padStart(2, '0')}:00 às {String(hoverReserva.horaFim).padStart(2, '0')}:00) · Resp: {hoverReserva.responsavel}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     {renderResourceBadges(hoverReserva.recursosExtras, false)}
-                    <span className="text-[10px] font-mono text-emerald-300 flex items-center gap-0.5">
+                    <span className="text-[10px] tabular-nums text-[#C6E86B] flex items-center gap-0.5">
                       Inspecionar <ArrowUpRight size={11} />
                     </span>
                   </div>
                 </>
               ) : (
-                <div className="flex items-center justify-between w-full text-[11px] text-slate-500">
+                <div className="flex items-center justify-between w-full text-[11px] text-[var(--text-muted)]">
                   <span className="flex items-center gap-1.5">
-                    <Sparkles size={13} className="text-indigo-500" />
+                    <Sparkles size={13} className="text-[var(--brand)]" />
                     Dica: Passe o mouse sobre uma reunião agendada para ver recursos de Copa/TI ou clique em qualquer horário livre para agendar.
                   </span>
-                  <span className="font-mono text-[10px] text-slate-400 hidden sm:inline">ESCALA 1H · 08:00–18:00</span>
+                  <span className="tabular-nums text-[10px] text-[var(--text-subtle)] hidden sm:inline">ESCALA 1H · 08:00–18:00</span>
                 </div>
               )}
             </div>
@@ -834,12 +774,12 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
-                <Building size={15} className="text-slate-700" />
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                <Building size={15} className="text-[var(--text)]" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text)]">
                   Catálogo de Espaços & Especificação Arquitetônica SEJU
                 </h3>
               </div>
-              <span className="text-[11px] text-slate-400 font-mono">
+              <span className="text-[11px] text-[var(--text-subtle)] tabular-nums">
                 Selecione uma placa para carregar no painel lateral
               </span>
             </div>
@@ -859,31 +799,31 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                       soundFX.playClick();
                       setSalaId(s.id);
                     }}
-                    className={`relative bg-white rounded-2xl p-4 sm:p-5 border transition-all duration-200 cursor-pointer select-none flex flex-col justify-between gap-3.5 overflow-hidden group ${
+                    className={`relative bg-[var(--surface)] rounded-[18px] p-4 sm:p-5 border transition-all duration-200 cursor-pointer select-none flex flex-col justify-between gap-3.5 overflow-hidden group ${
                       isSelected
                         ? `ring-2 ${s.ringActive} shadow-sm`
-                        : 'border-slate-200/90 hover:border-slate-300 shadow-2xs'
+                        : 'border-[var(--border)]/90 hover:border-[var(--border-strong)] shadow-2xs'
                     }`}
                   >
                     {/* Acabamento de Placa Arquitetônica Corporativa nos 4 Cantos */}
                     <span
                       className={`pointer-events-none absolute top-2 left-2 w-2.5 h-2.5 border-t-2 border-l-2 transition-colors ${
-                        isSelected ? 'border-slate-800' : 'border-slate-300/90 group-hover:border-slate-400'
+                        isSelected ? 'border-[#22324C]' : 'border-[var(--border-strong)]/90 group-hover:border-[var(--border-strong)]'
                       }`}
                     />
                     <span
                       className={`pointer-events-none absolute top-2 right-2 w-2.5 h-2.5 border-t-2 border-r-2 transition-colors ${
-                        isSelected ? 'border-slate-800' : 'border-slate-300/90 group-hover:border-slate-400'
+                        isSelected ? 'border-[#22324C]' : 'border-[var(--border-strong)]/90 group-hover:border-[var(--border-strong)]'
                       }`}
                     />
                     <span
                       className={`pointer-events-none absolute bottom-2 left-2 w-2.5 h-2.5 border-b-2 border-l-2 transition-colors ${
-                        isSelected ? 'border-slate-800' : 'border-slate-300/90 group-hover:border-slate-400'
+                        isSelected ? 'border-[#22324C]' : 'border-[var(--border-strong)]/90 group-hover:border-[var(--border-strong)]'
                       }`}
                     />
                     <span
                       className={`pointer-events-none absolute bottom-2 right-2 w-2.5 h-2.5 border-b-2 border-r-2 transition-colors ${
-                        isSelected ? 'border-slate-800' : 'border-slate-300/90 group-hover:border-slate-400'
+                        isSelected ? 'border-[#22324C]' : 'border-[var(--border-strong)]/90 group-hover:border-[var(--border-strong)]'
                       }`}
                     />
 
@@ -892,14 +832,14 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[9px] font-mono font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200/80">
+                            <span className="text-[9px] tabular-nums font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-muted)] border border-[var(--border)]/80">
                               {s.codigo}
                             </span>
-                            <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
+                            <span className="text-[10px] font-medium text-[var(--text-subtle)] flex items-center gap-1">
                               <MapPin size={10} /> {s.andar}
                             </span>
                           </div>
-                          <h4 className="text-sm font-bold text-slate-900 mt-1 flex items-center gap-2">
+                          <h4 className="text-sm font-bold text-[var(--text)] mt-1 flex items-center gap-2">
                             <span className={`w-2.5 h-2.5 rounded-full ${s.dotColor} shrink-0`} />
                             <span>{s.nome}</span>
                           </h4>
@@ -909,13 +849,13 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                         <span
                           className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border shrink-0 flex items-center gap-1.5 shadow-2xs ${
                             estaOcupadaAgora
-                              ? 'bg-amber-50 text-amber-800 border-amber-200/90'
-                              : 'bg-emerald-50 text-emerald-800 border-emerald-200/90'
+                              ? 'bg-[var(--warning-soft)] text-[var(--warning)] border-[var(--warning-border)]/90'
+                              : 'bg-[var(--verde-soft)] text-[var(--verde)] border-[var(--verde-border)]/90'
                           }`}
                         >
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${
-                              estaOcupadaAgora ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'
+                              estaOcupadaAgora ? 'bg-[#D98A00] ' : 'bg-[#00A859]'
                             }`}
                           />
                           {estaOcupadaAgora ? 'Em uso' : 'Disponível agora'}
@@ -923,24 +863,24 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                       </div>
 
                       {/* Especificações de Capacidade e Formato de Layout */}
-                      <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-slate-50/90 border border-slate-200/70 text-[11px]">
+                      <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-[var(--surface-2)]/90 border border-[var(--border)]/70 text-[11px]">
                         <div className="flex items-center gap-2">
-                          <div className="p-1.5 rounded-lg bg-white border border-slate-200/80 text-slate-700">
+                          <div className="p-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border)]/80 text-[var(--text)]">
                             <Users size={12} />
                           </div>
                           <div>
-                            <div className="text-[9px] font-mono uppercase text-slate-400 leading-none">Capacidade</div>
-                            <div className="font-bold text-slate-800 mt-0.5">{s.cap} lugares</div>
+                            <div className="text-[9px] tabular-nums uppercase text-[var(--text-subtle)] leading-none">Capacidade</div>
+                            <div className="font-bold text-[var(--text)] mt-0.5">{s.cap} lugares</div>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 border-l border-slate-200/70 pl-2">
-                          <div className="p-1.5 rounded-lg bg-white border border-slate-200/80 text-slate-700">
+                        <div className="flex items-center gap-2 border-l border-[var(--border)]/70 pl-2">
+                          <div className="p-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border)]/80 text-[var(--text)]">
                             <Layers size={12} />
                           </div>
                           <div className="min-w-0">
-                            <div className="text-[9px] font-mono uppercase text-slate-400 leading-none">Layout</div>
-                            <div className="font-bold text-slate-800 truncate mt-0.5" title={s.layout}>
+                            <div className="text-[9px] tabular-nums uppercase text-[var(--text-subtle)] leading-none">Layout</div>
+                            <div className="font-bold text-[var(--text)] truncate mt-0.5" title={s.layout}>
                               {s.layout}
                             </div>
                           </div>
@@ -950,31 +890,31 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                       {/* Chips de Infraestrutura & Equipamentos */}
                       <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                         {s.hasProjetor && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200/70">
-                            <Monitor size={10} className="text-indigo-600" /> Projetor 4K
+                          <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-[var(--surface-2)] text-[var(--text)] border border-[var(--border)]/70">
+                            <Monitor size={10} className="text-[var(--brand)]" /> Projetor 4K
                           </span>
                         )}
                         {s.hasVideo && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200/70">
-                            <Video size={10} className="text-emerald-600" /> Híbrido Teams
+                          <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-[var(--surface-2)] text-[var(--text)] border border-[var(--border)]/70">
+                            <Video size={10} className="text-[var(--verde)]" /> Híbrido Teams
                           </span>
                         )}
                         {s.hasAudioPro && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200/70">
-                            <Mic size={10} className="text-amber-600" /> Som Plenária
+                          <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-[var(--surface-2)] text-[var(--text)] border border-[var(--border)]/70">
+                            <Mic size={10} className="text-[var(--warning)]" /> Som Plenária
                           </span>
                         )}
-                        <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200/70">
-                          <Wifi size={10} className="text-sky-600" /> Wi-Fi 6 Gov
+                        <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-[var(--surface-2)] text-[var(--text)] border border-[var(--border)]/70">
+                          <Wifi size={10} className="text-[var(--brand)]" /> Wi-Fi 6 Gov
                         </span>
                       </div>
                     </div>
 
                     {/* Mini Régua Horária Interativa (08h às 18h) na base do Card Arquitetônico */}
-                    <div className="pt-2.5 border-t border-slate-100 space-y-1.5">
+                    <div className="pt-2.5 border-t border-[var(--border-subtle)] space-y-1.5">
                       <div className="flex items-center justify-between text-[10px]">
-                        <span className="text-slate-400 font-medium">Disponibilidade Rápida (08h–18h)</span>
-                        <span className="font-mono font-semibold text-slate-600">
+                        <span className="text-[var(--text-subtle)] font-medium">Disponibilidade Rápida (08h–18h)</span>
+                        <span className="tabular-nums font-semibold text-[var(--text-muted)]">
                           {reservasDaSala.length} res. · {taxaOcupacao}% ocup.
                         </span>
                       </div>
@@ -998,12 +938,12 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                               }}
                               onMouseEnter={() => reservaNoHorario && setHoverReserva(reservaNoHorario)}
                               onMouseLeave={() => setHoverReserva(null)}
-                              className={`h-6 rounded-md text-[9px] font-mono font-bold transition-all flex items-center justify-center cursor-pointer border ${
+                              className={`h-6 rounded-md text-[9px] tabular-nums font-bold transition-all flex items-center justify-center cursor-pointer border ${
                                 reservaNoHorario
-                                  ? 'bg-slate-800 text-white border-slate-800 hover:bg-slate-700'
+                                  ? 'bg-[#0B1B2E] text-white border-[#22324C] hover:bg-[#13223A]'
                                   : isSlotSelected
-                                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
-                                  : 'bg-slate-50 text-slate-500 border-slate-200/70 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-400 hover:border-dashed'
+                                  ? 'bg-[#00703C] text-white border-[var(--verde)] shadow-2xs'
+                                  : 'bg-[var(--surface-2)] text-[var(--text-muted)] border-[var(--border)]/70 hover:bg-[var(--verde-soft)] hover:text-[var(--verde)] hover:border-[var(--verde)] hover:border-dashed'
                               }`}
                               title={
                                 reservaNoHorario
@@ -1025,28 +965,23 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
         </div>
 
         {/* COLUNA DIREITA (4 cols): Painel de Reserva Expressa com Acabamento Arquitetônico */}
-        <div className="lg:col-span-4 relative bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs space-y-4 sticky top-4 overflow-hidden">
-          {/* Cantoneiras Arquitetônicas */}
-          <span className="pointer-events-none absolute top-2 left-2 w-2.5 h-2.5 border-t-2 border-l-2 border-slate-300" />
-          <span className="pointer-events-none absolute top-2 right-2 w-2.5 h-2.5 border-t-2 border-r-2 border-slate-300" />
-          <span className="pointer-events-none absolute bottom-2 left-2 w-2.5 h-2.5 border-b-2 border-l-2 border-slate-300" />
-          <span className="pointer-events-none absolute bottom-2 right-2 w-2.5 h-2.5 border-b-2 border-r-2 border-slate-300" />
+        <div className="lg:col-span-4 relative bg-[var(--surface)] rounded-[18px] p-5 border border-[var(--border)]/90 shadow-xs space-y-4 sticky top-4 overflow-hidden">    
 
-          <div className="pb-3.5 border-b border-slate-100 flex items-start justify-between gap-2">
+          <div className="pb-3.5 border-b border-[var(--border-subtle)] flex items-start justify-between gap-2">
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200/60">
+                <span className="text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--brand)] bg-[var(--brand-soft)] px-2 py-0.5 rounded border border-[var(--brand-border)]/60">
                   {salaSelecionadaObj.codigo}
                 </span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-subtle)]">
                   · Reserva Expressa
                 </span>
               </div>
-              <h3 className="text-sm font-bold text-slate-900 mt-1.5 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-[var(--text)] mt-1.5 flex items-center gap-2">
                 <span className={`w-2.5 h-2.5 rounded-full ${salaSelecionadaObj.dotColor}`} />
                 {salaSelecionadaObj.nome}
               </h3>
-              <p className="text-[11px] text-slate-500 mt-0.5">
+              <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
                 {salaSelecionadaObj.layout} · {salaSelecionadaObj.cap} lugares · {salaSelecionadaObj.andar}
               </p>
             </div>
@@ -1054,11 +989,11 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
 
           <form onSubmit={handleSalvarReserva} className="space-y-3.5 text-xs">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Espaço Selecionado</label>
+              <label className="block font-semibold text-[var(--text)] mb-1">Espaço Selecionado</label>
               <select
                 value={salaId}
                 onChange={e => setSalaId(e.target.value)}
-                className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-medium text-slate-800 outline-hidden focus:bg-white focus:border-slate-400 transition"
+                className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl font-medium text-[var(--text)] outline-hidden focus:bg-[var(--surface)] focus:border-[var(--border-strong)] transition"
               >
                 {salas.map(s => (
                   <option key={s.id} value={s.id}>{s.codigo} — {s.nome} ({s.cap} lug.)</option>
@@ -1068,7 +1003,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
 
             <div className="grid grid-cols-2 gap-2.5">
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Início (08h–17h)</label>
+                <label className="block font-semibold text-[var(--text)] mb-1">Início (08h–17h)</label>
                 <select
                   value={horaInicio}
                   onChange={e => {
@@ -1076,7 +1011,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                     setHoraInicio(novoIni);
                     if (horaFim <= novoIni) setHoraFim(Math.min(18, novoIni + 1));
                   }}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-mono font-bold text-slate-800 outline-hidden"
+                  className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl tabular-nums font-bold text-[var(--text)] outline-hidden"
                 >
                   {slotsHorarios.map(h => (
                     <option key={h} value={h}>{String(h).padStart(2, '0')}:00</option>
@@ -1084,11 +1019,11 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                 </select>
               </div>
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Término (09h–18h)</label>
+                <label className="block font-semibold text-[var(--text)] mb-1">Término (09h–18h)</label>
                 <select
                   value={horaFim}
                   onChange={e => setHoraFim(Number(e.target.value))}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-mono font-bold text-slate-800 outline-hidden"
+                  className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl tabular-nums font-bold text-[var(--text)] outline-hidden"
                 >
                   {horas.slice(1).map(h => (
                     <option key={h} value={h}>{String(h).padStart(2, '0')}:00</option>
@@ -1099,7 +1034,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
 
             {/* Atalhos Rápidos de Duração */}
             <div className="flex items-center gap-1.5 pt-0.5">
-              <span className="text-[10px] font-mono text-slate-400 mr-1">Duração:</span>
+              <span className="text-[10px] tabular-nums text-[var(--text-subtle)] mr-1">Duração:</span>
               {[
                 { label: '1h', dur: 1 },
                 { label: '2h', dur: 2 },
@@ -1119,7 +1054,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                       setHoraFim(Math.min(18, horaInicio + preset.dur));
                     }
                   }}
-                  className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-mono text-[10px] font-semibold transition cursor-pointer"
+                  className="px-2 py-1 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)]/80 text-[var(--text)] tabular-nums text-[10px] font-semibold transition cursor-pointer"
                 >
                   {preset.label}
                 </button>
@@ -1128,112 +1063,112 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
 
             {/* Status Anti-Colisão */}
             {colisaoAtual ? (
-              <div className="p-3 bg-red-50/90 rounded-xl border border-red-200 text-[11px] text-red-800 flex items-start gap-2">
-                <AlertTriangle size={14} className="text-red-600 shrink-0 mt-0.5" />
+              <div className="p-3 bg-[var(--danger-soft)]/90 rounded-xl border border-[var(--danger-border)] text-[11px] text-[var(--danger)] flex items-start gap-2">
+                <AlertTriangle size={14} className="text-[var(--danger)] shrink-0 mt-0.5" />
                 <div>
                   <div className="font-bold">Horário Indisponível</div>
-                  <div className="text-red-700/90 mt-0.5">
+                  <div className="text-[var(--danger)]/90 mt-0.5">
                     Reservado para "{colisaoAtual.motivo}" ({colisaoAtual.horaInicio}h–{colisaoAtual.horaFim}h).
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="p-2.5 bg-emerald-50/80 rounded-xl border border-emerald-200/80 text-[11px] text-emerald-800 flex items-center gap-1.5 font-medium">
-                <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
+              <div className="p-2.5 bg-[var(--verde-soft)]/80 rounded-xl border border-[var(--verde-border)]/80 text-[11px] text-[var(--verde)] flex items-center gap-1.5 font-medium">
+                <CheckCircle2 size={14} className="text-[var(--verde)] shrink-0" />
                 <span>
-                  Janela <strong className="font-mono">{String(horaInicio).padStart(2, '0')}:00–{String(horaFim).padStart(2, '0')}:00</strong> ({horaFim - horaInicio}h) livre em {dataSelecionada}.
+                  Janela <strong className="tabular-nums">{String(horaInicio).padStart(2, '0')}:00–{String(horaFim).padStart(2, '0')}:00</strong> ({horaFim - horaInicio}h) livre em {dataSelecionada}.
                 </span>
               </div>
             )}
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Pauta / Finalidade da Reserva *</label>
+              <label className="block font-semibold text-[var(--text)] mb-1">Pauta / Finalidade da Reserva *</label>
               <input
                 type="text"
                 required
                 value={motivo}
                 onChange={e => setMotivo(e.target.value)}
                 placeholder="Ex: Reunião de alinhamento, audiência..."
-                className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-medium text-slate-800 outline-hidden focus:bg-white focus:border-slate-400 transition"
+                className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl font-medium text-[var(--text)] outline-hidden focus:bg-[var(--surface)] focus:border-[var(--border-strong)] transition"
               />
             </div>
 
             {/* Checklist de Recursos de Apoio com Destaque Visual */}
             <div className="space-y-1.5">
-              <label className="block font-semibold text-slate-700">Logística & Recursos de Apoio</label>
+              <label className="block font-semibold text-[var(--text)]">Logística & Recursos de Apoio</label>
               <div className="grid grid-cols-2 gap-1.5 text-[11px]">
                 <label
                   className={`flex items-center gap-1.5 p-2 rounded-xl border cursor-pointer transition ${
                     recursoCafe
-                      ? 'bg-amber-50/70 border-amber-300/80 text-amber-950 font-semibold'
-                      : 'bg-slate-50/80 border-slate-200/70 text-slate-600 hover:bg-slate-100'
+                      ? 'bg-[var(--warning-soft)]/70 border-[var(--warning-border)]/80 text-[var(--warning)] font-semibold'
+                      : 'bg-[var(--surface-2)]/80 border-[var(--border)]/70 text-[var(--text-muted)] hover:bg-[var(--surface-2)]'
                   }`}
                 >
                   <input
                     type="checkbox"
                     checked={recursoCafe}
                     onChange={e => setRecursoCafe(e.target.checked)}
-                    className="rounded text-slate-900"
+                    className="rounded text-[var(--text)]"
                   />
-                  <Coffee size={12} className="text-amber-700 shrink-0" />
+                  <Coffee size={12} className="text-[var(--warning)] shrink-0" />
                   <span className="truncate">Copa & Café</span>
                 </label>
 
                 <label
                   className={`flex items-center gap-1.5 p-2 rounded-xl border cursor-pointer transition ${
                     recursoSuporteTI
-                      ? 'bg-indigo-50/70 border-indigo-300/80 text-indigo-950 font-semibold'
-                      : 'bg-slate-50/80 border-slate-200/70 text-slate-600 hover:bg-slate-100'
+                      ? 'bg-[var(--brand-soft)]/70 border-[var(--brand-border)]/80 text-[var(--brand)] font-semibold'
+                      : 'bg-[var(--surface-2)]/80 border-[var(--border)]/70 text-[var(--text-muted)] hover:bg-[var(--surface-2)]'
                   }`}
                 >
                   <input
                     type="checkbox"
                     checked={recursoSuporteTI}
                     onChange={e => setRecursoSuporteTI(e.target.checked)}
-                    className="rounded text-slate-900"
+                    className="rounded text-[var(--text)]"
                   />
-                  <Laptop size={12} className="text-indigo-600 shrink-0" />
+                  <Laptop size={12} className="text-[var(--brand)] shrink-0" />
                   <span className="truncate">Suporte TI</span>
                 </label>
 
                 <label
                   className={`flex items-center gap-1.5 p-2 rounded-xl border cursor-pointer transition ${
                     recursoGravacao
-                      ? 'bg-rose-50/70 border-rose-300/80 text-rose-950 font-semibold'
-                      : 'bg-slate-50/80 border-slate-200/70 text-slate-600 hover:bg-slate-100'
+                      ? 'bg-[var(--danger-soft)]/70 border-[var(--danger-border)]/80 text-[var(--danger)] font-semibold'
+                      : 'bg-[var(--surface-2)]/80 border-[var(--border)]/70 text-[var(--text-muted)] hover:bg-[var(--surface-2)]'
                   }`}
                 >
                   <input
                     type="checkbox"
                     checked={recursoGravacao}
                     onChange={e => setRecursoGravacao(e.target.checked)}
-                    className="rounded text-slate-900"
+                    className="rounded text-[var(--text)]"
                   />
-                  <Video size={12} className="text-rose-600 shrink-0" />
+                  <Video size={12} className="text-[var(--danger)] shrink-0" />
                   <span className="truncate">Gravação Ata</span>
                 </label>
 
                 <label
                   className={`flex items-center gap-1.5 p-2 rounded-xl border cursor-pointer transition ${
                     recursoHibrido
-                      ? 'bg-sky-50/70 border-sky-300/80 text-sky-950 font-semibold'
-                      : 'bg-slate-50/80 border-slate-200/70 text-slate-600 hover:bg-slate-100'
+                      ? 'bg-[var(--brand-soft)]/70 border-[var(--brand-border)]/80 text-[var(--brand)] font-semibold'
+                      : 'bg-[var(--surface-2)]/80 border-[var(--border)]/70 text-[var(--text-muted)] hover:bg-[var(--surface-2)]'
                   }`}
                 >
                   <input
                     type="checkbox"
                     checked={recursoHibrido}
                     onChange={e => setRecursoHibrido(e.target.checked)}
-                    className="rounded text-slate-900"
+                    className="rounded text-[var(--text)]"
                   />
-                  <Monitor size={12} className="text-sky-600 shrink-0" />
+                  <Monitor size={12} className="text-[var(--brand)] shrink-0" />
                   <span className="truncate">Transm. Híbrida</span>
                 </label>
               </div>
             </div>
 
             {conflitoAviso && (
-              <div className="p-2.5 bg-red-50 text-red-700 border border-red-200 text-[11px] rounded-xl font-medium">
+              <div className="p-2.5 bg-[var(--danger-soft)] text-[var(--danger)] border border-[var(--danger-border)] text-[11px] rounded-xl font-medium">
                 {conflitoAviso}
               </div>
             )}
@@ -1248,11 +1183,11 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
               }
               className={`w-full py-2.5 rounded-xl font-semibold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer ${
                 colisaoAtual
-                  ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                  : 'bg-gradient-to-b from-slate-800 to-slate-950 hover:from-slate-700 hover:to-slate-900 text-white'
+                  ? 'bg-[var(--surface-3)] text-[var(--text-subtle)] cursor-not-allowed'
+                  : ' bg-[#0B1B2E]  hover:bg-[#13223A]  text-white'
               }`}
             >
-              <Sparkles size={14} className={!colisaoAtual ? 'text-emerald-400' : ''} /> Confirmar Agendamento
+              <Sparkles size={14} className={!colisaoAtual ? 'text-[var(--verde)]' : ''} /> Confirmar Agendamento
             </button>
           </form>
         </div>
@@ -1262,15 +1197,15 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
       {/* =====================================================================
           SEÇÃO 3: AGENDA INSTITUCIONAL & RESERVAS ATIVAS
          ===================================================================== */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs space-y-3.5">
+      <div className="bg-[var(--surface)] rounded-[18px] p-5 border border-[var(--border)]/90 shadow-2xs space-y-3.5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-slate-900" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+            <span className="w-2 h-2 rounded-full bg-[#0B1B2E]" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text)]">
               Reservas Ativas & Agenda Institucional ({reservas.length})
             </h3>
           </div>
-          <span className="text-[11px] text-slate-400">
+          <span className="text-[11px] text-[var(--text-subtle)]">
             Clique em qualquer agendamento para inspecionar recursos ou liberar o espaço
           </span>
         </div>
@@ -1285,31 +1220,31 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                   soundFX.playClick();
                   setReservaInspecionada(r);
                 }}
-                className={`relative p-3.5 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-slate-300 border-l-4 ${
-                  salaRef?.accentBorder || 'border-l-slate-700'
+                className={`relative p-3.5 rounded-xl bg-[var(--surface-2)]/70 hover:bg-[var(--surface)] border border-[var(--border)]/80 hover:border-[var(--border-strong)] border-l-4 ${
+                  salaRef?.accentBorder || 'border-l-[#22324C]'
                 } shadow-2xs transition-all cursor-pointer flex flex-col justify-between gap-2.5 group`}
               >
                 <div>
-                  <div className="flex items-center justify-between gap-1 text-[10px] font-mono text-slate-500">
-                    <span className="font-semibold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200/80">
+                  <div className="flex items-center justify-between gap-1 text-[10px] tabular-nums text-[var(--text-muted)]">
+                    <span className="font-semibold text-[var(--text)] bg-[var(--surface)] px-2 py-0.5 rounded border border-[var(--border)]/80">
                       {r.data}
                     </span>
-                    <span className="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/80">
+                    <span className="font-bold text-[var(--verde)] bg-[var(--verde-soft)] px-2 py-0.5 rounded border border-[var(--verde-border)]/80">
                       {String(r.horaInicio).padStart(2, '0')}:00–{String(r.horaFim).padStart(2, '0')}:00
                     </span>
                   </div>
-                  <h4 className="font-bold text-xs text-slate-900 mt-2 line-clamp-1 group-hover:text-indigo-600 transition-colors">
+                  <h4 className="font-bold text-xs text-[var(--text)] mt-2 line-clamp-1 group-hover:text-[var(--brand)] transition-colors">
                     {r.motivo}
                   </h4>
-                  <p className="text-[11px] text-slate-500 truncate mt-0.5 flex items-center gap-1.5">
-                    <span className={`w-1.5 h-1.5 rounded-full ${salaRef?.dotColor || 'bg-slate-500'}`} />
+                  <p className="text-[11px] text-[var(--text-muted)] truncate mt-0.5 flex items-center gap-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${salaRef?.dotColor || 'bg-[var(--text-muted)]'}`} />
                     {r.salaNome}
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[10px] text-slate-500">
+                <div className="pt-2 border-t border-[var(--border)]/60 flex items-center justify-between text-[10px] text-[var(--text-muted)]">
                   <span className="truncate max-w-[140px] font-medium">{r.responsavel}</span>
-                  <span className="text-slate-400 group-hover:text-slate-800 font-semibold flex items-center gap-0.5">
+                  <span className="text-[var(--text-subtle)] group-hover:text-[var(--text)] font-semibold flex items-center gap-0.5">
                     Ficha <ArrowUpRight size={11} />
                   </span>
                 </div>
@@ -1324,79 +1259,74 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
          ===================================================================== */}
       {reservaInspecionada && (
         <div
-          className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-4 animate-in fade-in"
+          className="fixed inset-0 bg-[#0B1B2E]/50 z-50 flex items-center justify-center p-4 animate-in fade-in"
           onClick={() => setReservaInspecionada(null)}
         >
           <div
-            className="relative bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-slate-200/90 space-y-4 animate-in zoom-in-95 overflow-hidden"
+            className="relative bg-[var(--surface)] rounded-[18px] max-w-md w-full p-5 sm:p-6 border border-[var(--border)]/90 space-y-4 animate-in zoom-in-95 overflow-hidden"
             onClick={e => e.stopPropagation()}
-          >
-            {/* Cantoneiras Arquitetônicas no Modal */}
-            <span className="pointer-events-none absolute top-2.5 left-2.5 w-3 h-3 border-t-2 border-l-2 border-slate-300" />
-            <span className="pointer-events-none absolute top-2.5 right-2.5 w-3 h-3 border-t-2 border-r-2 border-slate-300" />
-            <span className="pointer-events-none absolute bottom-2.5 left-2.5 w-3 h-3 border-b-2 border-l-2 border-slate-300" />
-            <span className="pointer-events-none absolute bottom-2.5 right-2.5 w-3 h-3 border-b-2 border-r-2 border-slate-300" />
+          >    
 
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-slate-900 text-white">
+                <div className="p-2 rounded-xl bg-[#0B1B2E] text-white">
                   <CalendarIcon size={16} />
                 </div>
                 <div>
-                  <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-400 block">
+                  <span className="text-[9px] tabular-nums font-bold uppercase tracking-widest text-[var(--text-subtle)] block">
                     Ficha de Ocupação SEJU
                   </span>
-                  <h3 className="font-bold text-slate-900 text-sm">Detalhes do Agendamento</h3>
+                  <h3 className="font-bold text-[var(--text)] text-sm">Detalhes do Agendamento</h3>
                 </div>
               </div>
               <button
                 onClick={() => setReservaInspecionada(null)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition"
+                className="p-1.5 rounded-lg text-[var(--text-subtle)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] cursor-pointer transition"
               >
                 <X size={16} />
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1">
+              <div className="p-3.5 bg-[var(--surface-2)] rounded-xl border border-[var(--border)]/80 space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono font-bold text-slate-400 uppercase">Espaço Reservado</span>
-                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  <span className="text-[10px] tabular-nums font-bold text-[var(--text-subtle)] uppercase">Espaço Reservado</span>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[var(--verde)] bg-[var(--verde-soft)] px-2 py-0.5 rounded-full border border-[var(--verde-border)]">
                     <Check size={10} /> Confirmado
                   </span>
                 </div>
-                <div className="font-bold text-slate-900 text-sm">{reservaInspecionada.salaNome}</div>
-                <div className="text-[11px] text-slate-600 font-mono font-semibold">
+                <div className="font-bold text-[var(--text)] text-sm">{reservaInspecionada.salaNome}</div>
+                <div className="text-[11px] text-[var(--text-muted)] tabular-nums font-semibold">
                   Data: {reservaInspecionada.data} · Horário: {String(reservaInspecionada.horaInicio).padStart(2, '0')}:00 às {String(reservaInspecionada.horaFim).padStart(2, '0')}:00 ({reservaInspecionada.horaFim - reservaInspecionada.horaInicio}h)
                 </div>
               </div>
 
               <div>
-                <span className="font-semibold text-slate-700">Objetivo / Pauta da Reunião:</span>
-                <p className="mt-1 text-slate-800 font-medium bg-slate-50/90 p-3 rounded-xl border border-slate-200/80">
+                <span className="font-semibold text-[var(--text)]">Objetivo / Pauta da Reunião:</span>
+                <p className="mt-1 text-[var(--text)] font-medium bg-[var(--surface-2)]/90 p-3 rounded-xl border border-[var(--border)]/80">
                   {reservaInspecionada.motivo}
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-slate-50/60 border border-slate-200/60">
+              <div className="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-[var(--surface-2)]/60 border border-[var(--border)]/60">
                 <div>
-                  <span className="font-mono font-semibold text-slate-400 text-[9px] uppercase">Responsável</span>
-                  <div className="font-semibold text-slate-800 mt-0.5">{reservaInspecionada.responsavel}</div>
+                  <span className="tabular-nums font-semibold text-[var(--text-subtle)] text-[9px] uppercase">Responsável</span>
+                  <div className="font-semibold text-[var(--text)] mt-0.5">{reservaInspecionada.responsavel}</div>
                 </div>
                 <div>
-                  <span className="font-mono font-semibold text-slate-400 text-[9px] uppercase">Protocolo Interno</span>
-                  <div className="font-mono font-bold text-slate-700 mt-0.5">#{reservaInspecionada.id.toUpperCase()}</div>
+                  <span className="tabular-nums font-semibold text-[var(--text-subtle)] text-[9px] uppercase">Protocolo Interno</span>
+                  <div className="tabular-nums font-bold text-[var(--text)] mt-0.5">#{reservaInspecionada.id.toUpperCase()}</div>
                 </div>
               </div>
 
               {reservaInspecionada.recursosExtras && reservaInspecionada.recursosExtras.length > 0 && (
                 <div>
-                  <span className="font-semibold text-slate-700 text-[11px]">Logística & Recursos Solicitados:</span>
+                  <span className="font-semibold text-[var(--text)] text-[11px]">Logística & Recursos Solicitados:</span>
                   <div className="flex flex-wrap gap-1.5 mt-1.5">
                     {reservaInspecionada.recursosExtras.map((rec, i) => (
                       <span
                         key={i}
-                        className="bg-indigo-50/80 text-indigo-800 text-[10px] px-2.5 py-1 rounded-lg font-semibold border border-indigo-200/70"
+                        className="bg-[var(--brand-soft)]/80 text-[var(--brand)] text-[10px] px-2.5 py-1 rounded-lg font-semibold border border-[var(--brand-border)]/70"
                       >
                         {rec}
                       </span>
@@ -1406,11 +1336,11 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
               )}
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+            <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between gap-2">
               <button
                 type="button"
                 onClick={() => handleCancelarReserva(reservaInspecionada.id)}
-                className="px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-xs transition cursor-pointer flex items-center gap-1.5 border border-red-200/80"
+                className="px-3.5 py-2 rounded-xl bg-[var(--danger-soft)] hover:bg-[var(--danger-soft)] text-[var(--danger)] font-semibold text-xs transition cursor-pointer flex items-center gap-1.5 border border-[var(--danger-border)]/80"
               >
                 <Trash2 size={13} /> Liberar Horário
               </button>
@@ -1418,7 +1348,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
               <button
                 type="button"
                 onClick={() => setReservaInspecionada(null)}
-                className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white font-semibold text-xs transition cursor-pointer"
               >
                 Fechar
               </button>
@@ -1432,31 +1362,26 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
          ===================================================================== */}
       {modalNovo && (
         <div
-          className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in"
+          className="fixed inset-0 bg-[#0B1B2E]/50 z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in"
           onClick={() => setModalNovo(false)}
         >
           <div
-            className="relative bg-white rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 shadow-2xl border border-slate-200/90 animate-in zoom-in-95"
+            className="relative bg-[var(--surface)] rounded-[18px] max-w-xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 border border-[var(--border)]/90 animate-in zoom-in-95"
             onClick={e => e.stopPropagation()}
-          >
-            {/* Cantoneiras Arquitetônicas */}
-            <span className="pointer-events-none absolute top-2.5 left-2.5 w-3 h-3 border-t-2 border-l-2 border-slate-300" />
-            <span className="pointer-events-none absolute top-2.5 right-2.5 w-3 h-3 border-t-2 border-r-2 border-slate-300" />
-            <span className="pointer-events-none absolute bottom-2.5 left-2.5 w-3 h-3 border-b-2 border-l-2 border-slate-300" />
-            <span className="pointer-events-none absolute bottom-2.5 right-2.5 w-3 h-3 border-b-2 border-r-2 border-slate-300" />
+          >    
 
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)]">
               <div>
-                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-indigo-600">
+                <span className="text-[10px] tabular-nums font-bold uppercase tracking-widest text-[var(--brand)]">
                   Agendamento Institucional SEJU
                 </span>
-                <h3 className="text-base font-bold text-slate-900 mt-0.5">
+                <h3 className="text-base font-bold text-[var(--text)] mt-0.5">
                   Reservar Sala, Plenária ou Auditório
                 </h3>
               </div>
               <button
                 onClick={() => setModalNovo(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                className="p-1.5 rounded-lg text-[var(--text-subtle)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] cursor-pointer"
               >
                 <X size={16} />
               </button>
@@ -1464,7 +1389,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
 
             <form onSubmit={handleSalvarReserva} className="space-y-4 pt-4 text-xs">
               <div>
-                <label className="block font-semibold text-slate-700 mb-1.5">Selecione o Espaço no Catálogo *</label>
+                <label className="block font-semibold text-[var(--text)] mb-1.5">Selecione o Espaço no Catálogo *</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {salas.map(s => {
                     const active = salaId === s.id;
@@ -1475,20 +1400,20 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                         onClick={() => setSalaId(s.id)}
                         className={`p-3 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between gap-1 ${
                           active
-                            ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                            : 'bg-slate-50 hover:bg-white text-slate-800 border-slate-200/90'
+                            ? 'bg-[#0B1B2E] text-white border-[#22324C] shadow-xs'
+                            : 'bg-[var(--surface-2)] hover:bg-[var(--surface)] text-[var(--text)] border-[var(--border)]/90'
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${active ? 'bg-white/15 text-emerald-300' : 'bg-slate-200/70 text-slate-600'}`}>
+                          <span className={`text-[9px] tabular-nums font-bold px-1.5 py-0.5 rounded ${active ? 'bg-white/15 text-[#C6E86B]' : 'bg-[var(--surface-3)]/70 text-[var(--text-muted)]'}`}>
                             {s.codigo}
                           </span>
-                          <span className={`text-[10px] font-mono ${active ? 'text-slate-300' : 'text-slate-500'}`}>
+                          <span className={`text-[10px] tabular-nums ${active ? 'text-[var(--ink-muted)]' : 'text-[var(--text-muted)]'}`}>
                             {s.cap} lug.
                           </span>
                         </div>
                         <div className="font-bold text-xs mt-1 truncate">{s.nome}</div>
-                        <div className={`text-[10px] truncate ${active ? 'text-slate-300' : 'text-slate-500'}`}>
+                        <div className={`text-[10px] truncate ${active ? 'text-[var(--ink-muted)]' : 'text-[var(--text-muted)]'}`}>
                           {s.layout} · {s.andar}
                         </div>
                       </button>
@@ -1499,17 +1424,17 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1.5">Data *</label>
+                  <label className="block font-semibold text-[var(--text)] mb-1.5">Data *</label>
                   <input
                     type="date"
                     value={dataSelecionada}
                     onChange={e => setDataSelecionada(e.target.value)}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-mono font-semibold text-slate-800 outline-hidden"
+                    className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl tabular-nums font-semibold text-[var(--text)] outline-hidden"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1.5">Horário Início *</label>
+                  <label className="block font-semibold text-[var(--text)] mb-1.5">Horário Início *</label>
                   <select
                     value={horaInicio}
                     onChange={e => {
@@ -1517,7 +1442,7 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                       setHoraInicio(novoIni);
                       if (horaFim <= novoIni) setHoraFim(Math.min(18, novoIni + 1));
                     }}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-mono font-semibold text-slate-800 outline-hidden"
+                    className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl tabular-nums font-semibold text-[var(--text)] outline-hidden"
                   >
                     {slotsHorarios.map(h => (
                       <option key={h} value={h}>{String(h).padStart(2, '0')}:00</option>
@@ -1526,11 +1451,11 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1.5">Horário Término *</label>
+                  <label className="block font-semibold text-[var(--text)] mb-1.5">Horário Término *</label>
                   <select
                     value={horaFim}
                     onChange={e => setHoraFim(Number(e.target.value))}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-mono font-semibold text-slate-800 outline-hidden"
+                    className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl tabular-nums font-semibold text-[var(--text)] outline-hidden"
                   >
                     {horas.slice(1).map(h => (
                       <option key={h} value={h}>{String(h).padStart(2, '0')}:00</option>
@@ -1540,8 +1465,8 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
               </div>
 
               {colisaoAtual ? (
-                <div className="p-3 bg-red-50 rounded-xl border border-red-200 text-xs text-red-800 flex items-start gap-2">
-                  <AlertTriangle size={15} className="text-red-600 shrink-0 mt-0.5" />
+                <div className="p-3 bg-[var(--danger-soft)] rounded-xl border border-[var(--danger-border)] text-xs text-[var(--danger)] flex items-start gap-2">
+                  <AlertTriangle size={15} className="text-[var(--danger)] shrink-0 mt-0.5" />
                   <div>
                     <div className="font-bold">Bloqueio Anti-Colisão Detectado</div>
                     <div className="text-[11px] mt-0.5">
@@ -1550,29 +1475,29 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                   </div>
                 </div>
               ) : (
-                <div className="p-2.5 bg-emerald-50/80 rounded-xl border border-emerald-200/80 text-[11px] text-emerald-800 flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 size={14} className="text-emerald-600" />
+                <div className="p-2.5 bg-[var(--verde-soft)]/80 rounded-xl border border-[var(--verde-border)]/80 text-[11px] text-[var(--verde)] flex items-center gap-1.5 font-medium">
+                  <CheckCircle2 size={14} className="text-[var(--verde)]" />
                   <span>Horário 100% livre e verificado na régua cronológica.</span>
                 </div>
               )}
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1.5">Pauta / Reunião *</label>
+                <label className="block font-semibold text-[var(--text)] mb-1.5">Pauta / Reunião *</label>
                 <input
                   type="text"
                   required
                   value={motivo}
                   onChange={e => setMotivo(e.target.value)}
                   placeholder="Ex: Alinhamento de Planejamento Estratégico SEJU..."
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200/90 rounded-xl font-medium text-slate-800 outline-hidden"
+                  className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl font-medium text-[var(--text)] outline-hidden"
                 />
               </div>
 
-              <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-[var(--border-subtle)]">
                 <button
                   type="button"
                   onClick={() => setModalNovo(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200/90 text-slate-600 font-semibold hover:bg-slate-50 transition cursor-pointer"
+                  className="px-4 py-2 rounded-xl border border-[var(--border)]/90 text-[var(--text-muted)] font-semibold hover:bg-[var(--surface-2)] transition cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -1581,11 +1506,11 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
                   disabled={Boolean(colisaoAtual)}
                   className={`px-5 py-2 rounded-xl font-semibold shadow-2xs transition flex items-center gap-1.5 cursor-pointer ${
                     colisaoAtual
-                      ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                      : 'bg-slate-900 hover:bg-slate-800 text-white'
+                      ? 'bg-[var(--surface-3)] text-[var(--text-subtle)] cursor-not-allowed'
+                      : 'bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white'
                   }`}
                 >
-                  <Sparkles size={14} className="text-emerald-400" /> Confirmar Reserva
+                  <Sparkles size={14} className="text-[var(--verde)]" /> Confirmar Reserva
                 </button>
               </div>
             </form>
