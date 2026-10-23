@@ -1,380 +1,208 @@
-import { ModuloCabecalho, AcaoModulo, NumeroModulo } from '../modulo/ModuloCabecalho';
-import React, { useState } from 'react';
-import { 
-  Calendar as CalendarIcon, 
-  Plus, 
-  
-  Users, 
-  Building, 
-  CheckCircle2, 
-  AlertTriangle, 
-  Monitor, 
-  Video, 
-  Sparkles, 
-  Coffee,
-  Laptop,
-  Trash2,
-  CalendarDays,
-  X,
-  
-  SlidersHorizontal,
-  MapPin,
-  
-  Layers,
-  Mic,
-  Wifi,
-  
-  ArrowUpRight,
-  Check
-} from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Usuario } from '../../types';
 import { soundFX } from '../../services/soundFx';
 import { eventBus } from '../../services/eventBus';
+import { temPermissao } from '../../services/rbac';
+import { ModuloCabecalho, AcaoModulo, NumeroModulo } from '../modulo/ModuloCabecalho';
+import { Plus, Users, MapPin, Video, Projector, X, Check, AlertCircle, Coffee, Laptop, Radio, Mic, ChevronLeft, ChevronRight } from 'lucide-react';
+
+/** Recursos extras: mesmos valores aceitos pelo banco (reservas.recursos_extras). */
+type Recurso = 'copa' | 'suporte_ti' | 'transmissao_hibrida' | 'gravacao';
 
 export interface Reserva {
   id: string;
   salaId: string;
-  salaNome: string;
   responsavel: string;
   motivo: string;
-  data: string;
-  horaInicio: number; // ex: 9 (09:00)
-  horaFim: number;    // ex: 12 (12:00)
-  recursosExtras?: string[];
+  data: string; // AAAA-MM-DD
+  horaInicio: number;
+  horaFim: number;
+  participantes?: number;
+  recursos: Recurso[];
 }
 
-const RESERVAS_INICIAIS: Reserva[] = [
-  {
-    id: 'res-1',
-    salaId: 's1',
-    salaNome: 'Auditório Principal SEJU',
-    responsavel: 'Dra. Maria Helena (Chefe de Gabinete)',
-    motivo: 'Abertura da Semana de Direitos Humanos',
-    data: '2026-10-16',
-    horaInicio: 9,
-    horaFim: 12,
-    recursosExtras: ['Serviço de Copa (Café & Água)', 'Gravação em Vídeo / Ata Digital', 'Suporte Técnico Presencial']
-  },
-  {
-    id: 'res-2',
-    salaId: 's2',
-    salaNome: 'Sala de Reunião do Gabinete',
-    responsavel: 'Carlos Silveira',
-    motivo: 'Alinhamento Conselho Tutelar & Comarcas',
-    data: '2026-10-16',
-    horaInicio: 14,
-    horaFim: 16,
-    recursosExtras: ['Link Híbrido Teams / Meet PR', 'Serviço de Copa (Café & Água)']
-  },
-  {
-    id: 'res-3',
-    salaId: 's3',
-    salaNome: 'Sala Técnica de Conciliação',
-    responsavel: 'Juliana Mendes',
-    motivo: 'Audiência de Mediação Comunitária',
-    data: '2026-10-16',
-    horaInicio: 10,
-    horaFim: 12,
-    recursosExtras: ['Suporte Técnico Presencial']
-  },
-  {
-    id: 'res-4',
-    salaId: 's4',
-    salaNome: 'Laboratório de Treinamento',
-    responsavel: 'Coordenação de TI & Sistemas',
-    motivo: 'Capacitação Sistema E-Protocolo Digital',
-    data: '2026-10-16',
-    horaInicio: 15,
-    horaFim: 18,
-    recursosExtras: ['Suporte Técnico Presencial', 'Link Híbrido Teams / Meet PR']
-  },
-  {
-    id: 'res-5',
-    salaId: 's1',
-    salaNome: 'Auditório Principal SEJU',
-    responsavel: 'Superintendência de Direitos Humanos',
-    motivo: 'Palestra de Enfrentamento à Violência Escolar',
-    data: '2026-10-19',
-    horaInicio: 14,
-    horaFim: 17,
-    recursosExtras: ['Serviço de Copa (Café & Água)', 'Suporte Técnico Presencial']
-  },
-  {
-    id: 'res-6',
-    salaId: 's2',
-    salaNome: 'Sala de Reunião do Gabinete',
-    responsavel: 'Diretoria Geral SEJU',
-    motivo: 'Comitê de Governança Orçamentária',
-    data: '2026-10-19',
-    horaInicio: 9,
-    horaFim: 11,
-    recursosExtras: ['Serviço de Copa (Café & Água)', 'Link Híbrido Teams / Meet PR']
-  }
+interface Sala {
+  id: string;
+  codigo: string;
+  nome: string;
+  andar: string;
+  capacidade: number;
+  layout: string;
+  equipamentos: string[];
+  video: boolean;
+  projetor: boolean;
+}
+
+const SALAS: Sala[] = [
+  { id: 's1', codigo: 'AUD-01', nome: 'Auditório Principal', andar: 'Térreo · Ala Norte', capacidade: 120, layout: 'Auditório', equipamentos: ['Projetor', 'Microfones sem fio', 'Som ambiente'], video: true, projetor: true },
+  { id: 's2', codigo: 'GAB-03', nome: 'Sala de Reunião do Gabinete', andar: '3º andar', capacidade: 18, layout: 'Mesa em U', equipamentos: ['Videoconferência', 'TV 75"', 'Quadro de vidro'], video: true, projetor: false },
+  { id: 's3', codigo: 'MED-02', nome: 'Sala de Conciliação', andar: '2º andar · Bloco B', capacidade: 8, layout: 'Mesa redonda', equipamentos: ['Isolamento acústico', 'Ar-condicionado'], video: false, projetor: false },
+  { id: 's4', codigo: 'LAB-01', nome: 'Laboratório de Treinamento', andar: '1º andar', capacidade: 35, layout: '20 computadores', equipamentos: ['Projetor', 'Lousa digital', 'Rede cabeada'], video: false, projetor: true },
 ];
+
+const RECURSOS: Array<{ id: Recurso; rotulo: string; icone: React.ReactNode }> = [
+  { id: 'copa', rotulo: 'Café e água', icone: <Coffee size={15} /> },
+  { id: 'suporte_ti', rotulo: 'Apoio da TI', icone: <Laptop size={15} /> },
+  { id: 'transmissao_hibrida', rotulo: 'Reunião online', icone: <Radio size={15} /> },
+  { id: 'gravacao', rotulo: 'Gravação', icone: <Mic size={15} /> },
+];
+
+const HORA_ABRE = 8;
+const HORA_FECHA = 18;
+const HORAS = Array.from({ length: HORA_FECHA - HORA_ABRE }, (_, i) => HORA_ABRE + i);
+
+const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const diaMais = (n: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return iso(d);
+};
+const proximoDiaUtil = (n: number) => {
+  const d = new Date();
+  let somados = 0;
+  while (somados < n) {
+    d.setDate(d.getDate() + 1);
+    if (d.getDay() !== 0 && d.getDay() !== 6) somados++;
+  }
+  return iso(d);
+};
+const hh = (h: number) => `${String(h).padStart(2, '0')}h`;
+
+const RESERVAS_INICIAIS = (): Reserva[] => {
+  const hoje = diaMais(0);
+  const amanha = proximoDiaUtil(1);
+  return [
+    { id: 'r1', salaId: 's1', responsavel: 'Dra. Maria Helena', motivo: 'Abertura da Semana de Direitos Humanos', data: hoje, horaInicio: 9, horaFim: 12, participantes: 90, recursos: ['copa', 'gravacao', 'suporte_ti'] },
+    { id: 'r2', salaId: 's2', responsavel: 'Carlos Silveira', motivo: 'Alinhamento com Conselhos Tutelares', data: hoje, horaInicio: 14, horaFim: 16, participantes: 12, recursos: ['transmissao_hibrida', 'copa'] },
+    { id: 'r3', salaId: 's3', responsavel: 'Juliana Mendes', motivo: 'Mediação comunitária', data: hoje, horaInicio: 10, horaFim: 12, participantes: 6, recursos: [] },
+    { id: 'r4', salaId: 's4', responsavel: 'Coordenação de TI', motivo: 'Treinamento do e-Protocolo', data: hoje, horaInicio: 15, horaFim: 18, participantes: 20, recursos: ['suporte_ti'] },
+    { id: 'r5', salaId: 's1', responsavel: 'Superintendência de Direitos Humanos', motivo: 'Palestra sobre violência escolar', data: amanha, horaInicio: 14, horaFim: 17, participantes: 100, recursos: ['copa', 'suporte_ti'] },
+    { id: 'r6', salaId: 's2', responsavel: 'Diretoria Geral', motivo: 'Comitê de orçamento', data: amanha, horaInicio: 9, horaFim: 11, participantes: 10, recursos: ['copa'] },
+  ];
+};
 
 interface ReservaSalasViewProps {
   currentUser: Usuario;
   onVoltarHub: () => void;
 }
 
-const DIAS_RAPIDOS = [
-  { data: '2026-10-16', rotulo: 'Hoje', diaCurto: 'SEX', diaNum: '16', mes: 'OUT', diaSemana: 'Sex 16/10' },
-  { data: '2026-10-17', rotulo: 'Fim de Semana', diaCurto: 'SÁB', diaNum: '17', mes: 'OUT', diaSemana: 'Sáb 17/10' },
-  { data: '2026-10-19', rotulo: 'Próxima Sem.', diaCurto: 'SEG', diaNum: '19', mes: 'OUT', diaSemana: 'Seg 19/10' },
-  { data: '2026-10-20', rotulo: 'Terça-feira', diaCurto: 'TER', diaNum: '20', mes: 'OUT', diaSemana: 'Ter 20/10' },
-  { data: '2026-10-21', rotulo: 'Quarta-feira', diaCurto: 'QUA', diaNum: '21', mes: 'OUT', diaSemana: 'Qua 21/10' },
-  { data: '2026-10-22', rotulo: 'Quinta-feira', diaCurto: 'QUI', diaNum: '22', mes: 'OUT', diaSemana: 'Qui 22/10' },
-  { data: '2026-10-23', rotulo: 'Sexta-feira', diaCurto: 'SEX', diaNum: '23', mes: 'OUT', diaSemana: 'Sex 23/10' }
-];
-
 export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser, onVoltarHub }) => {
-  const [dataSelecionada, setDataSelecionada] = useState('2026-10-16');
+  const podeCancelarQualquer = temPermissao(currentUser, 'salas:cancelar_qualquer');
   const [reservas, setReservas] = useState<Reserva[]>(RESERVAS_INICIAIS);
-  const [modalNovo, setModalNovo] = useState(false);
+  const [inicioJanela, setInicioJanela] = useState(0);
+  const [data, setData] = useState(diaMais(0));
+  const [filtro, setFiltro] = useState<'todas' | 'video' | 'projetor'>('todas');
+  const [agora, setAgora] = useState(() => new Date());
+  const [detalhe, setDetalhe] = useState<Reserva | null>(null);
+  const [feita, setFeita] = useState<Reserva | null>(null);
+
+  // Formulário
   const [salaId, setSalaId] = useState('s1');
-  const [horaInicio, setHoraInicio] = useState(13);
-  const [horaFim, setHoraFim] = useState(15);
+  const [inicio, setInicio] = useState(() => Math.min(HORA_FECHA - 1, Math.max(HORA_ABRE, new Date().getHours() + 1)));
+  const [fim, setFim] = useState(() => Math.min(HORA_FECHA, Math.max(HORA_ABRE, new Date().getHours() + 1) + 1));
+  const [participantes, setParticipantes] = useState('');
   const [motivo, setMotivo] = useState('');
-  const [conflitoAviso, setConflitoAviso] = useState<string | null>(null);
-  const [filtroEquip, setFiltroEquip] = useState<string>('todos');
-  const [hoverReserva, setHoverReserva] = useState<Reserva | null>(null);
+  const [recursos, setRecursos] = useState<Recurso[]>([]);
+  const [erro, setErro] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const motivoRef = useRef<HTMLInputElement>(null);
 
-  // Modal de Detalhes / Cancelamento de Reserva Existente
-  const [reservaInspecionada, setReservaInspecionada] = useState<Reserva | null>(null);
+  useEffect(() => {
+    const t = setInterval(() => setAgora(new Date()), 60_000);
+    return () => clearInterval(t);
+  }, []);
 
-  // Checklist de Recursos Extras
-  const [recursoCafe, setRecursoCafe] = useState(true);
-  const [recursoGravacao, setRecursoGravacao] = useState(false);
-  const [recursoSuporteTI, setRecursoSuporteTI] = useState(true);
-  const [recursoHibrido, setRecursoHibrido] = useState(false);
-
-  const salas = [
-    { 
-      id: 's1', 
-      codigo: 'SEJU-AUD-01',
-      nome: 'Auditório Principal SEJU', 
-      andar: 'Térreo · Ala Norte',
-      cap: 120, 
-      layout: 'Auditório / Plenária',
-      equip: 'Projetor Laser 4K, 4 Mics Sem Fio, Som Line-Array, Cabine de Tradução', 
-      dotColor: 'bg-[#0072BB]',
-      accentBorder: 'border-l-[var(--brand)]',
-      blockBg: 'bg-[#0B1B2E]/95   border-[var(--brand)]/40',
-      badgeColor: 'bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--brand-border)]/80',
-      ringActive: 'ring-[var(--brand)]/20 border-[var(--brand)]',
-      hasVideo: true, 
-      hasProjetor: true,
-      hasAudioPro: true
-    },
-    { 
-      id: 's2', 
-      codigo: 'SEJU-GAB-03',
-      nome: 'Sala de Reunião do Gabinete', 
-      andar: '3º Andar · Ala Executiva',
-      cap: 18, 
-      layout: 'Mesa em U Executiva',
-      equip: 'Kit Videoconferência Teams 360°, Smart TV 75", Lousa de Vidro', 
-      dotColor: 'bg-[#00703C]',
-      accentBorder: 'border-l-[var(--verde)]',
-      blockBg: 'bg-[#0B1B2E]/95   border-[var(--verde)]/40',
-      badgeColor: 'bg-[var(--verde-soft)] text-[var(--verde)] border-[var(--verde-border)]/80',
-      ringActive: 'ring-[var(--verde)]/20 border-[var(--verde)]',
-      hasVideo: true, 
-      hasProjetor: false,
-      hasAudioPro: true
-    },
-    { 
-      id: 's3', 
-      codigo: 'SEJU-MED-02',
-      nome: 'Sala Técnica de Conciliação', 
-      andar: '2º Andar · Bloco B',
-      cap: 8, 
-      layout: 'Mesa Circular Mediação',
-      equip: 'Isolamento Acústico Duplo, Estação de Apoio, Climatização Dedicada', 
-      dotColor: 'bg-[#D98A00]',
-      accentBorder: 'border-l-[var(--warning)]',
-      blockBg: 'bg-[#7A4800]/95   border-[var(--warning)]/40',
-      badgeColor: 'bg-[var(--warning-soft)] text-[var(--warning)] border-[var(--warning-border)]/80',
-      ringActive: 'ring-[var(--warning)]/20 border-[var(--warning)]',
-      hasVideo: false, 
-      hasProjetor: false,
-      hasAudioPro: false
-    },
-    { 
-      id: 's4', 
-      codigo: 'SEJU-LAB-01',
-      nome: 'Laboratório de Treinamento', 
-      andar: '1º Andar · Bloco Técnico',
-      cap: 35, 
-      layout: 'Bancadas com 20 Estações PC',
-      equip: '20 Workstations Rede Gigabit, Projetor Interativo, Lousa Digital', 
-      dotColor: 'bg-[#0072BB]',
-      accentBorder: 'border-l-[var(--brand)]',
-      blockBg: 'bg-[#0B1B2E]/95   border-[var(--brand)]/40',
-      badgeColor: 'bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--brand-border)]/80',
-      ringActive: 'ring-[var(--brand)]/20 border-[var(--brand)]',
-      hasVideo: false, 
-      hasProjetor: true,
-      hasAudioPro: false
-    }
-  ];
-
-  // Horários de expediente: 08:00 às 18:00 (10 blocos de 1h: 8h, 9h, 10h, 11h, 12h, 13h, 14h, 15h, 16h, 17h -> término até 18h)
-  const horas = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
-  const slotsHorarios = horas.slice(0, 10); // 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 (cada slot = 1 hora até as 18h)
-
-  // Checar colisão em tempo real
-  const checarColisao = (sId: string, hIni: number, hFim: number) => {
-    return reservas.find(r => 
-      r.salaId === sId && 
-      r.data === dataSelecionada && 
-      ((hIni >= r.horaInicio && hIni < r.horaFim) || 
-       (hFim > r.horaInicio && hFim <= r.horaFim) ||
-       (hIni <= r.horaInicio && hFim >= r.horaFim))
-    );
-  };
-
-  const colisaoAtual = checarColisao(salaId, horaInicio, horaFim);
-  const salaSelecionadaObj = salas.find(s => s.id === salaId) || salas[0];
-
-  const handleSalvarReserva = (e: React.FormEvent) => {
-    e.preventDefault();
-    setConflitoAviso(null);
-
-    if (horaInicio >= horaFim) {
-      setConflitoAviso('O horário de término deve ser posterior ao horário de início.');
-      return;
-    }
-
-    const choque = checarColisao(salaId, horaInicio, horaFim);
-    if (choque) {
-      setConflitoAviso(`Choque de horário com "${choque.motivo}" (${choque.responsavel}) das ${choque.horaInicio}h às ${choque.horaFim}h.`);
-      return;
-    }
-
-    const salaObj = salas.find(s => s.id === salaId);
-
-    const extras: string[] = [];
-    if (recursoCafe) extras.push('Serviço de Copa (Café & Água)');
-    if (recursoGravacao) extras.push('Gravação em Vídeo / Ata Digital');
-    if (recursoSuporteTI) extras.push('Suporte Técnico Presencial');
-    if (recursoHibrido) extras.push('Link Híbrido Teams / Meet PR');
-
-    const nova: Reserva = {
-      id: 'res-' + Date.now(),
-      salaId,
-      salaNome: salaObj?.nome || '',
-      responsavel: currentUser.nome,
-      motivo: motivo.trim() || 'Reunião de Trabalho e Alinhamento da SEJU',
-      data: dataSelecionada,
-      horaInicio,
-      horaFim,
-      recursosExtras: extras
-    };
-
-    setReservas([...reservas, nova]);
-    setModalNovo(false);
-    setMotivo('');
-    soundFX.playSuccess();
-
-    eventBus.emit('sala.reservada', {
-      reservaId: nova.id,
-      salaNome: nova.salaNome,
-      horario: `${nova.horaInicio}:00 - ${nova.horaFim}:00`,
-      data: nova.data,
-      solicitante: nova.responsavel,
-      pauta: nova.motivo
-    });
-
-  };
-
-  // Cancelar ou Liberar Horário
-  const handleCancelarReserva = (reservaId: string) => {
-    soundFX.playClick();
-    setReservas(prev => prev.filter(r => r.id !== reservaId));
-    setReservaInspecionada(null);
-  };
-
-  // Clique direto na célula do horário da timeline para selecionar no painel lateral
-  const handleCelulaClick = (sId: string, hora: number) => {
-    soundFX.playClick();
-    setSalaId(sId);
-    setHoraInicio(hora);
-    // Encontrar próxima reserva no mesmo dia/sala para não gerar colisão automática se houver 1h livre
-    const proxReserva = reservas
-      .filter(r => r.salaId === sId && r.data === dataSelecionada && r.horaInicio > hora)
-      .sort((a, b) => a.horaInicio - b.horaInicio)[0];
-    const limiteSuperior = proxReserva ? Math.min(proxReserva.horaInicio, hora + 2) : Math.min(18, hora + 2);
-    setHoraFim(Math.max(hora + 1, limiteSuperior));
-  };
-
-  const salasFiltradas = salas.filter(s => {
-    if (filtroEquip === 'video') return s.hasVideo;
-    if (filtroEquip === 'projetor') return s.hasProjetor;
-    return true;
+  const hoje = iso(agora);
+  const ehHoje = data === hoje;
+  const horaAgora = agora.getHours() + agora.getMinutes() / 60;
+  const dias = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() + inicioJanela + i);
+    return d;
   });
 
-  const reservasDoDia = reservas.filter(r => r.data === dataSelecionada);
-  const horaReferencia = 10; // 10:00 como referência de expediente ativo
-  const salasLivresAgora = salas.filter(s => !reservasDoDia.some(r => r.salaId === s.id && horaReferencia >= r.horaInicio && horaReferencia < r.horaFim)).length;
+  const doDia = reservas.filter(r => r.data === data);
+  const salas = SALAS.filter(s => (filtro === 'video' ? s.video : filtro === 'projetor' ? s.projetor : true));
+  const sala = SALAS.find(s => s.id === salaId) ?? SALAS[0];
+  const choque = (sId: string, d: string, ini: number, f: number, ignorar?: string) =>
+    reservas.find(r => r.id !== ignorar && r.salaId === sId && r.data === d && ini < r.horaFim && f > r.horaInicio);
+  const conflito = choque(salaId, data, inicio, fim);
+  const pessoas = Number(participantes) || 0;
+  const lotado = pessoas > sala.capacidade;
+  const passado = ehHoje && inicio < Math.ceil(horaAgora);
 
-  // Auxiliar para renderizar badges de recursos nos blocos cronológicos
-  const renderResourceBadges = (recursos?: string[], compact = false) => {
-    if (!recursos || recursos.length === 0) return null;
-    const temCopa = recursos.some(r => r.toLowerCase().includes('copa') || r.toLowerCase().includes('café'));
-    const temHibrido = recursos.some(r => r.toLowerCase().includes('híbrido') || r.toLowerCase().includes('teams') || r.toLowerCase().includes('videoconferência'));
-    const temTI = recursos.some(r => r.toLowerCase().includes('suporte') || r.toLowerCase().includes('técnico'));
-    const temVideo = recursos.some(r => r.toLowerCase().includes('gravação') || r.toLowerCase().includes('vídeo'));
+  const salasLivresAgora = SALAS.filter(
+    s => !reservas.some(r => r.salaId === s.id && r.data === hoje && horaAgora >= r.horaInicio && horaAgora < r.horaFim),
+  ).length;
+  const minhas = reservas
+    .filter(r => r.responsavel === currentUser.nome && r.data >= hoje)
+    .sort((a, b) => (a.data + a.horaInicio).localeCompare(b.data + b.horaInicio));
 
-    return (
-      <div className="flex items-center gap-1 flex-wrap">
-        {temCopa && (
-          <span
-            title="Serviço de Copa (Café & Água)"
-            className={`inline-flex items-center gap-0.5 rounded bg-[#D98A00]/20 text-[#FFE2A8] border border-[var(--warning)]/30 tabular-nums ${
-              compact ? 'px-1 py-0.5 text-[8px]' : 'px-1.5 py-0.5 text-[9px]'
-            }`}
-          >
-            <Coffee size={compact ? 8 : 9} className="text-[#FFE2A8] shrink-0" />
-            {!compact && <span>Copa</span>}
-          </span>
-        )}
-        {temHibrido && (
-          <span
-            title="Transmissão Híbrida (Teams / Meet PR)"
-            className={`inline-flex items-center gap-0.5 rounded bg-[#0072BB]/20 text-[#DCEEFB] border border-[var(--brand)]/30 tabular-nums ${
-              compact ? 'px-1 py-0.5 text-[8px]' : 'px-1.5 py-0.5 text-[9px]'
-            }`}
-          >
-            <Monitor size={compact ? 8 : 9} className="text-[#DCEEFB] shrink-0" />
-            {!compact && <span>Híbrida</span>}
-          </span>
-        )}
-        {temTI && (
-          <span
-            title="Suporte TI Presencial"
-            className={`inline-flex items-center gap-0.5 rounded bg-[#0072BB]/20 text-[#DCEEFB] border border-[var(--brand)]/30 tabular-nums ${
-              compact ? 'px-1 py-0.5 text-[8px]' : 'px-1.5 py-0.5 text-[9px]'
-            }`}
-          >
-            <Laptop size={compact ? 8 : 9} className="text-[#DCEEFB] shrink-0" />
-            {!compact && <span>TI</span>}
-          </span>
-        )}
-        {temVideo && (
-          <span
-            title="Gravação em Vídeo / Ata Digital"
-            className={`inline-flex items-center gap-0.5 rounded bg-[#C8372D]/20 text-[#FFD3CC] border border-[var(--danger)]/30 tabular-nums ${
-              compact ? 'px-1 py-0.5 text-[8px]' : 'px-1.5 py-0.5 text-[9px]'
-            }`}
-          >
-            <Video size={compact ? 8 : 9} className="text-[#FFD3CC] shrink-0" />
-            {!compact && <span>Rec</span>}
-          </span>
-        )}
-      </div>
-    );
+  const preencher = (sId: string, hora: number) => {
+    soundFX.playClick();
+    setSalaId(sId);
+    setInicio(hora);
+    const proxima = reservas
+      .filter(r => r.salaId === sId && r.data === data && r.horaInicio > hora)
+      .sort((a, b) => a.horaInicio - b.horaInicio)[0];
+    setFim(Math.max(hora + 1, Math.min(hora + 2, proxima?.horaInicio ?? HORA_FECHA)));
+    setErro(null);
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    setTimeout(() => motivoRef.current?.focus(), 250);
   };
+
+  const abrirFormulario = () => {
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => motivoRef.current?.focus(), 300);
+  };
+
+  const reservar = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (fim <= inicio) return setErro('O fim precisa ser depois do início.');
+    if (passado) return setErro('Esse horário já passou. Escolha um horário a partir de agora.');
+    if (motivo.trim().length < 3) return setErro('Escreva o motivo da reunião.');
+    if (lotado) return setErro(`${sala.nome} comporta até ${sala.capacidade} pessoas.`);
+    const c = choque(salaId, data, inicio, fim);
+    if (c) return setErro(`Já está reservada das ${hh(c.horaInicio)} às ${hh(c.horaFim)} (${c.motivo}).`);
+    const nova: Reserva = {
+      id: 'r-' + Date.now(),
+      salaId,
+      responsavel: currentUser.nome,
+      motivo: motivo.trim(),
+      data,
+      horaInicio: inicio,
+      horaFim: fim,
+      participantes: pessoas || undefined,
+      recursos,
+    };
+    setReservas(prev => [...prev, nova]);
+    eventBus.emit('sala.reservada', {
+      reservaId: nova.id,
+      salaNome: sala.nome,
+      horario: `${hh(inicio)}–${hh(fim)}`,
+      data,
+      solicitante: nova.responsavel,
+      pauta: nova.motivo,
+    });
+    soundFX.playSuccess();
+    setFeita(nova);
+    setMotivo('');
+    setParticipantes('');
+    setRecursos([]);
+    setErro(null);
+  };
+
+  const cancelar = (r: Reserva) => {
+    soundFX.playClick();
+    setReservas(prev => prev.filter(x => x.id !== r.id));
+    setDetalhe(null);
+  };
+
+  const dataLonga = (d: string) =>
+    new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  const opcoesHora = (de: number, ate: number) => Array.from({ length: ate - de + 1 }, (_, i) => de + i);
+  const campo = 'h-11 w-full rounded-[12px] border border-[var(--border)] bg-[var(--surface-2)] px-3 text-sm text-[var(--text)] outline-none focus:border-[var(--brand)]';
 
   return (
     <div className="space-y-5 font-sans">
@@ -382,1142 +210,412 @@ export const ReservaSalasView: React.FC<ReservaSalasViewProps> = ({ currentUser,
         cor="verde"
         rotulo="Espaços · Salas e auditórios"
         titulo="Salas"
-        descricao="Veja o que está livre, reserve sala ou auditório e peça copa ou apoio técnico. Dois horários no mesmo espaço nunca se sobrepõem."
+        descricao="Veja o que está livre, reserve sala ou auditório e peça café ou apoio da TI. Duas reservas nunca ficam no mesmo horário."
         onVoltar={onVoltarHub}
         acoes={
-          <AcaoModulo
-            destaque
-            icone={<Plus size={15} />}
-            onClick={() => {
-              soundFX.playClick();
-              setModalNovo(true);
-            }}
-          >
+          <AcaoModulo destaque icone={<Plus size={15} />} onClick={abrirFormulario}>
             Reservar sala
           </AcaoModulo>
         }
       >
         <div className="flex flex-wrap gap-2">
-          <NumeroModulo rotulo="Livres agora" valor={salasLivresAgora} detalhe={`de ${salas.length} espaços`} />
-          <NumeroModulo rotulo="Reservas no dia" valor={reservasDoDia.length} />
+          <NumeroModulo rotulo="Livres agora" valor={salasLivresAgora} detalhe={`de ${SALAS.length} espaços`} />
+          <NumeroModulo rotulo={ehHoje ? 'Reservas hoje' : 'Reservas no dia'} valor={doDia.length} />
+          <NumeroModulo rotulo="Suas próximas" valor={minhas.length} />
         </div>
       </ModuloCabecalho>
 
-      <div className="relative bg-[var(--surface)] rounded-[18px] p-5 sm:p-6 border border-[var(--border)] overflow-hidden space-y-5">
-        {/* Fita de Calendário de 7 Dias com Bordas Chanfradas, Brilho Especular e Indicador Luminoso */}
-        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-            <div className="hidden sm:flex flex-col justify-center pr-3 mr-1 border-r border-[var(--border)]/80 shrink-0">
-              <span className="text-[9px] tabular-nums uppercase tracking-widest text-[var(--text-subtle)]">Fita Cronológica</span>
-              <span className="text-xs font-bold text-[var(--text)] flex items-center gap-1 mt-0.5">
-                <CalendarDays size={13} className="text-[var(--brand)]" /> 7 Dias
-              </span>
-            </div>
-
-            {DIAS_RAPIDOS.map(d => {
-              const isSelected = dataSelecionada === d.data;
-              const reservasData = reservas.filter(r => r.data === d.data);
-              const qtdNoDia = reservasData.length;
-
-              return (
-                <button
-                  key={d.data}
-                  onClick={() => {
-                    soundFX.playClick();
-                    setDataSelecionada(d.data);
-                  }}
-                  style={{
-                    clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px)',
-                    boxShadow: isSelected
-                      ? 'inset 0 1px 0 rgba(255,255,255,0.28), 0 8px 16px -4px rgba(15, 23, 42, 0.28)'
-                      : 'inset 0 1px 0 rgba(255,255,255,0.8)'
-                  }}
-                  className={`relative group px-3.5 py-2 rounded-lg text-left transition-all duration-200 flex items-center gap-2.5 shrink-0 cursor-pointer border ${
-                    isSelected
-                      ? ' bg-[#0B1B2E]   text-white border-[#22324C] scale-[1.02]'
-                      : 'bg-[var(--surface-2)]/90 hover:bg-[var(--surface)] text-[var(--text)] border-[var(--border)]/90 hover:border-[var(--border-strong)]'
-                  }`}
-                >
-
-                  <div className="flex flex-col leading-none">
-                    <span
-                      className={`text-[9px] tabular-nums font-bold uppercase tracking-wider ${
-                        isSelected ? 'text-[var(--verde)]' : 'text-[var(--text-subtle)] group-hover:text-[var(--text-muted)]'
-                      }`}
-                    >
-                      {d.diaCurto} · {d.mes}
-                    </span>
-                    <div className="flex items-baseline gap-1 mt-1">
-                      <span className={`text-sm tabular-nums font-extrabold tracking-tight ${isSelected ? 'text-white' : 'text-[var(--text)]'}`}>
-                        {d.diaNum}
-                      </span>
-                      <span className={`text-[10px] font-medium ${isSelected ? 'text-[var(--ink-muted)]' : 'text-[var(--text-muted)]'}`}>
-                        {d.rotulo}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Indicador Luminoso de Quantidade de Reuniões */}
-                  <div className="flex flex-col items-end justify-between pl-1.5 border-l border-[var(--border-strong)]/20">
-                    <span
-                      className={`inline-flex items-center gap-1 text-[10px] tabular-nums font-bold px-1.5 py-0.5 rounded-md border ${
-                        qtdNoDia > 0
-                          ? isSelected
-                            ? 'bg-[#00A859]/20 text-[#C6E86B] border-[var(--verde)]/40 '
-                            : 'bg-[var(--brand-soft)] text-[var(--brand)] border-[var(--brand-border)]/80'
-                          : isSelected
-                          ? 'bg-white/10 text-[var(--text-subtle)] border-white/10'
-                          : 'bg-[var(--surface-2)] text-[var(--text-subtle)] border-[var(--border)]/60'
-                      }`}
-                    >
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          qtdNoDia > 0
-                            ? isSelected
-                              ? 'bg-[#00A859] '
-                              : 'bg-[#0072BB]'
-                            : 'bg-[var(--border-strong)]'
-                        }`}
-                      />
-                      {qtdNoDia}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-
-            {/* Seletor de Data Específica */}
-            <div className="relative flex items-center shrink-0 ml-1">
-              <input
-                type="date"
-                value={dataSelecionada}
-                onChange={e => setDataSelecionada(e.target.value)}
-                aria-label="Selecionar data no calendário"
-                className="text-xs px-3 py-2 bg-[var(--surface-2)] hover:bg-[var(--surface)] border border-[var(--border)]/90 hover:border-[var(--border-strong)] rounded-xl tabular-nums font-semibold text-[var(--text)] outline-hidden shrink-0 cursor-pointer transition shadow-2xs"
-              />
-            </div>
-          </div>
-
-          {/* Filtro Rápido de Infraestrutura */}
-          <div className="flex items-center gap-2 shrink-0 self-start xl:self-auto">
-            <SlidersHorizontal size={13} className="text-[var(--text-subtle)] hidden sm:inline" />
-            <div className="flex items-center gap-1 bg-[var(--surface-2)]/90 p-1 rounded-xl border border-[var(--border)]/80">
-              {[
-                { id: 'todos', label: 'Todos os Espaços' },
-                { id: 'video', label: 'Videoconferência' },
-                { id: 'projetor', label: 'Projetor 4K' }
-              ].map(f => (
-                <button
-                  key={f.id}
-                  onClick={() => {
-                    soundFX.playClick();
-                    setFiltroEquip(f.id);
-                  }}
-                  className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all cursor-pointer ${
-                    filtroEquip === f.id
-                      ? 'bg-[var(--surface)] text-[var(--text)] font-semibold shadow-2xs border border-[var(--border)]/60'
-                      : 'text-[var(--text-muted)] hover:text-[var(--text)]'
-                  }`}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* =====================================================================
-          SEÇÃO 2: LAYOUT DE 2 COLUNAS (RÉGUA CRONOLÓGICA & CATÁLOGO ARQUITETÔNICO + RESERVA EXPRESSA)
-         ===================================================================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        
-        {/* COLUNA ESQUERDA (8 cols): Régua Cronológica de Alta Precisão + Catálogo Arquitetônico de Salas */}
-        <div className="lg:col-span-8 space-y-5">
-
-          {/* -----------------------------------------------------------------
-              2A. RÉGUA CRONOLÓGICA VISUAL DE ALTA PRECISÃO (08:00 ÀS 18:00)
-             ----------------------------------------------------------------- */}
-          <div className="bg-[var(--surface)] rounded-[18px] p-4 sm:p-5 border border-[var(--border)]/90 shadow-xs space-y-3.5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[var(--border-subtle)]">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#0072BB]" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text)]">
-                    Régua Cronológica de Ocupação · 08:00 às 18:00
-                  </h3>
-                  <span className="text-[10px] tabular-nums font-semibold text-[var(--text-muted)] bg-[var(--surface-2)] px-2 py-0.5 rounded border border-[var(--border)]/70">
-                    {dataSelecionada}
-                  </span>
-                </div>
-                <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
-                  Passe o cursor sobre os blocos para inspecionar a pauta ou clique em uma janela livre (<span className="tabular-nums text-[var(--verde)] font-semibold">+ Reservar Horário</span>).
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3 text-[10px] tabular-nums font-medium text-[var(--text-muted)] shrink-0">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-xs border border-dashed border-[var(--verde)] bg-[var(--verde-soft)]" /> Slot Livre
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-xs bg-[#0B1B2E] border-l-2 border-l-[var(--brand)]" /> Ocupado
-                </span>
-                <span className="flex items-center gap-1 text-[var(--danger)] font-semibold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#C8372D] " /> 10:25
-                </span>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto no-scrollbar">
-              <div className="min-w-[760px] pt-1">
-                {/* Cabeçalho da Régua Horária (08:00 até 18:00) */}
-                <div className="grid grid-cols-12 gap-0 text-[10px] tabular-nums font-bold text-[var(--text-subtle)] pb-2 border-b border-[var(--border)]/80">
-                  <div className="col-span-3 text-left pl-2 font-sans text-[11px] text-[var(--text-muted)] font-bold uppercase tracking-wider flex items-center gap-1.5">
-                    <Layers size={12} className="text-[var(--text-subtle)]" /> Espaço / Planta
-                  </div>
-                  <div className="col-span-9 grid grid-cols-10">
-                    {slotsHorarios.map(h => (
-                      <div key={h} className="text-left pl-1.5 border-l border-dashed border-[var(--border)] flex items-center justify-between pr-1">
-                        <span className={h === 10 ? 'text-[var(--danger)] font-extrabold' : 'text-[var(--text-muted)]'}>
-                          {String(h).padStart(2, '0')}:00
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Linhas de Cada Sala na Régua Cronológica */}
-                <div className="divide-y divide-[var(--border-subtle)]">
-                  {salasFiltradas.map(s => {
-                    const reservasDaSala = reservas.filter(r => r.salaId === s.id && r.data === dataSelecionada);
-                    const isSalaSelected = salaId === s.id;
-
-                    return (
-                      <div
-                        key={s.id}
-                        className={`py-3 grid grid-cols-12 gap-0 items-center transition-colors ${
-                          isSalaSelected ? 'bg-[var(--surface-2)]/70' : 'hover:bg-[var(--surface-2)]/40'
-                        }`}
-                      >
-                        {/* Identificação Arquitetônica da Sala na Esquerda */}
-                        <div
-                          onClick={() => {
-                            soundFX.playClick();
-                            setSalaId(s.id);
-                          }}
-                          className="col-span-3 pr-3 pl-2 cursor-pointer group"
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <span className={`w-2 h-2 rounded-full ${s.dotColor} shrink-0`} />
-                            <span className="text-xs font-bold text-[var(--text)] group-hover:text-[var(--brand)] transition-colors truncate">
-                              {s.nome}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 pl-3.5 mt-0.5">
-                            <span className="text-[9px] tabular-nums font-semibold text-[var(--text-subtle)] bg-[var(--surface-2)] px-1.5 py-0.2 rounded border border-[var(--border)]/70">
-                              {s.codigo}
-                            </span>
-                            <span className="text-[10px] text-[var(--text-subtle)] truncate">
-                              {s.cap} lug.
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Faixa Cronológica 08:00 às 18:00 (10 slots de 1h) */}
-                        <div className="col-span-9 relative h-16 bg-[var(--surface-2)]/60 rounded-xl border border-[var(--border)]/80 overflow-hidden">
-                          {/* Marcador Vertical de Hora Atual (10:25 -> 24.1% da faixa de 10h) */}
-                          <div
-                            style={{ left: '24.16%' }}
-                            className="pointer-events-none absolute top-0 bottom-0 w-px bg-[#C8372D]/70 z-20"
-                          >
-                            <span className="absolute -top-0.5 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#C8372D]" />
-                          </div>
-
-                          {/* 10 Células de Hora com Linhas Tracejadas Finas e Hover Convidativo nos Slots Livres */}
-                          <div className="grid grid-cols-10 h-full">
-                            {slotsHorarios.map(h => {
-                              const isOcupado = reservasDaSala.some(r => h >= r.horaInicio && h < r.horaFim);
-                              const isPreviewSlot = isSalaSelected && !colisaoAtual && h >= horaInicio && h < horaFim;
-
-                              return (
-                                <button
-                                  key={h}
-                                  type="button"
-                                  disabled={isOcupado}
-                                  onClick={() => !isOcupado && handleCelulaClick(s.id, h)}
-                                  title={!isOcupado ? `Reservar ${s.nome} às ${String(h).padStart(2, '0')}:00` : undefined}
-                                  className={`relative h-full border-l first:border-l-0 border-dashed border-[var(--border)]/90 flex flex-col items-center justify-center transition-all duration-150 group/slot ${
-                                    isOcupado
-                                      ? 'bg-transparent cursor-default'
-                                      : isPreviewSlot
-                                      ? 'bg-[#00A859]/10 border-[var(--verde)]/60 cursor-pointer'
-                                      : 'hover:bg-[var(--verde-soft)]/90 cursor-pointer'
-                                  }`}
-                                >
-                                  {!isOcupado && (
-                                    <div
-                                      className={`inset-1 absolute rounded-lg border border-dashed transition-all flex flex-col items-center justify-center px-0.5 ${
-                                        isPreviewSlot
-                                          ? 'border-[var(--verde)]/80 bg-[var(--verde-soft)]/70 opacity-100 '
-                                          : 'border-transparent group-hover/slot:border-[var(--verde)] group-hover/slot:bg-[var(--surface)]/95 group-hover/slot: opacity-0 group-hover/slot:opacity-100'
-                                      }`}
-                                    >
-                                      <span className="text-[8px] tabular-nums font-bold text-[var(--verde)] leading-none">
-                                        + Reservar
-                                      </span>
-                                      <span className="text-[8px] tabular-nums text-[var(--verde)]/90 leading-none mt-0.5">
-                                        {String(h).padStart(2, '0')}:00
-                                      </span>
-                                    </div>
-                                  )}
-                                </button>
-                              );
-                            })}
-                          </div>
-
-                          {/* Blocos de Reunião Esculpidos com Gradiente Sutil, Borda Esquerda Acentuada e Badges */}
-                          {reservasDaSala.map(r => {
-                            const colStart = Math.max(0, r.horaInicio - 8);
-                            const colSpan = Math.min(10 - colStart, r.horaFim - r.horaInicio);
-                            if (colSpan <= 0) return null;
-                            const leftPercent = (colStart / 10) * 100;
-                            const widthPercent = (colSpan / 10) * 100;
-                            const isHovered = hoverReserva?.id === r.id;
-
-                            return (
-                              <div
-                                key={r.id}
-                                style={{
-                                  left: `calc(${leftPercent}% + 2px)`,
-                                  width: `calc(${widthPercent}% - 4px)`,
-                                  boxShadow: isHovered
-                                    ? 'inset 0 1px 0 rgba(255,255,255,0.25), 0 8px 20px -4px rgba(15,23,42,0.45)'
-                                    : 'inset 0 1px 0 rgba(255,255,255,0.14), 0 2px 6px rgba(15,23,42,0.2)'
-                                }}
-                                onClick={() => {
-                                  soundFX.playClick();
-                                  setReservaInspecionada(r);
-                                }}
-                                onMouseEnter={() => setHoverReserva(r)}
-                                onMouseLeave={() => setHoverReserva(null)}
-                                className={`absolute top-1.5 bottom-1.5 ${s.blockBg} text-white rounded-lg border border-l-4 ${s.accentBorder} px-2.5 py-1.5 flex flex-col justify-between overflow-hidden z-10 cursor-pointer transition-all duration-200 ${
-                                  isHovered ? 'scale-[1.01] z-30 ring-2 ring-white/20' : ''
-                                }`}
-                              >
-                                <div className="flex items-start justify-between gap-1.5">
-                                  <div className="font-semibold text-[10px] leading-tight truncate text-white">
-                                    {r.motivo}
-                                  </div>
-                                  <span className="text-[8px] tabular-nums font-bold text-[var(--ink-muted)] bg-white/10 px-1 py-0.2 rounded shrink-0">
-                                    {String(r.horaInicio).padStart(2, '0')}h–{String(r.horaFim).padStart(2, '0')}h
-                                  </span>
-                                </div>
-
-                                <div className="flex items-center justify-between gap-1.5 mt-0.5">
-                                  <span className="text-[9px] text-[var(--ink-muted)] font-medium truncate">
-                                    {r.responsavel.split('(')[0].trim()}
-                                  </span>
-                                  {renderResourceBadges(r.recursosExtras, colSpan <= 2)}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Barra de Inspeção Instantânea de Pauta no Hover (Estilo Cron Calendar Inspector) */}
-            <div
-              className={`p-3 rounded-xl border transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs ${
-                hoverReserva
-                  ? 'bg-[#0B1B2E] text-white border-[#22324C] shadow-sm'
-                  : 'bg-[var(--surface-2)]/80 text-[var(--text-muted)] border-[var(--border)]/70'
-              }`}
-            >
-              {hoverReserva ? (
-                <>
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="w-2 h-2 rounded-full bg-[#00A859] shrink-0 " />
-                    <div className="truncate">
-                      <span className="font-bold text-white">{hoverReserva.motivo}</span>
-                      <span className="text-[var(--ink-muted)] ml-2 text-[11px]">
-                        · {hoverReserva.salaNome} ({String(hoverReserva.horaInicio).padStart(2, '0')}:00 às {String(hoverReserva.horaFim).padStart(2, '0')}:00) · Resp: {hoverReserva.responsavel}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {renderResourceBadges(hoverReserva.recursosExtras, false)}
-                    <span className="text-[10px] tabular-nums text-[#C6E86B] flex items-center gap-0.5">
-                      Inspecionar <ArrowUpRight size={11} />
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <div className="flex items-center justify-between w-full text-[11px] text-[var(--text-muted)]">
-                  <span className="flex items-center gap-1.5">
-                    <Sparkles size={13} className="text-[var(--brand)]" />
-                    Dica: Passe o mouse sobre uma reunião agendada para ver recursos de Copa/TI ou clique em qualquer horário livre para agendar.
-                  </span>
-                  <span className="tabular-nums text-[10px] text-[var(--text-subtle)] hidden sm:inline">ESCALA 1H · 08:00–18:00</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* -----------------------------------------------------------------
-              2B. CATÁLOGO DE ESPAÇOS / SALAS DA SEJU (PLACA ARQUITETÔNICA CORPORATIVA)
-             ----------------------------------------------------------------- */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between px-1">
-              <div className="flex items-center gap-2">
-                <Building size={15} className="text-[var(--text)]" />
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text)]">
-                  Catálogo de Espaços & Especificação Arquitetônica SEJU
-                </h3>
-              </div>
-              <span className="text-[11px] text-[var(--text-subtle)] tabular-nums">
-                Selecione uma placa para carregar no painel lateral
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {salasFiltradas.map(s => {
-                const reservasDaSala = reservas.filter(r => r.salaId === s.id && r.data === dataSelecionada);
-                const estaOcupadaAgora = reservasDaSala.some(r => horaReferencia >= r.horaInicio && horaReferencia < r.horaFim);
-                const isSelected = salaId === s.id;
-                const horasOcupadas = reservasDaSala.reduce((acc, r) => acc + (r.horaFim - r.horaInicio), 0);
-                const taxaOcupacao = Math.min(100, Math.round((horasOcupadas / 10) * 100));
-
-                return (
-                  <div
-                    key={s.id}
-                    onClick={() => {
-                      soundFX.playClick();
-                      setSalaId(s.id);
-                    }}
-                    className={`relative bg-[var(--surface)] rounded-[18px] p-4 sm:p-5 border transition-all duration-200 cursor-pointer select-none flex flex-col justify-between gap-3.5 overflow-hidden group ${
-                      isSelected
-                        ? `ring-2 ${s.ringActive} shadow-sm`
-                        : 'border-[var(--border)]/90 hover:border-[var(--border-strong)] shadow-2xs'
-                    }`}
-                  >
-                    {/* Acabamento de Placa Arquitetônica Corporativa nos 4 Cantos */}
-                    <span
-                      className={`pointer-events-none absolute top-2 left-2 w-2.5 h-2.5 border-t-2 border-l-2 transition-colors ${
-                        isSelected ? 'border-[#22324C]' : 'border-[var(--border-strong)]/90 group-hover:border-[var(--border-strong)]'
-                      }`}
-                    />
-                    <span
-                      className={`pointer-events-none absolute top-2 right-2 w-2.5 h-2.5 border-t-2 border-r-2 transition-colors ${
-                        isSelected ? 'border-[#22324C]' : 'border-[var(--border-strong)]/90 group-hover:border-[var(--border-strong)]'
-                      }`}
-                    />
-                    <span
-                      className={`pointer-events-none absolute bottom-2 left-2 w-2.5 h-2.5 border-b-2 border-l-2 transition-colors ${
-                        isSelected ? 'border-[#22324C]' : 'border-[var(--border-strong)]/90 group-hover:border-[var(--border-strong)]'
-                      }`}
-                    />
-                    <span
-                      className={`pointer-events-none absolute bottom-2 right-2 w-2.5 h-2.5 border-b-2 border-r-2 transition-colors ${
-                        isSelected ? 'border-[#22324C]' : 'border-[var(--border-strong)]/90 group-hover:border-[var(--border-strong)]'
-                      }`}
-                    />
-
-                    {/* Topo da Placa Arquitetônica */}
-                    <div className="space-y-2.5">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[9px] tabular-nums font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-[var(--surface-2)] text-[var(--text-muted)] border border-[var(--border)]/80">
-                              {s.codigo}
-                            </span>
-                            <span className="text-[10px] font-medium text-[var(--text-subtle)] flex items-center gap-1">
-                              <MapPin size={10} /> {s.andar}
-                            </span>
-                          </div>
-                          <h4 className="text-sm font-bold text-[var(--text)] mt-1 flex items-center gap-2">
-                            <span className={`w-2.5 h-2.5 rounded-full ${s.dotColor} shrink-0`} />
-                            <span>{s.nome}</span>
-                          </h4>
-                        </div>
-
-                        {/* Status Badge: Disponível agora / Em uso */}
-                        <span
-                          className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border shrink-0 flex items-center gap-1.5 shadow-2xs ${
-                            estaOcupadaAgora
-                              ? 'bg-[var(--warning-soft)] text-[var(--warning)] border-[var(--warning-border)]/90'
-                              : 'bg-[var(--verde-soft)] text-[var(--verde)] border-[var(--verde-border)]/90'
-                          }`}
-                        >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              estaOcupadaAgora ? 'bg-[#D98A00] ' : 'bg-[#00A859]'
-                            }`}
-                          />
-                          {estaOcupadaAgora ? 'Em uso' : 'Disponível agora'}
-                        </span>
-                      </div>
-
-                      {/* Especificações de Capacidade e Formato de Layout */}
-                      <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-[var(--surface-2)]/90 border border-[var(--border)]/70 text-[11px]">
-                        <div className="flex items-center gap-2">
-                          <div className="p-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border)]/80 text-[var(--text)]">
-                            <Users size={12} />
-                          </div>
-                          <div>
-                            <div className="text-[9px] tabular-nums uppercase text-[var(--text-subtle)] leading-none">Capacidade</div>
-                            <div className="font-bold text-[var(--text)] mt-0.5">{s.cap} lugares</div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 border-l border-[var(--border)]/70 pl-2">
-                          <div className="p-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border)]/80 text-[var(--text)]">
-                            <Layers size={12} />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="text-[9px] tabular-nums uppercase text-[var(--text-subtle)] leading-none">Layout</div>
-                            <div className="font-bold text-[var(--text)] truncate mt-0.5" title={s.layout}>
-                              {s.layout}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Chips de Infraestrutura & Equipamentos */}
-                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                        {s.hasProjetor && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-[var(--surface-2)] text-[var(--text)] border border-[var(--border)]/70">
-                            <Monitor size={10} className="text-[var(--brand)]" /> Projetor 4K
-                          </span>
-                        )}
-                        {s.hasVideo && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-[var(--surface-2)] text-[var(--text)] border border-[var(--border)]/70">
-                            <Video size={10} className="text-[var(--verde)]" /> Híbrido Teams
-                          </span>
-                        )}
-                        {s.hasAudioPro && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-[var(--surface-2)] text-[var(--text)] border border-[var(--border)]/70">
-                            <Mic size={10} className="text-[var(--warning)]" /> Som Plenária
-                          </span>
-                        )}
-                        <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-[var(--surface-2)] text-[var(--text)] border border-[var(--border)]/70">
-                          <Wifi size={10} className="text-[var(--brand)]" /> Wi-Fi 6 Gov
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Mini Régua Horária Interativa (08h às 18h) na base do Card Arquitetônico */}
-                    <div className="pt-2.5 border-t border-[var(--border-subtle)] space-y-1.5">
-                      <div className="flex items-center justify-between text-[10px]">
-                        <span className="text-[var(--text-subtle)] font-medium">Disponibilidade Rápida (08h–18h)</span>
-                        <span className="tabular-nums font-semibold text-[var(--text-muted)]">
-                          {reservasDaSala.length} res. · {taxaOcupacao}% ocup.
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-10 gap-1">
-                        {slotsHorarios.map(h => {
-                          const reservaNoHorario = reservasDaSala.find(r => h >= r.horaInicio && h < r.horaFim);
-                          const isSlotSelected = isSelected && h >= horaInicio && h < horaFim;
-
-                          return (
-                            <button
-                              key={h}
-                              type="button"
-                              onClick={e => {
-                                e.stopPropagation();
-                                if (reservaNoHorario) {
-                                  soundFX.playClick();
-                                  setReservaInspecionada(reservaNoHorario);
-                                } else {
-                                  handleCelulaClick(s.id, h);
-                                }
-                              }}
-                              onMouseEnter={() => reservaNoHorario && setHoverReserva(reservaNoHorario)}
-                              onMouseLeave={() => setHoverReserva(null)}
-                              className={`h-6 rounded-md text-[9px] tabular-nums font-bold transition-all flex items-center justify-center cursor-pointer border ${
-                                reservaNoHorario
-                                  ? 'bg-[#0B1B2E] text-white border-[#22324C] hover:bg-[#13223A]'
-                                  : isSlotSelected
-                                  ? 'bg-[#00703C] text-white border-[var(--verde)] shadow-2xs'
-                                  : 'bg-[var(--surface-2)] text-[var(--text-muted)] border-[var(--border)]/70 hover:bg-[var(--verde-soft)] hover:text-[var(--verde)] hover:border-[var(--verde)] hover:border-dashed'
-                              }`}
-                              title={
-                                reservaNoHorario
-                                  ? `${h}:00 · Ocupado: ${reservaNoHorario.motivo}`
-                                  : `+ Reservar ${h}:00 em ${s.nome}`
-                              }
-                            >
-                              {h}h
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* COLUNA DIREITA (4 cols): Painel de Reserva Expressa com Acabamento Arquitetônico */}
-        <div className="lg:col-span-4 relative bg-[var(--surface)] rounded-[18px] p-5 border border-[var(--border)]/90 shadow-xs space-y-4 sticky top-4 overflow-hidden">    
-
-          <div className="pb-3.5 border-b border-[var(--border-subtle)] flex items-start justify-between gap-2">
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] tabular-nums font-bold uppercase tracking-wider text-[var(--brand)] bg-[var(--brand-soft)] px-2 py-0.5 rounded border border-[var(--brand-border)]/60">
-                  {salaSelecionadaObj.codigo}
-                </span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-subtle)]">
-                  · Reserva Expressa
-                </span>
-              </div>
-              <h3 className="text-sm font-bold text-[var(--text)] mt-1.5 flex items-center gap-2">
-                <span className={`w-2.5 h-2.5 rounded-full ${salaSelecionadaObj.dotColor}`} />
-                {salaSelecionadaObj.nome}
-              </h3>
-              <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
-                {salaSelecionadaObj.layout} · {salaSelecionadaObj.cap} lugares · {salaSelecionadaObj.andar}
-              </p>
-            </div>
-          </div>
-
-          <form onSubmit={handleSalvarReserva} className="space-y-3.5 text-xs">
-            <div>
-              <label className="block font-semibold text-[var(--text)] mb-1">Espaço Selecionado</label>
-              <select
-                value={salaId}
-                onChange={e => setSalaId(e.target.value)}
-                className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl font-medium text-[var(--text)] outline-hidden focus:bg-[var(--surface)] focus:border-[var(--border-strong)] transition"
-              >
-                {salas.map(s => (
-                  <option key={s.id} value={s.id}>{s.codigo} — {s.nome} ({s.cap} lug.)</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2.5">
-              <div>
-                <label className="block font-semibold text-[var(--text)] mb-1">Início (08h–17h)</label>
-                <select
-                  value={horaInicio}
-                  onChange={e => {
-                    const novoIni = Number(e.target.value);
-                    setHoraInicio(novoIni);
-                    if (horaFim <= novoIni) setHoraFim(Math.min(18, novoIni + 1));
-                  }}
-                  className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl tabular-nums font-bold text-[var(--text)] outline-hidden"
-                >
-                  {slotsHorarios.map(h => (
-                    <option key={h} value={h}>{String(h).padStart(2, '0')}:00</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block font-semibold text-[var(--text)] mb-1">Término (09h–18h)</label>
-                <select
-                  value={horaFim}
-                  onChange={e => setHoraFim(Number(e.target.value))}
-                  className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl tabular-nums font-bold text-[var(--text)] outline-hidden"
-                >
-                  {horas.slice(1).map(h => (
-                    <option key={h} value={h}>{String(h).padStart(2, '0')}:00</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Atalhos Rápidos de Duração */}
-            <div className="flex items-center gap-1.5 pt-0.5">
-              <span className="text-[10px] tabular-nums text-[var(--text-subtle)] mr-1">Duração:</span>
-              {[
-                { label: '1h', dur: 1 },
-                { label: '2h', dur: 2 },
-                { label: '3h', dur: 3 },
-                { label: 'Manhã (08–12h)', ini: 8, fim: 12 },
-                { label: 'Tarde (14–18h)', ini: 14, fim: 18 }
-              ].map((preset, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => {
-                    soundFX.playClick();
-                    if (preset.ini !== undefined && preset.fim !== undefined) {
-                      setHoraInicio(preset.ini);
-                      setHoraFim(preset.fim);
-                    } else if (preset.dur) {
-                      setHoraFim(Math.min(18, horaInicio + preset.dur));
-                    }
-                  }}
-                  className="px-2 py-1 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--surface-3)]/80 text-[var(--text)] tabular-nums text-[10px] font-semibold transition cursor-pointer"
-                >
-                  {preset.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Status Anti-Colisão */}
-            {colisaoAtual ? (
-              <div className="p-3 bg-[var(--danger-soft)]/90 rounded-xl border border-[var(--danger-border)] text-[11px] text-[var(--danger)] flex items-start gap-2">
-                <AlertTriangle size={14} className="text-[var(--danger)] shrink-0 mt-0.5" />
-                <div>
-                  <div className="font-bold">Horário Indisponível</div>
-                  <div className="text-[var(--danger)]/90 mt-0.5">
-                    Reservado para "{colisaoAtual.motivo}" ({colisaoAtual.horaInicio}h–{colisaoAtual.horaFim}h).
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="p-2.5 bg-[var(--verde-soft)]/80 rounded-xl border border-[var(--verde-border)]/80 text-[11px] text-[var(--verde)] flex items-center gap-1.5 font-medium">
-                <CheckCircle2 size={14} className="text-[var(--verde)] shrink-0" />
-                <span>
-                  Janela <strong className="tabular-nums">{String(horaInicio).padStart(2, '0')}:00–{String(horaFim).padStart(2, '0')}:00</strong> ({horaFim - horaInicio}h) livre em {dataSelecionada}.
-                </span>
-              </div>
-            )}
-
-            <div>
-              <label className="block font-semibold text-[var(--text)] mb-1">Pauta / Finalidade da Reserva *</label>
-              <input
-                type="text"
-                required
-                value={motivo}
-                onChange={e => setMotivo(e.target.value)}
-                placeholder="Ex: Reunião de alinhamento, audiência..."
-                className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl font-medium text-[var(--text)] outline-hidden focus:bg-[var(--surface)] focus:border-[var(--border-strong)] transition"
-              />
-            </div>
-
-            {/* Checklist de Recursos de Apoio com Destaque Visual */}
-            <div className="space-y-1.5">
-              <label className="block font-semibold text-[var(--text)]">Logística & Recursos de Apoio</label>
-              <div className="grid grid-cols-2 gap-1.5 text-[11px]">
-                <label
-                  className={`flex items-center gap-1.5 p-2 rounded-xl border cursor-pointer transition ${
-                    recursoCafe
-                      ? 'bg-[var(--warning-soft)]/70 border-[var(--warning-border)]/80 text-[var(--warning)] font-semibold'
-                      : 'bg-[var(--surface-2)]/80 border-[var(--border)]/70 text-[var(--text-muted)] hover:bg-[var(--surface-2)]'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={recursoCafe}
-                    onChange={e => setRecursoCafe(e.target.checked)}
-                    className="rounded text-[var(--text)]"
-                  />
-                  <Coffee size={12} className="text-[var(--warning)] shrink-0" />
-                  <span className="truncate">Copa & Café</span>
-                </label>
-
-                <label
-                  className={`flex items-center gap-1.5 p-2 rounded-xl border cursor-pointer transition ${
-                    recursoSuporteTI
-                      ? 'bg-[var(--brand-soft)]/70 border-[var(--brand-border)]/80 text-[var(--brand)] font-semibold'
-                      : 'bg-[var(--surface-2)]/80 border-[var(--border)]/70 text-[var(--text-muted)] hover:bg-[var(--surface-2)]'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={recursoSuporteTI}
-                    onChange={e => setRecursoSuporteTI(e.target.checked)}
-                    className="rounded text-[var(--text)]"
-                  />
-                  <Laptop size={12} className="text-[var(--brand)] shrink-0" />
-                  <span className="truncate">Suporte TI</span>
-                </label>
-
-                <label
-                  className={`flex items-center gap-1.5 p-2 rounded-xl border cursor-pointer transition ${
-                    recursoGravacao
-                      ? 'bg-[var(--danger-soft)]/70 border-[var(--danger-border)]/80 text-[var(--danger)] font-semibold'
-                      : 'bg-[var(--surface-2)]/80 border-[var(--border)]/70 text-[var(--text-muted)] hover:bg-[var(--surface-2)]'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={recursoGravacao}
-                    onChange={e => setRecursoGravacao(e.target.checked)}
-                    className="rounded text-[var(--text)]"
-                  />
-                  <Video size={12} className="text-[var(--danger)] shrink-0" />
-                  <span className="truncate">Gravação Ata</span>
-                </label>
-
-                <label
-                  className={`flex items-center gap-1.5 p-2 rounded-xl border cursor-pointer transition ${
-                    recursoHibrido
-                      ? 'bg-[var(--brand-soft)]/70 border-[var(--brand-border)]/80 text-[var(--brand)] font-semibold'
-                      : 'bg-[var(--surface-2)]/80 border-[var(--border)]/70 text-[var(--text-muted)] hover:bg-[var(--surface-2)]'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={recursoHibrido}
-                    onChange={e => setRecursoHibrido(e.target.checked)}
-                    className="rounded text-[var(--text)]"
-                  />
-                  <Monitor size={12} className="text-[var(--brand)] shrink-0" />
-                  <span className="truncate">Transm. Híbrida</span>
-                </label>
-              </div>
-            </div>
-
-            {conflitoAviso && (
-              <div className="p-2.5 bg-[var(--danger-soft)] text-[var(--danger)] border border-[var(--danger-border)] text-[11px] rounded-xl font-medium">
-                {conflitoAviso}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={Boolean(colisaoAtual)}
-              style={
-                !colisaoAtual
-                  ? { boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22), 0 4px 12px -2px rgba(15,23,42,0.22)' }
-                  : undefined
-              }
-              className={`w-full py-2.5 rounded-xl font-semibold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                colisaoAtual
-                  ? 'bg-[var(--surface-3)] text-[var(--text-subtle)] cursor-not-allowed'
-                  : ' bg-[#0B1B2E]  hover:bg-[#13223A]  text-white'
-              }`}
-            >
-              <Sparkles size={14} className={!colisaoAtual ? 'text-[var(--verde)]' : ''} /> Confirmar Agendamento
-            </button>
-          </form>
-        </div>
-
-      </div>
-
-      {/* =====================================================================
-          SEÇÃO 3: AGENDA INSTITUCIONAL & RESERVAS ATIVAS
-         ===================================================================== */}
-      <div className="bg-[var(--surface)] rounded-[18px] p-5 border border-[var(--border)]/90 shadow-2xs space-y-3.5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#0B1B2E]" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text)]">
-              Reservas Ativas & Agenda Institucional ({reservas.length})
-            </h3>
-          </div>
-          <span className="text-[11px] text-[var(--text-subtle)]">
-            Clique em qualquer agendamento para inspecionar recursos ou liberar o espaço
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {reservas.map(r => {
-            const salaRef = salas.find(s => s.id === r.salaId);
+      {/* Dias */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          aria-label="Dias anteriores"
+          disabled={inicioJanela === 0}
+          onClick={() => setInicioJanela(v => Math.max(0, v - 7))}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] disabled:opacity-30 cursor-pointer"
+        >
+          <ChevronLeft size={18} />
+        </button>
+        <div className="-mx-1 flex flex-1 gap-2 overflow-x-auto px-1 py-0.5">
+          {dias.map(d => {
+            const chave = iso(d);
+            const ativo = chave === data;
+            const n = reservas.filter(r => r.data === chave).length;
+            const fds = d.getDay() === 0 || d.getDay() === 6;
             return (
-              <div
-                key={r.id}
-                onClick={() => {
-                  soundFX.playClick();
-                  setReservaInspecionada(r);
-                }}
-                className={`relative p-3.5 rounded-xl bg-[var(--surface-2)]/70 hover:bg-[var(--surface)] border border-[var(--border)]/80 hover:border-[var(--border-strong)] border-l-4 ${
-                  salaRef?.accentBorder || 'border-l-[#22324C]'
-                } shadow-2xs transition-all cursor-pointer flex flex-col justify-between gap-2.5 group`}
+              <button
+                key={chave}
+                type="button"
+                aria-pressed={ativo}
+                onClick={() => setData(chave)}
+                className={`flex min-w-[76px] shrink-0 flex-col items-center rounded-[18px] px-3 py-2 transition-colors cursor-pointer ${
+                  ativo ? 'bg-[#00703C] text-white' : 'border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-[var(--surface-2)]'
+                } ${fds && !ativo ? 'opacity-60' : ''}`}
               >
-                <div>
-                  <div className="flex items-center justify-between gap-1 text-[10px] tabular-nums text-[var(--text-muted)]">
-                    <span className="font-semibold text-[var(--text)] bg-[var(--surface)] px-2 py-0.5 rounded border border-[var(--border)]/80">
-                      {r.data}
-                    </span>
-                    <span className="font-bold text-[var(--verde)] bg-[var(--verde-soft)] px-2 py-0.5 rounded border border-[var(--verde-border)]/80">
-                      {String(r.horaInicio).padStart(2, '0')}:00–{String(r.horaFim).padStart(2, '0')}:00
-                    </span>
-                  </div>
-                  <h4 className="font-bold text-xs text-[var(--text)] mt-2 line-clamp-1 group-hover:text-[var(--brand)] transition-colors">
-                    {r.motivo}
-                  </h4>
-                  <p className="text-[11px] text-[var(--text-muted)] truncate mt-0.5 flex items-center gap-1.5">
-                    <span className={`w-1.5 h-1.5 rounded-full ${salaRef?.dotColor || 'bg-[var(--text-muted)]'}`} />
-                    {r.salaNome}
-                  </p>
-                </div>
-
-                <div className="pt-2 border-t border-[var(--border)]/60 flex items-center justify-between text-[10px] text-[var(--text-muted)]">
-                  <span className="truncate max-w-[140px] font-medium">{r.responsavel}</span>
-                  <span className="text-[var(--text-subtle)] group-hover:text-[var(--text)] font-semibold flex items-center gap-0.5">
-                    Ficha <ArrowUpRight size={11} />
-                  </span>
-                </div>
-              </div>
+                <span className={`text-[11px] font-semibold uppercase ${ativo ? 'text-white/75' : 'text-[var(--text-muted)]'}`}>
+                  {chave === hoje ? 'Hoje' : d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')}
+                </span>
+                <span className="font-display text-xl font-bold tabular-nums leading-tight">{d.getDate()}</span>
+                <span className={`text-[11px] tabular-nums ${ativo ? 'text-white/75' : 'text-[var(--text-subtle)]'}`}>
+                  {n ? `${n} reserva${n > 1 ? 's' : ''}` : 'livre'}
+                </span>
+              </button>
             );
           })}
         </div>
+        <button
+          type="button"
+          aria-label="Próximos dias"
+          onClick={() => setInicioJanela(v => v + 7)}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] cursor-pointer"
+        >
+          <ChevronRight size={18} />
+        </button>
       </div>
 
-      {/* =====================================================================
-          MODAL DE INSPEÇÃO / CANCELAMENTO DE RESERVA (ESTILO PLACA CORPORATIVA)
-         ===================================================================== */}
-      {reservaInspecionada && (
-        <div
-          className="fixed inset-0 bg-[#0B1B2E]/50 z-50 flex items-center justify-center p-4 animate-in fade-in"
-          onClick={() => setReservaInspecionada(null)}
-        >
-          <div
-            className="relative bg-[var(--surface)] rounded-[18px] max-w-md w-full p-5 sm:p-6 border border-[var(--border)]/90 space-y-4 animate-in zoom-in-95 overflow-hidden"
-            onClick={e => e.stopPropagation()}
-          >    
-
-            <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-[#0B1B2E] text-white">
-                  <CalendarIcon size={16} />
-                </div>
-                <div>
-                  <span className="text-[9px] tabular-nums font-bold uppercase tracking-widest text-[var(--text-subtle)] block">
-                    Ficha de Ocupação SEJU
-                  </span>
-                  <h3 className="font-bold text-[var(--text)] text-sm">Detalhes do Agendamento</h3>
-                </div>
-              </div>
-              <button
-                onClick={() => setReservaInspecionada(null)}
-                className="p-1.5 rounded-lg text-[var(--text-subtle)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] cursor-pointer transition"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <div className="p-3.5 bg-[var(--surface-2)] rounded-xl border border-[var(--border)]/80 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] tabular-nums font-bold text-[var(--text-subtle)] uppercase">Espaço Reservado</span>
-                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[var(--verde)] bg-[var(--verde-soft)] px-2 py-0.5 rounded-full border border-[var(--verde-border)]">
-                    <Check size={10} /> Confirmado
-                  </span>
-                </div>
-                <div className="font-bold text-[var(--text)] text-sm">{reservaInspecionada.salaNome}</div>
-                <div className="text-[11px] text-[var(--text-muted)] tabular-nums font-semibold">
-                  Data: {reservaInspecionada.data} · Horário: {String(reservaInspecionada.horaInicio).padStart(2, '0')}:00 às {String(reservaInspecionada.horaFim).padStart(2, '0')}:00 ({reservaInspecionada.horaFim - reservaInspecionada.horaInicio}h)
-                </div>
-              </div>
-
-              <div>
-                <span className="font-semibold text-[var(--text)]">Objetivo / Pauta da Reunião:</span>
-                <p className="mt-1 text-[var(--text)] font-medium bg-[var(--surface-2)]/90 p-3 rounded-xl border border-[var(--border)]/80">
-                  {reservaInspecionada.motivo}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-[var(--surface-2)]/60 border border-[var(--border)]/60">
-                <div>
-                  <span className="tabular-nums font-semibold text-[var(--text-subtle)] text-[9px] uppercase">Responsável</span>
-                  <div className="font-semibold text-[var(--text)] mt-0.5">{reservaInspecionada.responsavel}</div>
-                </div>
-                <div>
-                  <span className="tabular-nums font-semibold text-[var(--text-subtle)] text-[9px] uppercase">Protocolo Interno</span>
-                  <div className="tabular-nums font-bold text-[var(--text)] mt-0.5">#{reservaInspecionada.id.toUpperCase()}</div>
-                </div>
-              </div>
-
-              {reservaInspecionada.recursosExtras && reservaInspecionada.recursosExtras.length > 0 && (
-                <div>
-                  <span className="font-semibold text-[var(--text)] text-[11px]">Logística & Recursos Solicitados:</span>
-                  <div className="flex flex-wrap gap-1.5 mt-1.5">
-                    {reservaInspecionada.recursosExtras.map((rec, i) => (
-                      <span
-                        key={i}
-                        className="bg-[var(--brand-soft)]/80 text-[var(--brand)] text-[10px] px-2.5 py-1 rounded-lg font-semibold border border-[var(--brand-border)]/70"
-                      >
-                        {rec}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between gap-2">
-              <button
-                type="button"
-                onClick={() => handleCancelarReserva(reservaInspecionada.id)}
-                className="px-3.5 py-2 rounded-xl bg-[var(--danger-soft)] hover:bg-[var(--danger-soft)] text-[var(--danger)] font-semibold text-xs transition cursor-pointer flex items-center gap-1.5 border border-[var(--danger-border)]/80"
-              >
-                <Trash2 size={13} /> Liberar Horário
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setReservaInspecionada(null)}
-                className="px-4 py-2 rounded-xl bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white font-semibold text-xs transition cursor-pointer"
-              >
-                Fechar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* =====================================================================
-          MODAL DE AGENDAMENTO COMPLETO (COM SELEÇÃO VISUAL DE SALA E RECURSOS)
-         ===================================================================== */}
-      {modalNovo && (
-        <div
-          className="fixed inset-0 bg-[#0B1B2E]/50 z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in"
-          onClick={() => setModalNovo(false)}
-        >
-          <div
-            className="relative bg-[var(--surface)] rounded-[18px] max-w-xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 border border-[var(--border)]/90 animate-in zoom-in-95"
-            onClick={e => e.stopPropagation()}
-          >    
-
-            <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)]">
-              <div>
-                <span className="text-[10px] tabular-nums font-bold uppercase tracking-widest text-[var(--brand)]">
-                  Agendamento Institucional SEJU
-                </span>
-                <h3 className="text-base font-bold text-[var(--text)] mt-0.5">
-                  Reservar Sala, Plenária ou Auditório
-                </h3>
-              </div>
-              <button
-                onClick={() => setModalNovo(false)}
-                className="p-1.5 rounded-lg text-[var(--text-subtle)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] cursor-pointer"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSalvarReserva} className="space-y-4 pt-4 text-xs">
-              <div>
-                <label className="block font-semibold text-[var(--text)] mb-1.5">Selecione o Espaço no Catálogo *</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {salas.map(s => {
-                    const active = salaId === s.id;
-                    return (
-                      <button
-                        key={s.id}
-                        type="button"
-                        onClick={() => setSalaId(s.id)}
-                        className={`p-3 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between gap-1 ${
-                          active
-                            ? 'bg-[#0B1B2E] text-white border-[#22324C] shadow-xs'
-                            : 'bg-[var(--surface-2)] hover:bg-[var(--surface)] text-[var(--text)] border-[var(--border)]/90'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className={`text-[9px] tabular-nums font-bold px-1.5 py-0.5 rounded ${active ? 'bg-white/15 text-[#C6E86B]' : 'bg-[var(--surface-3)]/70 text-[var(--text-muted)]'}`}>
-                            {s.codigo}
-                          </span>
-                          <span className={`text-[10px] tabular-nums ${active ? 'text-[var(--ink-muted)]' : 'text-[var(--text-muted)]'}`}>
-                            {s.cap} lug.
-                          </span>
-                        </div>
-                        <div className="font-bold text-xs mt-1 truncate">{s.nome}</div>
-                        <div className={`text-[10px] truncate ${active ? 'text-[var(--ink-muted)]' : 'text-[var(--text-muted)]'}`}>
-                          {s.layout} · {s.andar}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block font-semibold text-[var(--text)] mb-1.5">Data *</label>
-                  <input
-                    type="date"
-                    value={dataSelecionada}
-                    onChange={e => setDataSelecionada(e.target.value)}
-                    className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl tabular-nums font-semibold text-[var(--text)] outline-hidden"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-[var(--text)] mb-1.5">Horário Início *</label>
-                  <select
-                    value={horaInicio}
-                    onChange={e => {
-                      const novoIni = Number(e.target.value);
-                      setHoraInicio(novoIni);
-                      if (horaFim <= novoIni) setHoraFim(Math.min(18, novoIni + 1));
-                    }}
-                    className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl tabular-nums font-semibold text-[var(--text)] outline-hidden"
-                  >
-                    {slotsHorarios.map(h => (
-                      <option key={h} value={h}>{String(h).padStart(2, '0')}:00</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-[var(--text)] mb-1.5">Horário Término *</label>
-                  <select
-                    value={horaFim}
-                    onChange={e => setHoraFim(Number(e.target.value))}
-                    className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl tabular-nums font-semibold text-[var(--text)] outline-hidden"
-                  >
-                    {horas.slice(1).map(h => (
-                      <option key={h} value={h}>{String(h).padStart(2, '0')}:00</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {colisaoAtual ? (
-                <div className="p-3 bg-[var(--danger-soft)] rounded-xl border border-[var(--danger-border)] text-xs text-[var(--danger)] flex items-start gap-2">
-                  <AlertTriangle size={15} className="text-[var(--danger)] shrink-0 mt-0.5" />
-                  <div>
-                    <div className="font-bold">Bloqueio Anti-Colisão Detectado</div>
-                    <div className="text-[11px] mt-0.5">
-                      Choque com "{colisaoAtual.motivo}" ({colisaoAtual.responsavel}) das {colisaoAtual.horaInicio}:00 às {colisaoAtual.horaFim}:00.
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-2.5 bg-[var(--verde-soft)]/80 rounded-xl border border-[var(--verde-border)]/80 text-[11px] text-[var(--verde)] flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 size={14} className="text-[var(--verde)]" />
-                  <span>Horário 100% livre e verificado na régua cronológica.</span>
-                </div>
-              )}
-
-              <div>
-                <label className="block font-semibold text-[var(--text)] mb-1.5">Pauta / Reunião *</label>
-                <input
-                  type="text"
-                  required
-                  value={motivo}
-                  onChange={e => setMotivo(e.target.value)}
-                  placeholder="Ex: Alinhamento de Planejamento Estratégico SEJU..."
-                  className="w-full p-2.5 bg-[var(--surface-2)] border border-[var(--border)]/90 rounded-xl font-medium text-[var(--text)] outline-hidden"
-                />
-              </div>
-
-              <div className="pt-2 flex items-center justify-end gap-2 border-t border-[var(--border-subtle)]">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-12 items-start">
+        {/* Agenda do dia */}
+        <section className="xl:col-span-8 rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h3 className="font-display text-xl font-bold first-letter:uppercase text-[var(--text)]">{dataLonga(data)}</h3>
+            <div className="flex gap-1.5">
+              {[
+                { id: 'todas', rotulo: 'Todas' },
+                { id: 'video', rotulo: 'Com vídeo' },
+                { id: 'projetor', rotulo: 'Com projetor' },
+              ].map(f => (
                 <button
+                  key={f.id}
                   type="button"
-                  onClick={() => setModalNovo(false)}
-                  className="px-4 py-2 rounded-xl border border-[var(--border)]/90 text-[var(--text-muted)] font-semibold hover:bg-[var(--surface-2)] transition cursor-pointer"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={Boolean(colisaoAtual)}
-                  className={`px-5 py-2 rounded-xl font-semibold shadow-2xs transition flex items-center gap-1.5 cursor-pointer ${
-                    colisaoAtual
-                      ? 'bg-[var(--surface-3)] text-[var(--text-subtle)] cursor-not-allowed'
-                      : 'bg-[#0B1B2E] hover:bg-[#0B1B2E] text-white'
+                  aria-pressed={filtro === f.id}
+                  onClick={() => setFiltro(f.id as typeof filtro)}
+                  className={`h-9 rounded-full px-3.5 text-[13px] font-semibold cursor-pointer ${
+                    filtro === f.id ? 'bg-[#00385E] text-white' : 'bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--surface-3)]'
                   }`}
                 >
-                  <Sparkles size={14} className="text-[var(--verde)]" /> Confirmar Reserva
+                  {f.rotulo}
                 </button>
-              </div>
-            </form>
+              ))}
+            </div>
           </div>
-        </div>
+
+          <div className="mt-5 overflow-x-auto">
+            <div className="min-w-[620px]">
+              <div className="ml-[122px] sm:ml-[170px] grid text-[11px] font-semibold tabular-nums text-[var(--text-subtle)]" style={{ gridTemplateColumns: `repeat(${HORAS.length}, 1fr)` }}>
+                {HORAS.map(h => (
+                  <span key={h}>{hh(h)}</span>
+                ))}
+              </div>
+              <ul className="mt-2 space-y-2">
+                {salas.map(s => {
+                  const blocos = doDia.filter(r => r.salaId === s.id);
+                  return (
+                    <li key={s.id} className="flex items-stretch gap-3">
+                      <div className="w-[110px] sm:w-[158px] shrink-0 py-1.5">
+                        <div className="truncate text-sm font-semibold text-[var(--text)]">{s.nome}</div>
+                        <div className="text-xs text-[var(--text-muted)]">{s.capacidade} pessoas</div>
+                      </div>
+                      <div className="relative h-14 flex-1 overflow-hidden rounded-[14px] bg-[var(--surface-2)]">
+                        <div className="absolute inset-0 grid" style={{ gridTemplateColumns: `repeat(${HORAS.length}, 1fr)` }}>
+                          {HORAS.map(h => {
+                            const ocupado = blocos.some(r => h >= r.horaInicio && h < r.horaFim);
+                            const jaFoi = ehHoje && h + 1 <= horaAgora;
+                            return (
+                              <button
+                                key={h}
+                                type="button"
+                                disabled={ocupado || jaFoi}
+                                onClick={() => preencher(s.id, h)}
+                                aria-label={`Reservar ${s.nome} às ${hh(h)}`}
+                                className={`border-l border-[var(--border)] first:border-l-0 ${
+                                  jaFoi ? 'bg-[var(--surface-3)]/60 cursor-not-allowed' : 'hover:bg-[var(--verde-soft)] cursor-pointer'
+                                }`}
+                              />
+                            );
+                          })}
+                        </div>
+                        {blocos.map(r => {
+                          const esq = ((r.horaInicio - HORA_ABRE) / HORAS.length) * 100;
+                          const larg = ((r.horaFim - r.horaInicio) / HORAS.length) * 100;
+                          const minha = r.responsavel === currentUser.nome;
+                          return (
+                            <button
+                              key={r.id}
+                              type="button"
+                              onClick={() => setDetalhe(r)}
+                              className={`absolute inset-y-1 flex flex-col justify-center overflow-hidden rounded-[10px] px-2.5 text-left text-white cursor-pointer ${
+                                minha ? 'bg-[#0072BB]' : 'bg-[#00385E]'
+                              }`}
+                              style={{ left: `calc(${esq}% + 2px)`, width: `calc(${larg}% - 4px)` }}
+                              title={`${r.motivo} · ${hh(r.horaInicio)}–${hh(r.horaFim)}`}
+                            >
+                              <span className="truncate text-xs font-semibold">{r.motivo}</span>
+                              <span className="truncate text-[11px] tabular-nums text-white/70">
+                                {hh(r.horaInicio)}–{hh(r.horaFim)} · {r.responsavel}
+                              </span>
+                            </button>
+                          );
+                        })}
+                        {ehHoje && horaAgora >= HORA_ABRE && horaAgora <= HORA_FECHA && (
+                          <span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute inset-y-0 w-0.5 bg-[#C8372D]"
+                            style={{ left: `${((horaAgora - HORA_ABRE) / HORAS.length) * 100}%` }}
+                          />
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="mt-3 ml-[122px] sm:ml-[170px] flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--text-muted)]">
+                <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[#0072BB]" /> Suas reservas</span>
+                <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[#00385E]" /> Outras reservas</span>
+                {ehHoje && <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-0.5 bg-[#C8372D]" /> Agora</span>}
+                <span>Toque num horário livre para reservar.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Reserva */}
+        <form ref={formRef} onSubmit={reservar} className="xl:col-span-4 xl:sticky xl:top-24 rounded-[28px] bg-[#00703C] p-6 text-white">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/65">Nova reserva</div>
+          <div className="font-display mt-1 text-xl font-bold first-letter:uppercase">{dataLonga(data)}</div>
+
+          <div className="mt-4 space-y-3">
+            <div>
+              <label htmlFor="rs-sala" className="mb-1.5 block text-[13px] font-semibold">Sala</label>
+              <select id="rs-sala" value={salaId} onChange={e => setSalaId(e.target.value)} className={`${campo} cursor-pointer border-transparent bg-white text-[#0B1B2E]`}>
+                {SALAS.map(s => (
+                  <option key={s.id} value={s.id}>{s.nome} · até {s.capacidade}</option>
+                ))}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label htmlFor="rs-ini" className="mb-1.5 block text-[13px] font-semibold">Começa</label>
+                <select
+                  id="rs-ini"
+                  value={inicio}
+                  onChange={e => {
+                    const v = Number(e.target.value);
+                    setInicio(v);
+                    if (fim <= v) setFim(v + 1);
+                  }}
+                  className={`${campo} cursor-pointer border-transparent bg-white tabular-nums text-[#0B1B2E]`}
+                >
+                  {opcoesHora(HORA_ABRE, HORA_FECHA - 1).map(h => <option key={h} value={h}>{hh(h)}</option>)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="rs-fim" className="mb-1.5 block text-[13px] font-semibold">Termina</label>
+                <select id="rs-fim" value={fim} onChange={e => setFim(Number(e.target.value))} className={`${campo} cursor-pointer border-transparent bg-white tabular-nums text-[#0B1B2E]`}>
+                  {opcoesHora(inicio + 1, HORA_FECHA).map(h => <option key={h} value={h}>{hh(h)}</option>)}
+                </select>
+              </div>
+            </div>
+            <p className={`rounded-[12px] px-3 py-2 text-[13px] font-medium ${conflito || passado ? 'bg-[#FFD3CC] text-[#7A160E]' : 'bg-white/12 text-white'}`}>
+              {conflito
+                ? `Ocupada das ${hh(conflito.horaInicio)} às ${hh(conflito.horaFim)}.`
+                : passado
+                  ? 'Esse horário já passou.'
+                  : `Livre das ${hh(inicio)} às ${hh(fim)}.`}
+            </p>
+            <div>
+              <label htmlFor="rs-motivo" className="mb-1.5 block text-[13px] font-semibold">Motivo</label>
+              <input
+                id="rs-motivo"
+                ref={motivoRef}
+                value={motivo}
+                onChange={e => setMotivo(e.target.value)}
+                maxLength={300}
+                placeholder="Ex.: reunião com a equipe do CENSE"
+                className={`${campo} border-transparent bg-white text-[#0B1B2E] placeholder:text-[#6B7A8C]`}
+              />
+            </div>
+            <div>
+              <label htmlFor="rs-pessoas" className="mb-1.5 block text-[13px] font-semibold">
+                Quantas pessoas <span className="font-normal text-white/65">(opcional)</span>
+              </label>
+              <input
+                id="rs-pessoas"
+                inputMode="numeric"
+                value={participantes}
+                onChange={e => setParticipantes(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                placeholder={`até ${sala.capacidade}`}
+                aria-invalid={lotado}
+                className={`${campo} border-transparent bg-white tabular-nums text-[#0B1B2E] placeholder:text-[#6B7A8C] ${lotado ? 'ring-2 ring-[#FFD3CC]' : ''}`}
+              />
+            </div>
+            <fieldset>
+              <legend className="mb-1.5 text-[13px] font-semibold">Precisa de algo?</legend>
+              <div className="grid grid-cols-2 gap-2">
+                {RECURSOS.map(r => {
+                  const marcado = recursos.includes(r.id);
+                  return (
+                    <button
+                      key={r.id}
+                      type="button"
+                      aria-pressed={marcado}
+                      onClick={() => setRecursos(v => (marcado ? v.filter(x => x !== r.id) : [...v, r.id]))}
+                      className={`inline-flex h-10 items-center gap-2 rounded-full px-3.5 text-[13px] font-semibold transition-colors cursor-pointer ${
+                        marcado ? 'bg-[#C6E86B] text-[#0B1B2E]' : 'bg-white/12 text-white hover:bg-white/20'
+                      }`}
+                    >
+                      {marcado ? <Check size={15} strokeWidth={3} /> : r.icone}
+                      {r.rotulo}
+                    </button>
+                  );
+                })}
+              </div>
+              {(recursos.includes('suporte_ti') || recursos.includes('transmissao_hibrida')) && (
+                <p className="mt-2 text-xs text-white/70">A TI recebe um aviso com a data e o horário.</p>
+              )}
+            </fieldset>
+          </div>
+
+          {erro && (
+            <p role="alert" className="mt-4 flex items-start gap-2 rounded-[14px] bg-[#FFD3CC] p-3 text-[13px] font-medium text-[#7A160E]">
+              <AlertCircle size={16} className="mt-px shrink-0" /> {erro}
+            </p>
+          )}
+          <button
+            type="submit"
+            disabled={Boolean(conflito) || passado}
+            className="mt-5 inline-flex h-12 w-full items-center justify-center rounded-full bg-[#C6E86B] text-sm font-bold text-[#0B1B2E] hover:opacity-90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+          >
+            Reservar
+          </button>
+        </form>
+      </div>
+
+      {/* Salas */}
+      <section>
+        <h3 className="font-display mb-3 text-xl font-bold text-[var(--text)]">Os espaços</h3>
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {SALAS.map(s => {
+            const emUso = reservas.find(r => r.salaId === s.id && r.data === hoje && horaAgora >= r.horaInicio && horaAgora < r.horaFim);
+            const ocupadasHoje = reservas.filter(r => r.salaId === s.id && r.data === hoje).reduce((t, r) => t + (r.horaFim - r.horaInicio), 0);
+            return (
+              <li key={s.id} className="flex flex-col rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-semibold tabular-nums text-[var(--text-muted)]">{s.codigo}</span>
+                  <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${emUso ? 'bg-[var(--warning-soft)] text-[var(--warning)]' : 'bg-[var(--verde-soft)] text-[var(--verde)]'}`}>
+                    {emUso ? `Em uso até ${hh(emUso.horaFim)}` : 'Livre agora'}
+                  </span>
+                </div>
+                <div className="font-display mt-2 text-lg font-bold leading-tight text-[var(--text)]">{s.nome}</div>
+                <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-[var(--text-muted)]">
+                  <span className="inline-flex items-center gap-1"><MapPin size={12} /> {s.andar}</span>
+                  <span className="inline-flex items-center gap-1"><Users size={12} /> {s.capacidade} pessoas</span>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {s.video && <span className="inline-flex items-center gap-1 rounded-full bg-[var(--surface-2)] px-2.5 py-1 text-[11px] font-semibold text-[var(--text)]"><Video size={12} /> Vídeo</span>}
+                  {s.projetor && <span className="inline-flex items-center gap-1 rounded-full bg-[var(--surface-2)] px-2.5 py-1 text-[11px] font-semibold text-[var(--text)]"><Projector size={12} /> Projetor</span>}
+                  {s.equipamentos.filter(e => !/projetor|videoconfer/i.test(e)).map(e => (
+                    <span key={e} className="rounded-full bg-[var(--surface-2)] px-2.5 py-1 text-[11px] text-[var(--text-muted)]">{e}</span>
+                  ))}
+                </div>
+                <div className="mt-auto pt-4">
+                  <div className="flex justify-between text-[11px] text-[var(--text-muted)]">
+                    <span>Ocupação hoje</span>
+                    <span className="tabular-nums">{ocupadasHoje}h de {HORAS.length}h</span>
+                  </div>
+                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[var(--surface-3)]">
+                    <div className="h-full rounded-full bg-[#00A859]" style={{ width: `${(ocupadasHoje / HORAS.length) * 100}%` }} />
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      {/* Suas reservas */}
+      <section className="rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6">
+        <h3 className="font-display text-xl font-bold text-[var(--text)]">Suas próximas reservas</h3>
+        {minhas.length === 0 ? (
+          <p className="mt-2 text-sm text-[var(--text-muted)]">Você não tem reservas marcadas.</p>
+        ) : (
+          <ul className="mt-3 divide-y divide-[var(--border)]">
+            {minhas.map(r => (
+              <li key={r.id} className="flex items-center justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-semibold text-[var(--text)]">{r.motivo}</div>
+                  <div className="text-xs text-[var(--text-muted)]">
+                    <span className="first-letter:uppercase">{r.data === hoje ? 'Hoje' : dataLonga(r.data)}</span> · {hh(r.horaInicio)}–{hh(r.horaFim)} · {SALAS.find(s => s.id === r.salaId)?.nome}
+                  </div>
+                </div>
+                <button type="button" onClick={() => setDetalhe(r)} className="h-9 shrink-0 rounded-full bg-[var(--surface-2)] px-4 text-[13px] font-semibold text-[var(--text)] hover:bg-[var(--surface-3)] cursor-pointer">
+                  Ver
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {detalhe && (
+        <Janela titulo={detalhe.motivo} onFechar={() => setDetalhe(null)}>
+          <dl className="space-y-2 rounded-[18px] bg-[var(--surface-2)] p-4 text-sm">
+            <Linha rotulo="Sala" valor={SALAS.find(s => s.id === detalhe.salaId)?.nome ?? ''} />
+            <Linha rotulo="Quando" valor={`${dataLonga(detalhe.data)} · ${hh(detalhe.horaInicio)}–${hh(detalhe.horaFim)}`} />
+            <Linha rotulo="Responsável" valor={detalhe.responsavel} />
+            {detalhe.participantes && <Linha rotulo="Pessoas" valor={String(detalhe.participantes)} />}
+            <Linha rotulo="Pedidos extras" valor={detalhe.recursos.length ? detalhe.recursos.map(id => RECURSOS.find(r => r.id === id)?.rotulo).join(', ') : 'Nenhum'} />
+          </dl>
+          {(detalhe.responsavel === currentUser.nome || podeCancelarQualquer) ? (
+            <button
+              type="button"
+              onClick={() => cancelar(detalhe)}
+              className="mt-5 h-11 w-full rounded-full border border-[var(--danger-border)] text-sm font-semibold text-[var(--danger)] hover:bg-[var(--danger-soft)] cursor-pointer"
+            >
+              Cancelar reserva e liberar o horário
+            </button>
+          ) : (
+            <p className="mt-4 text-xs text-[var(--text-muted)]">Só quem reservou ou a administração pode cancelar.</p>
+          )}
+        </Janela>
       )}
 
+      {feita && (
+        <Janela titulo="Sala reservada." onFechar={() => setFeita(null)}>
+          <p className="text-sm text-[var(--text-muted)]">
+            {SALAS.find(s => s.id === feita.salaId)?.nome}, <span className="first-letter:lowercase">{dataLonga(feita.data)}</span>, das {hh(feita.horaInicio)} às {hh(feita.horaFim)}.
+          </p>
+          <button type="button" onClick={() => setFeita(null)} className="mt-5 h-11 w-full rounded-full bg-[#00703C] text-sm font-semibold text-white hover:bg-[#005C31] cursor-pointer">
+            Pronto
+          </button>
+        </Janela>
+      )}
     </div>
   );
 };
+
+const Linha: React.FC<{ rotulo: string; valor: string }> = ({ rotulo, valor }) => (
+  <div className="flex justify-between gap-3">
+    <dt className="text-[var(--text-muted)]">{rotulo}</dt>
+    <dd className="text-right font-semibold first-letter:uppercase text-[var(--text)]">{valor}</dd>
+  </div>
+);
+
+const Janela: React.FC<{ titulo: string; onFechar: () => void; children: React.ReactNode }> = ({ titulo, onFechar, children }) => (
+  <div
+    className="fixed inset-0 z-50 flex items-end justify-center bg-[#0B1B2E]/60 sm:items-center sm:p-4"
+    role="dialog"
+    aria-modal="true"
+    aria-label={titulo}
+    onClick={e => e.target === e.currentTarget && onFechar()}
+  >
+    <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-[28px] bg-[var(--surface)] p-6 sm:rounded-[28px] sm:p-7">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <h3 className="font-display text-2xl font-bold leading-tight text-[var(--text)]">{titulo}</h3>
+        <button type="button" onClick={onFechar} aria-label="Fechar" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--surface-3)] cursor-pointer">
+          <X size={16} />
+        </button>
+      </div>
+      {children}
+    </div>
+  </div>
+);
