@@ -5,6 +5,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 DB="${TEST_DB:-painel_sju_test}"
+# As regras do Painel usam o dia de São Paulo; os testes também (sem isso,
+# entre 21h e 0h de Brasília o "hoje" do teste já seria amanhã em UTC).
+export PGTZ=America/Sao_Paulo
 PSQL=(psql -X -q -v ON_ERROR_STOP=1 --set=SHOW_CONTEXT=never)
 
 "${PSQL[@]}" -d postgres -c "drop database if exists $DB with (force);" >/dev/null
