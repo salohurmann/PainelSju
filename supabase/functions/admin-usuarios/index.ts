@@ -9,6 +9,9 @@
 // POST { acao: "reenviar_convite", email }
 // POST { acao: "redefinir_senha", email }
 //   → envia link de redefinição de senha.
+// POST { acao: "senha_provisoria", email }
+//   → gera uma senha provisória (logins de setor não recebem e-mail) e obriga
+//     a troca no próximo acesso. A senha volta só para o admin que pediu.
 // Desativar / trocar papel / trocar setor: direto na tabela perfis (RLS).
 // =====================================================================
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -21,6 +24,19 @@ const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://salohurmann.github.io/PainelSju/";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// 12 caracteres sem ambíguos (0/O, 1/l/I); sempre com maiúscula, minúscula e número.
+function gerarSenhaProvisoria(): string {
+  const mai = "ABCDEFGHJKLMNPQRSTUVWXYZ", min = "abcdefghijkmnpqrstuvwxyz", num = "23456789";
+  const todos = mai + min + num;
+  const r = new Uint32Array(12);
+  crypto.getRandomValues(r);
+  const c = Array.from(r, (v, i) => (i === 0 ? mai : i === 1 ? min : i === 2 ? num : todos)[v % (i === 0 ? mai.length : i === 1 ? min.length : i === 2 ? num.length : todos.length)]);
+  const m = new Uint32Array(12);
+  crypto.getRandomValues(m);
+  for (let i = c.length - 1; i > 0; i--) { const j = m[i] % (i + 1); [c[i], c[j]] = [c[j], c[i]]; }
+  return c.join("");
+}
 
 type Entrada = {
   acao?: string;
@@ -109,6 +125,17 @@ Deno.serve(async (req) => {
       const { error } = await admin.auth.resetPasswordForEmail(email, { redirectTo });
       if (error) return json({ erro: "Não foi possível enviar o link de redefinição." }, 500, origem);
       return json({ ok: true }, 200, origem);
+    }
+
+    case "senha_provisoria": {
+      const { data: perfil } = await admin.from("perfis").select("id").eq("email", email).maybeSingle();
+      if (!perfil) return json({ erro: "Conta não encontrada." }, 404, origem);
+      const senha = gerarSenhaProvisoria();
+      const { error } = await admin.auth.admin.updateUserById(perfil.id, { password: senha });
+      if (error) return json({ erro: "Não foi possível gerar a senha provisória." }, 500, origem);
+      // Depois da troca (o gatilho libera a conta), volta a exigir senha nova.
+      await admin.from("perfis").update({ trocar_senha: true }).eq("id", perfil.id);
+      return json({ ok: true, senha }, 200, origem);
     }
 
     default:

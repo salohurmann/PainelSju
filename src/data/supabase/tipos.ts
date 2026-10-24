@@ -47,6 +47,8 @@ export interface ContextoSessao {
   perfil: {
     id: string; nome: string; email: string; cargo: string; telefone: string | null;
     papel_id: PapelId; ativo: boolean;
+    /** Precisa criar senha nova antes de usar o Painel. */
+    trocar_senha?: boolean;
     setor: { id: string; sigla: string; nome: string } | null;
   };
   permissoes: Permissao[];

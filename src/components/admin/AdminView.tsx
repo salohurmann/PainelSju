@@ -35,6 +35,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ onVoltar, usuarioId, aba: 
   const [erro, setErro] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [convidando, setConvidando] = useState(false);
+  const [senhaGerada, setSenhaGerada] = useState<{ nome: string; login: string; senha: string } | null>(null);
 
   const carregar = useCallback(async () => {
     try {
@@ -134,7 +135,24 @@ export const AdminView: React.FC<AdminViewProps> = ({ onVoltar, usuarioId, aba: 
       {!dados ? (
         <div className="h-64 animate-pulse rounded-[28px] bg-[var(--surface-2)]" />
       ) : aba === 'pessoas' ? (
-        <Pessoas dados={dados} usuarioId={usuarioId} onMudar={(id, m, ok) => salvar(() => api.atualizarPessoa(id, m), ok)} />
+        <Pessoas
+          dados={dados}
+          usuarioId={usuarioId}
+          onMudar={(id, m, ok) => salvar(() => api.atualizarPessoa(id, m), ok)}
+          onSenhaProvisoria={
+            real
+              ? async p => {
+                  setErro(null);
+                  try {
+                    const senha = await api.senhaProvisoria(p.email);
+                    setSenhaGerada({ nome: p.nome, login: p.email.endsWith('@painel.seju') ? p.email.split('@')[0].toUpperCase() : p.email, senha });
+                  } catch (e) {
+                    setErro(e instanceof Error ? e.message : 'Não foi possível gerar a senha provisória.');
+                  }
+                }
+              : undefined
+          }
+        />
       ) : aba === 'modulos' ? (
         <Modulos
           dados={dados}
@@ -145,6 +163,30 @@ export const AdminView: React.FC<AdminViewProps> = ({ onVoltar, usuarioId, aba: 
         <Papeis dados={dados} onDefinir={(p, perm, sim) => salvar(() => api.definirPermissao(p, perm, sim), 'Permissão atualizada.')} />
       ) : (
         <Setores dados={dados} onSalvar={s => salvar(() => api.salvarSetor(s), 'Setor salvo.')} />
+      )}
+
+      {senhaGerada && (
+        <Janela titulo="Senha provisória" onFechar={() => setSenhaGerada(null)}>
+          <p className="text-sm text-[var(--text-muted)]">Repasse para {senhaGerada.nome}. Ao entrar, o Painel pede uma senha nova.</p>
+          <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 rounded-[18px] bg-[var(--surface-2)] p-4 text-sm">
+            <dt className="text-[var(--text-muted)]">Login</dt>
+            <dd className="font-semibold text-[var(--text)]">{senhaGerada.login}</dd>
+            <dt className="text-[var(--text-muted)]">Senha</dt>
+            <dd className="font-mono text-lg font-bold tracking-wider text-[var(--text)] select-all">{senhaGerada.senha}</dd>
+          </dl>
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => void navigator.clipboard?.writeText(senhaGerada.senha)}
+              className="h-10 rounded-full border border-[var(--border)] px-4 text-[13px] font-semibold text-[var(--text)] hover:bg-[var(--surface-2)] cursor-pointer"
+            >
+              Copiar senha
+            </button>
+            <button type="button" onClick={() => setSenhaGerada(null)} className="h-10 rounded-full bg-[#00385E] px-5 text-[13px] font-semibold text-white cursor-pointer">
+              Pronto
+            </button>
+          </div>
+        </Janela>
       )}
 
       {convidando && (
@@ -168,7 +210,9 @@ const Pessoas: React.FC<{
   dados: DadosAdmin;
   usuarioId: string;
   onMudar: (id: string, m: Partial<Pick<PessoaAdm, 'setorSigla' | 'papel' | 'ativo'>>, ok: string) => void;
-}> = ({ dados, usuarioId, onMudar }) => {
+  /** Só com o banco ligado. */
+  onSenhaProvisoria?: (p: PessoaAdm) => void;
+}> = ({ dados, usuarioId, onMudar, onSenhaProvisoria }) => {
   const [busca, setBusca] = useState('');
   const [setor, setSetor] = useState('todos');
   const t = busca.trim().toLowerCase();
@@ -249,6 +293,15 @@ const Pessoas: React.FC<{
                 >
                   {p.ativo ? 'Bloquear' : 'Liberar'}
                 </button>
+                {onSenhaProvisoria && !eu && (
+                  <button
+                    type="button"
+                    onClick={() => onSenhaProvisoria(p)}
+                    className="inline-flex h-10 items-center gap-1.5 rounded-full border border-[var(--border)] px-4 text-[13px] font-semibold text-[var(--text)] hover:bg-[var(--surface-2)] cursor-pointer"
+                  >
+                    <KeyRound size={14} aria-hidden="true" /> Senha provisória
+                  </button>
+                )}
               </div>
             </li>
           );

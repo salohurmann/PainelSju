@@ -14,7 +14,7 @@ export async function atualizarPessoa(
   return exigir(await supabase().from('perfis').update(mudancas).eq('id', id).select().single());
 }
 
-async function chamarFuncaoAdmin(corpo: Record<string, unknown>): Promise<void> {
+async function chamarFuncaoAdmin(corpo: Record<string, unknown>): Promise<Record<string, unknown> | null> {
   const { data, error } = await supabase().functions.invoke('admin-usuarios', { body: corpo });
   if (error) {
     let mensagem = 'Não foi possível concluir a operação.';
@@ -26,15 +26,24 @@ async function chamarFuncaoAdmin(corpo: Record<string, unknown>): Promise<void> 
     throw new ErroPainel(mensagem, 'FUNCAO_ADMIN', 'negocio');
   }
   if (data?.erro) throw new ErroPainel(data.erro, 'FUNCAO_ADMIN', 'negocio');
+  return (data ?? null) as Record<string, unknown> | null;
 }
 
 /** Cria a conta e envia convite por e-mail para a pessoa definir a senha. */
 export const convidarPessoa = (dados: {
   email: string; nome: string; setor_sigla?: string; papel_id?: PapelId; cargo?: string; telefone?: string;
-}) => chamarFuncaoAdmin({ acao: 'criar', ...dados });
+}) => chamarFuncaoAdmin({ acao: 'criar', ...dados }).then(() => undefined);
 
-export const reenviarConvite = (email: string) => chamarFuncaoAdmin({ acao: 'reenviar_convite', email });
-export const enviarRedefinicaoSenha = (email: string) => chamarFuncaoAdmin({ acao: 'redefinir_senha', email });
+export const reenviarConvite = async (email: string) => { await chamarFuncaoAdmin({ acao: 'reenviar_convite', email }); };
+export const enviarRedefinicaoSenha = async (email: string) => { await chamarFuncaoAdmin({ acao: 'redefinir_senha', email }); };
+
+/** Gera uma senha provisória (troca obrigatória no próximo acesso). Devolve a senha para o admin repassar. */
+export async function gerarSenhaProvisoria(email: string): Promise<string> {
+  const r = await chamarFuncaoAdmin({ acao: 'senha_provisoria', email });
+  const senha = typeof r?.senha === 'string' ? r.senha : '';
+  if (!senha) throw new ErroPainel('Não foi possível gerar a senha provisória.', 'FUNCAO_ADMIN', 'negocio');
+  return senha;
+}
 
 // --------------------------------------------- Papéis e permissões
 export async function listarPapeis(): Promise<Papel[]> {
@@ -62,7 +71,7 @@ export async function salvarPapel(p: Pick<Papel, 'id' | 'nome' | 'descricao'>): 
 
 // --------------------------------------------------------- Setores
 export async function listarSetores(): Promise<Setor[]> {
-  return exigir(await supabase().from('setores').select('*').order('ordem').order('sigla'));
+  return exigir(await supabase().from('setores').select('*').eq('ativo', true).order('ordem').order('sigla'));
 }
 
 export async function salvarSetor(s: Partial<Setor> & Pick<Setor, 'sigla' | 'nome'>): Promise<Setor> {

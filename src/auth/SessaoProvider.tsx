@@ -17,6 +17,9 @@ export const SessaoProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setEstado({ fase: 'anonimo' });
       } else if (!contexto.perfil.ativo) {
         setEstado({ fase: 'inativo' });
+      } else if (contexto.perfil.trocar_senha) {
+        // Senha inicial ou provisória: só entra depois de criar a própria.
+        setEstado({ fase: 'definir_senha', motivo: 'primeiro_acesso' });
       } else {
         setEstado({ fase: 'autenticado', contexto });
       }

@@ -83,6 +83,26 @@ select teste.ok((select papel_id from public.perfis where id = 'b2222222-0000-00
 
 -- Setores reais do organograma
 :como_sistema
-select teste.ok((select count(*) from public.setores) = 25, 'os 25 setores do organograma existem');
-select teste.ok(not exists (select 1 from public.setores where sigla in ('GAB','DAG','TRANSP','CDH','DEASE','JUR','OUV','RH')), 'setores fictícios foram removidos');
+select teste.ok((select count(*) from public.setores where ativo) = 25, 'os 25 setores do organograma estão ativos');
+select teste.ok(not exists (select 1 from public.setores where ativo and sigla in ('GAB','DAG','TRANSP','CDH','DEASE','JUR','OUV','RH')), 'nenhum setor fictício ativo');
 select teste.ok(not exists (select 1 from public.setores where grupo = ''), 'todo setor tem bloco do organograma');
+
+-- Login de setor com senha inicial: precisa trocar antes de usar
+:como_sistema
+insert into auth.users (id, email, raw_user_meta_data, raw_app_meta_data, encrypted_password, invited_at) values
+  ('b2222222-0000-0000-0000-000000000003', 'nas@setor.teste', '{"nome":"NAS"}', '{"papel_id":"servidor","setor_sigla":"NAS","trocar_senha":true}', 'hash-inicial', null);
+select set_config('request.jwt.claims', '{"sub":"b2222222-0000-0000-0000-000000000003","role":"authenticated"}', false);
+set role authenticated;
+select teste.ok((public.contexto_sessao()->'perfil'->>'trocar_senha')::boolean, 'conta nova de setor exige troca de senha');
+select teste.ok(jsonb_array_length(public.contexto_sessao()->'modulos') = 0, 'antes de trocar a senha não vê nenhuma aba');
+select teste.ok(jsonb_array_length(public.contexto_sessao()->'permissoes') = 0, 'antes de trocar a senha não tem permissão');
+select teste.ok((select count(*) from public.setores) = 0, 'antes de trocar a senha não lê dados');
+select teste.falha($$update public.perfis set trocar_senha = false where id = 'b2222222-0000-0000-0000-000000000003'$$, 'Somente a administração', 'não consegue desligar a exigência sozinho');
+:como_sistema
+update auth.users set encrypted_password = 'hash-novo' where id = 'b2222222-0000-0000-0000-000000000003';
+select set_config('request.jwt.claims', '{"sub":"b2222222-0000-0000-0000-000000000003","role":"authenticated"}', false);
+set role authenticated;
+select teste.ok(not (public.contexto_sessao()->'perfil'->>'trocar_senha')::boolean, 'depois de trocar a senha a conta é liberada');
+select teste.ok(public.contexto_sessao()->'modulos' @> '[{"id":"frota"}]', 'depois de trocar a senha vê as abas do papel');
+:como_sistema
+select teste.ok((select count(*) from public.papel_permissoes where papel_id = 'fazendario' and permissao_id = 'cense:fiscalizar') = 1, 'papel fazendário analisa notas do CENSE');

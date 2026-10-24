@@ -32,7 +32,7 @@ describe('traduzirErro', () => {
   });
 
   it('reconhece credenciais inválidas e falha de rede', () => {
-    expect(traduzirErro({ message: 'Invalid login credentials' }).message).toBe('E-mail ou senha incorretos.');
+    expect(traduzirErro({ message: 'Invalid login credentials' }).message).toBe('Setor (ou e-mail) ou senha incorretos.');
     expect(traduzirErro({ name: 'TypeError', message: 'Failed to fetch' }).tipo).toBe('rede');
   });
 

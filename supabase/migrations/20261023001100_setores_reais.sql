@@ -2,8 +2,7 @@
 -- Painel SJU · Setores reais da SEJU (organograma / Decreto nº 8.807/2025)
 -- =====================================================================
 -- * Cada setor ganha o bloco do organograma (grupo) e a ordem de exibição.
--- * Os setores fictícios usados na apresentação saem; pessoas que estivessem
---   neles ficam sem setor (o admin escolhe o setor certo no painel).
+-- * Os setores fictícios usados na apresentação ficam inativos e somem das listas.
 -- * CENSE continua só para o NFS e a Votação só para a UTSC.
 -- =====================================================================
 
@@ -38,7 +37,8 @@ insert into public.setores (sigla, nome, grupo, ordem) values
   ('NAS', 'Núcleo Administrativo Setorial', 'Atuação sistêmica', 250)
 on conflict (sigla) do update set nome = excluded.nome, grupo = excluded.grupo, ordem = excluded.ordem;
 
-delete from public.setores where sigla in ('GAB', 'DAG', 'TRANSP', 'CDH', 'DEASE', 'JUR', 'OUV', 'RH');
+-- Os fictícios ficam inativos (não aparecem em nenhuma lista); nada é apagado.
+update public.setores set ativo = false where sigla in ('GAB', 'DAG', 'TRANSP', 'CDH', 'DEASE', 'JUR', 'OUV', 'RH');
 
 insert into public.modulo_setores (modulo_id, setor_id)
 select m.modulo, s.id from (values ('cense', 'NFS'), ('votacao', 'UTSC')) as m(modulo, sigla)

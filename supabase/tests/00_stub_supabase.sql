@@ -20,6 +20,7 @@ create table if not exists auth.users (
   email text unique,
   raw_user_meta_data jsonb default '{}'::jsonb,
   raw_app_meta_data jsonb default '{}'::jsonb,
+  encrypted_password text,
   -- Nos testes as contas nascem como "convidadas pelo admin"; o cadastro
   -- público é simulado com invited_at = null (ver 20_acesso.sql).
   invited_at timestamptz default now(),

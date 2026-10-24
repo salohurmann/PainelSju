@@ -119,3 +119,14 @@ describe('Matriz RBAC · Controle de Acesso SEJU/PR', () => {
     });
   });
 });
+
+import { paraEmailDeLogin } from '../data/supabase/sessao';
+describe('login por sigla do setor', () => {
+  it('sigla vira o login interno do setor', () => {
+    expect(paraEmailDeLogin(' UTEC ')).toBe('utec@painel.seju');
+    expect(paraEmailDeLogin('procon')).toBe('procon@painel.seju');
+  });
+  it('e-mail completo passa direto', () => {
+    expect(paraEmailDeLogin('Fulano@Seju.PR.gov.br')).toBe('fulano@seju.pr.gov.br');
+  });
+});

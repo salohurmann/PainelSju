@@ -54,6 +54,7 @@ insert into public.papeis (id, nome, descricao, sistema) values
   ('chefe_gabinete',  'Chefia de Gabinete',     'Aprova viagens, diárias e fiscaliza o fundo rotativo', false),
   ('gestor_votacao',  'Gestão da Votação',      'Organiza eleições e entidades (setor UTSC)', false),
   ('entidade_votante','Entidade votante',       'Login de entidade: só vota nas eleições', false),
+  ('fazendario',      'Núcleo Fazendário',      'Analisa notas do CENSE e movimenta as etapas financeiras das diárias', false),
   ('admin',           'Administração',          'Acesso total ao sistema', true)
 on conflict (id) do update set nome = excluded.nome, descricao = excluded.descricao;
 
@@ -103,7 +104,13 @@ select papel, perm from (values
   ('gestor_votacao','ramais:ver'),
   ('gestor_votacao','votacao:ver'),('gestor_votacao','votacao:gerenciar'),
   -- entidade: só vota
-  ('entidade_votante','votacao:votar')
+  ('entidade_votante','votacao:votar'),
+  -- núcleo fazendário (NFS)
+  ('fazendario','frotas:ver'),('fazendario','frotas:solicitar'),
+  ('fazendario','chamados:ver'),('fazendario','chamados:abrir'),
+  ('fazendario','salas:ver'),('fazendario','salas:reservar'),
+  ('fazendario','diarias:ver'),('fazendario','diarias:solicitar'),('fazendario','diarias:gerenciar'),
+  ('fazendario','cense:ver'),('fazendario','cense:fiscalizar'),('fazendario','ramais:ver')
 ) as m(papel, perm)
 on conflict do nothing;
 

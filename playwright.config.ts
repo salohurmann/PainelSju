@@ -23,7 +23,8 @@ export default defineConfig({
     { name: 'celular', use: { ...devices['Pixel 7'] }, grep: /@celular/ },
   ],
   webServer: {
-    command: 'npm run build && npx vite preview --port 4173 --strictPort',
+    // --mode demo: build sem banco (dados fictícios), igual ao modo demonstração.
+    command: 'npm run build -- --mode demo && npx vite preview --port 4173 --strictPort',
     url: 'http://localhost:4173/',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

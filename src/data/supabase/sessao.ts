@@ -2,9 +2,18 @@ import { supabase } from '../../lib/supabase';
 import { exigir, traduzirErro } from './erros';
 import type { ContextoSessao } from './tipos';
 
-/** Entrar com e-mail e senha. */
+/** Domínio interno dos logins de setor (não recebe e-mail; quem esquece a senha pede uma provisória à UTEC). */
+export const DOMINIO_LOGIN_SETOR = 'painel.seju';
+
+/** "UTEC" → "utec@painel.seju"; e-mail completo passa direto. */
+export function paraEmailDeLogin(entrada: string): string {
+  const v = entrada.trim().toLowerCase();
+  return v.includes('@') ? v : `${v}@${DOMINIO_LOGIN_SETOR}`;
+}
+
+/** Entrar com a sigla do setor (ou e-mail) e senha. */
 export async function entrar(email: string, senha: string): Promise<void> {
-  const { error } = await supabase().auth.signInWithPassword({ email: email.trim().toLowerCase(), password: senha });
+  const { error } = await supabase().auth.signInWithPassword({ email: paraEmailDeLogin(email), password: senha });
   if (error) throw traduzirErro(error);
 }
 

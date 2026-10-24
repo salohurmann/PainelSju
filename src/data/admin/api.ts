@@ -59,6 +59,8 @@ export interface ApiAdmin {
   carregar(): Promise<DadosAdmin>;
   atualizarPessoa(id: string, m: Partial<Pick<PessoaAdm, 'setorSigla' | 'papel' | 'ativo'>>): Promise<void>;
   convidar(p: { email: string; nome: string; setorSigla: string; papel: string; cargo?: string }): Promise<void>;
+  /** Senha provisória para quem esqueceu (troca obrigatória no próximo acesso). */
+  senhaProvisoria(email: string): Promise<string>;
   definirSetoresDoModulo(moduloId: string, siglas: string[]): Promise<void>;
   ativarModulo(moduloId: string, ativo: boolean): Promise<void>;
   definirPermissao(papel: string, permissao: string, concedida: boolean): Promise<void>;
@@ -100,6 +102,9 @@ export const apiAdminDemo: ApiAdmin = {
   },
   async convidar() {
     throw new Error('No modo demonstração não dá para criar contas. Com o banco ligado, o convite chega por e-mail.');
+  },
+  async senhaProvisoria() {
+    throw new Error('No modo demonstração não há senhas.');
   },
   async definirSetoresDoModulo(moduloId, siglas) {
     mudarAcesso(c => ({ ...c, moduloSetores: { ...c.moduloSetores, [moduloId]: siglas } }));
@@ -162,6 +167,9 @@ export const apiAdminSupabase: ApiAdmin = {
       mud.setor_id = setores.find(s => s.sigla === m.setorSigla)?.id ?? null;
     }
     await adminDb.atualizarPessoa(id, mud);
+  },
+  async senhaProvisoria(email) {
+    return adminDb.gerarSenhaProvisoria(email);
   },
   async convidar(p) {
     await adminDb.convidarPessoa({ email: p.email, nome: p.nome, setor_sigla: p.setorSigla, papel_id: p.papel, cargo: p.cargo });

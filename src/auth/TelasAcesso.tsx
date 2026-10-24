@@ -72,9 +72,14 @@ export const TelaLogin: React.FC = () => {
     }
   };
 
+  const loginDeSetor = !!email.trim() && !email.includes('@');
   const aoRecuperar = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro(null);
+    if (loginDeSetor) {
+      setAviso('Logins de setor não recebem e-mail. Peça uma senha provisória à UTEC: ela é trocada por uma nova assim que você entra.');
+      return;
+    }
     setEnviando(true);
     try {
       await sessaoApi.solicitarRedefinicaoSenha(email, window.location.origin + window.location.pathname);
@@ -88,13 +93,13 @@ export const TelaLogin: React.FC = () => {
 
   if (modo === 'recuperar') {
     return (
-      <Moldura titulo="Recuperar acesso" subtitulo="Informe seu e-mail institucional para receber o link de redefinição.">
+      <Moldura titulo="Recuperar acesso" subtitulo="Informe o seu login. Contas com e-mail recebem um link; logins de setor pedem uma senha provisória à UTEC.">
         <form onSubmit={aoRecuperar} className="space-y-4" noValidate>
-          <Input label="E-mail institucional" type="email" autoComplete="email" required value={email}
-            onChange={(e) => setEmail(e.target.value)} leftIcon={<Mail size={14} />} />
+          <Input label="Setor ou e-mail" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} required value={email}
+            onChange={(e) => setEmail(e.target.value)} leftIcon={<Mail size={14} />} placeholder="Ex.: UTEC" />
           {aviso && <Alerta tipo="sucesso">{aviso}</Alerta>}
           <Button type="submit" variant="primary" size="lg" className="w-full !h-[52px] !rounded-full !text-[15px]" loading={enviando} disabled={!email}>
-            Enviar link
+            {loginDeSetor ? 'Como recuperar' : 'Enviar link'}
           </Button>
           <Button type="button" variant="ghost" size="md" className="w-full" icon={<ArrowLeft size={14} />}
             onClick={() => { setModo('entrar'); setAviso(null); }}>
@@ -106,10 +111,10 @@ export const TelaLogin: React.FC = () => {
   }
 
   return (
-    <Moldura titulo="Entrar" subtitulo="Use o e-mail e a senha da sua conta no painel.">
+    <Moldura titulo="Entrar" subtitulo="Use a sigla do seu setor (ex.: UTEC) ou o seu e-mail, e a senha.">
       <form onSubmit={aoEntrar} className="space-y-4" noValidate>
-        <Input label="E-mail institucional" type="email" autoComplete="username" required value={email}
-          onChange={(e) => setEmail(e.target.value)} leftIcon={<Mail size={14} />} />
+        <Input label="Setor ou e-mail" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} required value={email}
+          onChange={(e) => setEmail(e.target.value)} leftIcon={<Mail size={14} />} placeholder="Ex.: UTEC" />
         <Input label="Senha" type="password" autoComplete="current-password" required value={senha}
           onChange={(e) => setSenha(e.target.value)} leftIcon={<Lock size={14} />} />
         {erro && <Alerta tipo="erro">{erro}</Alerta>}
@@ -122,14 +127,23 @@ export const TelaLogin: React.FC = () => {
         </button>
       </form>
       <p className="mt-8 text-[11px] text-[var(--text-muted)] leading-relaxed">
-        Não tem conta? Solicite à administração do painel. Contas são criadas apenas por convite.
+        Não tem acesso? Fale com a UTEC. Contas são criadas apenas pela administração.
       </p>
     </Moldura>
   );
 };
 
-export const TelaDefinirSenha: React.FC<{ motivo: 'invite' | 'recovery' }> = ({ motivo }) => {
-  const { senhaDefinida } = useSessao();
+const TEXTOS_SENHA = {
+  invite: { titulo: 'Boas-vindas ao painel', subtitulo: 'Para concluir seu cadastro, crie uma senha de acesso.' },
+  recovery: { titulo: 'Criar nova senha', subtitulo: 'Escolha uma nova senha para a sua conta.' },
+  primeiro_acesso: {
+    titulo: 'Crie a senha do seu setor',
+    subtitulo: 'A senha que você usou é provisória. Antes de continuar, crie uma senha nova e combine com quem do setor também usa este login.',
+  },
+} as const;
+
+export const TelaDefinirSenha: React.FC<{ motivo: 'invite' | 'recovery' | 'primeiro_acesso' }> = ({ motivo }) => {
+  const { senhaDefinida, sair } = useSessao();
   const [senha, setSenha] = useState('');
   const [confirmacao, setConfirmacao] = useState('');
   const [erro, setErro] = useState<string | null>(null);
@@ -151,10 +165,7 @@ export const TelaDefinirSenha: React.FC<{ motivo: 'invite' | 'recovery' }> = ({ 
   };
 
   return (
-    <Moldura
-      titulo={motivo === 'invite' ? 'Boas-vindas ao painel' : 'Criar nova senha'}
-      subtitulo={motivo === 'invite' ? 'Para concluir seu cadastro, crie uma senha de acesso.' : 'Escolha uma nova senha para a sua conta.'}
-    >
+    <Moldura titulo={TEXTOS_SENHA[motivo].titulo} subtitulo={TEXTOS_SENHA[motivo].subtitulo}>
       <form onSubmit={aoSalvar} className="space-y-4" noValidate>
         <Input label="Nova senha" type="password" autoComplete="new-password" required value={senha}
           onChange={(e) => setSenha(e.target.value)} hint="Mínimo de 10 caracteres, com maiúsculas, minúsculas e números." />
@@ -164,6 +175,11 @@ export const TelaDefinirSenha: React.FC<{ motivo: 'invite' | 'recovery' }> = ({ 
         <Button type="submit" variant="primary" size="lg" className="w-full !h-[52px] !rounded-full !text-[15px]" loading={enviando} disabled={!senha || !confirmacao}>
           Salvar senha e entrar
         </Button>
+        {motivo === 'primeiro_acesso' && (
+          <Button type="button" variant="ghost" size="md" className="w-full" onClick={() => void sair()}>
+            Sair sem trocar
+          </Button>
+        )}
       </form>
     </Moldura>
   );

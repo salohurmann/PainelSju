@@ -48,6 +48,13 @@ export function traduzirErro(erro: unknown): ErroPainel {
     }
   }
 
+  if (codigo === 'same_password' || /should be different from the old password/i.test(msg)) {
+    return new ErroPainel('A nova senha precisa ser diferente da senha atual.', codigo, 'negocio');
+  }
+  if (codigo === 'weak_password' || /password should be|weak password/i.test(msg)) {
+    return new ErroPainel('Senha fraca. Use pelo menos 10 caracteres, com maiúsculas, minúsculas e números.', codigo, 'negocio');
+  }
+
   switch (codigo) {
     case 'P0001':
       return new ErroPainel(msg, codigo, 'negocio');
@@ -71,11 +78,11 @@ export function traduzirErro(erro: unknown): ErroPainel {
     case 'HTTP_401':
       return new ErroPainel('Sua sessão expirou. Entre novamente.', codigo, 'sessao');
     case 'invalid_credentials':
-      return new ErroPainel('E-mail ou senha incorretos.', codigo, 'sessao');
+      return new ErroPainel('Setor (ou e-mail) ou senha incorretos.', codigo, 'sessao');
   }
 
   if (/invalid login credentials/i.test(msg)) {
-    return new ErroPainel('E-mail ou senha incorretos.', 'invalid_credentials', 'sessao');
+    return new ErroPainel('Setor (ou e-mail) ou senha incorretos.', 'invalid_credentials', 'sessao');
   }
   if (/failed to fetch|network|fetch failed/i.test(msg) || e.name === 'TypeError') {
     return new ErroPainel('Sem conexão com o servidor. Verifique a rede e tente novamente.', codigo, 'rede');

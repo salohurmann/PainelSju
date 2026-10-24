@@ -6,7 +6,7 @@ export type EstadoSessao =
   | { fase: 'demo' }                                   // sem Supabase: dados locais de demonstração
   | { fase: 'carregando' }
   | { fase: 'anonimo' }                                // precisa entrar
-  | { fase: 'definir_senha'; motivo: 'invite' | 'recovery' }
+  | { fase: 'definir_senha'; motivo: 'invite' | 'recovery' | 'primeiro_acesso' }
   | { fase: 'inativo' }                                // conta desativada pela administração
   | { fase: 'autenticado'; contexto: ContextoSessao }
   | { fase: 'erro'; mensagem: string };
