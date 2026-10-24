@@ -10,17 +10,29 @@ PSQL=(psql -X -q -v ON_ERROR_STOP=1 --set=SHOW_CONTEXT=never)
 "${PSQL[@]}" -d postgres -c "drop database if exists $DB with (force);" >/dev/null
 "${PSQL[@]}" -d postgres -c "create database $DB;" >/dev/null
 
-"${PSQL[@]}" -d "$DB" -f tests/00_stub_supabase.sql >/dev/null
+# No GitHub Actions, cada erro vira uma anotação visível no resumo do job.
+aplicar() {
+  local arq="$1" err
+  if ! err=$("${PSQL[@]}" -d "$DB" -f "$arq" 2>&1 >/dev/null); then
+    [ -n "${GITHUB_ACTIONS:-}" ] && echo "::error file=supabase/$arq::$(echo "$err" | grep -m3 -E 'ERROR|FALHOU' | tr '\n' ' ')"
+    echo "$err" >&2
+    return 1
+  fi
+  [ -n "$err" ] && echo "$err" >&2
+  return 0
+}
+
+aplicar tests/00_stub_supabase.sql
 for f in migrations/*.sql; do
   echo "→ migration $(basename "$f")"
-  "${PSQL[@]}" -d "$DB" -f "$f" >/dev/null
+  aplicar "$f"
 done
 echo "→ seed.sql"
-"${PSQL[@]}" -d "$DB" -f seed.sql >/dev/null
+aplicar seed.sql
 
 status=0
 for t in tests/[1-9]*.sql; do
   echo "→ teste $(basename "$t")"
-  if ! "${PSQL[@]}" -d "$DB" -f "$t" >/dev/null; then status=1; fi
+  if ! aplicar "$t"; then status=1; fi
 done
 exit $status
